@@ -1,0 +1,120 @@
+﻿<controls:MetroWindow x:Class="ClangSetupvNextSet.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+        xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:behaviours="clr-namespace:MahApps.Metro.Behaviours;assembly=MahApps.Metro"
+        Title="ClangSetup Environment vNext" 
+        Height="450"
+        Width="540" 
+        Icon="App.ico" 
+        BorderThickness="1"
+        BorderBrush="{DynamicResource ThumbBrush}"
+        ShowIconOnTitleBar="True"
+        NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush}"
+        WindowTitleBrush="MediumSeaGreen"
+        ResizeMode="CanMinimize">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatSlider.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Clean/Clean.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+    </Window.Resources>
+    <controls:MetroWindow.RightWindowCommands>
+        <controls:WindowCommands>
+            <Button Content="About" Click="ClangSetupSettingsFeature" />
+        </controls:WindowCommands>
+    </controls:MetroWindow.RightWindowCommands>
+    <Grid>
+        <Label Content="Visual Studio Version:"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,20,0,0" VerticalAlignment="Top"/>
+        <ComboBox Controls:TextboxHelper.ClearTextButton="True"
+                  SelectedIndex="0" 
+                  MaxDropDownHeight="125"
+                  HorizontalAlignment="Left"  
+                  Height="23" 
+                  Margin="160,20,0,0"  
+                  VerticalAlignment="Top" 
+                  Width="320" Name="vstoolscb">
+            <ComboBoxItem Content="Visual Studio 2012" Name="VS110"/>
+            <ComboBoxItem Content="Visual Studio 2013" Name="VS120"/>
+            <ComboBoxItem Content="Visual Studio 14" Name="VS140"/>
+            <ComboBoxItem Content="Visual Studio 15" Name="VS150" IsEnabled="False"/>
+        </ComboBox>
+        <Label Content="Default Build Platform:"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,60,0,0" VerticalAlignment="Top"/>
+        <ComboBox Controls:TextboxHelper.ClearTextButton="True"
+                  SelectedIndex="0"
+                  MaxDropDownHeight="125"
+                  HorizontalAlignment="Left"  
+                  Height="23" 
+                  Margin="160,60,0,0"  
+                  VerticalAlignment="Top" 
+                  Width="320" Name="platformCb">
+            <ComboBoxItem Content="X86"></ComboBoxItem>
+            <ComboBoxItem Content="X64"></ComboBoxItem>
+            <ComboBoxItem Content="ARM"></ComboBoxItem>
+            <ComboBoxItem Content="AArch64" IsEnabled="False"></ComboBoxItem>
+        </ComboBox>
+        <Label Content="Build Configuration:"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,100,0,0" VerticalAlignment="Top"/>
+        <ComboBox Controls:TextboxHelper.ClearTextButton="True"
+                  SelectedIndex="0"
+                  MaxDropDownHeight="125"
+                  HorizontalAlignment="Left"  
+                  Height="23" 
+                  Margin="160,100,0,0"  
+                  VerticalAlignment="Top" 
+                  Width="320" Name="buildtypecb">
+            <ComboBoxItem Content="Release"></ComboBoxItem>
+            <ComboBoxItem Content="MinSizeRel"></ComboBoxItem>
+            <ComboBoxItem Content="RelWithDebInfo"></ComboBoxItem>
+            <ComboBoxItem Content="Debug"></ComboBoxItem>
+        </ComboBox>
+        <Label Content="Compilation&amp;Install :"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,145,0,0" Height="25" VerticalAlignment="Top"/>
+        <CheckBox Margin="160,145,0,0" 
+                  Height="25" 
+                  Width="150" 
+                  Content="Make Install Packages" 
+                  VerticalAlignment="Top"
+                   HorizontalAlignment="Left" Name="mkinpackbox"/>
+        <CheckBox Margin="320,145,0,0" 
+                  Height="25" 
+                  Width="160" 
+                  Content="Use Clean Environment" 
+                  VerticalAlignment="Top"
+                   HorizontalAlignment="Left" Name="usecleanenvbox"/>
+        <CheckBox Margin="160,175,0,0" 
+                  Height="25" 
+                  Width="300" 
+                  IsChecked="True"
+                  Content="Use MT(d) Library [C/C++ RunTime Library]" 
+                  VerticalAlignment="Top"
+                   HorizontalAlignment="Left" Name="useMTcrtbox"/>
+        <Line Canvas.Left="0" X1="160" X2="480" Y1="207" Y2="207" Stroke="DarkCyan" StrokeThickness="0.7"/>
+        <Label Content="Scheduled Manager:"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,210,0,0" Height="25" VerticalAlignment="Top"/>
+        <CheckBox Margin="160,210,0,0" 
+                  Height="25" 
+                  Width="150" 
+                  Content="Create Scheduled Job" 
+                  VerticalAlignment="Top"
+                   HorizontalAlignment="Left" Name="createSjobbox"/>
+        <Label Content="Task Interval(days):"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,245,0,0" VerticalAlignment="Top"/>
+        <Controls:NumericUpDown Value="10"
+                                        HorizontalAlignment="Left" 
+                                        Margin="160,245,0,0" 
+                                        Width="90"
+                                        VerticalAlignment="Top" 
+                                        TextAlignment="Left"
+                                        Minimum="1"
+                                        IsReadOnly="True"
+                                        Maximum="200" />
+        <Label Content="[1~200 days,Default 10 days]"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="260,245,0,0" VerticalAlignment="Top"/>
+        <Button Content="Make Task Scheduled Job"  IsEnabled="False" Name="InitializeButton" Click="OnInitializeEnvironment" HorizontalAlignment="Left" Margin="80,350,0,0" VerticalAlignment="Top" FontSize="15px"  Width="210"/>
+        <Button Content="Start Build Once" Name="StartBuildOnce" Click="OnStartBuildOnce" HorizontalAlignment="Left" Margin="320,350,0,0" VerticalAlignment="Top" FontSize="15px"  Width="160"/>
+    </Grid>
+</controls:MetroWindow>
+<!--        Style="{DynamicResource CleanWindowStyleKey}" -->
