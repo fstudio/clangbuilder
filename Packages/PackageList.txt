@@ -1,3 +1,9 @@
 CMake
 GnuWin
+Subversion
+NSIS
+=========
+NativeTools Launcher,run 64BIT OS run 64BIT PowerShell.
+
 NetTools
+Base WPF GUI tools,Dependent on  .NET 4.5

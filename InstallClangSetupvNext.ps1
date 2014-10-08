@@ -204,6 +204,18 @@ WriteOut-Progress $status
 Write-Host -ForegroundColor Yellow "`n`nBegin Make Shortcut in ${ICSNextInvoke},aways Your can click shorcut start a PowerShell Environment"
 $status+=15
 WriteOut-Progress $status 
+Make-LinkEnviroment $ICSNextInvoke "ICSNextEnv" "${ICSNextInvoke}\ClangSetupEnvNext.ps1"
+
+
+$cswshell=New-Object -ComObject WScript.Shell
+$wpfshortcut=$cswshell.CreateShortcut("${ICSNextInvoke}\$ClangSetupWPF.lnk")
+$wpfshortcut.TargetPath="${ICSNextInvoke}\Packages\NetTools\ClangSetupvNextSet.exe"
+$wpfshortcut.Description="Start ClangSetup vNext Environment"
+$wpfshortcut.WindowStyle=1
+$wpfshortcut.WorkingDirectory="${ICSNextInvoke}\Packages\NetTools"
+$wpfshortcut.IconLocation="${ICSNextInvoke}\Packages\NetTools\ClangSetupvNextSet.exe,0"
+$wpfshortcut.Save()
+
 
 ######
 Write-Host -ForegroundColor Yellow "`n`nCheck Your Visual Studio Instanll:`n"
@@ -234,3 +246,12 @@ WriteOut-Progress $status
 
 $status=100
 Get-ReadMeWindow | Out-Null
+
+
+Write-Host  -ForegroundColor Green "ClangSetup vNext Installed success ,Your can Click Shortcut AutoBuilder LLVM,or user PowerShell Environment do something.
+All technology is open source, please follow license agreement"
+
+Out-ClangSetupTipsVoice "ClangSetup vNext Installed success ,Your can Click Shortcut AutoBuilder LLVM,or user PowerShell Environment do something.
+All technology is open source, please follow license agreement"
+
+[System.Console]::ReadKey()|Out-Null

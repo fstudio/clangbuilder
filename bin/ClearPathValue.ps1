@@ -6,5 +6,5 @@ In order to avoid conflict of environment variables, we have created a clean she
 #>
 Function Global:Clear-EnvPath
 {
-$env:PATH="${env:SystemRoot}\System32;${env:SystemRoot};${env:SystemRoot}\System32\Wbem;${env:SystemRoot}\System32\WindowsPowerShell\v1.0\"
+$env:PATH="${env:SystemRoot}\System32;${env:SystemRoot};${env:SystemRoot}\System32\Wbem;${env:SystemRoot}\System32\WindowsPowerShell\v1.0\;"
 }

@@ -11,10 +11,7 @@ ${Host}"
 [System.Console]::ReadKey()
 Exit
 }
-IF($args.Count -le 4)
-{
 
-}
 $WindowTitlePrefix=" ClangSetup PowerShell Builder"
 Write-Host "ClangSetup Auto Builder [PowerShell] tools"
 Write-Host "Copyright $([Char]0xA9) 2014 FroceStudio All Rights Reserved."
@@ -35,18 +32,83 @@ http://llvm.org/svn/llvm-project/polly/trunk
 #Set-Location 
 #IEX -Command “${PrefixDir}\ClangSetupPS.ps1”
 #$PrefixDir=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+
 $BDVSV="12"
 $BDTAG="x86"
 $BDTYPE="Release"
 $BDCRT="MT"
+[System.Boolean]$IsMakeInstall=$True
+
+$PrefixDir=Split-Path -Parent $MyInvocation.MyCommand.Definition
+
 
 IF($args.Count -ge 1)
 {
+IF([System.String]::Compare($args[0],"VS110") -eq $true)
+{
+  $BDVSV="11"
+}
+IF([System.String]::Compare($args[0],"VS140") -eq $true)
+{
+  $BDVSV="14"
+}
+IF([System.String]::Compare($args[0],"VS150") -eq $true)
+{
+  $BDVSV="15"
+}
+}
+
+IF($args.Count -ge 2)
+{
+IF([System.String]::Compare($args[1],"X64") -eq $true)
+{
+  $BDTAG="X64"
+}
+IF([System.String]::Compare($args[1],"ARM") -eq $true)
+{
+  $BDTAG="ARM"
+}
+IF([System.String]::Compare($args[1],"AArch64") -eq $true)
+{
+  $BDTAG="AArch64"
+}
+}
+
+IF($args.Count -ge 3)
+{
+ IF([System.String]::Compare($args[2],"MinSizeRel") -eq $true)
+ {
+  $BDTAG="MinSizeRel"
+ }
+  IF([System.String]::Compare($args[2],"RelWithDbgInfo") -eq $true)
+ {
+  $BDTAG="RelWithDbgInfo"
+ }
+  IF([System.String]::Compare($args[2],"Debug") -eq $true)
+ {
+  $BDTAG="Debug"
+ }
+}
+IF($args.Count -ge 4)
+{
+ IF([System.String]::Compare($args[3],"MD") -eq $true)
+ {
+  $BDCRT="MD"
+ }
+}
+IF($args.Count -ge 5)
+{
+ IF([System.String]::Compare($args[4],"NOMKI") -eq $true)
+ {
+  $IsMakeInstall=$false
+ }
+}
+IF($args.Count -ge 6 -and [System.String]::Compare($args[5],"-E"))
+{
+ IEX -Command "${PrefixDir}\bin\ClearPathValue.ps1"
 }
 
 
-
-$PrefixDir=Split-Path -Parent $MyInvocation.MyCommand.Definition
 Invoke-Expression -Command "${PrefixDir}\bin\CSEvNInternal.ps1"
 Invoke-Expression -Command "${PrefixDir}\bin\VisualStudioHub.ps1  VS${BDVSV}0 ${BDTAG}"
 
@@ -101,8 +163,8 @@ Set-Location "${PrefixDir}\Build\Out"
 
 IF([System.String]::Compare($BDTAG, "X64") -eq $True)
 {
-   Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} Win64`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
-   Invoke-Expression -Command "msbuild LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE};/p:Platform=x64"
+  Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} Win64`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
+  Invoke-Expression -Command "msbuild LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE};/p:Platform=x64"
 }ELSEIF([System.String]::Compare($BDTAG, "ARM") -eq $true){
   Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} ARM`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
   Invoke-Expression -Command "msbuild LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE};/p:Platform=ARM"
@@ -113,11 +175,20 @@ Invoke-Expression -Command "msbuild LLVM.sln /t:Rebuild /p:Configuration=${BDTYP
 #Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio 12`" -DLLVM_TARGETS_TO_BUILD=`"X86;ARM`""
 
 Write-Host -ForegroundColor Cyan "Automatic build LLVM is completed"
+IF($IsMakeInstall -and $? -eq $True)
+{
 Invoke-Expression -Command "cpack "
-Write-Host -ForegroundColor Cyan "Installation package finished."
+IF($? -eq $True){
+Write-Host -ForegroundColor Cyan "Installation package finished."}ELSE{
+  Write-Host -ForegroundColor Red  "Make Install Packeage Error! Your Should Check Error Info."
+}
+}ELSE
+{
+Write-Host -ForegroundColor Green "Not Make Install Packeage."
+}
 
-Write-Host "Options End." -ForegroundColor DarkYellow
-Write-Host
+
+Write-Host "Options End.`n" -ForegroundColor DarkYellow
 ###New Line
 if($args.Count -ge 2)
 {

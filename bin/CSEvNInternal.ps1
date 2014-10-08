@@ -22,7 +22,7 @@ IF(!(Test-Path "${CSEvParent}\Packages"))
 {
 Write-Host -ForegroundColor Red "ClangSetup Not Found ${CSEvParent}\Packages in your ClangSetup installation directory "
 IEX "${CSEvNInternalFd}\ClangSetupvNextUI.ps1"
-Get-ReadMeWindow >$null
+Get-ReadMeWindow |Out-Null
 return
 }
 #TaskScheduler
