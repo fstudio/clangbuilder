@@ -12,7 +12,7 @@ Similarly, you can start a PowerShell runs InstallClangSetupvNext.ps1, generally
 Above procedure does not require administrator privileges.
 
 If you are unable to run the script, please enter **Get-ExecutionPolicy** in the PowerShell,
-If Yes: 
+If is: 
 > Restricted 
 
 Please run PowerShell with administrator rights, and Type: 
