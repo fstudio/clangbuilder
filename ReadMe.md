@@ -64,11 +64,11 @@ Using Clean Environment (PATH)
 ####Start Screen
 Function:```Show-LauncherWindow``` Base WPF.<br>
 Start Screen:
-![Image](Images/StartWindow.jpg)
+![Image](https://github.com/forcegroup/ClangSetupvNext/blob/master/Images/ReadMeWindow.jpg)
 
 Function:``` Get-ReadMeWindow``` Base WPF.<br>
 ReadMeBox:
-![Image](Images/ReadMeWindow.jpg)
+![Image](https://github.com/forcegroup/ClangSetupvNext/blob/master/Images/ReadMeWindow.jpg)
 
 Other:<br>
 OpenFileDialog(Vista Style),Popu Menu Select,PowerShell base Select Menu 
@@ -76,4 +76,4 @@ OpenFileDialog(Vista Style),Popu Menu Select,PowerShell base Select Menu
 ####Voice
 ``` Out-ClangSetupTipsVoice```
 
-Copyright &copy; 2014 ForceStudio.All Rights Reserved.
+Copyright © 2014 ForceStudio.All Rights Reserved.
