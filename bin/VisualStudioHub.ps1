@@ -82,7 +82,9 @@ IF([System.String]::Compare($VisualStudio,"VS120",$True) -eq 0)
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.0A\WinSDK-NetFx40Tools-x64' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir64'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer64'
+    IF((Test-Path 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\12.0\Setup\F#')){
     $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\12.0\Setup\F#' 'ProductDir'
+    }
     $MSBUILDKIT="C:\Program Files (x86)\MSBuild\12.0\Bin"
     
     
@@ -95,7 +97,9 @@ IF([System.String]::Compare($VisualStudio,"VS120",$True) -eq 0)
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.0A\WinSDK-NetFx40Tools' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir32'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer32'
+    IF((Test-Path 'HKLM:\SOFTWARE\Microsoft\VisualStudio\12.0\Setup\F#')){
     $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\12.0\Setup\F#' 'ProductDir'
+    }
      $MSBUILDKIT="C:\Program Files\MSBuild\12.0\Bin"
     
     }
@@ -134,7 +138,9 @@ ELSEIF([System.String]::Compare($VisualStudio,"VS110",$True) -eq 0)
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.0A\WinSDK-NetFx40Tools-x64' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir64'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer64'
+    IF((Test-Path  'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\11.0\Setup\F#')){
     $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\11.0\Setup\F#' 'ProductDir'
+    }
     }
     else
     {
@@ -144,7 +150,9 @@ ELSEIF([System.String]::Compare($VisualStudio,"VS110",$True) -eq 0)
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.0A\WinSDK-NetFx40Tools' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir32'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer32'
+    IF((Test-Path  'HKLM:\SOFTWARE\Microsoft\VisualStudio\11.0\Setup\F#')){
     $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\11.0\Setup\F#' 'ProductDir'
+    }
     }
     $KitBin32="${SDKDIR}bin\x86"
     $kitBin64="${SDKDIR}bin\x64"
@@ -172,7 +180,9 @@ ELSEIF([System.String]::Compare($VisualStudio,"VS140",$True) -eq 0)
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.0A\WinSDK-NetFx40Tools-x64' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir64'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer64'
-    $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'   
+    IF((Test-Path  'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\Setup\F#')){
+    $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
+    }  
     $MSBUILDKIT="C:\Program Files (x86)\MSBuild\14.0\Bin"
     }
     else
@@ -183,7 +193,9 @@ ELSEIF([System.String]::Compare($VisualStudio,"VS140",$True) -eq 0)
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.0A\WinSDK-NetFx40Tools' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir32'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer32'
+    IF((Test-Path  'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\Setup\F#')){
     $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
+     }  
      $MSBUILDKIT="C:\Program Files\MSBuild\14.0\Bin"
     }
     $KitBin32="${SDKDIR}bin\x86"
@@ -239,7 +251,9 @@ ELSEIF([System.String]::Compare($VisualStudio,"VS100",$True) -eq 0)
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v7.0A\WinSDK-NetFx40Tools-x64' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir64'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer64'
+    IF((Test-Path  'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\Setup\F#')){
     $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\Setup\F#' 'ProductDir'
+    }  
     }
     else
     {
@@ -249,7 +263,9 @@ ELSEIF([System.String]::Compare($VisualStudio,"VS100",$True) -eq 0)
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.0A\WinSDK-NetFx40Tools' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir32'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer32'
+    IF((Test-Path  'HKLM:\SOFTWARE\Microsoft\VisualStudio\10.0\Setup\F#')){
     $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\10.0\Setup\F#' 'ProductDir'
+    }  
     }
     $KitBin32="${SDKDIR}bin"
     $kitBin64="${SDKDIR}bin\x64"
@@ -272,7 +288,9 @@ ELSE
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.0A\WinSDK-NetFx40Tools-x64' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir64'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer64'
+    IF((Test-Path  'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\12.0\Setup\F#')){
     $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\12.0\Setup\F#' 'ProductDir'
+    }  
      $MSBUILDKIT="C:\Program Files (x86)\MSBuild\12.0\Bin"
     }
     else
@@ -283,7 +301,9 @@ ELSE
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.0A\WinSDK-NetFx40Tools' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir32'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer32'
+    IF((Test-Path  'HKLM:\SOFTWARE\Microsoft\VisualStudio\12.0\Setup\F#')){
     $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\12.0\Setup\F#' 'ProductDir'
+    }  
      $MSBUILDKIT="C:\Program Files\MSBuild\12.0\Bin"
     }
     $KitBin32="${SDKDIR}bin\x86"
@@ -298,8 +318,12 @@ IF($SystemType -eq 64)
 {
   $FrameworkDir="${FrameworkDir}\"
 }
-
+IF($FSharpDir -eq $null)
+{
+$env:Path="$NetTools;${FrameworkDir}${FrameworkVer};$env:Path"
+}ELSE{
 $env:Path="$FSharpDir;$NetTools;${FrameworkDir}${FrameworkVer};$env:Path"
+}
 
 
 IF([System.String]::Compare($Platform,"X64",$True) -eq 0){

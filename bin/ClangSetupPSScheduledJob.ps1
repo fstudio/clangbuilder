@@ -1,4 +1,8 @@
-
+<##
+# ClangSetup ScheduledJob Manager
+##>
+$PSTaskBinPath=Split-Path -Parent $MyInvocation.MyCommand.Definition
+$env:PSModulePath="$env:PSModulePath;${PSTaskBinPath}\Modules"
 
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
@@ -7,3 +11,10 @@ ${Host}"
 [System.Console]::ReadKey()
 return 
 }
+Import-Module TaskScheduler
+<#
+ClangSetupPSScheduledJob.ps1  -MakeTask -Days 10 
+ClangSetupPSScheduledJob.ps1  -DeleteTask
+#>
+$IsMakeSdTask=$False
+$IsDeleteSdTask=$False

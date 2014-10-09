@@ -110,7 +110,13 @@ $SubversionOut="${Global:ICSNextInvoke}\Subversion.msi"
  IF($? -eq $True)
  {
  Remove-Item -Force  "${Global:ICSNextInvoke}\Packages\SVN\Subversion.msi"
+ IF([System.Environment]::Is64BitOperatingSystem){
+ ###64BIT
  Move-Item "${Global:ICSNextInvoke}\Packages\SVN\SlikSvn\bin\Win\System64\*"  "${Global:ICSNextInvoke}\Packages\SVN\SlikSvn\bin"
+ }ELSE{
+ ###32BIT
+  Move-Item "${Global:ICSNextInvoke}\Packages\SVN\SlikSvn\bin\Win\System\*"  "${Global:ICSNextInvoke}\Packages\SVN\SlikSvn\bin"
+ }
  Remove-Item -Force -Recurse "${Global:ICSNextInvoke}\Packages\SVN\SlikSvn\bin\Win" 
  Move-Item "${Global:ICSNextInvoke}\Packages\SVN\SlikSvn\*" "${Global:ICSNextInvoke}\Packages\SVN"
  Remove-Item -Force -Recurse "${Global:ICSNextInvoke}\Packages\SVN\SlikSvn" 
@@ -219,7 +225,7 @@ $wpfshortcut.Save()
 
 ######
 Write-Host -ForegroundColor Yellow "`n`nCheck Your Visual Studio Instanll:`n"
-Invoke-Expression   "${ICSNextInvoke}\bin\VisualStudioEnvNext.ps1"
+#Invoke-Expression   "${ICSNextInvoke}\bin\VisualStudioEnvNext.ps1"
 Find-VisualStudio|Out-Null
 IF($Global:VS100B)
 {

@@ -54,27 +54,27 @@ $Global:VS170B=$false
 
 Function Global:Find-VisualStudio()
 {
-  IF((Test-Path $env:VS100COMNTOOLS))
+IF($env:VS100COMNTOOLS -ne $null -and (Test-Path $env:VS100COMNTOOLS))
   {
    $Global:VS100B=$True;
   }
-  IF((Test-Path $env:VS110COMNTOOLS))
+IF($env:VS100COMNTOOLS -ne $null -and (Test-Path $env:VS110COMNTOOLS))
   {
    $Global:VS110B=$True;
   }
-    IF((Test-Path $env:VS120COMNTOOLS))
+IF($env:VS120COMNTOOLS -ne $null -and (Test-Path $env:VS120COMNTOOLS))
   {
    $Global:VS120B=$True;
   }
-    IF((Test-Path $env:VS140COMNTOOLS))
+ IF($env:VS140COMNTOOLS -ne $null -and (Test-Path $env:VS140COMNTOOLS))
   {
    $Global:VS140B=$True;
   }
-    IF((Test-Path $env:VS150COMNTOOLS))
+ IF($env:VS150COMNTOOLS -ne $null -and (Test-Path $env:VS150COMNTOOLS))
   {
    $Global:VS150B=$True;
   }
-    IF((Test-Path $env:VS160COMNTOOLS))
+ IF($env:VS160COMNTOOLS -ne $null -and (Test-Path $env:VS160COMNTOOLS))
   {
    $Global:VS160B=$True;
   }
@@ -169,5 +169,73 @@ return
 
 <#
 Compiler MSBuild SDK .NET
-Include PATH LIB Referce
+Include PATH LIB Referce 
+Compiler IDE Windows SDK Kit PATH
+Compiler First MSbuild Second,Kit ,or other ,IDE 
+x64 Check Is Support AMD64 Native Compiler,else x86_64
+x86 x86 Tools
+ARM x86 or x64 
 #>
+
+$VSESDK="8.0"
+$Fmk="4.5"
+$VSMajor="12.0"
+$VSVersion="VS110"
+$Platform="X86"
+
+IF($args.Count -ge 1)
+{
+IF([System.String]::Compare($args[0],"VS100") -eq $true)
+{
+  $VSMajor="10.0"
+}
+ELSEIF([System.String]::Compare($args[0],"VS110") -eq $true)
+{
+  $VSMajor="11.0"
+}
+ELSEIF([System.String]::Compare($args[0],"VS120") -eq $true)
+{
+  $VSMajor="12.0"
+}
+ELSEIF([System.String]::Compare($args[0],"VS140") -eq $true)
+{
+  $VSMajor="14.0"
+}
+ELSEIF([System.String]::Compare($args[0],"VS150") -eq $true)
+{
+  $VSMajor="15.0"
+}
+}
+IF($args.Count -ge 2)
+{
+IF([System.String]::Compare($args[1],"X86") -eq $true)
+{
+  $Platform="X86"
+}
+IF([System.String]::Compare($args[1],"X64") -eq $true)
+{
+  $Platform="X64"
+}
+ELSEIF([System.String]::Compare($args[1],"ARM") -eq $true)
+{
+  $Platform="ARM"
+}
+ELSEIF([System.String]::Compare($args[1],"AArch64") -eq $true)
+{
+  $Platform="AArch64"
+}
+}
+
+
+
+
+IF([System.String]::Compare($VSVersion,"VS100") -eq  $True)
+{
+ IF((!Test-Path $env:VS100COMNTOOLS))
+ {
+  Print-VisualStudioNotFound "Visual Studio 2010 " $env:VS100COMNTOOLS
+  return
+ }ELSE{
+
+ }
+}
