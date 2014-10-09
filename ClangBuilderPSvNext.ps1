@@ -34,7 +34,7 @@ http://llvm.org/svn/llvm-project/polly/trunk
 #$PrefixDir=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 
 $BDVSV="12"
-$BDTAG="x86"
+$BDTAG="X86"
 $BDTYPE="Release"
 $BDCRT="MT"
 [System.Boolean]$IsMakeInstall=$True
@@ -78,15 +78,15 @@ IF($args.Count -ge 3)
 {
  IF([System.String]::Compare($args[2],"MinSizeRel") -eq $true)
  {
-  $BDTAG="MinSizeRel"
+  $BDTYPE="MinSizeRel"
  }
   IF([System.String]::Compare($args[2],"RelWithDbgInfo") -eq $true)
  {
-  $BDTAG="RelWithDbgInfo"
+  $BDTYPE="RelWithDbgInfo"
  }
   IF([System.String]::Compare($args[2],"Debug") -eq $true)
  {
-  $BDTAG="Debug"
+  $BDTYPE="Debug"
  }
 }
 IF($args.Count -ge 4)
