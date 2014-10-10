@@ -71,9 +71,11 @@ ReadMeBox:
 ![Image](https://raw.githubusercontent.com/forcegroup/ClangSetupvNext/master/Images/ReadMeWindow.jpg)
 
 Other:<br>
-OpenFileDialog(Vista Style),Popu Menu Select,PowerShell base Select Menu 
+OpenFileDialog(Vista Style),Popu Menu Select,PowerShell base Select Menu <br>
 ```Show-OpenFileDialog ,New-Popup Select-MenuShow```
 ####Voice
-``` Out-ClangSetupTipsVoice```
+
+``` Out-ClangSetupTipsVoice``` 
+<br>
 
 Copyright © 2014 ForceStudio.All Rights Reserved.
