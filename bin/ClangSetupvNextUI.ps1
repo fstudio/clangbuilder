@@ -117,7 +117,7 @@ switch ($result)
     }
 }
 
-Function Global:New-Popup {
+Function Global:New-PopuShow {
 
 <#
 .Synopsis
@@ -226,5 +226,4 @@ Function Global:Bmp2Icons([string]$bmpPath,[string]$iconPath)
  
 }
  
-
 

@@ -42,6 +42,119 @@ $BDCRT="MT"
 $PrefixDir=Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 
+<#
+#################################################################################################
+#  Subversion Checkout source code.
+#  Start-Process notepad -Wait -WindowStyle Maximized -verb runAs
+#################################################################################################
+Set-Location "${PrefixDir}\Build"
+#Start-Process -FilePath svn.exe -ArgumentList "co http://llvm.org/svn/llvm-project/llvm/trunk llvm" -NoNewWindow -Wait
+Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/llvm/trunk llvm"
+#Remove-Item "${PrefixDir}\Build\llvm\.svn\" -Force -Recurse
+Set-Location "${PrefixDir}\Build\llvm\tools"
+#Start-Process -FilePath svn.exe -ArgumentList "co http://llvm.org/svn/llvm-project/cfe/trunk clang" -NoNewWindow -Wait
+Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/cfe/trunk clang"
+#Remove-Item "${PrefixDir}\Build\llvm\tools\clang\.svn\" -Force -Recurse
+Set-Location "${PrefixDir}\Build\llvm\tools\clang\tools"
+#Start-Process -FilePath svn.exe -ArgumentList "co http://llvm.org/svn/llvm-project/clang-tools-extra/trunk extra" -NoNewWindow -Wait
+Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/clang-tools-extra/trunk extra"
+#Remove-Item "${PrefixDir}\Build\llvm\tools\clang\tools\extra\.svn\" -Force -Recurse
+Set-Location "${PrefixDir}\Build\llvm\tools"
+#Start-Process -FilePath svn.exe -ArgumentList "co http://llvm.org/svn/llvm-project/lld/trunk lld" -NoNewWindow -Wait
+Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/lld/trunk lld"
+#Remove-Item "${PrefixDir}\Build\llvm\tools\lld\.svn\" -Force -Recurse
+Set-Location "${PrefixDir}\Build\llvm\projects"
+Invoke-Expression -Command "svn co http://llvm.org/svn/llvm-project/compiler-rt/trunk compiler-rt"
+
+##>
+
+Function Global:Get-LLVMSource([String]$sourceroot)
+{
+  IF(!(Test-Path "$sourceroot"))
+  {
+   return $False
+  }
+  Set-Location $sourceroot
+  ############
+   IF(!(Test-Path "$sourceroot\llvm\.svn"))
+   {
+    IF(Test-Path "$sourceroot\llvm")
+    {
+      Remove-Item -Force -Recurse  "$sourceroot\llvm"
+    }
+    Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/llvm/trunk llvm"
+   }ELSE{
+    Invoke-Expression -Command "svn up llvm"
+   }
+   ##############
+   IF(!(Test-Path "$sourceroot\llvm\tools\clang\.svn"))
+   {
+   Set-Location "${sourceroot}\llvm\tools"
+    IF(Test-Path "$sourceroot\llvm\tools\clang")
+    {
+      Remove-Item -Force -Recurse  "$sourceroot\llvm\tools\clang"
+    }
+    Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/cfe/trunk clang"
+   }ELSE{
+    Invoke-Expression -Command "svn up clang"
+   }
+   ###########
+   IF(!(Test-Path "$sourceroot\llvm\tools\lld\.svn"))
+   {
+    IF(Test-Path "$sourceroot\llvm\tools\lld")
+    {
+      Remove-Item -Force -Recurse  "$sourceroot\llvm\tools\lld"
+    }
+    Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/lld/trunk lld"
+   }ELSE{
+    Invoke-Expression -Command "svn up lld"
+   }
+
+ ####################
+   IF(!(Test-Path "$sourceroot\llvm\tools\clang\tools\extra\.svn"))
+   {
+    Set-Location "${sourceroot}\llvm\tools\clang\tools"
+    IF(Test-Path "$sourceroot\llvm\tools\clang\tools\extra")
+    {
+      Remove-Item -Force -Recurse  "$sourceroot\llvm\tools\clang\tools\extra"
+    }
+    Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/clang-tools-extra/trunk extra"
+   }ELSE{
+    Invoke-Expression -Command "svn up extra"
+   }
+   ##################################
+   IF(!(Test-Path "$sourceroot\llvm\projects\compiler-rt\.svn"))
+   {
+      Set-Location "${sourceroot}\llvm\projects\compiler-rt"
+    IF(Test-Path "$sourceroot\llvm\projects\compiler-rt\compiler-rt")
+    {
+      Remove-Item -Force -Recurse  "$sourceroot\llvm\projects\compiler-rt\compiler-rt"
+    }
+    Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/compiler-rt/trunk compiler-rt"
+   }ELSE{
+    Invoke-Expression -Command "svn up compiler-rt"
+   }
+   return $True
+}
+
+
+Function Global:Delete-LLVMSource([String]$sourcefolder)
+{
+IF((Test-Path $sourcefolder))
+{
+ if((New-PopuShow -message "Shell Will delete $sourcefolder" -title "ClangBuilder Warning" -time 5 -Buttons OKCancel -Icon Exclamation) -eq 1)
+ {
+ Remove-Item -Force -Recurse $sourcefolder
+ }
+ ELSE{
+ Write-Host -ForegroundColor Yellow  "The user chose to cancel the delete directory"
+ }
+}
+}
+
+
+
+
 IF($args.Count -ge 1)
 {
 IF([System.String]::Compare($args[0],"VS110") -eq 0)
@@ -118,38 +231,13 @@ $BuildDirOK=Test-Path "${PrefixDir}\Build"
 IF($BuildDirOK -ne $true)
 {
  mkdir  "${PrefixDir}\Build"
-}ELSE
-{
-  Remove-Item "${PrefixDir}\Build\*" -Force  -Recurse
 }
-<################################################################################################
-#  Subversion Checkout source code.
-#  Start-Process notepad -Wait -WindowStyle Maximized -verb runAs
-################################################################################################>
-Set-Location "${PrefixDir}\Build"
-#Start-Process -FilePath svn.exe -ArgumentList "co http://llvm.org/svn/llvm-project/llvm/trunk llvm" -NoNewWindow -Wait
-Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/llvm/trunk llvm"
-#Remove-Item "${PrefixDir}\Build\llvm\.svn\" -Force -Recurse
-Set-Location "${PrefixDir}\Build\llvm\tools"
-#Start-Process -FilePath svn.exe -ArgumentList "co http://llvm.org/svn/llvm-project/cfe/trunk clang" -NoNewWindow -Wait
-Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/cfe/trunk clang"
-#Remove-Item "${PrefixDir}\Build\llvm\tools\clang\.svn\" -Force -Recurse
-Set-Location "${PrefixDir}\Build\llvm\tools\clang\tools"
-#Start-Process -FilePath svn.exe -ArgumentList "co http://llvm.org/svn/llvm-project/clang-tools-extra/trunk extra" -NoNewWindow -Wait
-Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/clang-tools-extra/trunk extra"
-#Remove-Item "${PrefixDir}\Build\llvm\tools\clang\tools\extra\.svn\" -Force -Recurse
-Set-Location "${PrefixDir}\Build\llvm\tools"
-#Start-Process -FilePath svn.exe -ArgumentList "co http://llvm.org/svn/llvm-project/lld/trunk lld" -NoNewWindow -Wait
-Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/lld/trunk lld"
-#Remove-Item "${PrefixDir}\Build\llvm\tools\lld\.svn\" -Force -Recurse
-Set-Location "${PrefixDir}\Build\llvm\projects"
-Invoke-Expression -Command "svn co http://llvm.org/svn/llvm-project/compiler-rt/trunk compiler-rt"
-
+Get-LLVMSource "${PrefixDir}\Build"
 ###
 # Checkout End.
 #####
 #Write-Output
-$OutDirExist=Test-Path "${PrefoxDir}\Build\Out"
+$OutDirExist=Test-Path "${PrefixDir}\Build\Out"
 IF($OutDirExist -eq $true)
 {
 Remove-Item "${PrefixDir}\Build\Out\*" -Force -Recurse

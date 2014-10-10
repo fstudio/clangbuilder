@@ -229,7 +229,7 @@ ELSEIF([System.String]::Compare($args[1],"AArch64") -eq 0)
 
 
 
-IF([System.String]::Compare($VSVersion,"VS100") -eq  $True)
+IF([System.String]::Compare($VSVersion,"VS100") -eq  0)
 {
  IF((!Test-Path $env:VS100COMNTOOLS))
  {
