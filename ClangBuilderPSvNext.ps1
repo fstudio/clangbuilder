@@ -44,15 +44,15 @@ $PrefixDir=Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 IF($args.Count -ge 1)
 {
-IF([System.String]::Compare($args[0],"VS110") -eq $true)
+IF([System.String]::Compare($args[0],"VS110") -eq 0)
 {
   $BDVSV="11"
 }
-IF([System.String]::Compare($args[0],"VS140") -eq $true)
+IF([System.String]::Compare($args[0],"VS140") -eq 0)
 {
   $BDVSV="14"
 }
-IF([System.String]::Compare($args[0],"VS150") -eq $true)
+IF([System.String]::Compare($args[0],"VS150") -eq 0)
 {
   $BDVSV="15"
 }
@@ -60,15 +60,15 @@ IF([System.String]::Compare($args[0],"VS150") -eq $true)
 
 IF($args.Count -ge 2)
 {
-IF([System.String]::Compare($args[1],"X64") -eq $true)
+IF([System.String]::Compare($args[1],"X64") -eq 0)
 {
   $BDTAG="X64"
 }
-IF([System.String]::Compare($args[1],"ARM") -eq $true)
+IF([System.String]::Compare($args[1],"ARM") -eq 0)
 {
   $BDTAG="ARM"
 }
-IF([System.String]::Compare($args[1],"AArch64") -eq $true)
+IF([System.String]::Compare($args[1],"AArch64") -eq 0)
 {
   $BDTAG="AArch64"
 }
@@ -76,34 +76,34 @@ IF([System.String]::Compare($args[1],"AArch64") -eq $true)
 
 IF($args.Count -ge 3)
 {
- IF([System.String]::Compare($args[2],"MinSizeRel") -eq $true)
+ IF([System.String]::Compare($args[2],"MinSizeRel") -eq 0)
  {
   $BDTYPE="MinSizeRel"
  }
-  IF([System.String]::Compare($args[2],"RelWithDbgInfo") -eq $true)
+  IF([System.String]::Compare($args[2],"RelWithDbgInfo") -eq 0)
  {
   $BDTYPE="RelWithDbgInfo"
  }
-  IF([System.String]::Compare($args[2],"Debug") -eq $true)
+  IF([System.String]::Compare($args[2],"Debug") -eq 0)
  {
   $BDTYPE="Debug"
  }
 }
 IF($args.Count -ge 4)
 {
- IF([System.String]::Compare($args[3],"MD") -eq $true)
+ IF([System.String]::Compare($args[3],"MD") -eq 0)
  {
   $BDCRT="MD"
  }
 }
 IF($args.Count -ge 5)
 {
- IF([System.String]::Compare($args[4],"NOMKI") -eq $true)
+ IF([System.String]::Compare($args[4],"NOMKI") -eq 0)
  {
   $IsMakeInstall=$false
  }
 }
-IF($args.Count -ge 6 -and [System.String]::Compare($args[5],"-E"))
+IF($args.Count -ge 6 -and [System.String]::Compare($args[5],"-E") -eq 0)
 {
  IEX -Command "${PrefixDir}\bin\ClearPathValue.ps1"
 }
