@@ -75,7 +75,7 @@ OpenFileDialog(Vista Style),Popu Menu Select,PowerShell base Select Menu <br>
 ```Show-OpenFileDialog ,New-Popup Select-MenuShow```
 ####Voice
 
-``` Out-ClangSetupTipsVoice``` 
-<br>
+``` Out-ClangSetupTipsVoice ``` 
+
 
 Copyright © 2014 ForceStudio.All Rights Reserved.
