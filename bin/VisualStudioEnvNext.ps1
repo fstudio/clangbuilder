@@ -185,42 +185,42 @@ $Platform="X86"
 
 IF($args.Count -ge 1)
 {
-IF([System.String]::Compare($args[0],"VS100") -eq $true)
+IF([System.String]::Compare($args[0],"VS100") -eq 0)
 {
   $VSMajor="10.0"
 }
-ELSEIF([System.String]::Compare($args[0],"VS110") -eq $true)
+ELSEIF([System.String]::Compare($args[0],"VS110") -eq 0)
 {
   $VSMajor="11.0"
 }
-ELSEIF([System.String]::Compare($args[0],"VS120") -eq $true)
+ELSEIF([System.String]::Compare($args[0],"VS120") -eq 0)
 {
   $VSMajor="12.0"
 }
-ELSEIF([System.String]::Compare($args[0],"VS140") -eq $true)
+ELSEIF([System.String]::Compare($args[0],"VS140") -eq 0)
 {
   $VSMajor="14.0"
 }
-ELSEIF([System.String]::Compare($args[0],"VS150") -eq $true)
+ELSEIF([System.String]::Compare($args[0],"VS150") -eq 0)
 {
   $VSMajor="15.0"
 }
 }
 IF($args.Count -ge 2)
 {
-IF([System.String]::Compare($args[1],"X86") -eq $true)
+IF([System.String]::Compare($args[1],"X86") -eq 0)
 {
   $Platform="X86"
 }
-IF([System.String]::Compare($args[1],"X64") -eq $true)
+IF([System.String]::Compare($args[1],"X64") -eq 0)
 {
   $Platform="X64"
 }
-ELSEIF([System.String]::Compare($args[1],"ARM") -eq $true)
+ELSEIF([System.String]::Compare($args[1],"ARM") -eq 0)
 {
   $Platform="ARM"
 }
-ELSEIF([System.String]::Compare($args[1],"AArch64") -eq $true)
+ELSEIF([System.String]::Compare($args[1],"AArch64") -eq 0)
 {
   $Platform="AArch64"
 }
