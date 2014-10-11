@@ -70,6 +70,9 @@ Function:``` Get-ReadMeWindow``` Base WPF.<br>
 ReadMeBox:
 ![Image](https://raw.githubusercontent.com/forcegroup/ClangSetupvNext/master/Images/ReadMeWindow.jpg)
 
+Upgrade Select:
+![Image](https://raw.githubusercontent.com/forcegroup/ClangSetupvNext/master/Images/UpdateSelect.jpg)
+
 Other:<br>
 OpenFileDialog(Vista Style),Popu Menu Select,PowerShell base Select Menu <br>
 ```Show-OpenFileDialog ,New-Popup Select-MenuShow```
