@@ -14,8 +14,8 @@ Add-Type -AssemblyName PresentationFramework
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="ClangSetup vNext upgrade confirmation" Height="200" Width="520" FontFamily="Segoe UI"  ResizeMode="NoResize">
     <Grid>
-            <Label Content="Select Upgrade to Update ClangSetup vNext" FontSize="15px" Height="28" HorizontalAlignment="Left" Margin="20,20,20,0" Name="label1" VerticalAlignment="Top" />
-            <Label Content="Select 'Reset' Is Upgrade and Reset ClangSetup vNext ,Other Cancle" FontSize="15px" Height="28" HorizontalAlignment="Left" Margin="20,40,20,0" Name="label2" VerticalAlignment="Top" />
+            <Label Content="Select Upgrade to Update ClangSetup vNext" FontSize="14px" Height="32" HorizontalAlignment="Left" Margin="20,20,20,0" Name="label1" VerticalAlignment="Top" />
+            <Label Content="Select 'Reset' Is Upgrade and Reset ClangSetup vNext ,Other Cancle" FontSize="14px" Height="32" HorizontalAlignment="Left" Margin="20,40,20,0" Name="label2" VerticalAlignment="Top" />
             <Button Content="Upgrade" Height="25" HorizontalAlignment="Left" Margin="30,100,0,0" Name="Upgrade" VerticalAlignment="Top" Width="120" />
             <Button Content="Reset" Height="25" HorizontalAlignment="Left" Margin="180,100,0,0" Name="Reset" VerticalAlignment="Top" Width="120" />
             <Button Content="Cancle" Height="25" HorizontalAlignment="Left" Margin="330,100,0,0" Name="Cancle" VerticalAlignment="Top" Width="120" />
