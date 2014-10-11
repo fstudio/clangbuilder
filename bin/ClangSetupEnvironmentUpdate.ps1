@@ -14,7 +14,7 @@ return
 Set-StrictMode -Version latest
 Import-Module -Name BitsTransfer
 
-Function Global:Shell-ShellUnZip($fileName, $sourcePath, $destinationPath)
+Function Global:Shell-UnZip($fileName, $sourcePath, $destinationPath)
 {
     $shell = New-Object -com Shell.Application
     if (!(Test-Path "$sourcePath\$fileName"))
@@ -34,7 +34,7 @@ Function Global:Get-GithubUpdatePackage([String]$clangsetuproot)
  Start-BitsTransfer $ClangSetupEnvPkUrl  $ClangSetupEnvPkName 
  Unblock-File $ClangSetupEnvPkName
  Shell-UnZip "ClangSetupvNextUpdatePackage.zip" "${env:TEMP}" "${Env:TEMP}\ClangSetupUnZipTemp"
- Move-Item -Path "${Env:TEMP}\ClangSetupUnZipTemp\ClangSetupvNext-master" $clangsetuproot -Recurse -Force -Passthru
+ Move-Item -Path "${Env:TEMP}\ClangSetupUnZipTemp\ClangSetupvNext-master\*" $clangsetuproot  -Force -Passthru
  Remove-Item -Force -Recurse "$env:TEMP\ClangSetupvNextUpdatePackage.zip"
  Remove-Item -Force -Recurse "$env:TEMP\ClangSetupUnZipTemp"
 }

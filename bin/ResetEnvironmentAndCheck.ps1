@@ -12,5 +12,11 @@ return
 }
 
 $REACDIR=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+$CSERoot=Split-Path -Parent $REACDIR
 Invoke-Expression "$REACDIR\ClangSetupEnvironmentUpdate.ps1"
 
+Get-GithubUpdatePackage $CSERoot
+
+Remove-Item -Force -Recurse "${CSERoot}\Packages\*" -Exclude PackageList.txt
+
+Invoke-Expression -Command "PowerShell -NoLogo -NoExit -File ${CSERoot}\InstallClangSetupvNext.ps1"
