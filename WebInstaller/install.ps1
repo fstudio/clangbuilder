@@ -109,8 +109,11 @@ IF(!$IsUnZipSucc)
  [System.Console]::ReadKey()
  return
 }
-
- Move-Item -Path "${Env:TEMP}\ClangSetupWebInstallerUnZip\ClangSetupvNext-master\*" "${Global:InstallPrefix}"  -Force
+ IF(!(Test-Path $Global:InstallPrefix))
+ {
+  Mkdir $Global:InstallPrefix
+ }
+ Copy-Item -Path "${Env:TEMP}\ClangSetupWebInstallerUnZip\ClangSetupvNext-master\*" "${Global:InstallPrefix}"  -Force -Recurse
  Remove-Item -Force -Recurse "$env:TEMP\ClangSetupvNextWebInstallerZIP.zip"
  Remove-Item -Force -Recurse "$env:TEMP\ClangSetupWebInstallerUnZip"
 

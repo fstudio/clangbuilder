@@ -34,7 +34,7 @@ Function Global:Get-GithubUpdatePackage([String]$clangsetuproot)
  Start-BitsTransfer $ClangSetupEnvPkUrl  $ClangSetupEnvPkName 
  Unblock-File $ClangSetupEnvPkName
  Shell-UnZip "ClangSetupvNextUpdatePackage.zip" "${env:TEMP}" "${Env:TEMP}\ClangSetupUnZipTemp"
- Move-Item -Path "${Env:TEMP}\ClangSetupUnZipTemp\ClangSetupvNext-master\*" $clangsetuproot  -Force -Passthru
+ Copy-Item -Path "${Env:TEMP}\ClangSetupUnZipTemp\ClangSetupvNext-master\*" $clangsetuproot  -Force -Recurse
  Remove-Item -Force -Recurse "$env:TEMP\ClangSetupvNextUpdatePackage.zip"
  Remove-Item -Force -Recurse "$env:TEMP\ClangSetupUnZipTemp"
 }
