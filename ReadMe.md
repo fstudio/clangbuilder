@@ -3,6 +3,10 @@ ClangSetup vNext
 ClangOnWin Build Environment vNext, Long Term Evolution <br>
 
 ##Installation:
+#####Usually:
+Download from Github,Or
+```git clone https://github.com/forcegroup/ClangSetupvNext.git ClangSetupvNext ```
+
 Click the *Install.bat* in the ClangSetupvNext directory, this will run PowerShell startup
 
 **InstallClangSetupvNext.ps1**, It is recommended that whenever you have PowerShell scripts, and try not to delete the project file in the tools directory.
@@ -19,6 +23,16 @@ Please run PowerShell with administrator rights, and Type:
     Set-ExecutionPolicy RemoteSigned
 
 You have trouble, you can click on ***PowerShell.Setting.bat***, this batch script feature is to modify the PowerShell execution policy is written to the registry, the implementation process will automatically right, you need to select OK
+
+#####WebInstaller:
+
+>```PS:\> iex ((new-object net.webclient).DownloadString('https://github.com/forcegroup/ClangSetupvNext/blob/master/WebInstaller/install.ps1'))```
+
+Or:
+>```C:\>  @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://github.com/forcegroup/ClangSetupvNext/blob/master/WebInstaller/install.ps1'))" ```
+
+**Your Should Input Your ClangSetup Install Loaction!!!!**
+>```PS:\> iex ((new-object net.webclient).DownloadString('https://github.com/forcegroup/ClangSetupvNext/blob/master/WebInstaller/install.ps1')) E:\ClangSetup```
 
 ##ClangOnWin 
 
