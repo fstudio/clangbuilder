@@ -4,7 +4,7 @@ ClangOnWin Build Environment vNext, Long Term Evolution <br>
 
 ##Installation:
 #####Usually:
-Download from Github,Or
+Download from Github, If your known use Git<br>
 ```git clone https://github.com/forcegroup/ClangSetupvNext.git ClangSetupvNext ```
 
 Click the *Install.bat* in the ClangSetupvNext directory, this will run PowerShell startup
