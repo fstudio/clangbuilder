@@ -110,20 +110,20 @@ Write-Host -ForegroundColor Cyan "Copyright $([Char]0xA9) 2014 ForceStudio All R
 }
 
 
-Function Global:Print-VisualStudioNotFound([String]$VSVer,[String]$VSPATH)
+Function Global:Print-VisualStudioNotFound([String]$VStudioRel,[String]$InstallLocation)
 {
   Print-Help
-  Write-Host -ForegroundColor Red "Can not find $VSVer, Please seized car in this directory(${VSPATH}) VisualStudio version and installation"
+  Write-Host -ForegroundColor Red "Can not find $VStudioRel, Please seized car in this directory(${InstallLocation}) VisualStudio version and installation"
   [System.Console]::ReadKey()
   return 
 }
 
-Function  Global:Check-TargetIsEnable([String]$VSVerStr,[String]$TargetStr)
+Function  Global:Check-TargetIsEnable([String]$VStudioRel,[String]$TargetStr)
 {
   $VSVerList=@("VS100","VS110","VS120","VS140","VS150")
-  foreach($VScurver in $VSVerList)
+  foreach($VStudioRel in $VSVerList)
   {
-   [System.System]::Compare($VSVerStr,$VScurver,$True)
+   [System.System]::Compare($VStudioRel,$VScurver,$True)
   }
 }
 

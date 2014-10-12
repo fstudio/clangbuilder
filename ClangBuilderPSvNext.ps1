@@ -232,7 +232,7 @@ IF($BuildDirOK -ne $true)
 {
  mkdir  "${PrefixDir}\Build"
 }
-Get-LLVMSource "${PrefixDir}\Build"
+Get-LLVMSource  "${PrefixDir}\Build"
 ###
 # Checkout End.
 #####

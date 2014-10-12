@@ -89,6 +89,7 @@ Function Global:Show-OpenFileDialog
     $dialog.FileName
   }
 }
+
 Function Global:Out-ClangSetupTipsVoice([String]$voicestr){
 Add-Type -AssemblyName System.Speech
 

@@ -40,7 +40,6 @@ Function UpgradeAndReset()
   First Upgrade PowerShell Script From Github,
   Second Run InstallClangSetupvNext.ps1"
   IEX "${Updateroot}\bin\ResetEnvironmentAndCheck.ps1"
-
 }
 
 Function CancleOptions()
