@@ -26,13 +26,13 @@ You have trouble, you can click on ***PowerShell.Setting.bat***, this batch scri
 
 #####WebInstaller:
 
->```PS:\> iex ((new-object net.webclient).DownloadString('https://github.com/forcegroup/ClangSetupvNext/blob/master/WebInstaller/install.ps1'))```
+>```PS:\> iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcegroup/ClangSetupvNext/master/WebInstaller/install.ps1'))```
 
 Or:
->```C:\>  @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://github.com/forcegroup/ClangSetupvNext/blob/master/WebInstaller/install.ps1'))" ```
+>```C:\>  @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcegroup/ClangSetupvNext/master/WebInstaller/install.ps1'))" ```
 
 **Your Should Input Your ClangSetup Install Loaction!!!!**
->```PS:\> iex ((new-object net.webclient).DownloadString('https://github.com/forcegroup/ClangSetupvNext/blob/master/WebInstaller/install.ps1')) E:\ClangSetup```
+>```PS:\> iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcegroup/ClangSetupvNext/master/WebInstaller/install.ps1')) E:\ClangSetup```
 
 ##ClangOnWin 
 
