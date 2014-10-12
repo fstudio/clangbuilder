@@ -214,7 +214,7 @@ Make-LinkEnviroment $ICSNextInvoke "ICSNextEnv" "${ICSNextInvoke}\ClangSetupEnvN
 
 
 $cswshell=New-Object -ComObject WScript.Shell
-$wpfshortcut=$cswshell.CreateShortcut("${ICSNextInvoke}\$ClangSetupWPF.lnk")
+$wpfshortcut=$cswshell.CreateShortcut("${ICSNextInvoke}\ClangSetupWPF.lnk")
 $wpfshortcut.TargetPath="${ICSNextInvoke}\Packages\NetTools\ClangSetupvNextSet.exe"
 $wpfshortcut.Description="Start ClangSetup vNext Environment"
 $wpfshortcut.WindowStyle=1
@@ -225,7 +225,7 @@ $wpfshortcut.Save()
 
 ######
 Write-Host -ForegroundColor Yellow "`n`nCheck Your Visual Studio Instanll:`n"
-#Invoke-Expression   "${ICSNextInvoke}\bin\VisualStudioEnvNext.ps1"
+Invoke-Expression   "${ICSNextInvoke}\bin\VisualStudioEnvNext.ps1"
 Find-VisualStudio|Out-Null
 IF($Global:VS100B)
 {
