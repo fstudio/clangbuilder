@@ -32,7 +32,7 @@ Or:
 >```C:\>  @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcegroup/ClangSetupvNext/master/WebInstaller/install.ps1'))" ```
 
 **Your Should Input Your ClangSetup Install Loaction!!!!**
->```PS:\> iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcegroup/ClangSetupvNext/master/WebInstaller/install.ps1')) E:\ClangSetup```
+
 
 ##ClangOnWin 
 

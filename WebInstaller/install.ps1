@@ -110,7 +110,7 @@ IF(!$IsUnZipSucc)
  return
 }
 
- Move-Item -Path "${Env:TEMP}\ClangSetupWebInstallerUnZip\ClangSetupvNext-master\*" "${Global:InstallPrefix}"  -Force -Passthru
+ Move-Item -Path "${Env:TEMP}\ClangSetupWebInstallerUnZip\ClangSetupvNext-master\*" "${Global:InstallPrefix}"  -Force
  Remove-Item -Force -Recurse "$env:TEMP\ClangSetupvNextWebInstallerZIP.zip"
  Remove-Item -Force -Recurse "$env:TEMP\ClangSetupWebInstallerUnZip"
 
