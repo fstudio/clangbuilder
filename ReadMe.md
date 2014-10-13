@@ -5,7 +5,7 @@ ClangOnWin Build Environment vNext, Long Term Evolution <br>
 ##Installation:
 #####Usually:
 Download from Github, If your known use Git<br>
-```git clone https://github.com/forcegroup/ClangSetupvNext.git ClangSetupvNext ```
+```git clone https://github.com/forcezeus/ClangSetupvNext.git ClangSetupvNext ```
 
 Click the *Install.bat* in the ClangSetupvNext directory, this will run PowerShell startup
 
@@ -26,10 +26,10 @@ You have trouble, you can click on ***PowerShell.Setting.bat***, this batch scri
 
 #####WebInstaller:
 
->```PS:\> iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcegroup/ClangSetupvNext/master/WebInstaller/install.ps1'))```
+>```PS:\> iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/WebInstaller/install.ps1'))```
 
 Or:
->```C:\>  @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcegroup/ClangSetupvNext/master/WebInstaller/install.ps1'))" ```
+>```C:\>  @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/WebInstaller/install.ps1'))" ```
 
 **Your Should Input Your ClangSetup Install Loaction!!!!**
 
@@ -78,14 +78,14 @@ Using Clean Environment (PATH)
 ####Start Screen
 Function:```Show-LauncherWindow``` Base WPF.<br>
 Start Screen:
-![Image](https://raw.githubusercontent.com/forcegroup/ClangSetupvNext/master/Images/StartWindow.jpg)
+![Image](https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/Images/StartWindow.jpg)
 
 Function:``` Get-ReadMeWindow``` Base WPF.<br>
 ReadMeBox:
-![Image](https://raw.githubusercontent.com/forcegroup/ClangSetupvNext/master/Images/ReadMeWindow.jpg)
+![Image](https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/Images/ReadMeWindow.jpg)
 
 Upgrade Select:
-![Image](https://raw.githubusercontent.com/forcegroup/ClangSetupvNext/master/Images/UpdateSelect.jpg)
+![Image](https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/Images/UpdateSelect.jpg)
 
 Other:<br>
 OpenFileDialog(Vista Style),Popu Menu Select,PowerShell base Select Menu <br>
