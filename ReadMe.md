@@ -51,7 +51,7 @@ The Other,Your can use cmake to create MinGW Makefile,or NMake Makefile ,run it 
 ##AutoBuilder
 Run<br>
 ```PowerShell -File .\ClangBuilderPSvNext.ps1 ```<br>
-If not Param ,default VisualStudio version is x86.<br>
+If not Param ,default VisualStudio version is 2013(VS120) Target:x86 Type:Release.<br>
 
 ```PowerShell -File .\ClangBuilederPSNext.ps1 VS120 X86 Release MT MKI -C ```
 
