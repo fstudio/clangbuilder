@@ -125,10 +125,10 @@ Function Global:Get-LLVMSource([String]$sourceroot)
    ##################################
    IF(!(Test-Path "$sourceroot\llvm\projects\compiler-rt\.svn"))
    {
-      Set-Location "${sourceroot}\llvm\projects\compiler-rt"
-    IF(Test-Path "$sourceroot\llvm\projects\compiler-rt\compiler-rt")
+    Set-Location "${sourceroot}\llvm\projects"
+    IF(Test-Path "$sourceroot\llvm\projects\compiler-rt")
     {
-      Remove-Item -Force -Recurse  "$sourceroot\llvm\projects\compiler-rt\compiler-rt"
+      Remove-Item -Force -Recurse  "$sourceroot\llvm\projects\compiler-rt"
     }
     Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/compiler-rt/trunk compiler-rt"
    }ELSE{
