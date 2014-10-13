@@ -102,7 +102,7 @@ namespace ClangSetupvNextSet
             {
                 launcherParam += " -C";
             }
-            MessageBox.Show(launcherParam);
+           // MessageBox.Show(launcherParam);
             String launcher = Process.GetCurrentProcess().MainModule.FileName;
             launcher = launcher.Substring(0, launcher.LastIndexOf("\\"));
             launcher = launcher.Substring(0, launcher.LastIndexOf("\\"));
