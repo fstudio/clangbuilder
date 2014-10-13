@@ -31,7 +31,7 @@ Function UpgradeClangSetup()
   Write-Host "You Select is Upgrade,Shell will Upgrade ClangSetup Environment vNext."
   IEX "${Updateroot}\bin\ClangSetupEnvironmentUpdate.ps1"
   Get-GithubUpdatePackage $Updateroot
-  Invoke-Expression   "${ICSNextInvoke}\tools\Install.ps1"
+  Invoke-Expression   "${Updateroot}\tools\Install.ps1"
 }
 
 Function UpgradeAndReset()
