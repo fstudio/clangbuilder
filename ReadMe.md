@@ -1,21 +1,19 @@
 ClangSetup vNext
 ===
-ClangOnWin Build Environment vNext, Long Term Evolution <br>
-
+ClangOnWin Build Environment vNext, Long Term Evolution   
 ##Installation:
 #####Usually:
-Download from Github, If your known use Git<br>
+Download from Github, If your known use Git  
 ```git clone https://github.com/forcezeus/ClangSetupvNext.git ClangSetupvNext ```
 
-Click the *Install.bat* in the ClangSetupvNext directory, this will run PowerShell startup
-
-**InstallClangSetupvNext.ps1**, It is recommended that whenever you have PowerShell scripts, and try not to delete the project file in the tools directory.
+Click the *Install.bat* in the ClangSetupvNext directory, this will run PowerShell startup ** *InstallClangSetupvNext.ps1* **   
+It is recommended that whenever you have PowerShell scripts, and try not to delete the project file in the tools directory.
 
 Similarly, you can start a PowerShell runs InstallClangSetupvNext.ps1, generally run PowerShell scripts on the Windows right-click menu option, you can right-click the menu "*run with PowerShell*"
 Above procedure does not require administrator privileges.
 
 If you are unable to run the script, please enter **Get-ExecutionPolicy** in the PowerShell,
-If is: 
+If is:  
 > Restricted 
 
 Please run PowerShell with administrator rights, and Type: 
@@ -26,7 +24,7 @@ You have trouble, you can click on ***PowerShell.Setting.bat***, this batch scri
 
 #####WebInstaller:
 
->```PS:\> iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/WebInstaller/install.ps1'))```
+>```PS:\> iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/WebInstaller/install.ps1'))```   
 
 Or:
 >```C:\>  @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/WebInstaller/install.ps1'))" ```
@@ -34,7 +32,7 @@ Or:
 **Your Should Input Your ClangSetup Install Loaction!!!!**
 
 
-##ClangOnWin 
+##ClangOnWin  
 
 Build Clang,Base Visual Studio
 >Visual Studio 2013 or Later,It's Best for VisualStudio 2013 Update 3<br>
@@ -45,14 +43,10 @@ Or Your can use Mingw-w64,your can cross compile LLVM on Linux ,Mingw-w64 Suppor
 The Other,Your can use cmake to create MinGW Makefile,or NMake Makefile ,run it ,The C and C++ Compiler is Mingw-w64 tools ( i686-w64-mingw32-gcc ,x86_64-w64-mingw32-xxx)
 
 
-
-
-
 ##AutoBuilder
-Run<br>
-```PowerShell -File .\ClangBuilderPSvNext.ps1 ```<br>
-If not Param ,default VisualStudio version is 2013(VS120) Target:x86 Type:Release.<br>
-
+Run    
+```PowerShell -File .\ClangBuilderPSvNext.ps1 ```     
+If not Param ,default VisualStudio version is 2013(VS120) Target:x86 Type:Release.    
 ```PowerShell -File .\ClangBuilederPSNext.ps1 VS120 X86 Release MT MKI -C ```
 
 VisualStudio version:
@@ -76,23 +70,22 @@ Using Clean Environment (PATH)
 
 ##User Interface(UI)
 ####Start Screen
-Function:```Show-LauncherWindow``` Base WPF.<br>
+Function:```Show-LauncherWindow``` Base WPF.   
 Start Screen:
 ![Image](https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/Images/StartWindow.jpg)
 
-Function:``` Get-ReadMeWindow``` Base WPF.<br>
+Function:``` Get-ReadMeWindow``` Base WPF.   
 ReadMeBox:
 ![Image](https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/Images/ReadMeWindow.jpg)
 
 Upgrade Select:
 ![Image](https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/Images/UpdateSelect.jpg)
 
-Other:<br>
+Other:   
 OpenFileDialog(Vista Style),Popu Menu Select,PowerShell base Select Menu <br>
 ```Show-OpenFileDialog ,New-Popup Select-MenuShow```
 ####Voice
 
-``` Out-ClangSetupTipsVoice ``` 
+``` Out-ClangSetupTipsVoice ```   
 
-
-Copyright © 2014 ForceStudio.All Rights Reserved.
+Copyright © 2014 ForceStudio. All Rights Reserved.
