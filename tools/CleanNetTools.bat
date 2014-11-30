@@ -18,5 +18,5 @@ msbuild ClangSetupvNextSet.sln /t:Clean
 goto :EOF
 :VAILDVSNOTFOUD
 echo Couldn't find valid VisualStudio
-
+PAUSE
 
