@@ -26,8 +26,8 @@ You have trouble, you can click on ***PowerShell.Setting.bat***, this batch scri
 
 ```PS:\>iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/WebInstaller/install.ps1'))```   
 
-Or:
-```C:\>  @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/WebInstaller/install.ps1'))" ```
+Or:  
+```C:\>powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/WebInstaller/install.ps1'))" ```
 
 **Your Should Input Your ClangSetup Install Loaction!!!!**
 
