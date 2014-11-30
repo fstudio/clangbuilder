@@ -6,3 +6,4 @@ goto :EOF
 :NotFound
 echo Not Found InstallClangSetupvNext,Your Should Reset ClangSetupvNext
 echo "Your Can: git clone https://github.com/forcegroup/ClangSetupvNext.git"
+PAUSE
