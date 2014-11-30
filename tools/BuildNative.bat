@@ -38,14 +38,14 @@ if not exist "%VS110COMNTOOLS%..\..\VC\bin\x86_amd64"  goto VS140ENVCALL64C
 call "%VS110COMNTOOLS%..\..\VC\vcvarsall.bat"  x86_amd64
 goto BuildNative
 
-:VS110ENVCALL64C
+:VS140ENVCALL64C
 if not exist "%VS140COMNTOOLS%..\..\VC\bin\x86_amd64"  goto VAILDVSNOTFOUD
 call "%VS140COMNTOOLS%..\..\VC\vcvarsall.bat"  x86_amd64
 goto BuildNative
 
 ::X86 Build
 :VS120ENV86CALL
-IF not exist "%VS120COMNTOOLS%"  goto VS10ENVC86ALL
+IF not exist "%VS120COMNTOOLS%"  goto VS110ENVC86ALL
 call "%VS120COMNTOOLS%.\VsDevCmd.bat" 
 goto BuildNative
 
@@ -54,7 +54,7 @@ if not exist %VS110COMNTOOLS%  goto VS140ENVC86ALL
 call "%VS110COMNTOOLS%\VsDevCmd.bat"
 goto BuildNative
 
-:VS140ENV86CALL
+:VS140ENVC86ALL
 if not exist %VS140COMNTOOLS%  goto VAILDVSNOTFOUD
 call "%VS140COMNTOOLS%\VsDevCmd.bat"
 goto BuildNative
