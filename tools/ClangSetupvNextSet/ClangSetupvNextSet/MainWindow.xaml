@@ -43,7 +43,7 @@
                   Width="320" Name="vstoolscb">
             <ComboBoxItem Content="Visual Studio 2012" Name="VS110"/>
             <ComboBoxItem Content="Visual Studio 2013" Name="VS120"/>
-            <ComboBoxItem Content="Visual Studio 14" Name="VS140"/>
+            <ComboBoxItem Content="Visual Studio 2015" Name="VS140"/>
             <ComboBoxItem Content="Visual Studio 15" Name="VS150" IsEnabled="False"/>
         </ComboBox>
         <Label Content="Default Build Platform:"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,60,0,0" VerticalAlignment="Top"/>
