@@ -241,7 +241,7 @@ IF($Global:VS120B)
 }
 IF($Global:VS140B)
 {
- Write-Host -ForegroundColor Green "Already installed Visual Studio 14,Support X86 X64 ARM  | ClangSetup Enable Build X86,X64,Disable C++STL`n"
+ Write-Host -ForegroundColor Green "Already installed Visual Studio 2015,Support X86 X64 ARM  | ClangSetup Enable Build X86,X64,Disable C++STL`n"
 }
 IF($Global:VS150B)
 {
