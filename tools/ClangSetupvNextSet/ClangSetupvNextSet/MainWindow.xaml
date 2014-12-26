@@ -33,7 +33,7 @@
     </controls:MetroWindow.RightWindowCommands>
     <Grid>
         <Label Content="Visual Studio Version:"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,20,0,0" VerticalAlignment="Top"/>
-        <ComboBox Controls:TextboxHelper.ClearTextButton="True"
+        <ComboBox Controls:TextBoxHelper.ClearTextButton="True"
                   SelectedIndex="0" 
                   MaxDropDownHeight="125"
                   HorizontalAlignment="Left"  
@@ -43,11 +43,11 @@
                   Width="320" Name="vstoolscb">
             <ComboBoxItem Content="Visual Studio 2012" Name="VS110"/>
             <ComboBoxItem Content="Visual Studio 2013" Name="VS120"/>
-            <ComboBoxItem Content="Visual Studio 14" Name="VS140"/>
+            <ComboBoxItem Content="Visual Studio 2015" Name="VS140"/>
             <ComboBoxItem Content="Visual Studio 15" Name="VS150" IsEnabled="False"/>
         </ComboBox>
         <Label Content="Default Build Platform:"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,60,0,0" VerticalAlignment="Top"/>
-        <ComboBox Controls:TextboxHelper.ClearTextButton="True"
+        <ComboBox Controls:TextBoxHelper.ClearTextButton="True"
                   SelectedIndex="0"
                   MaxDropDownHeight="125"
                   HorizontalAlignment="Left"  
@@ -61,7 +61,7 @@
             <ComboBoxItem Content="AArch64" IsEnabled="False"></ComboBoxItem>
         </ComboBox>
         <Label Content="Build Configuration:"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,100,0,0" VerticalAlignment="Top"/>
-        <ComboBox Controls:TextboxHelper.ClearTextButton="True"
+        <ComboBox Controls:TextBoxHelper.ClearTextButton="True"
                   SelectedIndex="0"
                   MaxDropDownHeight="125"
                   HorizontalAlignment="Left"  

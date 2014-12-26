@@ -75,9 +75,9 @@ Function Global:Get-Python27()
 {
 IF([System.Environment]::Is64BitOperatingSystem -eq $True)
 {
- $PythonPkUrl="https://www.python.org/ftp/python/2.7.8/python-2.7.8.amd64.msi"
+ $PythonPkUrl="https://www.python.org/ftp/python/2.7.9/python-2.7.9.amd64.msi"
 }ELSE{
- $PythonPkUrl="https://www.python.org/ftp/python/2.7.8/python-2.7.8.msi"
+ $PythonPkUrl="https://www.python.org/ftp/python/2.7.9/python-2.7.9.msi"
  }
  $PythonOut="$Global:ICSNextInvoke\Python.msi"
  Start-BitsTransfer $PythonPkUrl $PythonOut
@@ -96,11 +96,11 @@ Function Global:Get-Subversion()
 {
 IF([System.Environment]::Is64BitOperatingSystem -eq $true)
 {
-$SubversionPkUrl="http://www.sliksvn.com/pub/Slik-Subversion-1.8.10-x64.msi"
+$SubversionPkUrl="https://sliksvn.com/pub/Slik-Subversion-1.8.11-x64.msi"
 }
 ELSE
 {
-$SubversionPkUrl="http://www.sliksvn.com/pub/Slik-Subversion-1.8.10-win32.msi"
+$SubversionPkUrl="https://sliksvn.com/pub/Slik-Subversion-1.8.11-win32.msi"
 }
 $SubversionOut="${Global:ICSNextInvoke}\Subversion.msi"
  Start-BitsTransfer $SubversionPkUrl $SubversionOut
@@ -241,7 +241,7 @@ IF($Global:VS120B)
 }
 IF($Global:VS140B)
 {
- Write-Host -ForegroundColor Green "Already installed Visual Studio 14,Support X86 X64 ARM  | ClangSetup Enable Build X86,X64,Disable C++STL`n"
+ Write-Host -ForegroundColor Green "Already installed Visual Studio 2015,Support X86 X64 ARM  | ClangSetup Enable Build X86,X64,Disable C++STL`n"
 }
 IF($Global:VS150B)
 {

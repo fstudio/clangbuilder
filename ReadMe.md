@@ -2,7 +2,7 @@ ClangSetup vNext
 ===
 ClangOnWin Build Environment vNext, Long Term Evolution   
 ##Installation:
-#####Usually:
+####Usually:
 Download from Github, If your known use Git  
 ```git clone https://github.com/forcezeus/ClangSetupvNext.git ClangSetupvNext ```
 
@@ -18,16 +18,16 @@ If is:
 
 Please run PowerShell with administrator rights, and Type: 
 
-    Set-ExecutionPolicy RemoteSigned
+```Set-ExecutionPolicy RemoteSigned```
 
 You have trouble, you can click on ***PowerShell.Setting.bat***, this batch script feature is to modify the PowerShell execution policy is written to the registry, the implementation process will automatically right, you need to select OK
 
-#####WebInstaller:
+####WebInstaller:
 
->```PS:\> iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/WebInstaller/install.ps1'))```   
+```PS:\>iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/WebInstaller/install.ps1'))```   
 
-Or:
->```C:\>  @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/WebInstaller/install.ps1'))" ```
+Or:  
+```C:\>powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/WebInstaller/install.ps1'))" ```
 
 **Your Should Input Your ClangSetup Install Loaction!!!!**
 
@@ -43,7 +43,7 @@ Or Your can use Mingw-w64,your can cross compile LLVM on Linux ,Mingw-w64 Suppor
 The Other,Your can use cmake to create MinGW Makefile,or NMake Makefile ,run it ,The C and C++ Compiler is Mingw-w64 tools ( i686-w64-mingw32-gcc ,x86_64-w64-mingw32-xxx)
 
 
-##AutoBuilder
+##Automated build
 Run    
 ```PowerShell -File .\ClangBuilderPSvNext.ps1 ```     
 If not Param ,default VisualStudio version is 2013(VS120) Target:x86 Type:Release.    
