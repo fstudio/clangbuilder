@@ -12,7 +12,6 @@ param(
 [ValidateNotNullorEmpty()]
 [string]$Message,
 [Parameter(Position=2,HelpMessage="Please Input Error Code.")]
-[ValidateScript({$_ -ge 0})]
 [int]$ErrorCode=-1
 )
 Write-Host -BackgroundColor Red "$Message`n"
@@ -29,7 +28,6 @@ param(
 [ValidateScript({$_ -ge 0})]
 [int]$MessageIcon=1,
 [Parameter(Position=2,HelpMessage="Please Input Error Code.")]
-[ValidateScript({$_ -ge 0})]
 [int]$ErrorCode=-1
 )
 

@@ -1,6 +1,6 @@
 <#############################################################################
 #  SourceManager.ps1
-#  Note: Clang Auto Build Source Manager  API
+#  Note: Clang Auto Build Source Manager  
 #  Data:2015.01.01
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
