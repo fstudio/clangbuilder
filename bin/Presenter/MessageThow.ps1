@@ -5,7 +5,7 @@
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
 
-Function Global::Print-MessageThrow
+Function Global:Print-MessageThrow
 {
 param(
 [Parameter(Position=0,Mandatory=$True,HelpMessage="Enter a message for the Message Throw")]
@@ -20,7 +20,7 @@ Write-Host -BackgroundColor Red "$Message`n"
 exit $ErrorCode
 }
 
-Function Global::Show-MessageWindow{
+Function Global:Show-MessageWindow{
 param(
 [Parameter(Position=0,Mandatory=$True,HelpMessage="Enter a message for the Message Throw")]
 [ValidateNotNullorEmpty()]
