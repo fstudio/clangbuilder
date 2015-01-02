@@ -1,5 +1,5 @@
 #PowerShell Profile[PowerShell 4.0]
-#Huxizero
+#ForceStudio 
 #2014.9
 Set-Alias ll         Get-ChildItemColor  
  

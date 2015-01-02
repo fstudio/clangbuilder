@@ -29,7 +29,7 @@ Function UpgradeClangSetup()
 {
   $Window.Close()
   Write-Host "You Select is Upgrade,Shell will Upgrade ClangSetup Environment vNext."
-  IEX "${Updateroot}\bin\ClangSetupEnvironmentUpdate.ps1"
+  IEX "${Updateroot}\bin\Installer\Update.ps1"
   Get-GithubUpdatePackage $Updateroot
   Invoke-Expression   "${Updateroot}\tools\Install.ps1"
 }
@@ -40,7 +40,7 @@ Function UpgradeAndReset()
   Write-Host "You Select is Reset,Shell will execute resetting ClangSetup Environment vNext.
   First Upgrade PowerShell Script From Github,
   Second Run InstallClangSetupvNext.ps1"
-  IEX "${Updateroot}\bin\ResetEnvironmentAndCheck.ps1"
+  IEX "${Updateroot}\bin\Installer\Reset.ps1"
 }
 
 Function CancleOptions()
