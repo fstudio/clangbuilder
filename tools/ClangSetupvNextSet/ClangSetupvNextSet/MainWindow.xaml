@@ -10,13 +10,12 @@
         xmlns:behaviours="clr-namespace:MahApps.Metro.Behaviours;assembly=MahApps.Metro"
         Title="ClangSetup Environment vNext" 
         Height="450"
-        Width="540" 
+        Width="640" 
         Icon="App.ico" 
         BorderThickness="1"
         BorderBrush="{DynamicResource ThumbBrush}"
         ShowIconOnTitleBar="True"
         NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush}"
-        WindowTitleBrush="MediumSeaGreen"
         ResizeMode="CanMinimize">
     <Window.Resources>
         <ResourceDictionary>
@@ -40,7 +39,7 @@
                   Height="23" 
                   Margin="160,20,0,0"  
                   VerticalAlignment="Top" 
-                  Width="320" Name="vstoolscb">
+                  Width="420" Name="vstoolscb">
             <ComboBoxItem Content="Visual Studio 2012" Name="VS110"/>
             <ComboBoxItem Content="Visual Studio 2013" Name="VS120"/>
             <ComboBoxItem Content="Visual Studio 2015" Name="VS140"/>
@@ -54,7 +53,7 @@
                   Height="23" 
                   Margin="160,60,0,0"  
                   VerticalAlignment="Top" 
-                  Width="320" Name="platformCb">
+                  Width="420" Name="platformCb">
             <ComboBoxItem Content="X86"></ComboBoxItem>
             <ComboBoxItem Content="X64"></ComboBoxItem>
             <ComboBoxItem Content="ARM"></ComboBoxItem>
@@ -68,7 +67,7 @@
                   Height="23" 
                   Margin="160,100,0,0"  
                   VerticalAlignment="Top" 
-                  Width="320" Name="buildtypecb">
+                  Width="420" Name="buildtypecb">
             <ComboBoxItem Content="Release"></ComboBoxItem>
             <ComboBoxItem Content="MinSizeRel"></ComboBoxItem>
             <ComboBoxItem Content="RelWithDebInfo"></ComboBoxItem>
@@ -77,44 +76,58 @@
         <Label Content="Compilation&amp;Install :"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,145,0,0" Height="25" VerticalAlignment="Top"/>
         <CheckBox Margin="160,145,0,0" 
                   Height="25" 
-                  Width="150" 
+                  Width="200" 
                   Content="Make Install Packages" 
                   VerticalAlignment="Top"
                    HorizontalAlignment="Left" Name="mkinpackbox"/>
-        <CheckBox Margin="320,145,0,0" 
+        <CheckBox Margin="370,145,0,0" 
                   Height="25" 
-                  Width="160" 
+                  Width="200" 
                   Content="Use Clean Environment" 
                   VerticalAlignment="Top"
                    HorizontalAlignment="Left" Name="usecleanenvbox"/>
         <CheckBox Margin="160,175,0,0" 
                   Height="25" 
-                  Width="300" 
+                  Width="200" 
                   IsChecked="True"
-                  Content="Use MT(d) Library [C/C++ RunTime Library]" 
+                  Content="Use Run-Time Library /MT(d)" 
                   VerticalAlignment="Top"
                    HorizontalAlignment="Left" Name="useMTcrtbox"/>
-        <Line Canvas.Left="0" X1="160" X2="480" Y1="207" Y2="207" Stroke="DarkCyan" StrokeThickness="0.7"/>
-        <Label Content="Scheduled Manager:"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,210,0,0" Height="25" VerticalAlignment="Top"/>
+        <CheckBox Margin="370,175,0,0" 
+                  Height="25" 
+                  Width="200" 
+                  IsChecked="False"
+                  Content="Use NMake Makefiles" 
+                  VerticalAlignment="Top"
+                   HorizontalAlignment="Left" Name="useNMakeBuilder"/>
         <CheckBox Margin="160,210,0,0" 
                   Height="25" 
-                  Width="150" 
+                  Width="400" 
+                  IsChecked="False"
+                  Content="Add Building LLDB (Current Maybe faild)" 
+                  VerticalAlignment="Top"
+                   HorizontalAlignment="Left" Name="addLLDBBuilder"/>
+        <Line Canvas.Left="0" X1="160" X2="580" Y1="242" Y2="242" Stroke="DarkCyan" StrokeThickness="0.7"/>
+        <Label Content="Scheduled Manager:"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,245,0,0" Height="25" VerticalAlignment="Top"/>
+        <CheckBox Margin="160,245,0,0" 
+                  Height="25" 
+                  Width="200" 
                   Content="Create Scheduled Job" 
                   VerticalAlignment="Top"
                    HorizontalAlignment="Left" Name="createSjobbox"/>
-        <Label Content="Task Interval(days):"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,245,0,0" VerticalAlignment="Top"/>
+        <Label Content="Task Interval(days):"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="20,280,0,0" VerticalAlignment="Top"/>
         <Controls:NumericUpDown Value="10"
                                         HorizontalAlignment="Left" 
-                                        Margin="160,245,0,0" 
+                                        Margin="160,280,0,0" 
                                         Width="90"
                                         VerticalAlignment="Top" 
                                         TextAlignment="Left"
                                         Minimum="1"
                                         IsReadOnly="True"
                                         Maximum="200" />
-        <Label Content="[1~200 days,Default 10 days]"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="260,245,0,0" VerticalAlignment="Top"/>
-        <Button Content="Make Task Scheduled Job"  IsEnabled="False" Name="InitializeButton" Click="OnInitializeEnvironment" HorizontalAlignment="Left" Margin="80,350,0,0" VerticalAlignment="Top" FontSize="15px"  Width="210"/>
-        <Button Content="Start Build Once" Name="StartBuildOnce" Click="OnStartBuildOnce" HorizontalAlignment="Left" Margin="320,350,0,0" VerticalAlignment="Top" FontSize="15px"  Width="160"/>
+        <Label Content="[1~200 days,Default 10 days]"  FontFamily="Segoe UI" FontSize="12px" HorizontalAlignment="Left" Margin="260,280,0,0" VerticalAlignment="Top"/>
+        <Button Content="Make Task Scheduled Job"  IsEnabled="False" Name="InitializeButton" Click="OnInitializeEnvironment" HorizontalAlignment="Left" Margin="80,350,0,0" VerticalAlignment="Top" FontSize="15px"  Width="240"/>
+        <Button Content="Start Build Once" Name="StartBuildOnce" Click="OnStartBuildOnce" HorizontalAlignment="Left" Margin="360,350,0,0" VerticalAlignment="Top" FontSize="15px"  Width="220"/>
     </Grid>
 </controls:MetroWindow>
 <!--        Style="{DynamicResource CleanWindowStyleKey}" -->

@@ -5,8 +5,8 @@
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
 
-IF( $env:VS140COMNTOOLS -eq $null -and (Test-Path $env:VS140COMNTOOLS -eq $false))
+IF( $env:VS140COMNTOOLS -eq $null -or (Test-Path $env:VS140COMNTOOLS))
 {
   Write-Host -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2015"
-  return ;
+  return 
 }
