@@ -37,7 +37,7 @@ $BDVSV="12"
 $BDTAG="X86"
 $BDTYPE="Release"
 $BDCRT="MT"
-[System.Boolean]$IsMakeInstall=$True
+[System.Boolean] $IsMakeInstall=$True
 
 $PrefixDir=Split-Path -Parent $MyInvocation.MyCommand.Definition
 

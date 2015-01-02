@@ -30,7 +30,7 @@ Function Global:Shell-UnZip($fileName, $sourcePath, $destinationPath)
 Function Global:Get-GithubUpdatePackage
 {
 param(
-[Parameter(Position=0,Mandatory=$True,HelpMessage="Enter a message for the Message Throw")]
+[Parameter(Position=0,Mandatory=$True,HelpMessage="Enter ClangSetupvNext Install Root Path")]
 [ValidateNotNullorEmpty()]
 [string]$InstallRoot
 )
