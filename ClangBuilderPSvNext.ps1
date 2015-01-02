@@ -84,6 +84,7 @@ Function Global:Get-LLVMSource([String]$sourceroot)
     }
     Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/llvm/trunk llvm"
    }ELSE{
+    Invoke-Expression -Command "svn cleanup llvm"
     Invoke-Expression -Command "svn up llvm"
    }
    ##############
@@ -97,6 +98,7 @@ Function Global:Get-LLVMSource([String]$sourceroot)
     Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/cfe/trunk clang"
    }ELSE{
       Set-Location "${sourceroot}\llvm\tools\clang"
+    Invoke-Expression -Command "svn cleanup ."
     Invoke-Expression -Command "svn up ."
    }
    ###########
@@ -109,6 +111,7 @@ Function Global:Get-LLVMSource([String]$sourceroot)
     Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/lld/trunk lld"
    }ELSE{
       Set-Location "${sourceroot}\llvm\tools\lld"
+    Invoke-Expression -Command "svn cleanup ."
     Invoke-Expression -Command "svn up ."
    }
 
@@ -123,6 +126,7 @@ Function Global:Get-LLVMSource([String]$sourceroot)
     Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/clang-tools-extra/trunk extra"
    }ELSE{
       Set-Location "${sourceroot}\llvm\tools\clang\tools\extra"
+    Invoke-Expression -Command "svn cleanup ."
     Invoke-Expression -Command "svn up ."
    }
    ##################################
@@ -136,6 +140,7 @@ Function Global:Get-LLVMSource([String]$sourceroot)
     Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/compiler-rt/trunk compiler-rt"
    }ELSE{
      Set-Location "${sourceroot}\llvm\projects\compiler-rt"
+    Invoke-Expression -Command "svn cleanup ." 
     Invoke-Expression -Command "svn up ."
    }
    return $True
