@@ -84,6 +84,7 @@ Function Global:Get-LLVMSource([String]$sourceroot)
     }
     Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/llvm/trunk llvm"
    }ELSE{
+    Invoke-Expression -Command "svn cleanup llvm"
     Invoke-Expression -Command "svn up llvm"
    }
    ##############
@@ -97,6 +98,7 @@ Function Global:Get-LLVMSource([String]$sourceroot)
     Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/cfe/trunk clang"
    }ELSE{
       Set-Location "${sourceroot}\llvm\tools\clang"
+    Invoke-Expression -Command "svn cleanup ."
     Invoke-Expression -Command "svn up ."
    }
    ###########
@@ -109,6 +111,7 @@ Function Global:Get-LLVMSource([String]$sourceroot)
     Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/lld/trunk lld"
    }ELSE{
       Set-Location "${sourceroot}\llvm\tools\lld"
+    Invoke-Expression -Command "svn cleanup ."
     Invoke-Expression -Command "svn up ."
    }
 
@@ -123,6 +126,7 @@ Function Global:Get-LLVMSource([String]$sourceroot)
     Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/clang-tools-extra/trunk extra"
    }ELSE{
       Set-Location "${sourceroot}\llvm\tools\clang\tools\extra"
+    Invoke-Expression -Command "svn cleanup ."
     Invoke-Expression -Command "svn up ."
    }
    ##################################
@@ -136,6 +140,7 @@ Function Global:Get-LLVMSource([String]$sourceroot)
     Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/compiler-rt/trunk compiler-rt"
    }ELSE{
      Set-Location "${sourceroot}\llvm\projects\compiler-rt"
+    Invoke-Expression -Command "svn cleanup ." 
     Invoke-Expression -Command "svn up ."
    }
    return $True
@@ -255,13 +260,13 @@ Set-Location "${PrefixDir}\Build\Out"
 
 IF([System.String]::Compare($BDTAG, "X64") -eq 0)
 {
-  Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} Win64`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
+  Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} Win64`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
   Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE} /p:Platform=x64"
 }ELSEIF([System.String]::Compare($BDTAG, "ARM") -eq 0){
-  Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} ARM`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
+  Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} ARM`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
   Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE} /p:Platform=ARM"
 }ELSE{
-Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV}`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
+Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV}`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
 Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE} /p:Platform=win32"
 }
 #Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio 12`" -DLLVM_TARGETS_TO_BUILD=`"X86;ARM`""
