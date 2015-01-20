@@ -6,3 +6,6 @@
 ##############################################################################>
 
 ##cmake -G "NMake Makefiles"
+
+
+Invoke-Expression -Command "cmake -G `"NMake Makefiles`" "

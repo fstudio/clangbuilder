@@ -68,9 +68,10 @@ IF($VSMark -eq 15)
 return $FALSE
 }
 
-<#----------Test.
+<##Test.
 Call-VisualStudioSub 11
 Call-VisualStudioSub 12
 Call-VisualStudioSub 13
 Call-VisualStudioSub 14
 Call-VisualStudioSub 15#>
+Write-Host "Hello world"
