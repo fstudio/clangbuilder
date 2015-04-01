@@ -96,11 +96,12 @@ Function Global:Get-Subversion()
 {
 IF([System.Environment]::Is64BitOperatingSystem -eq $true)
 {
-$SubversionPkUrl="https://sliksvn.com/pub/Slik-Subversion-1.8.11-x64.msi"
+$SubversionPkUrl="https://sliksvn.com/pub/Slik-Subversion-1.8.13-x64.msi"
 }
 ELSE
 {
-$SubversionPkUrl="https://sliksvn.com/pub/Slik-Subversion-1.8.11-win32.msi"
+#https://sliksvn.com/pub/Slik-Subversion-1.8.13-x64.msi
+$SubversionPkUrl="https://sliksvn.com/pub/Slik-Subversion-1.8.13-win32.msi"
 }
 $SubversionOut="${Global:ICSNextInvoke}\Subversion.msi"
  Start-BitsTransfer $SubversionPkUrl $SubversionOut
