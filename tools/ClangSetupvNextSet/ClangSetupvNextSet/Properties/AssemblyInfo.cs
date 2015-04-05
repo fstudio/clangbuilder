@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Force Studio")]
 [assembly: AssemblyProduct("ClangSetupvNextSet")]
-[assembly: AssemblyCopyright("Copyright ©  2014 The ForceStudio. All Right Reserved.")]
+[assembly: AssemblyCopyright("Copyright ©  2015 The Force Studio. All Right Reserved.")]
 [assembly: AssemblyTrademark("Force")]
 [assembly: AssemblyCulture("")]
 
