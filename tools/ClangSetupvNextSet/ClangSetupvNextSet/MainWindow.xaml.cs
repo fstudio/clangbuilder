@@ -72,35 +72,23 @@ namespace ClangSetupvNextSet
             launcherParam += " -B " + bdtype[buildtypecb.SelectedIndex];
             if (useMTcrtbox.IsChecked==true)
             {
-                if (buildtypecb.SelectedIndex == 3)
-                {
-                    launcherParam += " -R MTd";
-                }
-                else
-                {
-                    launcherParam += " -R MT";
-                }
-            }
-            else {
-                if (buildtypecb.SelectedIndex == 3)
-                {
-                    launcherParam += " -R MDd";
-                }
-                else
-                {
-                    launcherParam += " -R MD";
-                }
+                launcherParam += "-MD";
             }
             if (mkinpackbox.IsChecked == true)
             {
-                launcherParam += " -M MKI";
-            }
-            else {
-                launcherParam += " -M NOMKI";
+                launcherParam += " -MK";
             }
             if (usecleanenvbox.IsChecked == true)
             {
-                launcherParam += " -C";
+                launcherParam += " -CE";
+            }
+            if(useNMakeBuilder.IsChecked==true)
+            {
+                launcherParam += " -NMake";
+            }
+            if(addLLDBBuilder.IsChecked==true)
+            {
+                launcherParam += " -LLDB";
             }
            // MessageBox.Show(launcherParam);
             String launcher = Process.GetCurrentProcess().MainModule.FileName;

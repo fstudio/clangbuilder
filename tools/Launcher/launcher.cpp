@@ -52,6 +52,7 @@ Boolean Option:\n\
 -MD\tLink Runtime: Link msvcrtXX.dll\n\
 -MK \tMake Install Package:\n\
 -CE\tUse Clean Environment\n\
+-LLDB\tAdd Building LLDB\n\
 -NMake\tUse NMake not MSBuild\n\
 Example:\n\
 Launcher -V VS110 -T X64 -B MinSizeRel  -MD -MK -CE -NMake \n\n\
@@ -165,6 +166,7 @@ int LauncherInit()
     bool bMakePkg=false;
     bool bCleanEnv=false;
     bool bUseNmake=false;
+    bool bLLDB=false;
     if(Argc==1)
     {
         Usage();
@@ -191,6 +193,8 @@ int LauncherInit()
         L"Use Clean Environment");
     Args.AddArgument(L"-NMake",argT::NO_ARGUMENT,&bUseNmake,
         L"Use NMake Build,Not MSBuild");
+    Args.AddArgument(L"-LLDB",argT::NO_ARGUMENT,&bLLDB,
+        L"Add Building LLDB");
     Args.SetUnknownArgumentCallback(cmdUnknownArgument);
     bool ishaveUnknown=false;
     Args.SetClientData(&ishaveUnknown);
@@ -208,8 +212,8 @@ int LauncherInit()
         PrintVersion();
         return 0;
     }
-    argstream<<vsv<<L" "<<target<<L" "<<buildtype<<(bMtd?L" MKI":L" NOMKI")<<(bCleanEnv?L" -E":L" -Ne")
-    <<(bUseNmake?L" -NMake":L" -MSBuild");
+    argstream<<vsv<<L" "<<target<<L" "<<buildtype<<(bMtd?L" MD":L" MT")<<(bMakePkg?L" MKI":L" NOMKI")<<(bCleanEnv?L" -E":L" -Ne")
+    <<(bUseNmake?L" -NMake":L" -MSBuild")<<(bLLDB?L" -LLDB");
     //MessageBoxW(nullptr,argstream.str().c_str(),L"Args",MB_OK);
     //return 0;
     return Launcher(argstream.str());

@@ -104,7 +104,7 @@
                   Height="25" 
                   Width="400" 
                   IsChecked="False"
-                  Content="Add Building LLDB (Current Maybe faild)" 
+                  Content="Add Building LLDB (Current Maybe failed)" 
                   VerticalAlignment="Top"
                    HorizontalAlignment="Left" Name="addLLDBBuilder"/>
         <Line Canvas.Left="0" X1="160" X2="580" Y1="242" Y2="242" Stroke="DarkCyan" StrokeThickness="0.7"/>

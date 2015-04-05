@@ -38,8 +38,33 @@ $BDTAG="X86"
 $BDTYPE="Release"
 $BDCRT="MT"
 [System.Boolean] $IsMakeInstall=$True
+[System.Boolean] $IsUseMD=$False
+[System.Boolean] $IsNMakeEnable=$False
+[System.Boolean] $IsMTLib=$True
+[System.Boolean] $IsCleanEnv=$False
+[System.Boolean] $IsAddLLDB=$False
 
 $PrefixDir=Split-Path -Parent $MyInvocation.MyCommand.Definition
+
+##################Checker Args
+# ClangBuilderPSvNext.ps1 VS120 X64 MinSizeRel MT  NOMKI -CleanEnv
+
+IF($args.Count -ge 8)
+{
+ IF([System.String]::Compare($args[7],"-LLDB") -eq 0)
+ {
+   $IsAddLLDB=$True
+ }
+ IF( [System.String]::Compare($args[6],"-NMake") -eq 0)
+ {
+  $IsNMakeEnable=$True
+ }
+ IF([System.String]::Compare($args[3],"MD") -eq 0)
+ {
+ $IsMTLib=$False
+ }
+}
+##################End Checker Args
 
 
 <#
@@ -87,6 +112,11 @@ Function Global:Get-LLVMSource([String]$sourceroot)
     Invoke-Expression -Command "svn cleanup llvm"
     Invoke-Expression -Command "svn up llvm"
    }
+   #######################
+    IF(Test-Path "$sourceroot\llvm\tools\lldb")
+    {
+    Remove-Item -Force -Recurse "$sourceroot\llvm\tools\lldb"
+    }
    ##############
    IF(!(Test-Path "$sourceroot\llvm\tools\clang\.svn"))
    {
@@ -114,7 +144,15 @@ Function Global:Get-LLVMSource([String]$sourceroot)
     Invoke-Expression -Command "svn cleanup ."
     Invoke-Expression -Command "svn up ."
    }
-
+   IF($IsAddLLDB -eq $True)
+   {
+    IF(Test-Path "$sourceroot\llvm\tools\lldb")
+    {
+    Remove-Item -Force -Recurse "$sourceroot\llvm\tools\lldb"
+    }
+    Set-Location "${sourceroot}\llvm\tools"
+    Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/lldb/trunk lldb"
+   }
  ####################
    IF(!(Test-Path "$sourceroot\llvm\tools\clang\tools\extra\.svn"))
    {
@@ -198,6 +236,12 @@ IF([System.String]::Compare($args[1],"AArch64") -eq 0)
 
 IF($args.Count -ge 3)
 {
+  IF($IsMTLib)
+  {
+   $BDCRT="MT"
+  }else{
+  $BDCRT="MD"
+  }
  IF([System.String]::Compare($args[2],"MinSizeRel") -eq 0)
  {
   $BDTYPE="MinSizeRel"
@@ -209,13 +253,12 @@ IF($args.Count -ge 3)
   IF([System.String]::Compare($args[2],"Debug") -eq 0)
  {
   $BDTYPE="Debug"
- }
-}
-IF($args.Count -ge 4)
-{
- IF([System.String]::Compare($args[3],"MD") -eq 0)
- {
-  $BDCRT="MD"
+    IF($IsMTLib)
+  {
+   $BDCRT="MTd"
+  }else{
+  $BDCRT="MDd"
+  }
  }
 }
 IF($args.Count -ge 5)
@@ -257,7 +300,7 @@ Mkdir "${PrefixDir}\Build\Out"
 ####Default
 Set-Location "${PrefixDir}\Build\Out"
 #Default Options
-IF($args.Count -ge 7 -and [System.String]::Compare($args[6],"-NMake") -eq 0)
+IF($IsNMakeEnable)
 {
   Invoke-Expression -Command "cmake ..\llvm -G`"NMake Makefiles`" -DCMAKE_BUILD_TYPE=MinSizeRel  -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE}  -DCMAKE_CONFIGURATION_TYPES:STRING=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
   Invoke-Expression -Command "nmake"
