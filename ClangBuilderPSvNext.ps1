@@ -257,7 +257,11 @@ Mkdir "${PrefixDir}\Build\Out"
 ####Default
 Set-Location "${PrefixDir}\Build\Out"
 #Default Options
-
+IF($args.Count -ge 7 -and [System.String]::Compare($args[6],"-NMake") -eq 0)
+{
+  Invoke-Expression -Command "cmake ..\llvm -G`"NMake Makefiles`" -DCMAKE_BUILD_TYPE=MinSizeRel  -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE}  -DCMAKE_CONFIGURATION_TYPES:STRING=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
+  Invoke-Expression -Command "nmake"
+}ELSE{
 IF([System.String]::Compare($BDTAG, "X64") -eq 0)
 {
   Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} Win64`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE} -DCMAKE_CONFIGURATION_TYPES:STRING=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
@@ -269,6 +273,8 @@ IF([System.String]::Compare($BDTAG, "X64") -eq 0)
 Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV}`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE}  -DCMAKE_CONFIGURATION_TYPES:STRING=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
 Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE} /p:Platform=win32"
 }
+}
+
 #Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio 12`" -DLLVM_TARGETS_TO_BUILD=`"X86;ARM`""
 
 Write-Host -ForegroundColor Cyan "Automatic build LLVM is completed"
