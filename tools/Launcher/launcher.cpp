@@ -9,6 +9,8 @@
 #include <wchar.h>
 #include <processthreadsapi.h>
 #include <Shlobj.h>
+#include <Shlwapi.h>
+#include <sstream>
 #include "resource.h"
 
 #include "Arguments.hpp"
@@ -43,28 +45,30 @@ int OutErrorMessage(const wchar_t* errorMsg,const wchar_t* errorTitle);
 const wchar_t usageInfo[]=L"ClangSetup Native Launcher\n\
 Usage: [Option] value\r\n\
 String Options:\n\
--V \tVisualStudio: VS110|VS120|VS140|VS150\n\
--T\tTarget: X86|X64|ARM|AArch64\n\
--B \tBuild: Release|MinSizeRel|RelWithDebInfo|Debug\n\
+-V \tVisualStudio:  VS110|VS120|VS140|VS150\n\
+-T\tTarget:  X86|X64|ARM|AArch64\n\
+-B \tBuild:  Release|MinSizeRel|RelWithDebInfo|Debug\n\
 Boolean Option:\n\
 -MD\tLink Runtime: Link msvcrtXX.dll\n\
 -MK \tMake Install Package:\n\
--C\tUse Clean Environment\n\
+-CE\tUse Clean Environment\n\
 -NMake\tUse NMake not MSBuild\n\
 Example:\n\
-Launcher -V VS110 -T X64 -B MinSizeRel  -MD -MK CleanEnv -NMake \n\n\
+Launcher -V VS110 -T X64 -B MinSizeRel  -MD -MK -CE -NMake \n\n\
 ClangSetup Native Lanucher 2.0\n\
 Copyright \xA9 2015 ForceStudio.All Right Reserved.";
 
 
-int cmdUnknownArgument(const wchar_t *args, void *) {
+int cmdUnknownArgument(const wchar_t *args, void *data) {
     int nButtonPressed = 0;
     TaskDialog(NULL, GetModuleHandle(nullptr),
         L"ClangSetup vNext Launcher",
         L"cmd Unknown Options: ",
         args,
         TDCBF_OK_BUTTON ,TD_ERROR_ICON,&nButtonPressed);
-  return 1;
+    auto p=static_cast<bool *>(data);
+    *p=true;
+    return 1;
 }
 
 void PrintVersion()
@@ -139,7 +143,7 @@ LRESULT WINAPI CreateTaskDialogIndirectFd(
 
 void Usage()
 {
-    MessageBoxW(nullptr,usageInfo,L"Z",MB_OK);
+    MessageBoxW(nullptr,usageInfo,L"ClangSetup vNext Launcher Help",MB_OK);
     int nButton = 0;
     int nRadioButton = 0;
     CreateTaskDialogIndirectFd(nullptr, GetModuleHandle(nullptr), &nButton, &nRadioButton);
@@ -154,7 +158,7 @@ int LauncherInit()
     std::wstring vsv=L"VS120";
     std::wstring target=L"x64";
     std::wstring buildtype=L"Release";
-    std::wstring params;
+    std::wstringstream argstream;
     bool bHelp=false;
     bool bVersion=false;
     bool bMtd=false;
@@ -181,16 +185,20 @@ int LauncherInit()
         L"Select Build Type,or Relase MinSizeRel Debug RelWithDebugInfo");
     Args.AddArgument(L"-MD",argT::NO_ARGUMENT,&bMtd,
         L"Use Multi DLL");
-    Args.AddArgument(L"-MK",argT::NO_ARGUMENT,&bUseNmake,
+    Args.AddArgument(L"-MK",argT::NO_ARGUMENT,&bMakePkg,
         L"Create Install Package");
-    Args.AddArgument(L"-CleanEnv",argT::NO_ARGUMENT,&bUseNmake,
+    Args.AddArgument(L"-CE",argT::NO_ARGUMENT,&bCleanEnv,
         L"Use Clean Environment");
     Args.AddArgument(L"-NMake",argT::NO_ARGUMENT,&bUseNmake,
-        L"Use NMake Build,Not MSbuild");
+        L"Use NMake Build,Not MSBuild");
     Args.SetUnknownArgumentCallback(cmdUnknownArgument);
+    bool ishaveUnknown=false;
+    Args.SetClientData(&ishaveUnknown);
     int parsed=Args.Parse();
     if(!parsed)
         return -1;
+    if(ishaveUnknown)
+        return 1;
     if(bHelp)
     {
         Usage();
@@ -200,14 +208,11 @@ int LauncherInit()
         PrintVersion();
         return 0;
     }
-    params=vsv;
-    params+=L" "+target;
-    params+=L" "+buildtype;
-    params+=L" "+bMtd?L"MD":L"MT";
-    params+=L" "+bMakePkg?L"MKI":L"NOMKI";
-    params+=L" "+bCleanEnv?L"-E":L"-Ne";
-    params+=L" "+bUseNmake?L"-NMake":L"-MSbuild";
-    return Launcher(params);
+    argstream<<vsv<<L" "<<target<<L" "<<buildtype<<(bMtd?L" MKI":L" NOMKI")<<(bCleanEnv?L" -E":L" -Ne")
+    <<(bUseNmake?L" -NMake":L" -MSBuild");
+    //MessageBoxW(nullptr,argstream.str().c_str(),L"Args",MB_OK);
+    //return 0;
+    return Launcher(argstream.str());
 }
 
 
@@ -241,7 +246,7 @@ int Launcher(std::wstring wstr)
     }
     }
    csbuilder+=L"\\ClangBuilderPSvNext.ps1";
-   if(_waccess(csbuilder.c_str(),0)!=0)
+   if(!PathFileExistsW(csbuilder.c_str()))
    {
     OutErrorMessage(csbuilder.c_str(),L"File does not exist or cannot be accessed");
     return 3;
@@ -253,7 +258,6 @@ int Launcher(std::wstring wstr)
    }
    posh+=wszPath;
    posh+=L"\\WindowsPowerShell\\v1.0\\powershell.exe";
-   wprintf(posh.c_str());
    PROCESS_INFORMATION pi;
    STARTUPINFO si;
    ZeroMemory(&si, sizeof(si));
