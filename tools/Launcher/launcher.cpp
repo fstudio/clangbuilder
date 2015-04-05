@@ -90,7 +90,7 @@ Usage:\nLauncher [-V value] [-T value] [-B value] [-R value] [-M value] [-C]\r\n
 Example:\n\
           Launcher -V VS110 -T X64 -B MinSizeRel -R MT -M MKI -E \r\n\n\
 ClangSetup Native Lanucher 1.0\n\
-Copyright \xA9 2014 ForceStudio.All Right Reserved.";
+Copyright \xA9 2015 ForceStudio.All Right Reserved.";
  
 	tdConfig.cbSize = sizeof(tdConfig);
 
