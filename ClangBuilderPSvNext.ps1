@@ -260,13 +260,13 @@ Set-Location "${PrefixDir}\Build\Out"
 
 IF([System.String]::Compare($BDTAG, "X64") -eq 0)
 {
-  Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} Win64`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE}CMAKE_CONFIGURATION_TYPES:STRING -DLLVM_APPEND_VC_REV:BOOL=ON "
+  Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} Win64`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE} -DCMAKE_CONFIGURATION_TYPES:STRING=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
   Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE} /p:Platform=x64"
 }ELSEIF([System.String]::Compare($BDTAG, "ARM") -eq 0){
-  Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} ARM`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE} CMAKE_CONFIGURATION_TYPES:STRING -DLLVM_APPEND_VC_REV:BOOL=ON "
+  Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} ARM`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE}  -DCMAKE_CONFIGURATION_TYPES:STRING=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
   Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE} /p:Platform=ARM"
 }ELSE{
-Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV}`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE} CMAKE_CONFIGURATION_TYPES:STRING -DLLVM_APPEND_VC_REV:BOOL=ON "
+Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV}`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DCMAKE_BUILD_TYPE:STRING=${BDTYPE}  -DCMAKE_CONFIGURATION_TYPES:STRING=${BDTYPE} -DLLVM_APPEND_VC_REV:BOOL=ON "
 Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE} /p:Platform=win32"
 }
 #Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio 12`" -DLLVM_TARGETS_TO_BUILD=`"X86;ARM`""
