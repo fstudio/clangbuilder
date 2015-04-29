@@ -45,7 +45,7 @@ namespace ClangSetupvNextSet
                 ColorScheme = MetroDialogColorScheme.Theme
             };
 
-            MessageDialogResult result = await this.ShowMessageAsync("ClangSetup Setting", "Welcome to use the ClangSetup Environment Configuration tool\nCopyright \xA9 2014 ForceStudio All Rights Reserved. ",
+            MessageDialogResult result = await this.ShowMessageAsync("ClangSetup Setting", "Welcome to use the ClangSetup Environment Configuration tool\nCopyright \xA9 2015 ForceStudio All Rights Reserved. ",
                 MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary, mySettings);
 
             if (result != MessageDialogResult.FirstAuxiliary)
