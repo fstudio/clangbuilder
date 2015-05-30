@@ -2,7 +2,7 @@
 #  ClangBuilderPS.ps1
 #  Note: Clang Auto Build TaskScheduler
 #  Data:2014 08
-#  Author:Force <forcemz@outlook.com>    
+#  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
@@ -178,7 +178,7 @@ Function Global:Get-LLVMSource([String]$sourceroot)
     Invoke-Expression -Command "svn co  http://llvm.org/svn/llvm-project/compiler-rt/trunk compiler-rt"
    }ELSE{
      Set-Location "${sourceroot}\llvm\projects\compiler-rt"
-    Invoke-Expression -Command "svn cleanup ." 
+    Invoke-Expression -Command "svn cleanup ."
     Invoke-Expression -Command "svn up ."
    }
    return $True

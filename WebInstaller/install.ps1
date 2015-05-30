@@ -5,8 +5,8 @@
 Set-StrictMode -Version latest
 Import-Module -Name BitsTransfer
 
-Function Global:Get-RegistryValue($key, $value) { 
-                  (Get-ItemProperty $key $value).$value 
+Function Global:Get-RegistryValue($key, $value) {
+    (Get-ItemProperty $key $value).$value
 }
 
 
@@ -36,7 +36,7 @@ IF(!(Test-Path $Destination))
 }
 
 $ShellInterface=New-Object -com Shell.Application
-$ShellInterface.namespace($Destination).copyhere($ShellInterface.namespace("$ZipSource").items()) 
+$ShellInterface.namespace($Destination).copyhere($ShellInterface.namespace("$ZipSource").items())
 return $True
 }
 
