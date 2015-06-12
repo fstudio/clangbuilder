@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClangSetupvNextSet", "ClangSetupvNextSet\ClangSetupvNextSet.csproj", "{EC769D83-7FF5-48B1-A4D4-DC964889F62A}"
 EndProject
 Global

@@ -133,7 +133,7 @@ LRESULT WINAPI CreateTaskDialogIndirectFd(
     tdConfig.pszContent = L"Launcher Normal";
     tdConfig.cxWidth=270;
     tdConfig.pszExpandedInformation = _T("For more information about this tool, ")
-    _T("Visit: <a href=\"https://github.com/forcegroup\">Force\xAEStudio</a>");
+    _T("Visit: <a href=\"http://forcemz.net/\">Force\xAEStudio</a>");
     tdConfig.pszCollapsedControlText = _T("More information");
     tdConfig.pszExpandedControlText = _T("Less information");
     tdConfig.pfCallback = TaskDialogCallbackProc;
