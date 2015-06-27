@@ -27,19 +27,15 @@ Function Global:Shell-UnZip($fileName, $sourcePath, $destinationPath)
 
 
 
-Function Global:Get-GithubUpdatePackage
+Function Global:Get-GithubUpdatePackage([String]$clangsetuproot)
 {
-param(
-[Parameter(Position=0,Mandatory=$True,HelpMessage="Enter ClangSetupvNext Install Root Path")]
-[ValidateNotNullorEmpty()]
-[string]$InstallRoot
-)
- $ClangSetupEnvPkUrl="https://github.com/forcezeus/ClangSetupvNext/archive/master.zip"
+ $ClangSetupEnvPkUrl="https://github.com/fstudio/clangbuilder/archive/master.zip"
  $ClangSetupEnvPkName="$env:TEMP\ClangSetupvNextUpdatePackage.zip"
  Start-BitsTransfer $ClangSetupEnvPkUrl  $ClangSetupEnvPkName 
  Unblock-File $ClangSetupEnvPkName
  Shell-UnZip "ClangSetupvNextUpdatePackage.zip" "${env:TEMP}" "${Env:TEMP}\ClangSetupUnZipTemp"
- Copy-Item -Path "${Env:TEMP}\ClangSetupUnZipTemp\ClangSetupvNext-master\*" $InstallRoot  -Force -Recurse
+ Copy-Item -Path "${Env:TEMP}\ClangSetupUnZipTemp\ClangSetupvNext-master\*" $clangsetuproot  -Force -Recurse
  Remove-Item -Force -Recurse "$env:TEMP\ClangSetupvNextUpdatePackage.zip"
  Remove-Item -Force -Recurse "$env:TEMP\ClangSetupUnZipTemp"
 }
+
