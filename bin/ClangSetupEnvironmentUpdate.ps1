@@ -29,7 +29,7 @@ Function Global:Shell-UnZip($fileName, $sourcePath, $destinationPath)
 
 Function Global:Get-GithubUpdatePackage([String]$clangsetuproot)
 {
- $ClangSetupEnvPkUrl="https://github.com/forcezeus/ClangSetupvNext/archive/master.zip"
+ $ClangSetupEnvPkUrl="https://github.com/fstudio/clangbuilder/archive/master.zip"
  $ClangSetupEnvPkName="$env:TEMP\ClangSetupvNextUpdatePackage.zip"
  Start-BitsTransfer $ClangSetupEnvPkUrl  $ClangSetupEnvPkName 
  Unblock-File $ClangSetupEnvPkName

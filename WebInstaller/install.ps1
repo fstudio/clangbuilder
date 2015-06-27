@@ -1,5 +1,5 @@
 <#
-# https://raw.githubusercontent.com/forcezeus/ClangSetupvNext/master/WebInstaller/install.ps1 Internet Installer.
+# https://raw.githubusercontent.com/fstudio/clangbuilder/master/WebInstaller/install.ps1 Internet Installer.
 # Run PowerShell IEX 
 #>
 Set-StrictMode -Version latest
@@ -98,7 +98,7 @@ $Global:InstallPrefix =$args[0]
 }
 
 $DownloadInstallPackage="${env:TEMP}\ClangSetupvNextWebInstallerZIP.zip"
-$OfficaUrl="https://github.com/forcezeus/ClangSetupvNext/archive/master.zip"
+$OfficaUrl="https://github.com/fstudio/clangbuilder/archive/master.zip"
 Get-DownloadFile -FileUrl $OfficaUrl -FileSavePath $DownloadInstallPackage
 Unblock-File $DownloadInstallPackage
 
