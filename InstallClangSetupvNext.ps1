@@ -14,8 +14,12 @@ Exit 1
 Set-StrictMode -Version latest
 Import-Module -Name BitsTransfer
 
+$host.UI.RawUI.WindowTitle="Clang Builder Installer v2.0"
+
 $Global:ICSNextInvoke=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-#Split-Path -Parent $MyInvocation.MyCommand.Definition
+$RootPath=Split-Path -Parent $MyInvocation.MyCommand.Definition
+Import-Module -Name $RootPath/Repositories/PackageList.ps1
+#
 Set-Location $Global:ICSNextInvoke
 $Global:FastCSvN=$false
 ### Unzip file ,Explorer Feacture
