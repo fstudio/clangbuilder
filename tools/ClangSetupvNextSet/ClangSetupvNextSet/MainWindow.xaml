@@ -15,6 +15,7 @@
         BorderThickness="1"
         BorderBrush="{DynamicResource ThumbBrush}"
         ShowIconOnTitleBar="True"
+		TitleCaps="False"
         NonActiveWindowTitleBrush="{DynamicResource AccentColorBrush}"
         ResizeMode="CanMinimize">
     <Window.Resources>

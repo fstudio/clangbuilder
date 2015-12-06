@@ -308,13 +308,13 @@ IF($IsNMakeEnable)
 IF([System.String]::Compare($BDTAG, "X64") -eq 0)
 {
   Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} Win64`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT}  -DLLVM_APPEND_VC_REV:BOOL=ON "
-  Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE} /p:Platform=x64"
+  Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE} /p:Platform=x64 /t:ALL_BUILD" 
 }ELSEIF([System.String]::Compare($BDTAG, "ARM") -eq 0){
   Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV} ARM`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT} -DLLVM_APPEND_VC_REV:BOOL=ON "
-  Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE} /p:Platform=ARM"
+  Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE} /p:Platform=ARM /t:ALL_BUILD"
 }ELSE{
 Invoke-Expression -Command "cmake ..\llvm -G `"Visual Studio ${BDVSV}`" -DLLVM_USE_CRT_MINSIZEREL:STRING=${BDCRT} -DLLVM_USE_CRT_RELEASE:STRING=${BDCRT}  -DLLVM_APPEND_VC_REV:BOOL=ON "
-Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE} /p:Platform=win32"
+Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=${BDTYPE} /p:Platform=win32 /t:ALL_BUILD"
 }
 }
 
