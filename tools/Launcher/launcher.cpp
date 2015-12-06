@@ -56,14 +56,14 @@ Boolean Option:\n\
 -NMake\tUse NMake not MSBuild\n\
 Example:\n\
 Launcher -V VS110 -T X64 -B MinSizeRel  -MD -MK -CE -NMake \n\n\
-ClangSetup Native Lanucher 2.0\n\
-Copyright \xA9 2015 ForceStudio.All Right Reserved.";
+Clangbuilder Native Lanucher 2.0\n\
+Copyright \xA9 2015 Force Charlie.All Right Reserved.";
 
 
 int cmdUnknownArgument(const wchar_t *args, void *data) {
     int nButtonPressed = 0;
     TaskDialog(NULL, GetModuleHandle(nullptr),
-        L"ClangSetup vNext Launcher",
+        L"Clangbuilder vNext Launcher",
         L"cmd Unknown Options: ",
         args,
         TDCBF_OK_BUTTON ,TD_ERROR_ICON,&nButtonPressed);
@@ -76,7 +76,7 @@ void PrintVersion()
 {
     int nButtonPressed = 0;
     TaskDialog(NULL, GetModuleHandle(nullptr),
-        L"ClangSetup vNext Launcher",
+        L"Clangbuilder vNext Launcher",
         L"Version Info: ",
         LAUNCHER_APP_VERSION,
         TDCBF_OK_BUTTON ,TD_INFORMATION_ICON,&nButtonPressed);
@@ -133,7 +133,7 @@ LRESULT WINAPI CreateTaskDialogIndirectFd(
     tdConfig.pszContent = L"Launcher Normal";
     tdConfig.cxWidth=270;
     tdConfig.pszExpandedInformation = _T("For more information about this tool, ")
-    _T("Visit: <a href=\"http://forcemz.net/\">Force\xAEStudio</a>");
+    _T("Visit: <a href=\"http://forcemz.net/\">Force.Charlie</a>");
     tdConfig.pszCollapsedControlText = _T("More information");
     tdConfig.pszExpandedControlText = _T("Less information");
     tdConfig.pfCallback = TaskDialogCallbackProc;
@@ -144,7 +144,7 @@ LRESULT WINAPI CreateTaskDialogIndirectFd(
 
 void Usage()
 {
-    MessageBoxW(nullptr,usageInfo,L"ClangSetup vNext Launcher Help",MB_OK);
+    MessageBoxW(nullptr,usageInfo,L"Clangbuilder vNext Launcher Help",MB_OK);
     int nButton = 0;
     int nRadioButton = 0;
     CreateTaskDialogIndirectFd(nullptr, GetModuleHandle(nullptr), &nButton, &nRadioButton);
@@ -292,13 +292,13 @@ int OutErrorMessage(const wchar_t* errorMsg,const wchar_t* errorTitle)
     tdConfig.dwFlags =TDF_ALLOW_DIALOG_CANCELLATION |TDF_EXPAND_FOOTER_AREA |
     TDF_POSITION_RELATIVE_TO_WINDOW |TDF_SIZE_TO_CONTENT|TDF_ENABLE_HYPERLINKS;
     tdConfig.nDefaultRadioButton = nRadioButton;
-    tdConfig.pszWindowTitle = L"ClangSetup Launcher Error";
+    tdConfig.pszWindowTitle = L"Clangbuilder Launcher Error";
     tdConfig.pszMainInstruction =errorTitle;
     tdConfig.hMainIcon = static_cast<HICON>(LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDI_ICON_LAUNCHER)));
     tdConfig.dwFlags |= TDF_USE_HICON_MAIN;
     tdConfig.pszContent = errorMsg;
     tdConfig.pszExpandedInformation = _T("For more information about this tool, ")
-		_T("Visit: <a href=\"https://github.com/forcegroup\">Force\xAEStudio</a>");
+		_T("Visit: <a href=\"https://github.com/fstudio\">Force Charlie</a>");
     tdConfig.pszCollapsedControlText = _T("More information");
     tdConfig.pszExpandedControlText = _T("Less information");
     tdConfig.pfCallback = TaskDialogCallbackProc;
