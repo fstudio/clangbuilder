@@ -1,16 +1,10 @@
 <#############################################################################
-#  AsynchronousLoader.ps1
-#  Note: Clang Auto Build Asynchronous Loader API
+#  VisualStudioShared.ps1
+#  Note: Clangbuilder shared tools
 #  Date:2016.01.01
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
 
-
-Function Loader-Modules{
+Function Global:Get-RegistryValue($key, $value) { 
+    (Get-ItemProperty $key $value).$value 
 }
-
-
-Function Loader-API{
-}
-
-

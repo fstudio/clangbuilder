@@ -7,12 +7,12 @@ using System.Windows;
 // 有关程序集的常规信息通过以下
 // 特性集控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("Clang Setup vNext Setting Tools")]
+[assembly: AssemblyTitle("Clangbuilder UI vNext")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Force Studio")]
-[assembly: AssemblyProduct("ClangSetupvNextSet")]
-[assembly: AssemblyCopyright("Copyright ©  2015 The Force Studio. All Right Reserved.")]
+[assembly: AssemblyProduct("ClangbuilderUI")]
+[assembly: AssemblyCopyright("Copyright ©  2016 The Force Studio. All Right Reserved.")]
 [assembly: AssemblyTrademark("Force")]
 [assembly: AssemblyCulture("")]
 

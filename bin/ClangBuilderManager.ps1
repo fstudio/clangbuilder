@@ -1,7 +1,7 @@
 <#############################################################################
 #  ClangBuilderManager.ps1
 #  Note: Clang Auto Build TaskScheduler
-#  Data:2014 08
+#  Date:2016 01
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
 IF($PSVersionTable.PSVersion.Major -lt 3)

@@ -12,9 +12,9 @@ call "%VS140COMNTOOLS%\VsDevCmd.bat"
 goto BuildCSVNS
 :BuildCSVNS
 SET PATH=%~dp0NuGet;%PATH%
-cd /d %~dp0ClangSetupvNextSet
+cd /d %~dp0ClangbuilderUI
 nuget restore
-msbuild ClangSetupvNextSet.sln /t:Build /p:Configuration=Release
+msbuild ClangbuilderUI.sln /t:Build /p:Configuration=Release
 
 
 goto :EOF

@@ -1,0 +1,108 @@
+﻿<controls:MetroWindow x:Class="ClangbuilderUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+        xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:behaviours="clr-namespace:MahApps.Metro.Behaviours;assembly=MahApps.Metro"
+        Title="Clangbuilder Environment Setting" 
+        Height="450"
+        Width="600" 
+        ShowIconOnTitleBar="True"
+		TitleCaps="False"
+        ResizeMode="CanMinimize">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatSlider.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Clean/Clean.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+    </Window.Resources>
+    <controls:MetroWindow.RightWindowCommands>
+        <controls:WindowCommands>
+            <Button Content="About" Click="ClangbuilderSettingsFeature" />
+        </controls:WindowCommands>
+    </controls:MetroWindow.RightWindowCommands>
+    <Grid>
+        <Label Content="Visual Studio"  FontFamily="Segoe UI" FontSize="15px" HorizontalAlignment="Left" 
+               Margin="20,20,0,0" VerticalAlignment="Top"/>
+        <ComboBox Controls:TextBoxHelper.ClearTextButton="True"
+                  VerticalAlignment="Top" 
+                  HorizontalAlignment="Left"
+                  FontSize="15px"
+                  Margin="135,20,0,0"  
+                  Width="360" Name="visualstudioVersion">
+            <ComboBoxItem Content="Visual Studio 2012 [Windows 8]" Name="VS110"/>
+            <ComboBoxItem Content="Visual Studio 2013 [Windows 8.1]" Name="VS120" IsSelected="True"/>
+            <ComboBoxItem Content="Visual Studio 2015 [Windows 8.1]" Name="VS140Old"/>
+            <ComboBoxItem Content="Visual Studio 2015 [Windows 10]" Name="VS140"/>
+            <ComboBoxItem Content="Visual Studio 15 [Disabled]" Name="VS150" IsEnabled="False"/>
+        </ComboBox>
+        <Label Content="Target"  FontFamily="Segoe UI" FontSize="15px" HorizontalAlignment="Left" 
+               Margin="20,60,0,0" VerticalAlignment="Top"/>
+        <ComboBox Controls:TextBoxHelper.ClearTextButton="True"
+                  HorizontalAlignment="Left"  
+                  FontSize="15px"
+                  Margin="135,60,0,0"  
+                  VerticalAlignment="Top" 
+                  Width="360" Name="target">
+            <ComboBoxItem Content="x86"></ComboBoxItem>
+            <ComboBoxItem Content="x64" IsSelected="True"></ComboBoxItem>
+            <ComboBoxItem Content="ARM"></ComboBoxItem>
+            <ComboBoxItem Content="AArch64" Name="targetAArch64" IsEnabled="False"></ComboBoxItem>
+        </ComboBox>
+        <Label Content="Configuration"  FontFamily="Segoe UI" FontSize="15px" HorizontalAlignment="Left" 
+               Margin="20,100,0,0" VerticalAlignment="Top"/>
+        <ComboBox Controls:TextBoxHelper.ClearTextButton="True"
+                  SelectedIndex="0"
+                  HorizontalAlignment="Left"  
+                  FontSize="15px"
+                  Margin="135,100,0,0"  
+                  VerticalAlignment="Top" 
+                  Width="360" Name="configureType">
+            <ComboBoxItem Content="Release" IsSelected="True"></ComboBoxItem>
+            <ComboBoxItem Content="MinSizeRel"></ComboBoxItem>
+            <ComboBoxItem Content="RelWithDebInfo"></ComboBoxItem>
+            <ComboBoxItem Content="Debug"></ComboBoxItem>
+        </ComboBox>
+        <Label Content="Other Flags"  FontFamily="Segoe UI" FontSize="15px" HorizontalAlignment="Left" 
+               Margin="20,145,0,0" VerticalAlignment="Top"/>
+        <CheckBox Margin="135,145,0,0" 
+                  FontSize="15px"
+                  Content="Create Install Package" 
+                  VerticalAlignment="Top"
+                   HorizontalAlignment="Left" Name="IsCreateInstallPackage"/>
+        <CheckBox Margin="135,175,0,0" 
+                  FontSize="15px"
+                  Content="Use Clean Environment" 
+                  VerticalAlignment="Top"
+                   HorizontalAlignment="Left" Name="IsCleanEnvironment"/>
+        <CheckBox Margin="135,210,0,0" 
+                  FontSize="15px"
+                  IsChecked="True"
+                  Content="Use Static Runtime Library /MT(d)" 
+                  VerticalAlignment="Top"
+                   HorizontalAlignment="Left" Name="IsEnabledStaticRuntime"/>
+        <CheckBox Margin="135,240,0,0" 
+                  FontSize="15px"
+                  IsChecked="False"
+                  Content="Use NMake Makefiles" 
+                  VerticalAlignment="Top"
+                   HorizontalAlignment="Left" Name="IsUseNMakeBuilder"/>
+        <CheckBox Margin="135,270,0,0" 
+                  FontSize="15px"
+                  IsChecked="False"
+                  Content="Make LLDB (Maybe failed)" 
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Left" Name="IsBuidLLDB"/>
+        <Button Content="Startup Env " Click="OnStartupEnvironment" HorizontalAlignment="Left" 
+                Margin="135,300,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
+        <Button Content="Building now !" Click="OnBuildingNow" HorizontalAlignment="Left" 
+                Margin="325,300,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
+    </Grid>
+</controls:MetroWindow>
+<!--        Style="{DynamicResource CleanWindowStyleKey}" -->
