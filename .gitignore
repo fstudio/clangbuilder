@@ -4,4 +4,5 @@ Packages/GNUWin/
 Packages/nsis/
 Packages/Python/
 Packages/Subversion/
+tools/Restore/
 *.obj

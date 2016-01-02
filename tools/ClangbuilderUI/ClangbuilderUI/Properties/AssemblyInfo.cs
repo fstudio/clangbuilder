@@ -13,7 +13,7 @@ using System.Windows;
 [assembly: AssemblyCompany("Force Studio")]
 [assembly: AssemblyProduct("ClangbuilderUI")]
 [assembly: AssemblyCopyright("Copyright ©  2016 The Force Studio. All Right Reserved.")]
-[assembly: AssemblyTrademark("Force")]
+[assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 // 将 ComVisible 设置为 false 使此程序集中的类型
