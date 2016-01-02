@@ -212,8 +212,10 @@ int LauncherInit()
         PrintVersion();
         return 0;
     }
-    argstream<<vsv<<L" "<<target<<L" "<<buildtype<<(bMtd?L" MD":L" MT")<<(bMakePkg?L" MKI":L" NOMKI")<<(bCleanEnv?L" -E":L" -Ne")
-    <<(bUseNmake?L" -NMake":L" -MSBuild")<<(bLLDB?L" -LLDB");
+	argstream << vsv << L" " << target << L" " << buildtype << (bMtd ? L" MD" : L" MT") << (bMakePkg ? L" MKI" : L" NOMKI") << (bCleanEnv ? L" -E" : L" -Ne")
+		<< (bUseNmake ? L" -NMake" : L" -MSBuild");
+	if(bLLDB )
+		argstream<<L" -LLDB";
     //MessageBoxW(nullptr,argstream.str().c_str(),L"Args",MB_OK);
     //return 0;
     return Launcher(argstream.str());

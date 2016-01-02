@@ -1,5 +1,5 @@
 <#############################################################################
-#  VisualStudioSub11.ps1
+#  VisualStudioSub110.ps1
 #  Note: Clang Auto Build Environment for Visual Studio 2012 [Windows 8]
 #  Date:2016.01.01
 #  Author:Force <forcemz@outlook.com>    
@@ -29,8 +29,8 @@ IF($args[0] -eq "x64"){
 IF($args[0] -eq "arm"){
     $target=3
 }
-IF($args[0] -eq "aarch64"){
-    Write-Host -ForegroundColor Red "Visual Studio 2012 not support AArch64"
+IF($args[0] -eq "arm64"){
+    Write-Host -ForegroundColor Red "Visual Studio 2012 not support ARM64"
     Exit
 }
 }ELSE{

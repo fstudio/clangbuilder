@@ -9,7 +9,7 @@
         xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:behaviours="clr-namespace:MahApps.Metro.Behaviours;assembly=MahApps.Metro"
         Title="Clangbuilder Environment Setting" 
-        Height="450"
+        Height="480"
         Width="600" 
         ShowIconOnTitleBar="True"
 		TitleCaps="False"
@@ -28,7 +28,7 @@
         </controls:WindowCommands>
     </controls:MetroWindow.RightWindowCommands>
     <Grid>
-        <Label Content="Visual Studio"  FontFamily="Segoe UI" FontSize="15px" HorizontalAlignment="Left" 
+        <Label Content="Visual Studio"   FontSize="15px" HorizontalAlignment="Left" 
                Margin="20,20,0,0" VerticalAlignment="Top"/>
         <ComboBox Controls:TextBoxHelper.ClearTextButton="True"
                   VerticalAlignment="Top" 
@@ -42,7 +42,7 @@
             <ComboBoxItem Content="Visual Studio 2015 [Windows 10]" Name="VS140"/>
             <ComboBoxItem Content="Visual Studio 15 [Disabled]" Name="VS150" IsEnabled="False"/>
         </ComboBox>
-        <Label Content="Target"  FontFamily="Segoe UI" FontSize="15px" HorizontalAlignment="Left" 
+        <Label Content="Target"   FontSize="15px" HorizontalAlignment="Left" 
                Margin="20,60,0,0" VerticalAlignment="Top"/>
         <ComboBox Controls:TextBoxHelper.ClearTextButton="True"
                   HorizontalAlignment="Left"  
@@ -55,7 +55,7 @@
             <ComboBoxItem Content="ARM"></ComboBoxItem>
             <ComboBoxItem Content="AArch64" Name="targetAArch64" IsEnabled="False"></ComboBoxItem>
         </ComboBox>
-        <Label Content="Configuration"  FontFamily="Segoe UI" FontSize="15px" HorizontalAlignment="Left" 
+        <Label Content="Configuration" FontSize="15px" HorizontalAlignment="Left" 
                Margin="20,100,0,0" VerticalAlignment="Top"/>
         <ComboBox Controls:TextBoxHelper.ClearTextButton="True"
                   SelectedIndex="0"
@@ -69,7 +69,7 @@
             <ComboBoxItem Content="RelWithDebInfo"></ComboBoxItem>
             <ComboBoxItem Content="Debug"></ComboBoxItem>
         </ComboBox>
-        <Label Content="Other Flags"  FontFamily="Segoe UI" FontSize="15px" HorizontalAlignment="Left" 
+        <Label Content="Other Flags"   FontSize="15px" HorizontalAlignment="Left" 
                Margin="20,145,0,0" VerticalAlignment="Top"/>
         <CheckBox Margin="135,145,0,0" 
                   FontSize="15px"
@@ -96,13 +96,18 @@
         <CheckBox Margin="135,270,0,0" 
                   FontSize="15px"
                   IsChecked="False"
-                  Content="Make LLDB (Maybe failed)" 
+                  Content="Build Released Revision" 
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Left" Name="IsBuildReleasedRevision"/>
+        <CheckBox Margin="135,300,0,0" 
+                  FontSize="15px"
+                  IsChecked="False"
+                  Content="Make LLDB (Not implemented)" 
                   VerticalAlignment="Top"
                   HorizontalAlignment="Left" Name="IsBuidLLDB"/>
         <Button Content="Startup Env " Click="OnStartupEnvironment" HorizontalAlignment="Left" 
-                Margin="135,300,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
+                Margin="135,320,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
         <Button Content="Building now !" Click="OnBuildingNow" HorizontalAlignment="Left" 
-                Margin="325,300,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
+                Margin="325,320,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
     </Grid>
 </controls:MetroWindow>
-<!--        Style="{DynamicResource CleanWindowStyleKey}" -->

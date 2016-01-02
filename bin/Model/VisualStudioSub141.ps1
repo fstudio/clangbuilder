@@ -1,21 +1,19 @@
 <#############################################################################
-#  VisualStudioSub14.ps1
-#  Note: Clang Auto Build Environment for Visual Studio 2015 [Windows 8.1]
+#  VisualStudioSub141.ps1
+#  Note: Clang Auto Build Environment for Visual Studio 2015 [Windows 10]
 #  Date:2016.01.01
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
 
-IF($PSVersionTable.PSVersion.Major -lt 3)
-{
-Write-Host -ForegroundColor Red "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later
-Your PowerShell version Is :${Host}"
-[System.Console]::ReadKey()
-Exit
+IF($PSVersionTable.BuildVersion.Major -lt 10){
+    Write-Host -ForegroundColor Red "Visual Studio 2015 [Windows 10] must run under Windows 10 or Later "
+    Exit
 }
+
 IF( $env:VS140COMNTOOLS -eq $null -or (Test-Path $env:VS140COMNTOOLS) -eq $false)
 {
-  Write-Host -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2015"
-  return 
+    Write-Host -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2015"
+    exit 
 }
 
 IF($args.Count -ge 1){
@@ -25,12 +23,11 @@ IF($args[0] -eq "x86"){
 IF($args[0] -eq "x64"){
     $target=2
 }
-IF($args[0] -eq "arm"){
+IF($args[0] -eq "ARM"){
     $target=3
 }
-IF($args[0] -eq "aarch64"){
-    Write-Host -ForegroundColor Red "Visual Studio 2013 not support AArch64"
-    Exit
+IF($args[0] -eq "ARM64"){
+    $target=4
 }
 }ELSE{
     $target=2
@@ -51,7 +48,8 @@ IF($SystemType -eq 64)
 {
     $VSInstall=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' '14.0'
     $VCDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' '14.0'
-    $SDKDIR=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.1' 'InstallationFolder'
+    $SDKDIR=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v10.0' 'InstallationFolder'
+    $ProductVersion=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v10.0' 'ProductVersion'
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.1A\WinSDK-NetFx40Tools-x64' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir64'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer64'
@@ -59,10 +57,12 @@ IF($SystemType -eq 64)
     $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
     }
     $MSBUILDKIT=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\MSBuild\14.0' 'MSBuildOverrideTasksPath'
+    
 }ELSE{
     $VSInstall=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' '14.0'
     $VCDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' '14.0'
-    $SDKDIR=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.1' 'InstallationFolder'
+    $SDKDIR=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0' 'InstallationFolder'
+    $ProductVersion=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0' 'ProductVersion'
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.1A\WinSDK-NetFx40Tools' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir32'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer32'
@@ -83,10 +83,12 @@ $IDE="${env:VS110COMNTOOLS}..\IDE"
 $KitBin32="${SDKDIR}bin\x86"
 $kitBin64="${SDKDIR}bin\amd64"
 $KitBinARM="${SDKDIR}bin\ARM"
-$KitInc="${SDKDIR}Include\um;${SDKDIR}Include\Shared;${SDKDIR}Include\WinRT"
-$KitLib32="${SDKDIR}Lib\winv6.3\um\x86"
-$KitLib64="${SDKDIR}Lib\winv6.3\um\x64"
-$KitLibARM="${SDKDIR}LIB\winv6.3\um\ARM"
+$KitBinARM64="${SDKDIR}bin\ARM64"
+$KitInc="${SDKDIR}Include\${ProductVersion}\ucrt;${SDKDIR}Include\${ProductVersion}\um;${SDKDIR}Include\${ProductVersion}\Shared;${SDKDIR}Include\${ProductVersion}\WinRT"
+$KitLib32="${SDKDIR}Lib\${ProductVersion}\um\x86;${SDKDIR}Lib\${ProductVersion}\ucrt\x86"
+$KitLib64="${SDKDIR}Lib\${ProductVersion}\um\x64;${SDKDIR}Lib\${ProductVersion}\ucrt\x64"
+$KitLibARM="${SDKDIR}LIB\${ProductVersion}\um\ARM;${SDKDIR}Lib\${ProductVersion}\ucrt\ARM"
+$KitLibARM64="${SDKDIR}LIB\${ProductVersion}\um\ARM64;${SDKDIR}Lib\${ProductVersion}\ucrt\ARM64"
 
 IF($target -eq 1){
     $CompilerDir="${VCDir}bin"
@@ -106,5 +108,12 @@ IF($target -eq 1){
     $env:Path="$CompilerDir;${VCDir}bin;${MSBUILDKIT};$KitBinARM;$KitBin32;$IDE;$env:PATH"
     $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
     $env:LIB="$KitLibARM;${VCDir}LIB\arm;$env:LIB"
+}ELSEIF($target -eq 4){
+    $CompilerDir="${VCDir}bin\x86_ARM64"
+    $Library="${VCDir}lib\arm64"
+    $env:Path="$CompilerDir;${VCDir}bin;${MSBUILDKIT};$KitBinARM;$KitBin32;$IDE;$env:PATH"
+    $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
+    $env:LIB="$KitLibARM;${VCDir}LIB\arm64;$env:LIB"
 }
+
 

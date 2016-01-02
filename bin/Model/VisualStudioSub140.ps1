@@ -1,9 +1,10 @@
 <#############################################################################
-#  VisualStudioSub12.ps1
-#  Note: Clang Auto Build Environment for Visual Studio 2013 [Windows 8.1]
+#  VisualStudioSub140.ps1
+#  Note: Clang Auto Build Environment for Visual Studio 2015 [Windows 8.1]
 #  Date:2016.01.01
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
+
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
 Write-Host -ForegroundColor Red "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later
@@ -11,11 +12,10 @@ Your PowerShell version Is :${Host}"
 [System.Console]::ReadKey()
 Exit
 }
-
-IF( $env:VS120COMNTOOLS -eq $null -or (Test-Path $env:VS120COMNTOOLS) -eq $false)
+IF( $env:VS140COMNTOOLS -eq $null -or (Test-Path $env:VS140COMNTOOLS) -eq $false)
 {
-  Write-Host -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2013"
-  Exit 
+  Write-Host -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2015"
+  return 
 }
 
 IF($args.Count -ge 1){
@@ -25,11 +25,11 @@ IF($args[0] -eq "x86"){
 IF($args[0] -eq "x64"){
     $target=2
 }
-IF($args[0] -eq "arm"){
+IF($args[0] -eq "ARM"){
     $target=3
 }
-IF($args[0] -eq "aarch64"){
-    Write-Host -ForegroundColor Red "Visual Studio 2013 not support AArch64"
+IF($args[0] -eq "ARM64"){
+    Write-Host -ForegroundColor Red "Visual Studio 2013 not support ARM"
     Exit
 }
 }ELSE{
@@ -49,27 +49,27 @@ IF(${env:ProgramFiles(x86)} -eq $null){
 
 IF($SystemType -eq 64)
 {
-    $VSInstall=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' '12.0'
-    $VCDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' '12.0'
+    $VSInstall=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' '14.0'
+    $VCDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' '14.0'
     $SDKDIR=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.1' 'InstallationFolder'
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.1A\WinSDK-NetFx40Tools-x64' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir64'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer64'
     IF((Test-Path  'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\12.0\Setup\F#')){
-    $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\12.0\Setup\F#' 'ProductDir'
+    $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
     }
-    $MSBUILDKIT=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\MSBuild\12.0' 'MSBuildOverrideTasksPath'
+    $MSBUILDKIT=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\MSBuild\14.0' 'MSBuildOverrideTasksPath'
 }ELSE{
-    $VSInstall=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' '12.0'
-    $VCDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' '12.0'
+    $VSInstall=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' '14.0'
+    $VCDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' '14.0'
     $SDKDIR=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.1' 'InstallationFolder'
     $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.1A\WinSDK-NetFx40Tools' 'InstallationFolder'
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir32'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer32'
     IF((Test-Path  'HKLM:\SOFTWARE\Microsoft\VisualStudio\12.0\Setup\F#')){
-    $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\12.0\Setup\F#' 'ProductDir'
+    $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
     }
-    $MSBUILDKIT=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\MSBuild\12.0' 'MSBuildOverrideTasksPath'
+    $MSBUILDKIT=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\MSBuild\14.0' 'MSBuildOverrideTasksPath'
 }
 
 IF($FSharpDir -eq $null)
@@ -107,3 +107,4 @@ IF($target -eq 1){
     $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
     $env:LIB="$KitLibARM;${VCDir}LIB\arm;$env:LIB"
 }
+

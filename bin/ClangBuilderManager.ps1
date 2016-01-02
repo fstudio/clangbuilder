@@ -6,72 +6,93 @@
 ##############################################################################>
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
-Write-Host -ForegroundColor Red "ClangSetup Builder PowerShell vNext Must Run on Windows PowerShell 3 or Later,`nYour PowerShell version Is : 
-${Host}"
-[System.Console]::ReadKey()
-Exit
+    $PSVersionString=$PSVersionTable.PSVersion.Major
+    Write-Host -ForegroundColor Red "Clangbuilder must run under PowerShell 3.0 or later host environment !"
+    Write-Host -ForegroundColor Red "Your PowerShell Version:$PSVersionString"
+    IF($Host.Name -eq "ConsoleHost"){
+        [System.Console]::ReadKey()
+    }
+    Exit
 }
-$WindowTitlePrefix=" ClangSetup PowerShell Builder"
-Write-Host "ClangSetup Auto Builder [PowerShell] tools"
-Write-Host "Copyright $([Char]0xA9) 2015 FroceStudio All Rights Reserved."
+$WindowTitlePrefix="Clangbuilder PowerShell Utility"
+Write-Host "Clang Auto Builder [PowerShell] Utility tools"
+Write-Host "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
 
+$SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+Invoke-Expression -Command "$SelfFolder/ClangBuilderUtility.ps1"
 
-$VSHost="120"
-[System.Boolean] $NmakeEnable=$FALSE
+$EnabledNMake=$False
+$EnableLLDB=$False
+$UseClearEnv=$False
+$UseStaticCRT=$True
+$BuildReleasedRev=$False
+$CreateInstallPkg=$False
 
+$Target="x64"
+$VisualStudioVersion=110
 
-
-Function Call-VisualStudioSub
-{
-param(
-[Parameter(Position=0,Mandatory=$True,HelpMessage="Enter VisualStudio Version ")]
-[ValidateNotNullorEmpty()]
-[int]$VSMark,
-[Parameter(Position=1,HelpMessage="Select Build Platform,x86,x64,ARM")]
-[String]$Platform
-)
-IF( $VSMark -eq 11)
-{
- IF(($env:VS110COMNTOOLS -ne $null) -and (Test-Path $env:VS110COMNTOOLS))
- {
-  return $TRUE
- }
-  return $FALSE
+IF($args.Count -ge 1){
+$args | foreach {
+$va=$_
+#
+IF($va -eq "-Nmake"){
+$EnableNMake=$True
+}
+#
+IF($va -eq "-LLDB"){
+$EnableLLDB=$True
+}
+#
+IF($va -eq "-Clear"){
+$UseClearEnv=$True
+}
+#
+IF($va -eq "-OffStatic"){
+$UseStaticCRT=$False
+}
+#
+IF($va -eq "-Relased"){
+$BuildReleasedRev=$True
+}
+#
+IF($va -eq "-Install"){
+$CreateInstallPkg=$True
+}
+#
+IF($va -match "-V\d+"){
+IF($va -eq "-V110"){
+$VisualStudioVersion=110
+}ELSEIF($va -eq "-V120"){
+$VisualStudioVersion=120
+}ELSEIF($va -eq "-V140"){
+$VisualStudioVersion=140
+}ELSEIF($va -eq "-V141"){
+$VisualStudioVersion=141
+}ELSEIF($va -eq "-V150"){
+$VisualStudioVersion=150
+}ELSE{
+Write-Host -ForegroundColor Red "Unknown VisualStudio Version: $va"
+}
+}
+#
+IF($va -match "-T\w+"){
+IF($va -eq "-Tx86"){
+$Target="x86"
+}ELSEIF($va -eq "-Tx64"){
+$Target="x64"
+}ELSEIF($va -eq "-TARM"){
+$Target="ARM"
+}ELSEIF($va -eq "-TARM64"){
+$Target="ARM64"
+}
+}
+#
+}
+#
 }
 
-IF($VSMark -eq  12)
-{
- IF(($env:VS120COMNTOOLS -ne $null) -and (Test-Path $env:VS120COMNTOOLS))
- {
-  return $TRUE
- }
-  return $FALSE
+IF($UseClearEnv){
+    Clear-Environment
 }
 
-IF($VSMark -eq 14)
-{
- IF(($env:VS140COMNTOOLS -ne $null) -and (Test-Path $env:VS140COMNTOOLS))
- {
-  return $TRUE
- }
-  return $FALSE
-}
-
-IF($VSMark -eq 15)
-{
- IF(($env:VS150COMNTOOLS -ne $null) -and (Test-Path $env:VS150COMNTOOLS))
- {
-  return $TRUE
- }
-  return $FALSE
-}
-return $FALSE
-}
-
-<##Test.
-Call-VisualStudioSub 11
-Call-VisualStudioSub 12
-Call-VisualStudioSub 13
-Call-VisualStudioSub 14
-Call-VisualStudioSub 15#>
-Write-Host "Hello world"
+Invoke-Expression -Command "$SelfFolder/Model/VisualStudioSub$VisualStudioVersion.ps1 $Target"
