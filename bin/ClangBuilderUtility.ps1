@@ -8,6 +8,3 @@
 Function Global:Clear-Environment{
     $env:Path="${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
 }
-
-Function Global:Get-ParamValue{
-}

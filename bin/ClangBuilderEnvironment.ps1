@@ -20,7 +20,7 @@ Write-Host "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
 
 $SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 
-Invoke-Expression -Command "$SelfFolder/ClangBuilderUtility.ps1"
+Import-Module "$SelfFolder/ClangBuilderUtility.ps1"
 
 $UseClearEnv=$False
 $Target="x64"
@@ -73,3 +73,12 @@ IF($UseClearEnv){
 }
 
 Invoke-Expression -Command "$SelfFolder/Model/VisualStudioSub$VisualStudioVersion.ps1 $Target"
+Invoke-Expression -Command "$SelfFolder/DiscoverToolChain.ps1"
+
+Write-Host "Clangbuilder Environment Set done
+Visual Studio $VisualStudioVersion Target $Target
+V110 - VisualStudio 2012
+V120 - VisualStudio 2013
+V140 - VisualStudio 2015 Windows 8.1 SDK
+V141 - VisualStudio 2015 Windows 10 SDK
+"

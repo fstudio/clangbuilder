@@ -19,7 +19,7 @@ Write-Host "Clang Auto Builder [PowerShell] Utility tools"
 Write-Host "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
 
 $SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-Invoke-Expression -Command "$SelfFolder/ClangBuilderUtility.ps1"
+Import-Module "$SelfFolder/ClangBuilderUtility.ps1"
 
 $EnabledNMake=$False
 $EnableLLDB=$False

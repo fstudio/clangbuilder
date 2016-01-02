@@ -6,3 +6,8 @@
 ##############################################################################>
 
 $SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+$PackagesPath="$SelfFolder/../Packages"
+
+if(Test-Path "$PackagesPath/PathLoader.ps1"){
+    Invoke-Expression -Command "$PackagesPath/PathLoader.ps1"
+}

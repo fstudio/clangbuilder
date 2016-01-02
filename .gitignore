@@ -1,2 +1,7 @@
-build/
+out/
+Packages/cmake/
+Packages/GNUWin/
+Packages/nsis/
+Packages/Python/
+Packages/Subversion/
 *.obj
