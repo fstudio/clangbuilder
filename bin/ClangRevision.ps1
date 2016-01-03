@@ -14,7 +14,7 @@ $Global:ReleaseRevision="RELEASE_371/final"
 
 Function Global:Restore-Repository{
 param(
-[Parameter(Position=0,Mandator=$True,HelpMessage="Checkout URL")]
+[Parameter(Position=0,Mandatory=$True,HelpMessage="Checkout URL")]
 [ValidateNotNullorEmpty()]
 [String]$URL,
 [Parameter(Position=1,Mandatory=$True,HelpMessage="Enter Checkout Folder")]
