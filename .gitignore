@@ -6,5 +6,6 @@ Packages/GNUWin/
 Packages/nsis/
 Packages/Python/
 Packages/Subversion/
+Packages/PackagesCache.index
 tools/Restore/
 *.obj

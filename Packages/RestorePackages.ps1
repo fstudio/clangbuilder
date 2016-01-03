@@ -23,6 +23,11 @@ $NSISSub="nsis-3.0b3"
 
 $GnuWinURL="http://sourceforge.net/projects/clangonwin/files/Install/Packages/ClangSetup-Package-GnuWin-win32.zip"
 
+$CMakeLock="3.4.1"
+$SubversionLock="1.9.3"
+$PythonLock="2.7.11"
+$NSISLock="3.0b3"
+$GnuWinLock="1.0"
 
 Function Unzip-PackageInternal
 {
@@ -40,6 +45,7 @@ param(
 
 $PushPWD=Get-Location
 Set-Location $SelfFolder
+
 
 if(!(Test-Path "$SelfFolder/cmake/bin/cmake.exe")){
 Write-Host -ForegroundColor Blue "Download CMake and Unzip CMake"
@@ -95,7 +101,7 @@ if(!(Test-Path $SelfFolder/nsis/NSIS.exe)){
 #Restore NSIS
 Write-Host -ForegroundColor Blue "Download NSIS and Unzip NSIS"
 Start-BitsTransfer -Source $NSISURL -Destination "$SelfFolder\NSIS.zip" -Description "Downloading NSIS"
-if(Test-Path){
+if(Test-Path "$SelfFolder\NSIS.zip"){
 Unblock-File -Path "$SelfFolder\NSIS.zip"
 Unzip-Package -ZipSource "$SelfFolder\NSIS.zip" -Destination "."
 Rename-Item $NSISSub "nsis"
