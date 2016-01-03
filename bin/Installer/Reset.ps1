@@ -10,14 +10,14 @@ ${Host}"
 [System.Console]::ReadKey()
 return 
 }
+$SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+$SelfParent=Split-Path -Parent $SelfFolder
+$ClangbuilderRoot=Split-Path -Parent $SelfParent
 
-$REACDIR=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-$CSERoot=Split-Path -Parent $REACDIR
-$CSERoot=Split-Path -Parent $CSERoot
-Invoke-Expression "$REACDIR\Update.ps1"
+Invoke-Expression "$SelfFolder\Update.ps1"
 
-Get-GithubUpdatePackage $CSERoot
+Get-GithubUpdatePackage -Root $ClangbuilderRoot
 
-Remove-Item -Force -Recurse "${CSERoot}\Packages\*" -Exclude PackageList.txt
+#Remove-Item -Force -Recurse "${CSERoot}\Packages\*" -Exclude PackageList.txt
 
-Invoke-Expression -Command "PowerShell -NoLogo -NoExit -File ${CSERoot}\InstallClangSetupvNext.ps1"
+#Invoke-Expression -Command "PowerShell -NoLogo -NoExit -File ${CSERoot}\InstallClangSetupvNext.ps1"

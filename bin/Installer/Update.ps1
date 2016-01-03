@@ -1,7 +1,7 @@
 <####################################################################################################################
-# ClangSetup Environment Update Module
-# 
-#
+# Clangbuilder Environment Update Module
+# Date:2016.01.03
+# Author:Force <forcemz@outlook.com>    
 ####################################################################################################################>
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
@@ -10,32 +10,46 @@ ${Host}"
 [System.Console]::ReadKey()
 return 
 }
-
+$SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+$SelfParent=Split-Path -Parent $SelfFolder
+$ClangbuilderRoot=Split-Path -Parent $SelfParent
 Set-StrictMode -Version latest
 Import-Module -Name BitsTransfer
 
-Function Global:Shell-UnZip($fileName, $sourcePath, $destinationPath)
+Function Unzip-Package
 {
-    $shell = New-Object -com Shell.Application
-    if (!(Test-Path "$sourcePath\$fileName"))
-    {
-        throw "$sourcePath\$fileName does not exist" 
-    }
-    New-Item -ItemType Directory -Force -Path $destinationPath -WarningAction SilentlyContinue
-    $shell.namespace($destinationPath).copyhere($shell.namespace("$sourcePath\$fileName").items()) 
+param(
+[Parameter(Position=0,Mandatory=$True,HelpMessage="Unzip sources")]
+[ValidateNotNullorEmpty()]
+[String]$Source,
+[Parameter(Position=1,Mandatory=$True,HelpMessage="Output Directory")]
+[ValidateNotNullorEmpty()]
+[String]$Folder
+)
+[System.Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')|Out-Null
+Write-Host "Use System.IO.Compression.ZipFile Unzip ¡¤nPackage: $Source`nOutput: $Folder"
+[System.IO.Compression.ZipFile]::ExtractToDirectory($Source, $Folder)
 }
 
 
-
-Function Global:Get-GithubUpdatePackage([String]$clangsetuproot)
+Function Global:Get-GithubUpdatePackage
 {
- $ClangSetupEnvPkUrl="https://github.com/fstudio/clangbuilder/archive/master.zip"
- $ClangSetupEnvPkName="$env:TEMP\ClangSetupvNextUpdatePackage.zip"
- Start-BitsTransfer $ClangSetupEnvPkUrl  $ClangSetupEnvPkName 
- Unblock-File $ClangSetupEnvPkName
- Shell-UnZip "ClangSetupvNextUpdatePackage.zip" "${env:TEMP}" "${Env:TEMP}\ClangSetupUnZipTemp"
- Copy-Item -Path "${Env:TEMP}\ClangSetupUnZipTemp\ClangSetupvNext-master\*" $clangsetuproot  -Force -Recurse
- Remove-Item -Force -Recurse "$env:TEMP\ClangSetupvNextUpdatePackage.zip"
- Remove-Item -Force -Recurse "$env:TEMP\ClangSetupUnZipTemp"
+param(
+[String]$Root
+)
+if($Root -eq $null){
+$Root=[String]$ClangbuilderRoot
+}
+ $ClangbuilderEnvPkUrl="https://github.com/fstudio/clangbuilder/archive/master.zip"
+ $ClangbuilderEnvPkName="$env:TEMP\clangbuilder.zip"
+ Start-BitsTransfer $ClangbuilderEnvPkUrl  $ClangbuilderEnvPkName 
+ if(!(Test-Path $ClangbuilderEnvPkName)){
+ Exit
+ }
+ Unblock-File $ClangbuilderEnvPkName
+ Unzip-Package -Source $ClangbuilderEnvPkName -Folder "${env:TEMP}\ClangbuilderTEMP"
+ Copy-Item -Path "${Env:TEMP}\ClangbuilderTEMP\clangbuilder-master\*" $ClangbuilderRoot  -Force -Recurse
+ Remove-Item -Force -Recurse "$ClangbuilderEnvPkName"
+ Remove-Item -Force -Recurse "${env:TEMP}\ClangbuilderTEMP"
 }
 
