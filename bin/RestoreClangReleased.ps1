@@ -21,7 +21,7 @@ IF($args.Count -ge 2){
 }
 
 $SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-IEX -Command "$SelfFolder/ClangRevision.ps1"
+IEX -Command "$SelfFolder/RepositoryCheckout.ps1"
 $ClangbuilderRoot=Split-Path -Parent $SelfFolder
 $BuildFolder="$ClangbuilderRoot/out"
 $ReleaseRevFolder="$BuildFolder/release"
@@ -38,7 +38,7 @@ IF((Test-Path "$BuildFolder/release") -and $RemoveOldCheckout){
     Remove-Item -Force -Recurse "$BuildFolder/release"
 }
 Restore-Repository -URL "$LLVMRepositoriesRoot/llvm/tags/$ReleaseRevision" -Folder "release"
-Set-Location "$BuilFolder/release/tools"
+Set-Location "$BuildFolder/release/tools"
 Restore-Repository -URL "$LLVMRepositoriesRoot/cfe/tags/$ReleaseRevision" -Folder "clang"
 Restore-Repository -URL "$LLVMRepositoriesRoot/lld/tags/$ReleaseRevision" -Folder "lld"
 IF($IsEnabledLLDB){
@@ -46,9 +46,9 @@ IF($IsEnabledLLDB){
 }else{
     Remove-Item -Force -Recurse "$BuildFolder/release/tools/lldb"
 }
-Set-Location "$BuilFolder/release/tools/clang/tools"
+Set-Location "$BuildFolder/release/tools/clang/tools"
 Restore-Repository -URL "$LLVMRepositoriesRoot/clang-tools-extra/tags/$ReleaseRevision" -Folder "extra"
-Set-Location "$BuilFolder/release/projects"
+Set-Location "$BuildFolder/release/projects"
 Restore-Repository -URL "$LLVMRepositoriesRoot/compiler-rt/tags/$ReleaseRevision" -Folder "compiler-rt"
 
 Set-Location $PushPWD

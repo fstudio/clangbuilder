@@ -14,7 +14,7 @@ IF($args.Count -ge 1){
 }
 
 $SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-IEX -Command "$SelfFolder/ClangRevision.ps1"
+IEX -Command "$SelfFolder/RepositoryCheckout.ps1"
 
 $ClangbuilderRoot=Split-Path -Parent $SelfFolder
 $BuildFolder="$ClangbuilderRoot/out"
@@ -30,7 +30,7 @@ Set-Location $BuildFolder
 $PushPWD=Get-Location
 
 Restore-Repository -URL "$LLVMRepositoriesRoot/llvm/trunk" -Folder "mainline"
-Set-Location "$BuilFolder/mainline/tools"
+Set-Location "$BuildFolder/mainline/tools"
 Restore-Repository -URL "$LLVMRepositoriesRoot/cfe/trunk" -Folder "clang"
 Restore-Repository -URL "$LLVMRepositoriesRoot/lld/trunk" -Folder "lld"
 IF($IsEnabledLLDB){
@@ -38,9 +38,9 @@ IF($IsEnabledLLDB){
 }else{
     Remove-Item -Force -Recurse "$BuildFolder/mainline/tools/lldb"
 }
-Set-Location "$BuilFolder/mainline/tools/clang/tools"
+Set-Location "$BuildFolder/mainline/tools/clang/tools"
 Restore-Repository -URL "$LLVMRepositoriesRoot/clang-tools-extra/trunk" -Folder "extra"
-Set-Location "$BuilFolder/mainline/projects"
+Set-Location "$BuildFolder/mainline/projects"
 Restore-Repository -URL "$LLVMRepositoriesRoot/compiler-rt/trunk" -Folder "compiler-rt"
 
 Set-Location $PushPWD
