@@ -6,7 +6,8 @@
 ##############################################################################>
 
 $SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-$PackagesPath="$SelfFolder/../Packages"
+$ClangbuilderRoot=Split-Path -Parent $SelfFolder
+$PackagesPath="$ClangbuilderRoot/Packages"
 
 if(Test-Path "$PackagesPath/PathLoader.ps1"){
     Invoke-Expression -Command "$PackagesPath/PathLoader.ps1"
