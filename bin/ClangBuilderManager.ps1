@@ -30,7 +30,7 @@ $BuildReleasedRev=$False
 $CreateInstallPkg=$False
 
 $VisualStudioVersion=120
-$VSTools="2013"
+$VSTools="12"
 $Target="x64"
 $Configuration="Release"
 
@@ -65,16 +65,16 @@ $CreateInstallPkg=$True
 if($va -match "-V\d+"){
 if($va -eq "-V110"){
 $VisualStudioVersion=110
-$VSTools="2012"
+$VSTools="11"
 }elseif($va -eq "-V120"){
 $VisualStudioVersion=120
-$VSTools="2013"
+$VSTools="12"
 }elseif($va -eq "-V140"){
 $VisualStudioVersion=140
-$VSTools="2015"
+$VSTools="14"
 }elseif($va -eq "-V141"){
 $VisualStudioVersion=141
-$VSTools="2015"
+$VSTools="14"
 }elseif($va -eq "-V150"){
 $VisualStudioVersion=150
 }ELSE{
@@ -202,7 +202,9 @@ Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration
 }
 
 if($? -eq $True -and $CreateInstallPkg){
+if(Test-Path "$PWD/LLVM.sln"){
 Invoke-Expression -Command "cpack"
+}
 }
 
 

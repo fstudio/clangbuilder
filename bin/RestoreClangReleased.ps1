@@ -38,6 +38,10 @@ IF((Test-Path "$BuildFolder/release") -and $RemoveOldCheckout){
     Remove-Item -Force -Recurse "$BuildFolder/release"
 }
 Restore-Repository -URL "$LLVMRepositoriesRoot/llvm/tags/$ReleaseRevision" -Folder "release"
+if((Test-Path "$BuildFolder/release/tools")){
+Write-Host "Checkout LLVM Failed"
+Exit
+}
 Set-Location "$BuildFolder/release/tools"
 Restore-Repository -URL "$LLVMRepositoriesRoot/cfe/tags/$ReleaseRevision" -Folder "clang"
 Restore-Repository -URL "$LLVMRepositoriesRoot/lld/tags/$ReleaseRevision" -Folder "lld"
@@ -45,6 +49,10 @@ IF($IsEnabledLLDB){
     Restore-Repository -URL "$LLVMRepositoriesRoot/lldb/tags/$ReleaseRevision" -Folder "lldb"
 }else{
     Remove-Item -Force -Recurse "$BuildFolder/release/tools/lldb"
+}
+if((Test-Path "$BuildFolder/release/tools/clang/tools")){
+Write-Host "Checkout Clang Failed"
+Exit
 }
 Set-Location "$BuildFolder/release/tools/clang/tools"
 Restore-Repository -URL "$LLVMRepositoriesRoot/clang-tools-extra/tags/$ReleaseRevision" -Folder "extra"
