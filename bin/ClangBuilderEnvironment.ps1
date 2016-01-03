@@ -4,12 +4,12 @@
 #  Date:2016.01.02
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
-IF($PSVersionTable.PSVersion.Major -lt 3)
+if($PSVersionTable.PSVersion.Major -lt 3)
 {
     $PSVersionString=$PSVersionTable.PSVersion.Major
     Write-Host -ForegroundColor Red "Clangbuilder must run under PowerShell 3.0 or later host environment !"
     Write-Host -ForegroundColor Red "Your PowerShell Version:$PSVersionString"
-    IF($Host.Name -eq "ConsoleHost"){
+    if($Host.Name -eq "ConsoleHost"){
         [System.Console]::ReadKey()
     }
     Exit
@@ -26,37 +26,37 @@ $UseClearEnv=$False
 $Target="x64"
 $VisualStudioVersion=120
 
-IF($args.Count -ge 1){
+if($args.Count -ge 1){
 $args | foreach {
 $va=$_
-IF($va -eq "-Clear"){
+if($va -eq "-Clear"){
 $UseClearEnv=$True
 }
 #
-IF($va -match "-V\d+"){
-IF($va -eq "-V110"){
+if($va -match "-V\d+"){
+if($va -eq "-V110"){
 $VisualStudioVersion=110
-}ELSEIF($va -eq "-V120"){
+}elseif($va -eq "-V120"){
 $VisualStudioVersion=120
-}ELSEIF($va -eq "-V140"){
+}elseif($va -eq "-V140"){
 $VisualStudioVersion=140
-}ELSEIF($va -eq "-V141"){
+}elseif($va -eq "-V141"){
 $VisualStudioVersion=141
-}ELSEIF($va -eq "-V150"){
+}elseif($va -eq "-V150"){
 $VisualStudioVersion=150
 }ELSE{
 Write-Host -ForegroundColor Red "Unknown VisualStudio Version: $va"
 }
 }
 #
-IF($va -match "-T\w+"){
-IF($va -eq "-Tx86"){
+if($va -match "-T\w+"){
+if($va -eq "-Tx86"){
 $Target="x86"
-}ELSEIF($va -eq "-Tx64"){
+}elseif($va -eq "-Tx64"){
 $Target="x64"
-}ELSEIF($va -eq "-TARM"){
+}elseif($va -eq "-TARM"){
 $Target="ARM"
-}ELSEIF($va -eq "-TARM64"){
+}elseif($va -eq "-TARM64"){
 $Target="ARM64"
 }ELSE{
 Write-Host -ForegroundColor Red "Unknown Target: $va"
@@ -68,7 +68,7 @@ Exit
 #
 }
 
-IF($UseClearEnv){
+if($UseClearEnv){
     Clear-Environment
 }
 

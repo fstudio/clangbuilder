@@ -38,8 +38,8 @@
                   Width="360" Name="visualstudioVersion">
             <ComboBoxItem Content="Visual Studio 2012 [Windows 8]" Name="VS110"/>
             <ComboBoxItem Content="Visual Studio 2013 [Windows 8.1]" Name="VS120" IsSelected="True"/>
-            <ComboBoxItem Content="Visual Studio 2015 [Windows 8.1]" Name="VS140Old"/>
-            <ComboBoxItem Content="Visual Studio 2015 [Windows 10]" Name="VS140"/>
+            <ComboBoxItem Content="Visual Studio 2015 [Windows 8.1]" Name="VS140"/>
+            <ComboBoxItem Content="Visual Studio 2015 [Windows 10]" Name="VS141"/>
             <ComboBoxItem Content="Visual Studio 15 [Disabled]" Name="VS150" IsEnabled="False"/>
         </ComboBox>
         <Label Content="Target"   FontSize="15px" HorizontalAlignment="Left" 
@@ -53,7 +53,7 @@
             <ComboBoxItem Content="x86"></ComboBoxItem>
             <ComboBoxItem Content="x64" IsSelected="True"></ComboBoxItem>
             <ComboBoxItem Content="ARM"></ComboBoxItem>
-            <ComboBoxItem Content="AArch64" Name="targetAArch64" IsEnabled="False"></ComboBoxItem>
+            <ComboBoxItem Content="ARM64" Name="targetARM64" IsEnabled="False"></ComboBoxItem>
         </ComboBox>
         <Label Content="Configuration" FontSize="15px" HorizontalAlignment="Left" 
                Margin="20,100,0,0" VerticalAlignment="Top"/>

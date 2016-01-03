@@ -82,11 +82,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CommandLineArgumentsEx.cxx" />
+    <ClCompile Include="GetOptInc.cpp" />
     <ClCompile Include="launcher.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CommandLineArgumentsEx.hpp" />
+    <ClInclude Include="GetOptInc.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
