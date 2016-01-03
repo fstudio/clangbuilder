@@ -30,7 +30,7 @@ Write-Host -ForegroundColor Red "Cannot found $ZipSource"
 Exit
 }
 [System.Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')|Out-Null
-Write-Host "Use System.IO.Compression.ZipFile Unzip ¡¤nPackage: $ZipSource`nOutput: $Destination"
+Write-Host "Use System.IO.Compression.ZipFile Unzip `nPackage: $ZipSource`nOutput: $Destination"
 [System.IO.Compression.ZipFile]::ExtractToDirectory($ZipSource, $Destination)
 }
 
@@ -86,7 +86,7 @@ param(
 
 if($args.Count -lt 1)
 {
-Write-Host -ForegroundColor Yellow "Please Input Your ClangSetup Installation Location<your select>"
+Write-Host -ForegroundColor Yellow "Please Input Your Clangbuilder Installation Location<your select>"
 Set-InstallationLocation
 }else{
 $Global:InstallPrefix =$args[0]

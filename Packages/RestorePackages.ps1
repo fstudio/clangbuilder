@@ -23,65 +23,36 @@ $NSISSub="nsis-3.0b3"
 
 $GnuWinURL="http://sourceforge.net/projects/clangonwin/files/Install/Packages/ClangSetup-Package-GnuWin-win32.zip"
 
-Function Shell-UnZip
-{
-param(
-[Parameter(Position=0,Mandatory=$True,HelpMessage="Unzip sources")]
-[ValidateNotNullorEmpty()]
-[String]$Source,
-[Parameter(Position=1,Mandatory=$True,HelpMessage="Output Directory")]
-[ValidateNotNullorEmpty()]
-[String]$Folder
-)
-    $shell = New-Object -com Shell.Application
-    if (!(Test-Path "$Source"))
-    {
-        throw "$Source does not exist" 
-    }
-    New-Item -ItemType Directory -Force -Path $Folder -WarningAction SilentlyContinue
-    $shell.namespace($Folder).copyhere($shell.namespace("$Source").items()) 
-}
 
 Function Unzip-PackageInternal
 {
 param(
 [Parameter(Position=0,Mandatory=$True,HelpMessage="Unzip sources")]
 [ValidateNotNullorEmpty()]
-[String]$Source,
+[String]$ZipSource,
 [Parameter(Position=1,Mandatory=$True,HelpMessage="Output Directory")]
 [ValidateNotNullorEmpty()]
-[String]$Folder
+[String]$Destination
 )
 [System.Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')
-[System.IO.Compression.ZipFile]::ExtractToDirectory($Source, $Folder)
+[System.IO.Compression.ZipFile]::ExtractToDirectory($ZipSource, $Destination)
 }
 
-Function Global:Unzip-Package{
-param(
-[Parameter(Position=0,Mandatory=$True,HelpMessage="Unzip sources")]
-[ValidateNotNullorEmpty()]
-[String]$Source,
-[Parameter(Position=1,Mandatory=$True,HelpMessage="Output Directory")]
-[ValidateNotNullorEmpty()]
-[String]$Folder
-)
-if($PSVersionTable.CLRVersion.Major -ge 4){
-    Unzip-PackageInternal -Source $Source -Folder $Folder
-}else{
-    Shell-UnZip -Source $Source -Folder $Folder
-}
-}
 
+Function Global:Install-CMake{
 Write-Host "Download CMake and Unzip CMake"
 ###Restore CMake
 Start-BitsTransfer -Source $CMakeURL -Destination "$SelfFolder\CMake.zip" -Description "Downloading CMake"
 if(Test-Path "$SelfFolder\CMake.zip"){
 Unblock-File -Path "$SelfFolder\CMake.zip"
-Unzip-Package -Source "$SelfFolder\CMake.zip" -Folder "."
+Unzip-Package -ZipSource "$SelfFolder\CMake.zip" -Destination "."
 Rename-Item $CMakeSub "cmake"
 Remove-Item -Force -Recurse "$SelfFolder\CMake.zip"
 }
+}
 
+
+Function Global:Install-Python{
 #Restore Python
 Write-Host "Download Python27 and Install Python, Not Require Administrator."
 Start-BitsTransfer -Source $PythonURL -Destination "$SelfFolder\Python.msi" -Description "Downloading Python"
@@ -94,8 +65,10 @@ if($? -eq $True)
    Remove-Item -Force -Recurse "$SelfFolder\Python\Python.msi"
 }
 }
+}
 
 
+Function Global:Install-Subversion{
 #Restore Subversion
 Write-Host "Download Subversion"
 Start-BitsTransfer -Source $SubversionURL -Destination "$SelfFolder\Subversion.msi" -Description "Downloading Subversion"
@@ -110,25 +83,27 @@ if($? -eq $True)
    Remove-Item -Force -Recurse "$SelfFolder\Subversion\Subversion.msi"
 }
 }
+}
 
-
+Function Global:Install-NSIS{
 #Restore NSIS
 Write-Host "Download NSIS and Unzip NSIS"
 Start-BitsTransfer -Source $NSISURL -Destination "$SelfFolder\NSIS.zip" -Description "Downloading NSIS"
 if(Test-Path){
 Unblock-File -Path "$SelfFolder\NSIS.zip"
-Unzip-Package -Source "$SelfFolder\NSIS.zip" -Folder "."
+Unzip-Package -ZipSource "$SelfFolder\NSIS.zip" -Destination "."
 Rename-Item $NSISSub "nsis"
 }
+}
 
-
+Function Global:Install-GNUWin{
 #Restore GNUWin
 Write-Host "Download GNUWin tools and Unzip it."
 Start-BitsTransfer -Source $GnuWinURL -Destination "$SelfFolder\GNUWin.zip" -Description "Downloading GNUWin"
 if(Test-Path "$SelfFolder\GNUWin.zip"){
 Unblock-File -Path "$SelfFolder\GNUWin.zip"
-Unzip-Package -Source "$SelfFolder\GNUWin.zip" -Folder "GNUWin"
+Unzip-Package -ZipSource "$SelfFolder\GNUWin.zip" -Destination "GNUWin"
 }
-
+}
 
 Write-Host "Your can Load PathLoader to Setting Your Clangbuilder Environment"

@@ -18,6 +18,6 @@ Invoke-Expression "$SelfFolder\Update.ps1"
 
 Get-GithubUpdatePackage -Root $ClangbuilderRoot
 
-#Remove-Item -Force -Recurse "${CSERoot}\Packages\*" -Exclude PackageList.txt
+Invoke-Expression "$SelfFolder\Install.ps1 -Reset"
 
-#Invoke-Expression -Command "PowerShell -NoLogo -NoExit -File ${CSERoot}\InstallClangSetupvNext.ps1"
+
