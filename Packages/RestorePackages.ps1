@@ -38,8 +38,10 @@ param(
 [System.IO.Compression.ZipFile]::ExtractToDirectory($ZipSource, $Destination)
 }
 
+$PushPWD=Get-Location
+Set-Location $SelfFolder
 
-Function Global:Install-CMake{
+if(!(Test-Path "$SelfFolder/cmake/bin/cmake.exe")){
 Write-Host "Download CMake and Unzip CMake"
 ###Restore CMake
 Start-BitsTransfer -Source $CMakeURL -Destination "$SelfFolder\CMake.zip" -Description "Downloading CMake"
@@ -51,8 +53,7 @@ Remove-Item -Force -Recurse "$SelfFolder\CMake.zip"
 }
 }
 
-
-Function Global:Install-Python{
+if(!(Test-Path "$SelfFolder/Python/python.exe")){
 #Restore Python
 Write-Host "Download Python27 and Install Python, Not Require Administrator."
 Start-BitsTransfer -Source $PythonURL -Destination "$SelfFolder\Python.msi" -Description "Downloading Python"
@@ -67,8 +68,7 @@ if($? -eq $True)
 }
 }
 
-
-Function Global:Install-Subversion{
+if(!(Test-Path "$SelfFolder/Subversion/bin/svn.exe")){
 #Restore Subversion
 Write-Host "Download Subversion"
 Start-BitsTransfer -Source $SubversionURL -Destination "$SelfFolder\Subversion.msi" -Description "Downloading Subversion"
@@ -85,7 +85,7 @@ if($? -eq $True)
 }
 }
 
-Function Global:Install-NSIS{
+if(!(Test-Path $SelfFolder/nsis/NSIS.exe)){
 #Restore NSIS
 Write-Host "Download NSIS and Unzip NSIS"
 Start-BitsTransfer -Source $NSISURL -Destination "$SelfFolder\NSIS.zip" -Description "Downloading NSIS"
@@ -96,7 +96,7 @@ Rename-Item $NSISSub "nsis"
 }
 }
 
-Function Global:Install-GNUWin{
+if(!(Test-Path "$SelfFolder/GNUWin/bin/grep.exe")){
 #Restore GNUWin
 Write-Host "Download GNUWin tools and Unzip it."
 Start-BitsTransfer -Source $GnuWinURL -Destination "$SelfFolder\GNUWin.zip" -Description "Downloading GNUWin"
@@ -105,5 +105,7 @@ Unblock-File -Path "$SelfFolder\GNUWin.zip"
 Unzip-Package -ZipSource "$SelfFolder\GNUWin.zip" -Destination "GNUWin"
 }
 }
+
+Set-Location $PushPWD
 
 Write-Host "Your can Load PathLoader to Setting Your Clangbuilder Environment"

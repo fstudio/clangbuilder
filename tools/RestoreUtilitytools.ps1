@@ -7,6 +7,7 @@
 $SelfFolder=Split-Path -Parent $MyInvocation.MyCommand.Definition
 $ClangBuilderRoot=Split-Path -Parent $SelfFolder
 
+$PushPWD=Get-Location
 Set-Location $SelfFolder
 IEX -Command "cmd /c $SelfFolder\ClangbuilderUITask.bat"
 $ClangbuilderUIRelease="$SelfFolder\ClangbuilderUI\ClangbuilderUI\bin\Release"
@@ -39,5 +40,7 @@ IF(!(Test-Path "$ClangBuilderRoot\ClangbuilderUI.lnk")){
 IEX -Command "cmd /c $SelfFolder\LauncherTask.bat ${osbit}"
 Copy-Item -Path "$SelfFolder\Launcher\Launcher.exe"  -Destination "$SelfFolder\Restore"   -Force -Recurse
 IEX -Command "cmd /c $SelfFolder\Launcher\cleanBuild.bat"
+
+Set-Location $PushPWD
 
 
