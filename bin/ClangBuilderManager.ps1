@@ -159,7 +159,7 @@ $CRTLinkDebug="MDd"
 
 
 if($NmakeEnable){
-Invoke-Expression -Command  "cmake ..\$SourcesDir -G`"NMake Makefiles`" -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON "  
+Invoke-Expression -Command  "cmake ..\$SourcesDir -G`"NMake Makefiles`" -DCMAKE_CONFIGURATION_TYPES=$Configuration -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON "  
 
 if(Test-Path "Makefile"){
 Invoke-Expression -Command "nmake"
@@ -168,7 +168,7 @@ Invoke-Expression -Command "nmake"
 }else{
 
 if($Target -eq "x64"){
-Invoke-Expression -Command "cmake ..\$SourcesDir -G`"Visual Studio $VSTools Win64`" -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON " 
+Invoke-Expression -Command "cmake ..\$SourcesDir -G`"Visual Studio $VSTools Win64`" -DCMAKE_CONFIGURATION_TYPES=$Configuration -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON " 
 
 if(Test-Path "LLVM.sln"){
 Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=$Configuration /p:Platform=x64 /t:ALL_BUILD"
@@ -176,7 +176,7 @@ Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration
 
 }elseif($Target -eq "ARM"){
 
-Invoke-Expression -Command "cmake ..\$SourcesDir -G`"Visual Studio $VSTools ARM`" -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON "  
+Invoke-Expression -Command "cmake ..\$SourcesDir -G`"Visual Studio $VSTools ARM`" -DCMAKE_CONFIGURATION_TYPES=$Configuration -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON "  
 
 if(Test-Path "LLVM.sln"){
 Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=$Configuration /p:Platform=ARM /t:ALL_BUILD"
@@ -184,14 +184,14 @@ Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration
 
 }elseif($Target -eq "ARM64" -and $VisualStudioVersion -ge 141){
 
-Invoke-Expression -Command "cmake ..\$SourcesDir -G`"Visual Studio $VSTools ARM64`" -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON "  
+Invoke-Expression -Command "cmake ..\$SourcesDir -G`"Visual Studio $VSTools ARM64`" -DCMAKE_CONFIGURATION_TYPES=$Configuration -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON "  
 
 if(Test-Path "LLVM.sln"){
 Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=$Configuration /p:Platform=ARM64 /t:ALL_BUILD"
 }
 }else{
 
-Invoke-Expression -Command "cmake ..\$SourcesDir -G`"Visual Studio $VSTools`" -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON "  
+Invoke-Expression -Command "cmake ..\$SourcesDir -G`"Visual Studio $VSTools`" -DCMAKE_CONFIGURATION_TYPES=$Configuration -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON "  
 
 if(Test-Path "LLVM.sln"){
 Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=$Configuration /p:Platform=win32 /t:ALL_BUILD"
