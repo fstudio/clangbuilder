@@ -203,7 +203,7 @@ Invoke-Expression -Command "msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration
 
 if($? -eq $True -and $CreateInstallPkg){
 if(Test-Path "$PWD/LLVM.sln"){
-Invoke-Expression -Command "cpack"
+Invoke-Expression -Command "cpack -C $Configuration"
 }
 }
 
