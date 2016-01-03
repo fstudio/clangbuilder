@@ -42,7 +42,7 @@ $PushPWD=Get-Location
 Set-Location $SelfFolder
 
 if(!(Test-Path "$SelfFolder/cmake/bin/cmake.exe")){
-Write-Host "Download CMake and Unzip CMake"
+Write-Host -ForegroundColor Blue "Download CMake and Unzip CMake"
 ###Restore CMake
 Start-BitsTransfer -Source $CMakeURL -Destination "$SelfFolder\CMake.zip" -Description "Downloading CMake"
 if(Test-Path "$SelfFolder\CMake.zip"){
@@ -51,11 +51,13 @@ Unzip-Package -ZipSource "$SelfFolder\CMake.zip" -Destination "."
 Rename-Item $CMakeSub "cmake"
 Remove-Item -Force -Recurse "$SelfFolder\CMake.zip"
 }
+}else{
+Write-Host -ForegroundColor Green "CMake has been installed"
 }
 
 if(!(Test-Path "$SelfFolder/Python/python.exe")){
 #Restore Python
-Write-Host "Download Python27 and Install Python, Not Require Administrator."
+Write-Host -ForegroundColor Blue "Download Python27 and Install Python, Not Require Administrator."
 Start-BitsTransfer -Source $PythonURL -Destination "$SelfFolder\Python.msi" -Description "Downloading Python"
 if(Test-Path "$SelfFolder\Python.msi"){
 Unblock-File -Path "$SelfFolder\Python.msi"
@@ -66,11 +68,13 @@ if($? -eq $True)
    Remove-Item -Force -Recurse "$SelfFolder\Python\Python.msi"
 }
 }
+}else{
+Write-Host -ForegroundColor Green "Python has been installed"
 }
 
 if(!(Test-Path "$SelfFolder/Subversion/bin/svn.exe")){
 #Restore Subversion
-Write-Host "Download Subversion"
+Write-Host -ForegroundColor Blue "Download Subversion"
 Start-BitsTransfer -Source $SubversionURL -Destination "$SelfFolder\Subversion.msi" -Description "Downloading Subversion"
 if(Test-Path "$SelfFolder\Subversion.msi"){
 Unblock-File -Path "$SelfFolder\Subversion.msi"
@@ -83,27 +87,33 @@ if($? -eq $True)
    Remove-Item -Force -Recurse "$SelfFolder\Subversion\Subversion.msi"
 }
 }
+}else{
+Write-Host -ForegroundColor Green "Subversion has been installed"
 }
 
 if(!(Test-Path $SelfFolder/nsis/NSIS.exe)){
 #Restore NSIS
-Write-Host "Download NSIS and Unzip NSIS"
+Write-Host -ForegroundColor Blue "Download NSIS and Unzip NSIS"
 Start-BitsTransfer -Source $NSISURL -Destination "$SelfFolder\NSIS.zip" -Description "Downloading NSIS"
 if(Test-Path){
 Unblock-File -Path "$SelfFolder\NSIS.zip"
 Unzip-Package -ZipSource "$SelfFolder\NSIS.zip" -Destination "."
 Rename-Item $NSISSub "nsis"
 }
+}else{
+Write-Host -ForegroundColor Green "NSIS has been installed"
 }
 
 if(!(Test-Path "$SelfFolder/GNUWin/bin/grep.exe")){
 #Restore GNUWin
-Write-Host "Download GNUWin tools and Unzip it."
+Write-Host -ForegroundColor Blue "Download GNUWin tools and Unzip it."
 Start-BitsTransfer -Source $GnuWinURL -Destination "$SelfFolder\GNUWin.zip" -Description "Downloading GNUWin"
 if(Test-Path "$SelfFolder\GNUWin.zip"){
 Unblock-File -Path "$SelfFolder\GNUWin.zip"
 Unzip-Package -ZipSource "$SelfFolder\GNUWin.zip" -Destination "GNUWin"
 }
+}else{
+Write-Host -ForegroundColor Green "GNUWin has been installed"
 }
 
 Set-Location $PushPWD

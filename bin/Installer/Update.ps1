@@ -21,14 +21,14 @@ Function Unzip-Package
 param(
 [Parameter(Position=0,Mandatory=$True,HelpMessage="Unzip sources")]
 [ValidateNotNullorEmpty()]
-[String]$Source,
+[String]$ZipSource,
 [Parameter(Position=1,Mandatory=$True,HelpMessage="Output Directory")]
 [ValidateNotNullorEmpty()]
-[String]$Folder
+[String]$Destination
 )
 [System.Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')|Out-Null
-Write-Host "Use System.IO.Compression.ZipFile Unzip ¡¤nPackage: $Source`nOutput: $Folder"
-[System.IO.Compression.ZipFile]::ExtractToDirectory($Source, $Folder)
+Write-Host "Use System.IO.Compression.ZipFile Unzip `nPackage: $ZipSource`nOutput: $Destination"
+[System.IO.Compression.ZipFile]::ExtractToDirectory($ZipSource, $Destination)
 }
 
 
@@ -47,9 +47,11 @@ $Root=[String]$ClangbuilderRoot
  Exit
  }
  Unblock-File $ClangbuilderEnvPkName
- Unzip-Package -Source $ClangbuilderEnvPkName -Folder "${env:TEMP}\ClangbuilderTEMP"
+ Unzip-Package -ZipSource $ClangbuilderEnvPkName -Destination "${env:TEMP}\ClangbuilderTEMP"
  Copy-Item -Path "${Env:TEMP}\ClangbuilderTEMP\clangbuilder-master\*" $ClangbuilderRoot  -Force -Recurse
  Remove-Item -Force -Recurse "$ClangbuilderEnvPkName"
  Remove-Item -Force -Recurse "${env:TEMP}\ClangbuilderTEMP"
 }
+
+Get-GithubUpdatePackage -Root $ClangbuilderRoot
 

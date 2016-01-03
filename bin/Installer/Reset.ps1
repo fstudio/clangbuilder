@@ -15,9 +15,6 @@ $SelfParent=Split-Path -Parent $SelfFolder
 $ClangbuilderRoot=Split-Path -Parent $SelfParent
 
 Invoke-Expression "$SelfFolder\Update.ps1"
-
-Get-GithubUpdatePackage -Root $ClangbuilderRoot
-
 Invoke-Expression "$SelfFolder\Install.ps1 -Reset"
 
 
