@@ -150,11 +150,11 @@ Remove-Item -Force -Recurse "$ClangbuilderRoot/out/workdir/*"
 Set-Location "$ClangbuilderRoot/out/workdir"
 
 if($UseStaticCRT){
-$CRTLinkRelease="-MT"
-$CRTLinkDebug="-MTd"
+$CRTLinkRelease="MT"
+$CRTLinkDebug="MTd"
 }else{
-$CRTLinkRelease="-MD"
-$CRTLinkDebug="-MDd"
+$CRTLinkRelease="MD"
+$CRTLinkDebug="MDd"
 }
 
 
