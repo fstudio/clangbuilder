@@ -22,6 +22,11 @@ IF($args.Count -ge 2){
 
 $SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 IEX -Command "$SelfFolder/ClangRevision.ps1"
+$ClangbuilderRoot=Split-Path -Parent $SelfFolder
+$BuildFolder="$ClangbuilderRoot/out"
+$ReleaseRevFolder="$BuildFolder/release"
+$LLVMRepositoriesRoot="http://llvm.org/svn/llvm-project"
+$ReleaseRevision="RELEASE_371/final"
 
 IF(!(Test-Path $BuildFolder)){
     mkdir $BuildFolder

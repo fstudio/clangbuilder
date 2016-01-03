@@ -16,12 +16,19 @@ IF($args.Count -ge 1){
 $SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 IEX -Command "$SelfFolder/ClangRevision.ps1"
 
+$ClangbuilderRoot=Split-Path -Parent $SelfFolder
+$BuildFolder="$ClangbuilderRoot/out"
+$MainlineFolder="$BuildFolder/mainline"
+$LLVMRepositoriesRoot="http://llvm.org/svn/llvm-project"
+
 IF(!(Test-Path $BuildFolder)){
     mkdir $BuildFolder
 }
 
-$PushPWD=Get-Location
 Set-Location $BuildFolder
+
+$PushPWD=Get-Location
+
 Restore-Repository -URL "$LLVMRepositoriesRoot/llvm/trunk" -Folder "mainline"
 Set-Location "$BuilFolder/mainline/tools"
 Restore-Repository -URL "$LLVMRepositoriesRoot/cfe/trunk" -Folder "clang"

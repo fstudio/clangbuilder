@@ -5,12 +5,6 @@
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
 $SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-$ClangbuilderRoot=Split-Path -Parent $SelfFolder
-$Global:BuildFolder="$ClangbuilderRoot/out"
-$Global:MainlineFolder="$BuildFolder/mainline"
-$Global:ReleaseRevFolder="$BuildFolder/release"
-$Global:LLVMRepositoriesRoot="http://llvm.org/svn/llvm-project"
-$Global:ReleaseRevision="RELEASE_371/final"
 
 Function Global:Restore-Repository{
 param(
@@ -24,6 +18,7 @@ param(
 $PushPWD=Get-Location
 IF((Test-Path "$Folder") -and (Test-Path "$Folder/.svn")){
     Set-Location "$Folder"
+    Invoke-Expression -Command "svn cleanup ."
     Invoke-Expression -Command "svn up ."
 }ELSE{
     IF((Test-Path "$Folder")){
