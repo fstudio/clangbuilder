@@ -5,7 +5,8 @@
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
 $SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-$Global:BuildFolder="$SelfFolder/../out"
+$ClangbuilderRoot=Split-Path -Parent $SelfFolder
+$Global:BuildFolder="$ClangbuilderRoot/out"
 $Global:MainlineFolder="$BuildFolder/mainline"
 $Global:ReleaseRevFolder="$BuildFolder/release"
 $Global:LLVMRepositoriesRoot="http://llvm.org/svn/llvm-project"
