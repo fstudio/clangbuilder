@@ -1,5 +1,6 @@
 out/
 ClangbuilderUI.lnk
+bin/Required/
 Packages/cmake/
 Packages/GNUWin/
 Packages/nsis/

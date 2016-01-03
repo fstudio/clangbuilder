@@ -1,4 +1,0 @@
-<#
-# LLDB Build Environment Task
-#>
-###
