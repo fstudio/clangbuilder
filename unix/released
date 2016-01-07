@@ -1,0 +1,40 @@
+#!/bin/bash
+ClangBuilderDir=$(cd `dirname $0`; pwd)
+
+ReleaseTag="RELEASE_371/final/"
+
+function Restore-Repositories(){
+    pushd $PWD
+    if [ -d "$1/$2/.svn" ]; then
+        cd "$1/$2"
+        svn cleanup .
+        svn up .
+    else
+        cd "$1"
+        svn co $3 $2
+    fi
+    echo "ClangBuilder checkout $2 done."
+    popd
+}
+
+Restore-Repositories "$ClangBuilderDir" "llvmReleased" "http://llvm.org/svn/llvm-project/llvm/tags/$ReleaseTag"
+Restore-Repositories "$ClangBuilderDir/llvmReleased/tools" clang "http://llvm.org/svn/llvm-project/cfe/tags/$ReleaseTag"
+Restore-Repositories "$ClangBuilderDir/llvmReleased/tools" lld "http://llvm.org/svn/llvm-project/lld/tags/$ReleaseTag"
+Restore-Repositories "$ClangBuilderDir/llvmReleased/tools" lldb "http://llvm.org/svn/llvm-project/lldb/tags/$ReleaseTag"
+Restore-Repositories "$ClangBuilderDir/llvmReleased/tools/clang/tools" extra "http://llvm.org/svn/llvm-project/clang-tools-extra/tags/$ReleaseTag"
+Restore-Repositories "$ClangBuilderDir/llvmReleased/projects" compiler-rt "http://llvm.org/svn/llvm-project/compiler-rt/tags/$ReleaseTag"
+Restore-Repositories "$ClangBuilderDir/llvmReleased/projects" libcxx "http://llvm.org/svn/llvm-project/libcxx/tags/$ReleaseTag"
+Restore-Repositories "$ClangBuilderDir/llvmReleased/projects" libcxxabi "http://llvm.org/svn/llvm-project/libcxxabi/tags/$ReleaseTag"
+Restore-Repositories "$ClangBuilderDir/llvm/projects" openmp "http://llvm.org/svn/llvm-project/openmp/tags/$ReleaseTag"
+
+test -d "$ClangBuilderDir/releaseBinary" || mkdir -p "$ClangBuilderDir/releaseBinary"
+
+cd "$ClangBuilderDir/releaseBinary"
+cmake ../llvmReleased -DCMAKE_BUILD_TYPE=Release  -DLLVM_APPEND_VC_REV:BOOL=ON
+
+if [ -f "$ClangBuilderDir/releaseBinary/Makefile" ]; then
+    cmake --build .
+else
+    echo "Cannot create Makefile,Please check log for details and retry !"
+    exit
+fi

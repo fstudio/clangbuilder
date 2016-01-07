@@ -1,0 +1,39 @@
+#!/bin/bash
+ClangBuilderDir=$(cd `dirname $0`; pwd)
+
+function Restore-Repositories(){
+    pushd $PWD
+    if [ -d "$1/$2/.svn" ]; then
+        cd "$1/$2"
+        svn cleanup .
+        svn up .
+    else
+        cd "$1"
+        svn co $3 $2
+    fi
+    echo "ClangBuilder checkout $2 done."
+    popd
+}
+
+Restore-Repositories "$ClangBuilderDir" llvm http://llvm.org/svn/llvm-project/llvm/trunk
+Restore-Repositories "$ClangBuilderDir/llvm/tools" clang http://llvm.org/svn/llvm-project/cfe/trunk
+Restore-Repositories "$ClangBuilderDir/llvm/tools" lld http://llvm.org/svn/llvm-project/lld/trunk
+Restore-Repositories "$ClangBuilderDir/llvm/tools" lldb http://llvm.org/svn/llvm-project/lldb/trunk
+Restore-Repositories "$ClangBuilderDir/llvm/tools/clang/tools" extra http://llvm.org/svn/llvm-project/clang-tools-extra/trunk
+Restore-Repositories "$ClangBuilderDir/llvm/projects" compiler-rt http://llvm.org/svn/llvm-project/compiler-rt/trunk
+Restore-Repositories "$ClangBuilderDir/llvm/projects" libcxx http://llvm.org/svn/llvm-project/libcxx/trunk
+Restore-Repositories "$ClangBuilderDir/llvm/projects" libcxxabi http://llvm.org/svn/llvm-project/libcxxabi/trunk
+Restore-Repositories "$ClangBuilderDir/llvm/projects" openmp http://llvm.org/svn/llvm-project/openmp/trunk
+
+
+test -d "$ClangBuilderDir/binary" || mkdir -p "$ClangBuilderDir/binary"
+
+cd "$ClangBuilderDir/binary"
+cmake ../llvm -DCMAKE_BUILD_TYPE=Release  -DLLVM_APPEND_VC_REV:BOOL=ON
+
+if [ -f "$ClangBuilderDir/binary/Makefile" ]; then
+    cmake --build .
+else
+    echo "Cannot create Makefile,Please check log for details and retry !"
+    exit
+fi

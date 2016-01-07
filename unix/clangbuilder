@@ -1,0 +1,31 @@
+#!/bin/bash
+#clang auto builder
+
+ClangBuilderDir=$(cd `dirname $0`; pwd)
+
+function Build-Release(){
+    "$ClangBuilderDir/released"
+}
+
+function Build-Mainline(){
+    "$ClangBuilderDir/mainline"
+}
+
+function usage(){
+cat<<EOF
+ClangBuilder helper
+usage: clangbuilder [options]
+       release        build llvm last released revision
+       trunk          build llvm trunk revision
+       help           Print ClangBuilder help
+EOF
+exit 0
+}
+
+for arg ;do
+	case "$arg" in
+		help) usage ;;
+        release) Build-Release ;;
+        trunk) Build-Mainline;;
+esac
+done
