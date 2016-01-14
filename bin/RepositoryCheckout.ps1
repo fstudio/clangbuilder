@@ -15,18 +15,18 @@ param(
 [ValidateNotNullorEmpty()]
 [String]$Folder
 )
-$PushPWD=Get-Location
+Push-Location $PWD
 IF((Test-Path "$Folder") -and (Test-Path "$Folder/.svn")){
     Set-Location "$Folder"
-    Invoke-Expression -Command "svn cleanup ."
-    Invoke-Expression -Command "svn up ."
+    &svn cleanup .
+    &svn up .
 }ELSE{
     IF((Test-Path "$Folder")){
         Remove-Item -Force -Recurse "$Folder/.svn"
     }
-    Invoke-Expression -Command "svn co $URL $Folder"
+    &svn co $URL "$Folder"
 }
-Set-Location $PushPWD
+Pop-Location
 }
 
 

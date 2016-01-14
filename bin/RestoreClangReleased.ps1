@@ -4,21 +4,10 @@
 #  Date:2016.01.02
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
-
-[System.Boolean] $IsEnabledLLDB=$FALSE
-
-IF($args.Count -ge 1){
-    IF($args[0] -eq "--with-lldb"){
-        $IsEnabledLLDB=$TRUE
-    }
-}
-
-$RemoveOldCheckout=$FALSE
-IF($args.Count -ge 2){
-    IF($args[1] -eq "--co"){
-        $RemoveOldCheckout=$TRUE
-    }
-}
+param(
+    [Switch]$EnableLLDB,
+    [Switch]$RemoveOld
+)
 
 $SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 IEX -Command "$SelfFolder/RepositoryCheckout.ps1"
@@ -29,29 +18,29 @@ $LLVMRepositoriesRoot="http://llvm.org/svn/llvm-project"
 $ReleaseRevision="RELEASE_371/final"
 
 IF(!(Test-Path $BuildFolder)){
-    mkdir $BuildFolder
+    mkdir -Force $BuildFolder
 }
 
-$PushPWD=Get-Location
+Push-Location $PWD
 Set-Location $BuildFolder
-IF((Test-Path "$BuildFolder/release") -and $RemoveOldCheckout){
+IF((Test-Path "$BuildFolder/release") -and $RemoveOld){
     Remove-Item -Force -Recurse "$BuildFolder/release"
 }
 Restore-Repository -URL "$LLVMRepositoriesRoot/llvm/tags/$ReleaseRevision" -Folder "release"
-if((Test-Path "$BuildFolder/release/tools")){
-Write-Host "Checkout LLVM Failed"
+if(!(Test-Path "$BuildFolder/release/tools")){
+Write-Output "Checkout LLVM Failed"
 Exit
 }
 Set-Location "$BuildFolder/release/tools"
 Restore-Repository -URL "$LLVMRepositoriesRoot/cfe/tags/$ReleaseRevision" -Folder "clang"
 Restore-Repository -URL "$LLVMRepositoriesRoot/lld/tags/$ReleaseRevision" -Folder "lld"
-IF($IsEnabledLLDB){
+IF($EnableLLDB){
     Restore-Repository -URL "$LLVMRepositoriesRoot/lldb/tags/$ReleaseRevision" -Folder "lldb"
 }else{
     Remove-Item -Force -Recurse "$BuildFolder/release/tools/lldb"
 }
-if((Test-Path "$BuildFolder/release/tools/clang/tools")){
-Write-Host "Checkout Clang Failed"
+if(!(Test-Path "$BuildFolder/release/tools/clang/tools")){
+Write-Output "Checkout Clang Failed"
 Exit
 }
 Set-Location "$BuildFolder/release/tools/clang/tools"
@@ -59,4 +48,4 @@ Restore-Repository -URL "$LLVMRepositoriesRoot/clang-tools-extra/tags/$ReleaseRe
 Set-Location "$BuildFolder/release/projects"
 Restore-Repository -URL "$LLVMRepositoriesRoot/compiler-rt/tags/$ReleaseRevision" -Folder "compiler-rt"
 
-Set-Location $PushPWD
+Pop-Location
