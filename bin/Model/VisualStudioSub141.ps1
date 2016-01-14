@@ -4,33 +4,32 @@
 #  Date:2016.01.01
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
-
+param (
+    [ValidateSet("x86", "x64", "ARM", "ARM64")]
+    [String]$Arch="x64"
+)
 IF($PSVersionTable.BuildVersion.Major -lt 10){
-    Write-Host -ForegroundColor Red "Visual Studio 2015 [Windows 10] must run under Windows 10 or Later "
+    Write-Output -ForegroundColor Red "Visual Studio 2015 [Windows 10] must run under Windows 10 or Later "
     Exit
 }
 
 IF( $env:VS140COMNTOOLS -eq $null -or (Test-Path $env:VS140COMNTOOLS) -eq $false)
 {
-    Write-Host -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2015"
+    Write-Output -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2015"
     exit 
 }
 
-IF($args.Count -ge 1){
-IF($args[0] -eq "x86"){
+IF($Arch -eq "x86"){
     $target=1
 }
-IF($args[0] -eq "x64"){
+IF($Arch -eq "x64"){
     $target=2
 }
-IF($args[0] -eq "ARM"){
+IF($Arch -eq "ARM"){
     $target=3
 }
-IF($args[0] -eq "ARM64"){
+IF($Arch -eq "ARM64"){
     $target=4
-}
-}ELSE{
-    $target=2
 }
 
 $InvokerDir=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)

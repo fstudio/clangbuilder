@@ -4,7 +4,10 @@
 #  Date:2016.01.01
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
-
+param (
+    [ValidateSet("x86", "x64", "ARM", "ARM64")]
+    [String]$Arch="x64"
+)
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
 Write-Host -ForegroundColor Red "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later
@@ -18,22 +21,18 @@ IF( $env:VS140COMNTOOLS -eq $null -or (Test-Path $env:VS140COMNTOOLS) -eq $false
   return 
 }
 
-IF($args.Count -ge 1){
-IF($args[0] -eq "x86"){
+IF($Arch -eq "x86"){
     $target=1
 }
-IF($args[0] -eq "x64"){
+IF($Arch -eq "x64"){
     $target=2
 }
-IF($args[0] -eq "ARM"){
+IF($Arch -eq "ARM"){
     $target=3
 }
-IF($args[0] -eq "ARM64"){
-    Write-Host -ForegroundColor Red "Visual Studio 2013 not support ARM"
+IF($Arch -eq "ARM64"){
+    Write-Host -ForegroundColor Red "Visual Studio 2015 [Windows 8] not support ARM64"
     Exit
-}
-}ELSE{
-    $target=2
 }
 
 $InvokerDir=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)

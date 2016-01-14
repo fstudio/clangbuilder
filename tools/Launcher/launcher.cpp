@@ -277,9 +277,9 @@ int WINAPI wWinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPWSTR lpCmdLine
 		}
 	}
 	WCHAR szBuffer[UNC_MAX_PATH] = { 0 };
-	StringCbPrintfW(szBuffer, UNC_MAX_PATH, L" -V%s -T%s",vs,target);
+	StringCbPrintfW(szBuffer, UNC_MAX_PATH, L" -VisualStudio %s -Arch %s",vs,target);
 	if (IsBuilder) {
-		StringCbCatW(szBuffer, UNC_MAX_PATH, L" -C");
+		StringCbCatW(szBuffer, UNC_MAX_PATH, L" -Flavor ");
 		StringCbCatW(szBuffer, UNC_MAX_PATH, configuration);
 		if (createInstallPkg) {
 			StringCbCatW(szBuffer, UNC_MAX_PATH, L" -Install");
@@ -291,7 +291,7 @@ int WINAPI wWinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPWSTR lpCmdLine
 			StringCbCatW(szBuffer, UNC_MAX_PATH, L" -Static");
 		}
 		if (useNmake) {
-			StringCbCatW(szBuffer, UNC_MAX_PATH, L" -Nmake");
+			StringCbCatW(szBuffer, UNC_MAX_PATH, L" -NMake");
 		}
 		if (buildLLDB) {
 			StringCbCatW(szBuffer, UNC_MAX_PATH, L" -LLDB");

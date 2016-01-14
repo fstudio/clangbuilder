@@ -4,10 +4,14 @@
 #  Date:2016.01.01
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
+param (
+    [ValidateSet("x86", "x64", "ARM", "ARM64")]
+    [String]$Arch="x64"
+)
 
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
-Write-Host -ForegroundColor Red "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later
+Write-Output -ForegroundColor Red "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later
 Your PowerShell version Is :${Host}"
 [System.Console]::ReadKey()
 Exit
@@ -15,26 +19,22 @@ Exit
 
 IF( $env:VS110COMNTOOLS -eq $null -or (Test-Path $env:VS110COMNTOOLS) -eq $false)
 {
-  Write-Host -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2012"
+  Write-Output -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2012"
   Exit 
 }
 
-IF($args.Count -ge 1){
-IF($args[0] -eq "x86"){
+IF($Arch -eq "x86"){
     $target=1
 }
-IF($args[0] -eq "x64"){
+IF($Arch -eq "x64"){
     $target=2
 }
-IF($args[0] -eq "arm"){
+IF($Arch -eq "arm"){
     $target=3
 }
-IF($args[0] -eq "arm64"){
-    Write-Host -ForegroundColor Red "Visual Studio 2012 not support ARM64"
+IF($Arch -eq "arm64"){
+    Write-Output -ForegroundColor Red "Visual Studio 2012 not support ARM64"
     Exit
-}
-}ELSE{
-    $target=2
 }
 
 $InvokerDir=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
