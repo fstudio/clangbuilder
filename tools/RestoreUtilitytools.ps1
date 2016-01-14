@@ -7,22 +7,22 @@
 $SelfFolder=Split-Path -Parent $MyInvocation.MyCommand.Definition
 $ClangBuilderRoot=Split-Path -Parent $SelfFolder
 
-$PushPWD=Get-Location
+Push-Location $PWD
 Set-Location $SelfFolder
-IEX -Command "cmd /c $SelfFolder\ClangbuilderUITask.bat"
+&cmd /c "$SelfFolder\ClangbuilderUITask.bat"
 $ClangbuilderUIRelease="$SelfFolder\ClangbuilderUI\ClangbuilderUI\bin\Release"
 IF(!(Test-Path "$SelfFolder\Restore"))
 {
-    mkdir "$SelfFolder\Restore"
+    mkdir -Force "$SelfFolder\Restore"
 }
 Copy-Item -Path "$ClangbuilderUIRelease\*" -Destination "$SelfFolder\Restore" -Exclude *.vshost.*,*.pdb  -Force -Recurse
-IEX -Command "cmd /c ${SelfFolder}\CleanTask.bat"
+&cmd /c "$SelfFolder\CleanTask.bat"
 
-$osbit="32BIT"
+$Arch="32BIT"
 
 IF([System.Environment]::Is64BitOperatingSystem -eq $True)
 {
-$osbit="64BIT"
+$Arch="64BIT"
 }
 
 IF(!(Test-Path "$ClangBuilderRoot\ClangbuilderUI.lnk")){
@@ -37,10 +37,10 @@ IF(!(Test-Path "$ClangBuilderRoot\ClangbuilderUI.lnk")){
 }
 
 
-IEX -Command "cmd /c $SelfFolder\LauncherTask.bat ${osbit}"
+&cmd /c "$SelfFolder\LauncherTask.bat" $Arch
 Copy-Item -Path "$SelfFolder\Launcher\Launcher.exe"  -Destination "$SelfFolder\Restore"   -Force -Recurse
-IEX -Command "cmd /c $SelfFolder\Launcher\cleanBuild.bat"
+&cmd /c "$SelfFolder\Launcher\cleanBuild.bat"
 
-Set-Location $PushPWD
+Pop-Location
 
 

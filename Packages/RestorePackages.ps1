@@ -23,13 +23,14 @@ $NSISSub="nsis-3.0b3"
 
 $GnuWinURL="http://sourceforge.net/projects/clangonwin/files/Install/Packages/ClangSetup-Package-GnuWin-win32.zip"
 
-$CMakeLock="3.4.1"
+<#$CMakeLock="3.4.1"
 $SubversionLock="1.9.3"
 $PythonLock="2.7.11"
 $NSISLock="3.0b3"
 $GnuWinLock="1.0"
+#>
 
-Function Unzip-PackageInternal
+Function Expand-ZipPackage
 {
 param(
 [Parameter(Position=0,Mandatory=$True,HelpMessage="Unzip sources")]
@@ -42,28 +43,27 @@ param(
 [System.Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')
 [System.IO.Compression.ZipFile]::ExtractToDirectory($ZipSource, $Destination)
 }
-
-$PushPWD=Get-Location
+Push-Location $PWD
 Set-Location $SelfFolder
 
 
 if(!(Test-Path "$SelfFolder/cmake/bin/cmake.exe")){
-Write-Host -ForegroundColor Blue "Download CMake and Unzip CMake"
+Write-Output -ForegroundColor Blue "Download CMake and Unzip CMake"
 ###Restore CMake
 Start-BitsTransfer -Source $CMakeURL -Destination "$SelfFolder\CMake.zip" -Description "Downloading CMake"
 if(Test-Path "$SelfFolder\CMake.zip"){
 Unblock-File -Path "$SelfFolder\CMake.zip"
-Unzip-Package -ZipSource "$SelfFolder\CMake.zip" -Destination "."
+Expand-ZipPackage -ZipSource "$SelfFolder\CMake.zip" -Destination "."
 Rename-Item $CMakeSub "cmake"
 Remove-Item -Force -Recurse "$SelfFolder\CMake.zip"
 }
 }else{
-Write-Host -ForegroundColor Green "CMake has been installed"
+Write-Output -ForegroundColor Green "CMake has been installed"
 }
 
 if(!(Test-Path "$SelfFolder/Python/python.exe")){
 #Restore Python
-Write-Host -ForegroundColor Blue "Download Python27 and Install Python, Not Require Administrator."
+Write-Output -ForegroundColor Blue "Download Python27 and Install Python, Not Require Administrator."
 Start-BitsTransfer -Source $PythonURL -Destination "$SelfFolder\Python.msi" -Description "Downloading Python"
 if(Test-Path "$SelfFolder\Python.msi"){
 Unblock-File -Path "$SelfFolder\Python.msi"
@@ -75,12 +75,12 @@ if($? -eq $True)
 }
 }
 }else{
-Write-Host -ForegroundColor Green "Python has been installed"
+Write-Output -ForegroundColor Green "Python has been installed"
 }
 
 if(!(Test-Path "$SelfFolder/Subversion/bin/svn.exe")){
 #Restore Subversion
-Write-Host -ForegroundColor Blue "Download Subversion"
+Write-Output -ForegroundColor Blue "Download Subversion"
 Start-BitsTransfer -Source $SubversionURL -Destination "$SelfFolder\Subversion.msi" -Description "Downloading Subversion"
 if(Test-Path "$SelfFolder\Subversion.msi"){
 Unblock-File -Path "$SelfFolder\Subversion.msi"
@@ -94,12 +94,12 @@ if($? -eq $True)
 }
 }
 }else{
-Write-Host -ForegroundColor Green "Subversion has been installed"
+Write-Output -ForegroundColor Green "Subversion has been installed"
 }
 
 if(!(Test-Path $SelfFolder/nsis/NSIS.exe)){
 #Restore NSIS
-Write-Host -ForegroundColor Blue "Download NSIS and Unzip NSIS"
+Write-Output -ForegroundColor Blue "Download NSIS and Unzip NSIS"
 Start-BitsTransfer -Source $NSISURL -Destination "$SelfFolder\NSIS.zip" -Description "Downloading NSIS"
 if(Test-Path "$SelfFolder\NSIS.zip"){
 Unblock-File -Path "$SelfFolder\NSIS.zip"
@@ -107,21 +107,21 @@ Unzip-Package -ZipSource "$SelfFolder\NSIS.zip" -Destination "."
 Rename-Item $NSISSub "nsis"
 }
 }else{
-Write-Host -ForegroundColor Green "NSIS has been installed"
+Write-Output -ForegroundColor Green "NSIS has been installed"
 }
 
 if(!(Test-Path "$SelfFolder/GNUWin/bin/grep.exe")){
 #Restore GNUWin
-Write-Host -ForegroundColor Blue "Download GNUWin tools and Unzip it."
+Write-Output -ForegroundColor Blue "Download GNUWin tools and Unzip it."
 Start-BitsTransfer -Source $GnuWinURL -Destination "$SelfFolder\GNUWin.zip" -Description "Downloading GNUWin"
 if(Test-Path "$SelfFolder\GNUWin.zip"){
 Unblock-File -Path "$SelfFolder\GNUWin.zip"
 Unzip-Package -ZipSource "$SelfFolder\GNUWin.zip" -Destination "GNUWin"
 }
 }else{
-Write-Host -ForegroundColor Green "GNUWin has been installed"
+Write-Output -ForegroundColor Green "GNUWin has been installed"
 }
 
-Set-Location $PushPWD
+Pop-Location
 
-Write-Host "Your can Load PathLoader to Setting Your Clangbuilder Environment"
+Write-Output "Your can Load PathLoader to Setting Your Clangbuilder Environment"
