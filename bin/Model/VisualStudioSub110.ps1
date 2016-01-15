@@ -2,7 +2,7 @@
 #  VisualStudioSub110.ps1
 #  Note: Clang Auto Build Environment for Visual Studio 2012 [Windows 8]
 #  Date:2016.01.01
-#  Author:Force <forcemz@outlook.com>    
+#  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 param (
     [ValidateSet("x86", "x64", "ARM", "ARM64")]
@@ -20,7 +20,7 @@ Exit
 IF( $env:VS110COMNTOOLS -eq $null -or (Test-Path $env:VS110COMNTOOLS) -eq $false)
 {
   Write-Output -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2012"
-  Exit 
+  Exit
 }
 
 IF($Arch -eq "x86"){
@@ -37,8 +37,8 @@ IF($Arch -eq "arm64"){
     Exit
 }
 
-$InvokerDir=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-IEX "$InvokerDir/VisualStudioShared.ps1"
+$InvokerDir=$PSScriptRoot;
+. "$InvokerDir/VisualStudioShared.ps1"
 
 IF(${env:ProgramFiles(x86)} -eq $null){
    $SystemType=32

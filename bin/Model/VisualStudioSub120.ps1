@@ -2,7 +2,7 @@
 #  VisualStudioSub120.ps1
 #  Note: Clang Auto Build Environment for Visual Studio 2013 [Windows 8.1]
 #  Date:2016.01.01
-#  Author:Force <forcemz@outlook.com>    
+#  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 param (
     [ValidateSet("x86", "x64", "ARM", "ARM64")]
@@ -19,7 +19,7 @@ Exit
 IF( $env:VS120COMNTOOLS -eq $null -or (Test-Path $env:VS120COMNTOOLS) -eq $false)
 {
   Write-Output -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2013"
-  Exit 
+  Exit
 }
 
 IF($Arch -eq "x86"){
@@ -36,8 +36,8 @@ IF($Arch -eq "ARM64"){
     Exit
 }
 
-$InvokerDir=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-IEX "$InvokerDir/VisualStudioShared.ps1"
+$InvokerDir=$PSScriptRoot;
+. "$InvokerDir/VisualStudioShared.ps1"
 
 IF(${env:ProgramFiles(x86)} -eq $null){
    $SystemType=32

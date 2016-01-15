@@ -2,7 +2,7 @@
 #  VisualStudioSub141.ps1
 #  Note: Clang Auto Build Environment for Visual Studio 2015 [Windows 10]
 #  Date:2016.01.01
-#  Author:Force <forcemz@outlook.com>    
+#  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 param (
     [ValidateSet("x86", "x64", "ARM", "ARM64")]
@@ -16,7 +16,7 @@ IF($PSVersionTable.BuildVersion.Major -lt 10){
 IF( $env:VS140COMNTOOLS -eq $null -or (Test-Path $env:VS140COMNTOOLS) -eq $false)
 {
     Write-Output -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2015"
-    exit 
+    exit
 }
 
 IF($Arch -eq "x86"){
@@ -32,8 +32,8 @@ IF($Arch -eq "ARM64"){
     $target=4
 }
 
-$InvokerDir=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-IEX "$InvokerDir/VisualStudioShared.ps1"
+$InvokerDir=$PSScriptRoot;
+. "$InvokerDir/VisualStudioShared.ps1"
 
 IF(${env:ProgramFiles(x86)} -eq $null){
    $SystemType=32
@@ -62,7 +62,7 @@ IF($SystemType -eq 64)
     $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
     }
     $MSBUILDKIT=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\MSBuild\14.0' 'MSBuildOverrideTasksPath'
-    
+
 }ELSE{
     $VSInstall=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' '14.0'
     $VCDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' '14.0'
@@ -126,5 +126,3 @@ IF($target -eq 1){
     $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
     $env:LIB="$KitLibARM;${VCDir}LIB\arm64;$env:LIB"
 }
-
-
