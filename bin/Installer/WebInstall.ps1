@@ -74,7 +74,7 @@ Legacy Default Path 	Not applicable
 #HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\{374DE290-123F-4565-9164-39C4925E467B}
 ###Default ,Your Should Input
 
-$ClangBuilderInstallRoot=""
+$Global:ClangBuilderInstallRoot=""
 
 Function Get-InstallPrefix{
     param(
@@ -82,7 +82,7 @@ Function Get-InstallPrefix{
         [ValidateNotNullorEmpty()]
         [String]$Prefix
     )
-    $ClangBuilderInstallRoot=$Prefix
+    $Global:ClangBuilderInstallRoot=$Prefix
 }
 
 Get-InstallPrefix
@@ -107,15 +107,15 @@ IF(!$(Test-Path "${env:TEMP}\clangbuilder"))
     return
 }
 
- IF(!(Test-Path $ClangBuilderInstallRoot))
+ IF(!(Test-Path $Global:ClangBuilderInstallRoot))
  {
-     mkdir -Force $ClangBuilderInstallRoot
+     mkdir -Force $Global:ClangBuilderInstallRoot
  }
 
- Copy-Item -Path "${Env:TEMP}\clangbuilder\clangbuilder-master\*" "$ClangBuilderInstallRoot"  -Force -Recurse
+ Copy-Item -Path "${Env:TEMP}\clangbuilder\clangbuilder-master\*" "$Global:ClangBuilderInstallRoot"  -Force -Recurse
  Remove-Item -Force -Recurse "$env:TEMP\clangbuilder.zip"
  Remove-Item -Force -Recurse "$env:TEMP\clangbuilder"
 
- &PowerShell -NoLogo -NoExit -File "$ClangBuilderInstallRoot\bin\Installer\Install.ps1"
+ &PowerShell -NoLogo -NoExit -File "$Global:ClangBuilderInstallRoot\bin\Installer\Install.ps1"
 
  Write-Output "Process done"
