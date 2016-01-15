@@ -77,6 +77,9 @@ Launcher
 ![launcher](https://raw.githubusercontent.com/fstudio/clangbuilder/master/doc/images/launcher.jpg)
 
 
+##Use Clean Environment
+-Clear Flag will reset current process Environment Path Value.
+
 ##Other
 
 Copyright © 2016 ForceStudio. All Rights Reserved.
