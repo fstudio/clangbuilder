@@ -7,24 +7,24 @@
 $SelfFolder=$PSScriptRoot;
 
 Function Global:Restore-Repository{
-param(
-[Parameter(Position=0,Mandatory=$True,HelpMessage="Checkout URL")]
-[ValidateNotNullorEmpty()]
-[String]$URL,
-[Parameter(Position=1,Mandatory=$True,HelpMessage="Enter Checkout Folder")]
-[ValidateNotNullorEmpty()]
-[String]$Folder
-)
-Push-Location $PWD
-IF((Test-Path "$Folder") -and (Test-Path "$Folder/.svn")){
-    Set-Location "$Folder"
-    &svn cleanup .
-    &svn up .
-}ELSE{
-    IF((Test-Path "$Folder")){
-        Remove-Item -Force -Recurse "$Folder/.svn"
+    param(
+        [Parameter(Position=0,Mandatory=$True,HelpMessage="Checkout URL")]
+        [ValidateNotNullorEmpty()]
+        [String]$URL,
+        [Parameter(Position=1,Mandatory=$True,HelpMessage="Enter Checkout Folder")]
+        [ValidateNotNullorEmpty()]
+        [String]$Folder
+    )
+    Push-Location $PWD
+    IF((Test-Path "$Folder") -and (Test-Path "$Folder/.svn")){
+        Set-Location "$Folder"
+        &svn cleanup .
+        &svn up .
+    }ELSE{
+        IF((Test-Path "$Folder")){
+            Remove-Item -Force -Recurse "$Folder"
+        }
+        &svn co $URL "$Folder"
     }
-    &svn co $URL "$Folder"
-}
-Pop-Location
+    Pop-Location
 }

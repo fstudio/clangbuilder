@@ -10,10 +10,13 @@ param (
 )
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
-Write-Error "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later
-Your PowerShell version Is :${Host}"
-[System.Console]::ReadKey()
-Exit
+    $PSVersionString=$PSVersionTable.PSVersion.Major
+    Write-Error "Clangbuilder must run under PowerShell 3.0 or later host environment !"
+    Write-Error "Your PowerShell Version:$PSVersionString"
+    if($Host.Name -eq "ConsoleHost"){
+        [System.Console]::ReadKey()
+    }
+    Exit
 }
 IF( $env:VS140COMNTOOLS -eq $null -or (Test-Path $env:VS140COMNTOOLS) -eq $false)
 {
@@ -21,15 +24,15 @@ IF( $env:VS140COMNTOOLS -eq $null -or (Test-Path $env:VS140COMNTOOLS) -eq $false
   return
 }
 
-IF($Arch -eq "x86"){
-    $target=1
-}
-IF($Arch -eq "x64"){
-    $target=2
-}
-IF($Arch -eq "ARM"){
-    $target=3
-}
+#IF($Arch -eq "x86"){
+#    $target=1
+#}
+#IF($Arch -eq "x64"){
+#    $target=2
+#}
+#IF($Arch -eq "ARM"){
+#    $target=3
+#}
 IF($Arch -eq "ARM64"){
     Write-Error "Visual Studio 2015 [Windows 8] not support ARM64"
     Exit
@@ -55,7 +58,7 @@ IF($SystemType -eq 64)
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir64'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer64'
     IF((Test-Path  'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\12.0\Setup\F#')){
-    $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
+        $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
     }
     $MSBUILDKIT=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\MSBuild\14.0' 'MSBuildOverrideTasksPath'
 }ELSE{
@@ -66,7 +69,7 @@ IF($SystemType -eq 64)
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir32'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer32'
     IF((Test-Path  'HKLM:\SOFTWARE\Microsoft\VisualStudio\12.0\Setup\F#')){
-    $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
+        $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
     }
     $MSBUILDKIT=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\MSBuild\14.0' 'MSBuildOverrideTasksPath'
 }
@@ -85,22 +88,22 @@ $KitBinARM="${SDKDIR}bin\ARM"
 $KitInc="${SDKDIR}Include\um;${SDKDIR}Include\Shared;${SDKDIR}Include\WinRT"
 $KitLib32="${SDKDIR}Lib\winv6.3\um\x86"
 $KitLib64="${SDKDIR}Lib\winv6.3\um\x64"
-$KitLibARM="${SDKDIR}LIB\winv6.3\um\ARM"
+$KitLibARM="${SDKDIR}Lib\winv6.3\um\arm"
 
-IF($target -eq 1){
+IF($Arch -eq "x86"){
     $CompilerDir="${VCDir}bin"
     $Library="${VCDir}lib"
     $env:Path="$CompilerDir;${MSBUILDKIT};$KitBin32;$IDE;$env:PATH"
     $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
     $env:LIB="$KitLib32;${VCDir}LIB;$env:LIB"
-}ELSEIF($target -eq 2){
+}ELSEIF($Arch -eq "x64"){
     $CompilerDir="${VCDir}bin\x86_amd64"
     $Library="${VCDir}lib\x86_amd64"
     $env:Path="$CompilerDir;${VCDir}bin;${MSBUILDKIT}\amd64;$KitBin64;$IDE;$env:PATH"
     $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
     $env:LIB="$KitLib64;${VCDir}Lib\amd64;$env:LIB"
-}ELSEIF($target -eq 3){
-    $CompilerDir="${VCDir}bin\x86_ARM"
+}ELSEIF($Arch -eq "ARM"){
+    $CompilerDir="${VCDir}bin\x86_arm"
     $Library="${VCDir}lib\arm"
     $env:Path="$CompilerDir;${VCDir}bin;${MSBUILDKIT};$KitBinARM;$KitBin32;$IDE;$env:PATH"
     $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"

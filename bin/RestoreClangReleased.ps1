@@ -5,7 +5,7 @@
 #  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 param(
-    [Switch]$EnableLLDB,
+    [Switch]$LLDB,
     [Switch]$RemoveOld
 )
 
@@ -28,21 +28,27 @@ IF((Test-Path "$BuildFolder/release") -and $RemoveOld){
 }
 Restore-Repository -URL "$LLVMRepositoriesRoot/llvm/tags/$ReleaseRevision" -Folder "release"
 if(!(Test-Path "$BuildFolder/release/tools")){
-Write-Output "Checkout LLVM Failed"
-Exit
+    Write-Output "Checkout LLVM Failed"
+    Exit
 }
+
 Set-Location "$BuildFolder/release/tools"
 Restore-Repository -URL "$LLVMRepositoriesRoot/cfe/tags/$ReleaseRevision" -Folder "clang"
 Restore-Repository -URL "$LLVMRepositoriesRoot/lld/tags/$ReleaseRevision" -Folder "lld"
-IF($EnableLLDB){
+
+IF($LLDB){
     Restore-Repository -URL "$LLVMRepositoriesRoot/lldb/tags/$ReleaseRevision" -Folder "lldb"
 }else{
-    Remove-Item -Force -Recurse "$BuildFolder/release/tools/lldb"
+    if(Test-Path "$BuildFolder/release/tools/lldb"){
+        Remove-Item -Force -Recurse "$BuildFolder/release/tools/lldb"
+    }
 }
+
 if(!(Test-Path "$BuildFolder/release/tools/clang/tools")){
-Write-Output "Checkout Clang Failed"
-Exit
+    Write-Output "Checkout Clang Failed"
+    Exit
 }
+
 Set-Location "$BuildFolder/release/tools/clang/tools"
 Restore-Repository -URL "$LLVMRepositoriesRoot/clang-tools-extra/tags/$ReleaseRevision" -Folder "extra"
 Set-Location "$BuildFolder/release/projects"

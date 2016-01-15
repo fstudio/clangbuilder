@@ -7,20 +7,20 @@
 $SelfFolder=$PSScriptRoot;
 Import-Module -Name BitsTransfer
 
-# Expand-Archive
+# PowerShell 5.0 :Expand-Archive
 Function Expend-ZipPackage
 {
-param(
-[Parameter(Position=0,Mandatory=$True,HelpMessage="Unzip sources")]
-[ValidateNotNullorEmpty()]
-[String]$Source,
-[Parameter(Position=1,Mandatory=$True,HelpMessage="Output Directory")]
-[ValidateNotNullorEmpty()]
-[String]$Folder
-)
-[System.Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')|Out-Null
-Write-Host "Use System.IO.Compression.ZipFile Unzip nPackage: $Source`nOutput: $Folder"
-[System.IO.Compression.ZipFile]::ExtractToDirectory($Source, $Folder)
+    param(
+        [Parameter(Position=0,Mandatory=$True,HelpMessage="Unzip sources")]
+        [ValidateNotNullorEmpty()]
+        [String]$Source,
+        [Parameter(Position=1,Mandatory=$True,HelpMessage="Output Directory")]
+        [ValidateNotNullorEmpty()]
+        [String]$Folder
+    )
+    [System.Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')|Out-Null
+    Write-Host "Use System.IO.Compression.ZipFile Unzip nPackage: $Source`nOutput: $Folder"
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($Source, $Folder)
 }
 
 Function Get-SWigWIN{
@@ -30,8 +30,9 @@ if(Test-Path "$SelfFolder\Required\swigwin.zip"){
     Unblock-File -Path "$SelfFolder\Required\swigwin.zip"
     Expend-ZipPackage -Source "$SelfFolder\Required\swigwin.zip" -Folder "$SelfFolder\Required"
     Rename-Item "$SelfFolder\Required\swigwin-3.0.8" "$SelfFolder\Required\swigwin"
+}else{
+    Write-Error "Download swigwin failure!"
 }
-
 }
 
 Get-SWigWIN

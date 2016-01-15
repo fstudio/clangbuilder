@@ -11,10 +11,11 @@ param (
 
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
-Write-Error "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later
-Your PowerShell version Is :${Host}"
-[System.Console]::ReadKey()
-Exit
+    Write-Error "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later`nYour PowerShell version Is :${Host}"
+    if($Host.Name -eq "ConsoleHost"){
+        [System.Console]::ReadKey()
+    }
+    Exit
 }
 
 IF( $env:VS110COMNTOOLS -eq $null -or (Test-Path $env:VS110COMNTOOLS) -eq $false)
@@ -23,15 +24,6 @@ IF( $env:VS110COMNTOOLS -eq $null -or (Test-Path $env:VS110COMNTOOLS) -eq $false
   Exit
 }
 
-IF($Arch -eq "x86"){
-    $target=1
-}
-IF($Arch -eq "x64"){
-    $target=2
-}
-IF($Arch -eq "arm"){
-    $target=3
-}
 IF($Arch -eq "arm64"){
     Write-Error "Visual Studio 2012 not support ARM64"
     Exit
@@ -57,7 +49,7 @@ IF($SystemType -eq 64)
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir64'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer64'
     IF((Test-Path  'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\11.0\Setup\F#')){
-    $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\11.0\Setup\F#' 'ProductDir'
+        $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\11.0\Setup\F#' 'ProductDir'
     }
 }ELSE{
     $VSInstall=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' '11.0'
@@ -67,7 +59,7 @@ IF($SystemType -eq 64)
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir32'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer32'
     IF((Test-Path  'HKLM:\SOFTWARE\Microsoft\VisualStudio\11.0\Setup\F#')){
-    $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\11.0\Setup\F#' 'ProductDir'
+        $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\11.0\Setup\F#' 'ProductDir'
     }
 }
 
@@ -87,20 +79,20 @@ $KitLib32="${SDKDIR}Lib\win8\um\x86"
 $KitLib64="${SDKDIR}Lib\win8\um\x64"
 $KitLibARM="${SDKDIR}LIB\win8\um\ARM"
 
-IF($target -eq 1){
+IF($Arch -eq "x86"){
     $CompilerDir="${VCDir}bin"
     $Library="${VCDir}lib"
     $env:Path="$CompilerDir;$KitBin32;$IDE;$env:PATH"
     $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
     $env:LIB="$KitLib32;${VCDir}LIB;$env:LIB"
-}ELSEIF($target -eq 2){
+}ELSEIF($Arch -eq "x64"){
     $CompilerDir="${VCDir}bin\x86_amd64"
     $Library="${VCDir}lib\x86_amd64"
     $env:Path="$CompilerDir;${VCDir}bin;$KitBin64;$IDE;$env:PATH"
     $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
     $env:LIB="$KitLib64;${VCDir}Lib\amd64;$env:LIB"
-}ELSEIF($target -eq 3){
-    $CompilerDir="${VCDir}bin\x86_ARM"
+}ELSEIF($Arch -eq "ARM"){
+    $CompilerDir="${VCDir}bin\x86_arm"
     $Library="${VCDir}lib\arm"
     $env:Path="$CompilerDir;${VCDir}bin;$KitBinARM;$KitBin32;$IDE;$env:PATH"
     $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"

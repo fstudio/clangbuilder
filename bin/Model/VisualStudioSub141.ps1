@@ -19,18 +19,18 @@ IF( $env:VS140COMNTOOLS -eq $null -or (Test-Path $env:VS140COMNTOOLS) -eq $false
     exit
 }
 
-IF($Arch -eq "x86"){
-    $target=1
-}
-IF($Arch -eq "x64"){
-    $target=2
-}
-IF($Arch -eq "ARM"){
-    $target=3
-}
-IF($Arch -eq "ARM64"){
-    $target=4
-}
+#IF($Arch -eq "x86"){
+#    $target=1
+#}
+#IF($Arch -eq "x64"){
+#    $target=2
+#}
+#IF($Arch -eq "ARM"){
+#    $target=3
+#}
+#IF($Arch -eq "ARM64"){
+#    $target=4
+#}
 
 $InvokerDir=$PSScriptRoot;
 . "$InvokerDir/VisualStudioShared.ps1"
@@ -59,7 +59,7 @@ IF($SystemType -eq 64)
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir64'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer64'
     IF((Test-Path  'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\Setup\F#')){
-    $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
+        $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
     }
     $MSBUILDKIT=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\MSBuild\14.0' 'MSBuildOverrideTasksPath'
 
@@ -78,7 +78,7 @@ IF($SystemType -eq 64)
     $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir32'
     $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer32'
     IF((Test-Path  'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\Setup\F#')){
-    $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
+        $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
     }
     $MSBUILDKIT=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\MSBuild\14.0' 'MSBuildOverrideTasksPath'
 }
@@ -101,26 +101,26 @@ $KitLib64="${SDKDIR}Lib\${ProductVersion}\um\x64;${SDKDIR}Lib\${ProductVersion}\
 $KitLibARM="${SDKDIR}LIB\${ProductVersion}\um\ARM;${SDKDIR}Lib\${ProductVersion}\ucrt\ARM"
 $KitLibARM64="${SDKDIR}LIB\${ProductVersion}\um\ARM64;${SDKDIR}Lib\${ProductVersion}\ucrt\ARM64"
 
-IF($target -eq 1){
+IF($Arch -eq "x86"){
     $CompilerDir="${VCDir}bin"
     $Library="${VCDir}lib"
     $env:Path="$CompilerDir;${MSBUILDKIT};$KitBin32;$IDE;$env:PATH"
     $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
     $env:LIB="$KitLib32;${VCDir}LIB;$env:LIB"
-}ELSEIF($target -eq 2){
+}ELSEIF($Arch -eq "x64"){
     $CompilerDir="${VCDir}bin\x86_amd64"
     $Library="${VCDir}lib\x86_amd64"
     $env:Path="$CompilerDir;${VCDir}bin;${MSBUILDKIT}\amd64;$KitBin64;$IDE;$env:PATH"
     $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
     $env:LIB="$KitLib64;${VCDir}Lib\amd64;$env:LIB"
-}ELSEIF($target -eq 3){
-    $CompilerDir="${VCDir}bin\x86_ARM"
+}ELSEIF($Arch -eq "ARM"){
+    $CompilerDir="${VCDir}bin\x86_arm"
     $Library="${VCDir}lib\arm"
     $env:Path="$CompilerDir;${VCDir}bin;${MSBUILDKIT};$KitBinARM;$KitBin32;$IDE;$env:PATH"
     $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
     $env:LIB="$KitLibARM;${VCDir}LIB\arm;$env:LIB"
-}ELSEIF($target -eq 4){
-    $CompilerDir="${VCDir}bin\x86_ARM64"
+}ELSEIF($Arch -eq "ARM64"){
+    $CompilerDir="${VCDir}bin\x86_arm64"
     $Library="${VCDir}lib\arm64"
     $env:Path="$CompilerDir;${VCDir}bin;${MSBUILDKIT};$KitBinARM;$KitBin32;$IDE;$env:PATH"
     $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
