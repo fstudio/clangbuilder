@@ -31,7 +31,8 @@ if($PSVersionTable.PSVersion.Major -lt 3)
     }
     Exit
 }
-$WindowTitlePrefix="Clangbuilder PowerShell Utility"
+
+$Host.UI.RawUI.WindowTitle="Clangbuilder PowerShell Utility"
 Write-Output "Clang Auto Builder [PowerShell] Utility tools"
 Write-Output "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
 
@@ -39,6 +40,7 @@ $SelfFolder=$PSScriptRoot;
 $ClangbuilderRoot=Split-Path -Parent $SelfFolder
 . "$SelfFolder/ClangBuilderUtility.ps1"
 
+$VSTools="12"
 if($VisualStudio -eq "110"){
     $VSTools="11"
 }elseif($VisualStudio -eq "120"){
@@ -54,7 +56,7 @@ if($VisualStudio -eq "110"){
 }
 
 if($Clear){
-    Clear-Environment
+    Reset-Environment
 }
 
 Invoke-Expression -Command "$SelfFolder/Model/VisualStudioSub$VisualStudio.ps1 $Arch"

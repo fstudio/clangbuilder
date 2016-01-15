@@ -5,6 +5,6 @@
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
 
-Function Global:Clear-Environment{
+Function Reset-Environment{
     $env:Path="${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
 }

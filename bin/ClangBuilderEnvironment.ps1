@@ -38,7 +38,7 @@ $SelfFolder=$PSScriptRoot;
 
 
 if($Clear){
-    Clear-Environment
+    Reset-Environment
 }
 
 
