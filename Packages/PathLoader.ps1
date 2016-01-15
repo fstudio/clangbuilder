@@ -12,17 +12,17 @@ $GNUWinPath="$SelfFolder\GNUWin\bin"
 $NSISPath="$SelfFolder\NSIS\bin"
 
 
-Function Test-PutPath{
-param(
-[String]$Path
-)
-if(Test-Path $Path){
-$env:Path="${env:Path};$Path"
-}
+Function Test-AddPath{
+    param(
+        [String]$Path
+    )
+    if(Test-Path $Path){
+        $env:Path="${env:Path};$Path"
+    }
 }
 
-Test-PutPath -Path $CMakePath
-Test-PutPath -Path $SubversionPath
-Test-PutPath -Path $OfficaPythonPath
-Test-PutPath -Path $NSISPath
-Test-PutPath -Path $GNUWinPath
+Test-AddPath -Path $CMakePath
+Test-AddPath -Path $SubversionPath
+Test-AddPath -Path $OfficaPythonPath
+Test-AddPath -Path $NSISPath
+Test-AddPath -Path $GNUWinPath
