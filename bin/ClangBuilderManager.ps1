@@ -18,6 +18,7 @@ param (
     [Switch]$NMake,
     [Switch]$Released,
     [Switch]$Install,
+    [Switch]$MSYS2,
     [Switch]$Clear
 )
 
@@ -60,7 +61,12 @@ if($Clear){
 }
 
 Invoke-Expression -Command "$SelfFolder/Model/VisualStudioSub$VisualStudio.ps1 $Arch"
-Invoke-Expression -Command "$SelfFolder/DiscoverToolChain.ps1"
+
+if($MSYS2){
+    Invoke-Expression -Command "$SelfFolder/DiscoverToolChain.ps1 -MSYS2"
+}else{
+    Invoke-Expression -Command "$SelfFolder/DiscoverToolChain.ps1"
+}
 
 if($LLDB){
     if(!(Test-Path "$SelfFolder/Required/Python/python.exe")){

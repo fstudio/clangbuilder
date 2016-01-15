@@ -13,6 +13,7 @@ param (
 
     [ValidateSet("110", "120", "140", "141", "150")]
     [String]$VisualStudio="120",
+    [Switch]$Msys2,
     [Switch]$Clear
 )
 
@@ -43,7 +44,12 @@ if($Clear){
 
 
 Invoke-Expression -Command "$SelfFolder/Model/VisualStudioSub$VisualStudio.ps1 -Arch $Arch"
-Invoke-Expression -Command "$SelfFolder/DiscoverToolChain.ps1"
+if($MSYS2){
+    Invoke-Expression -Command "$SelfFolder/DiscoverToolChain.ps1 -MSYS2"
+}else{
+    Invoke-Expression -Command "$SelfFolder/DiscoverToolChain.ps1"
+}
+
 
 Write-Output "Clangbuilder Environment Set done
 Visual Studio $VisualStudioVersion Arch $Arch
