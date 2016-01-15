@@ -8,11 +8,6 @@
 # https://raw.githubusercontent.com/fstudio/clangbuilder/master/bin/Installer/WebInstall.ps1 Internet Installer.
 # Run PowerShell IEX
 #>
-param(
-    [Parameter(Position=0,Mandatory=$True,HelpMessage="Enter Install Prefix:")]
-    [ValidateNotNullorEmpty()]
-    [String]$Prefix
-)
 
 Set-StrictMode -Version latest
 Import-Module -Name BitsTransfer
@@ -79,6 +74,19 @@ Legacy Default Path 	Not applicable
 #HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\{374DE290-123F-4565-9164-39C4925E467B}
 ###Default ,Your Should Input
 
+$ClangBuilderInstallRoot=""
+
+Function Get-InstallPrefix{
+    param(
+        [Parameter(Position=0,Mandatory=$True,HelpMessage="Enter Install Prefix:")]
+        [ValidateNotNullorEmpty()]
+        [String]$Prefix
+    )
+    $ClangBuilderInstallRoot=$Prefix
+}
+
+Get-InstallPrefix
+
 $DownloadInstallPackage="${env:TEMP}\clangbuilder.zip"
 $OfficaUrl="https://github.com/fstudio/clangbuilder/archive/master.zip"
 
@@ -99,16 +107,15 @@ IF(!$(Test-Path "${env:TEMP}\clangbuilder"))
     return
 }
 
- IF(!(Test-Path $Prefix))
+ IF(!(Test-Path $ClangBuilderInstallRoot))
  {
-     mkdir -Force $Prefix
+     mkdir -Force $ClangBuilderInstallRoot
  }
 
- Copy-Item -Path "${Env:TEMP}\clangbuilder\clangbuilder-master\*" "$Prefix"  -Force -Recurse
+ Copy-Item -Path "${Env:TEMP}\clangbuilder\clangbuilder-master\*" "$ClangBuilderInstallRoot"  -Force -Recurse
  Remove-Item -Force -Recurse "$env:TEMP\clangbuilder.zip"
  Remove-Item -Force -Recurse "$env:TEMP\clangbuilder"
 
- &PowerShell -NoLogo -NoExit -File "$Prefix\bin\Installer\Install.ps1"
+ &PowerShell -NoLogo -NoExit -File "$ClangBuilderInstallRoot\bin\Installer\Install.ps1"
 
  Write-Output "Process done"
- 
