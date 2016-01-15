@@ -10,14 +10,14 @@ param (
 )
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
-Write-Host -ForegroundColor Red "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later
+Write-Error "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later
 Your PowerShell version Is :${Host}"
 [System.Console]::ReadKey()
 Exit
 }
 IF( $env:VS140COMNTOOLS -eq $null -or (Test-Path $env:VS140COMNTOOLS) -eq $false)
 {
-  Write-Host -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2015"
+  Write-Error "Not Fond Vaild Install for Visual Studio 2015"
   return
 }
 
@@ -31,7 +31,7 @@ IF($Arch -eq "ARM"){
     $target=3
 }
 IF($Arch -eq "ARM64"){
-    Write-Host -ForegroundColor Red "Visual Studio 2015 [Windows 8] not support ARM64"
+    Write-Error "Visual Studio 2015 [Windows 8] not support ARM64"
     Exit
 }
 

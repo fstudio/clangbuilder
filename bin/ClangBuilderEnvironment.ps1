@@ -19,8 +19,8 @@ param (
 if($PSVersionTable.PSVersion.Major -lt 3)
 {
     $PSVersionString=$PSVersionTable.PSVersion.Major
-    Write-Output -ForegroundColor Red "Clangbuilder must run under PowerShell 3.0 or later host environment !"
-    Write-Output -ForegroundColor Red "Your PowerShell Version:$PSVersionString"
+    Write-Error "Clangbuilder must run under PowerShell 3.0 or later host environment !"
+    Write-Error "Your PowerShell Version:$PSVersionString"
     if($Host.Name -eq "ConsoleHost"){
         [System.Console]::ReadKey()
     }

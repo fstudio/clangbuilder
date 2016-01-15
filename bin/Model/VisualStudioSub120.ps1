@@ -10,7 +10,7 @@ param (
 )
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
-Write-Output -ForegroundColor Red "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later
+Write-Error "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later
 Your PowerShell version Is :${Host}"
 [System.Console]::ReadKey()
 Exit
@@ -18,7 +18,7 @@ Exit
 
 IF( $env:VS120COMNTOOLS -eq $null -or (Test-Path $env:VS120COMNTOOLS) -eq $false)
 {
-  Write-Output -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2013"
+  Write-Error "Not Fond Vaild Install for Visual Studio 2013"
   Exit
 }
 
@@ -32,7 +32,7 @@ IF($Arch -eq "ARM"){
     $target=3
 }
 IF($Arch -eq "ARM64"){
-    Write-Output -ForegroundColor Red "Visual Studio 2013 not support ARM64"
+    Write-Error "Visual Studio 2013 not support ARM64"
     Exit
 }
 

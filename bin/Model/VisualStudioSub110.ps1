@@ -11,7 +11,7 @@ param (
 
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
-Write-Output -ForegroundColor Red "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later
+Write-Error "Clangbuilder Enviroment  Must Run on Windows PowerShell 3 or Later
 Your PowerShell version Is :${Host}"
 [System.Console]::ReadKey()
 Exit
@@ -19,7 +19,7 @@ Exit
 
 IF( $env:VS110COMNTOOLS -eq $null -or (Test-Path $env:VS110COMNTOOLS) -eq $false)
 {
-  Write-Output -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2012"
+  Write-Error "Not Fond Vaild Install for Visual Studio 2012"
   Exit
 }
 
@@ -33,7 +33,7 @@ IF($Arch -eq "arm"){
     $target=3
 }
 IF($Arch -eq "arm64"){
-    Write-Output -ForegroundColor Red "Visual Studio 2012 not support ARM64"
+    Write-Error "Visual Studio 2012 not support ARM64"
     Exit
 }
 

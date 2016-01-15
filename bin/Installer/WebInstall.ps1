@@ -26,11 +26,11 @@ param(
 [String]$Destination
 )
 if(!(Test-Path $ZipSource)){
-Write-Host -ForegroundColor Red "Cannot found $ZipSource"
+Write-Error "Cannot found $ZipSource"
 Exit
 }
 [System.Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')|Out-Null
-Write-Host "Use System.IO.Compression.ZipFile Unzip `nPackage: $ZipSource`nOutput: $Destination"
+Write-Output "Use System.IO.Compression.ZipFile Unzip `nPackage: $ZipSource`nOutput: $Destination"
 [System.IO.Compression.ZipFile]::ExtractToDirectory($ZipSource, $Destination)
 }
 
@@ -86,7 +86,7 @@ param(
 
 if($args.Count -lt 1)
 {
-Write-Host -ForegroundColor Yellow "Please Input Your Clangbuilder Installation Location<your select>"
+Write-Output "Please Input Your Clangbuilder Installation Location<your select>"
 Set-InstallationLocation
 }else{
 $Global:InstallPrefix =$args[0]
@@ -96,14 +96,14 @@ $DownloadInstallPackage="${env:TEMP}\clangbuilder.zip"
 $OfficaUrl="https://github.com/fstudio/clangbuilder/archive/master.zip"
 Get-DownloadFile -FileUrl $OfficaUrl -FileSavePath $DownloadInstallPackage
 if(!(Test-Path $DownloadInstallPackage)){
-Write-Host -ForegroundColor Red "Download $OfficaUrl Failed !"
+Write-Error "Download $OfficaUrl Failed !"
 Exit
 }
 Unblock-File $DownloadInstallPackage
 Create-UnCompressZip -ZipSource $DownloadInstallPackage -Destination "${env:TEMP}\clangbuilder"
 IF(!$(Test-Path "${env:TEMP}\clangbuilder"))
 {
- Write-Host -ForegroundColor Red "Un Compress Error,Please Retry!"
+ Write-Error "Un Compress Error,Please Retry!"
  [System.Console]::ReadKey()
  return
 }
@@ -117,5 +117,5 @@ IF(!$(Test-Path "${env:TEMP}\clangbuilder"))
  Remove-Item -Force -Recurse "$env:TEMP\clangbuilder"
 
  &PowerShell -NoLogo -NoExit -File "${Global:InstallPrefix}\bin\Installer\Install.ps1"
- 
- Write-Host -ForegroundColor Green "Process done"
+
+ Write-Output "Process done"

@@ -1,14 +1,14 @@
 <####################################################################################################################
 # Clangbuilder Environment Update Module
 # Date:2016.01.03
-# Author:Force <forcemz@outlook.com>    
+# Author:Force <forcemz@outlook.com>
 ####################################################################################################################>
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
-Write-Host -ForegroundColor Red "Visual Studio Enviroment vNext Must Run on Windows PowerShell 3 or Later,`nYour PowerShell version Is : 
+Write-Error "Visual Studio Enviroment vNext Must Run on Windows PowerShell 3 or Later,`nYour PowerShell version Is : 
 ${Host}"
 [System.Console]::ReadKey()
-return 
+return
 }
 $SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 $SelfParent=Split-Path -Parent $SelfFolder
@@ -42,7 +42,7 @@ $Root=[String]$ClangbuilderRoot
 }
  $ClangbuilderEnvPkUrl="https://github.com/fstudio/clangbuilder/archive/master.zip"
  $ClangbuilderEnvPkName="$env:TEMP\clangbuilder.zip"
- Start-BitsTransfer $ClangbuilderEnvPkUrl  $ClangbuilderEnvPkName 
+ Start-BitsTransfer $ClangbuilderEnvPkUrl  $ClangbuilderEnvPkName
  if(!(Test-Path $ClangbuilderEnvPkName)){
  Exit
  }
@@ -54,4 +54,3 @@ $Root=[String]$ClangbuilderRoot
 }
 
 Get-GithubUpdatePackage -Root $ClangbuilderRoot
-

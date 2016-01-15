@@ -9,13 +9,13 @@ param (
     [String]$Arch="x64"
 )
 IF($PSVersionTable.BuildVersion.Major -lt 10){
-    Write-Output -ForegroundColor Red "Visual Studio 2015 [Windows 10] must run under Windows 10 or Later "
+    Write-Error "Visual Studio 2015 [Windows 10] must run under Windows 10 or Later "
     Exit
 }
 
 IF( $env:VS140COMNTOOLS -eq $null -or (Test-Path $env:VS140COMNTOOLS) -eq $false)
 {
-    Write-Output -ForegroundColor Red "Not Fond Vaild Install for Visual Studio 2015"
+    Write-Error "Not Fond Vaild Install for Visual Studio 2015"
     exit
 }
 
