@@ -6,6 +6,9 @@
 ##############################################################################>
 Set-StrictMode -Version latest
 $SelfFolder=$PSScriptRoot;
+Push-Location $PWD
+Set-Location $SelfFolder
+
 Import-Module -Name BitsTransfer
 $IsWindows64=[System.Environment]::Is64BitOperatingSystem
 
@@ -43,8 +46,7 @@ param(
 [System.Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')|Out-Null
 [System.IO.Compression.ZipFile]::ExtractToDirectory($ZipSource, $Destination)
 }
-Push-Location $PWD
-Set-Location $SelfFolder
+
 
 
 if(!(Test-Path "$SelfFolder/cmake/bin/cmake.exe")){
@@ -53,7 +55,7 @@ Write-Output "Download CMake and Unzip CMake"
 Start-BitsTransfer -Source $CMakeURL -Destination "$SelfFolder\CMake.zip" -Description "Downloading CMake"
 if(Test-Path "$SelfFolder\CMake.zip"){
 Unblock-File -Path "$SelfFolder\CMake.zip"
-Expand-ZipPackage -ZipSource "$SelfFolder\CMake.zip" -Destination "."
+Expand-ZipPackage -ZipSource "$SelfFolder\CMake.zip" -Destination "$SelfFolder"
 Rename-Item $CMakeSub "cmake"
 Remove-Item -Force -Recurse "$SelfFolder\CMake.zip"
 }
@@ -97,7 +99,7 @@ if($? -eq $True)
 Write-Output "Subversion has been installed"
 }
 
-if(!(Test-Path $SelfFolder/nsis/NSIS.exe)){
+if(!(Test-Path "$SelfFolder/nsis/NSIS.exe")){
 #Restore NSIS
 Write-Output "Download NSIS and Unzip NSIS"
 Start-BitsTransfer -Source $NSISURL -Destination "$SelfFolder\NSIS.zip" -Description "Downloading NSIS"
