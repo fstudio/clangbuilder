@@ -7,7 +7,7 @@ ClangOnWin Build Environment vNext, Long Term Evolution
 Download from Github, If your known use Git  
 
 ```
-git clone https://github.com/fstudio/clangbuilder.git clangbuilder 
+git clone https://github.com/fstudio/clangbuilder.git clangbuilder
 ```
 
 Click the *Install.bat* in the clangbuilder directory, this will run PowerShell startup  *bin/Installer/Install.ps1*      
@@ -16,27 +16,33 @@ It is recommended that whenever you have PowerShell scripts, and try not to dele
 Similarly, you can start a PowerShell runs Install.ps1, generally run PowerShell scripts on the Windows right-click menu option, you can right-click the menu "*run with PowerShell*"
 Above procedure does not require administrator privileges.
 
-If you are unable to run the script, please enter *Get-ExecutionPolicy* in the PowerShell,
-If is:  
-> Restricted 
+If you are unable to run the script, please enter
 
-Please run PowerShell with administrator rights, and Type:   
-
+```powershell
+Get-ExecutionPolicy
 ```
+
+Output:   
+
+> Restricted
+
+Please run PowerShell with administrator rights, and Enter:   
+
+```powershell
 Set-ExecutionPolicy RemoteSigned
 ```
 
-You have trouble, you can click on ***PowerShell.Setting.bat***, this batch script feature is to modify the PowerShell execution policy is written to the registry, the implementation process will automatically right, you need to select OK
 
 ####WebInstaller:
 
-```
-PS:\>iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/fstudio/clangbuilder/master/bin/Installer/WebInstall.ps1'))
+```powershell
+iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/fstudio/clangbuilder/master/bin/Installer/WebInstall.ps1'))
 ```   
 
 Or:  
-```
-C:\>powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/fstudio/clangbuilder/master/bin/Installer/WebInstall.ps1'))" 
+
+```cmd
+powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/fstudio/clangbuilder/master/bin/Installer/WebInstall.ps1'))"
 ```
 
 **Your Should Input Your ClangSetup Install Loaction!!!!**
@@ -54,8 +60,8 @@ The Other,Your can use cmake to create MinGW Makefile,or NMake Makefile ,run it 
 
 ##Automated build
 Run    
-```
-PowerShell -File .\bin\ClangbuilderManager.ps1 -V120 -Tx86 -CRelease -Clear -Static 
+```cmd
+PowerShell -File .\bin\ClangbuilderManager.ps1 -VisualStudio 120 -Arch x64 -Flavor Release -Clear -Static
 ```
 
 
