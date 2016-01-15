@@ -11,7 +11,7 @@ Push-Location $PWD
 Set-Location $SelfFolder
 &cmd /c "$SelfFolder\ClangbuilderUITask.bat"
 $ClangbuilderUIRelease="$SelfFolder\ClangbuilderUI\ClangbuilderUI\bin\Release"
-IF(!(Test-Path "$SelfFolder\Restore"))
+if(!(Test-Path "$SelfFolder\Restore"))
 {
     mkdir -Force "$SelfFolder\Restore"
 }
@@ -20,21 +20,29 @@ Copy-Item -Path "$ClangbuilderUIRelease\*" -Destination "$SelfFolder\Restore" -E
 
 $Arch="32BIT"
 
-IF([System.Environment]::Is64BitOperatingSystem -eq $True)
+if([System.Environment]::Is64BitOperatingSystem -eq $True)
 {
-$Arch="64BIT"
+    $Arch="64BIT"
 }
 
-IF(!(Test-Path "$ClangBuilderRoot\ClangbuilderUI.lnk")){
-    $cswshell=New-Object -ComObject WScript.Shell
-    $wpfshortcut=$cswshell.CreateShortcut("$ClangBuilderRoot\ClangbuilderUI.lnk")
-    $wpfshortcut.TargetPath="$SelfFolder\Restore\ClangbuilderUI.exe"
-    $wpfshortcut.Description="Start ClangbuilderUI"
-    $wpfshortcut.WindowStyle=1
-    $wpfshortcut.WorkingDirectory="$ClangBuilderRoot\bin"
-    $wpfshortcut.IconLocation="$SelfFolder\Restore\ClangbuilderUI.exe,0"
-    $wpfshortcut.Save()
+if(Test-Path "$SelfFolder\Restore\ClangbuilderUI.exe"){
+    if(!(Test-Path "$ClangBuilderRoot\ClangbuilderUI.lnk")){
+        $cswshell=New-Object -ComObject WScript.Shell
+        $clangbuilderlnk=$cswshell.CreateShortcut("$ClangBuilderRoot\ClangbuilderUI.lnk")
+        $clangbuilderlnk.TargetPath="$SelfFolder\Restore\ClangbuilderUI.exe"
+        $clangbuilderlnk.Description="Start ClangbuilderUI"
+        $clangbuilderlnk.WindowStyle=1
+        $clangbuilderlnk.WorkingDirectory="$ClangBuilderRoot\bin"
+        $clangbuilderlnk.IconLocation="$SelfFolder\Restore\ClangbuilderUI.exe,0"
+        $clangbuilderlnk.Save()
+    }else{
+        Write-Output "ClangbuilderUI.lnk already exists"
+    }
+}else{
+    Write-Error "Cannot found ClangbuilderUI.exe "
 }
+
+
 
 
 &cmd /c "$SelfFolder\LauncherTask.bat" $Arch
