@@ -18,7 +18,7 @@ param (
     [Switch]$NMake,
     [Switch]$Released,
     [Switch]$Install,
-    [Switch]$CleanEnv
+    [Switch]$Clear
 )
 
 if($PSVersionTable.PSVersion.Major -lt 3)
@@ -53,7 +53,7 @@ if($VisualStudio -eq "110"){
     Write-Error "Unknown VisualStudio Version: $VisualStudio"
 }
 
-if($CleanEnv){
+if($Clear){
     Clear-Environment
 }
 

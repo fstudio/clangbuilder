@@ -13,7 +13,7 @@ param (
 
     [ValidateSet("110", "120", "140", "141", "150")]
     [String]$VisualStudio="120",
-    [Switch]$CleanEnv
+    [Switch]$Clear
 )
 
 if($PSVersionTable.PSVersion.Major -lt 3)
@@ -37,7 +37,7 @@ $SelfFolder=$PSScriptRoot;
 . "$SelfFolder/ClangBuilderUtility.ps1"
 
 
-if($CleanEnv){
+if($Clear){
     Clear-Environment
 }
 

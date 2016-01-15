@@ -70,7 +70,7 @@ IF($FSharpDir -eq $null)
     $env:Path="$FSharpDir;$NetTools;${FrameworkDir}${FrameworkVer};$env:Path"
 }
 
-$IDE="${env:VS110COMNTOOLS}..\IDE"
+$IDE="${env:VS120COMNTOOLS}..\IDE"
 $KitBin32="${SDKDIR}bin\x86"
 $kitBin64="${SDKDIR}bin\amd64"
 $KitBinARM="${SDKDIR}bin\arm"
