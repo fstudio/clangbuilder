@@ -105,7 +105,7 @@ Write-Output "Download NSIS and Unzip NSIS"
 Start-BitsTransfer -Source $NSISURL -Destination "$SelfFolder\NSIS.zip" -Description "Downloading NSIS"
 if(Test-Path "$SelfFolder\NSIS.zip"){
 Unblock-File -Path "$SelfFolder\NSIS.zip"
-Unzip-Package -ZipSource "$SelfFolder\NSIS.zip" -Destination "."
+Expand-ZipPackage -ZipSource "$SelfFolder\NSIS.zip" -Destination "."
 Rename-Item $NSISSub "nsis"
 }
 }else{
@@ -118,7 +118,7 @@ Write-Output "Download GNUWin tools and Unzip it."
 Start-BitsTransfer -Source $GnuWinURL -Destination "$SelfFolder\GNUWin.zip" -Description "Downloading GNUWin"
 if(Test-Path "$SelfFolder\GNUWin.zip"){
 Unblock-File -Path "$SelfFolder\GNUWin.zip"
-Unzip-Package -ZipSource "$SelfFolder\GNUWin.zip" -Destination "GNUWin"
+Expand-ZipPackage -ZipSource "$SelfFolder\GNUWin.zip" -Destination "GNUWin"
 }
 }else{
 Write-Output  "GNUWin has been installed"
