@@ -17,7 +17,7 @@ Function Test-AddPath{
         [String]$Path
     )
     if(Test-Path $Path){
-        $env:Path="${env:Path};$Path"
+        $env:Path="$Path;${env:Path}"
     }
 }
 

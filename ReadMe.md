@@ -35,12 +35,14 @@ Set-ExecutionPolicy RemoteSigned
 
 ####WebInstaller:
 
+PowerShell, Enter:    
 ```powershell
 iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/fstudio/clangbuilder/master/bin/Installer/WebInstall.ps1'))
 ```   
 
 Or:  
 
+Cmd Enter:   
 ```cmd
 powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/fstudio/clangbuilder/master/bin/Installer/WebInstall.ps1'))"
 ```
