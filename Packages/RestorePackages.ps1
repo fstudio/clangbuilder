@@ -2,10 +2,10 @@
 #  RestorePackages.ps1
 #  Note: Clang Auto Build Environment
 #  Date:2016.01.02
-#  Author:Force <forcemz@outlook.com>    
+#  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 Set-StrictMode -Version latest
-$SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+$SelfFolder=$PSScriptRoot;
 Import-Module -Name BitsTransfer
 $IsWindows64=[System.Environment]::Is64BitOperatingSystem
 
@@ -70,7 +70,7 @@ Unblock-File -Path "$SelfFolder\Python.msi"
 Start-Process -FilePath msiexec -ArgumentList "/a `"$SelfFolder\Python.msi`" /qn TARGETDIR=`"$SelfFolder\Python`"" -NoNewWindow -Wait
 if($? -eq $True)
 {
-   Remove-Item -Force -Recurse "$SelfFolder\Python.msi" 
+   Remove-Item -Force -Recurse "$SelfFolder\Python.msi"
    Remove-Item -Force -Recurse "$SelfFolder\Python\Python.msi"
 }
 }
@@ -87,7 +87,7 @@ Unblock-File -Path "$SelfFolder\Subversion.msi"
 Start-Process -FilePath msiexec -ArgumentList "/a `"$SelfFolder\Subversion.msi`" /qn TARGETDIR=`"$SelfFolder\Subversion`"" -NoNewWindow -Wait
 if($? -eq $True)
 {
-   Remove-Item -Force -Recurse "$SelfFolder\Subversion.msi" 
+   Remove-Item -Force -Recurse "$SelfFolder\Subversion.msi"
    Move-Item -Force "$SelfFolder\Subversion\Program Files\TortoiseSVN\*" "$SelfFolder\Subversion"
    Remove-Item -Force -Recurse "$SelfFolder\Subversion\Program Files"
    Remove-Item -Force -Recurse "$SelfFolder\Subversion\Subversion.msi"

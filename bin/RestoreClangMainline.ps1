@@ -2,14 +2,14 @@
 #  RestoreClangMainline.ps1
 #  Note: Clang Auto Build Environment
 #  Date:2016.01.02
-#  Author:Force <forcemz@outlook.com>    
+#  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 param(
     [Switch]$EnableLLDB,
 )
 
-$SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-IEX -Command "$SelfFolder/RepositoryCheckout.ps1"
+$SelfFolder=$PSScriptRoot;
+Invoke-Expression -Command "$SelfFolder/RepositoryCheckout.ps1"
 
 $ClangbuilderRoot=Split-Path -Parent $SelfFolder
 $BuildFolder="$ClangbuilderRoot/out"
@@ -45,4 +45,3 @@ Set-Location "$BuildFolder/mainline/projects"
 Restore-Repository -URL "$LLVMRepositoriesRoot/compiler-rt/trunk" -Folder "compiler-rt"
 
 Pop-Location
-

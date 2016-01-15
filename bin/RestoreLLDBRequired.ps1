@@ -2,12 +2,13 @@
 #  RestoreLLDBRequired.ps1
 #  Note: Clang Auto Build TaskScheduler
 #  Date:2016 01
-#  Author:Force <forcemz@outlook.com>    
+#  Author:Force <forcemz@outlook.com>
 ##############################################################################>
-$SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+$SelfFolder=$PSScriptRoot;
 Import-Module -Name BitsTransfer
 
-Function Unzip-Package
+# Expand-Archive
+Function Expend-ZipPackage
 {
 param(
 [Parameter(Position=0,Mandatory=$True,HelpMessage="Unzip sources")]
@@ -18,7 +19,7 @@ param(
 [String]$Folder
 )
 [System.Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')|Out-Null
-Write-Host "Use System.IO.Compression.ZipFile Unzip ¡¤nPackage: $Source`nOutput: $Folder"
+Write-Host "Use System.IO.Compression.ZipFile Unzip nPackage: $Source`nOutput: $Folder"
 [System.IO.Compression.ZipFile]::ExtractToDirectory($Source, $Folder)
 }
 
@@ -27,7 +28,7 @@ $SWIGWINURL="http://sourceforge.net/projects/swig/files/swigwin/swigwin-3.0.8/sw
 Start-BitsTransfer -Source $SWIGWINURL -Destination "$SelfFolder\Required\swigwin.zip" -Description "Downloading swigwin"
 if(Test-Path "$SelfFolder\Required\swigwin.zip"){
     Unblock-File -Path "$SelfFolder\Required\swigwin.zip"
-    Unzip-Package -Source "$SelfFolder\Required\swigwin.zip" -Folder "$SelfFolder\Required"
+    Expend-ZipPackage -Source "$SelfFolder\Required\swigwin.zip" -Folder "$SelfFolder\Required"
     Rename-Item "$SelfFolder\Required\swigwin-3.0.8" "$SelfFolder\Required\swigwin"
 }
 

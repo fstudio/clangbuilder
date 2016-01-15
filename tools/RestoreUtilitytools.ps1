@@ -2,9 +2,9 @@
 #  RestoreUtilitytools.ps1
 #  Note: Clang Auto Build Environment
 #  Date:2016.01.02
-#  Author:Force <forcemz@outlook.com>    
+#  Author:Force <forcemz@outlook.com>
 ##############################################################################>
-$SelfFolder=Split-Path -Parent $MyInvocation.MyCommand.Definition
+$SelfFolder=$PSScriptRoot;
 $ClangBuilderRoot=Split-Path -Parent $SelfFolder
 
 Push-Location $PWD
@@ -42,5 +42,3 @@ Copy-Item -Path "$SelfFolder\Launcher\Launcher.exe"  -Destination "$SelfFolder\R
 &cmd /c "$SelfFolder\Launcher\cleanBuild.bat"
 
 Pop-Location
-
-

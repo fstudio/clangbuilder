@@ -2,15 +2,15 @@
 #  ClangBuilderManager.ps1
 #  Note: Clang Auto Build TaskScheduler
 #  Date:2016 01
-#  Author:Force <forcemz@outlook.com>    
+#  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 param (
     [ValidateSet("x86", "x64", "ARM", "ARM64")]
     [String]$Arch="x64",
-    
+
     [ValidateSet("Release", "Debug", "MinSizeRel", "RelWithDebug")]
     [String]$Flavor = "Release",
-    
+
     [ValidateSet("110", "120", "140", "141", "150")]
     [String]$VisualStudio="120",
     [Switch]$LLDB,
@@ -35,9 +35,9 @@ $WindowTitlePrefix="Clangbuilder PowerShell Utility"
 Write-Output "Clang Auto Builder [PowerShell] Utility tools"
 Write-Output "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
 
-$SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+$SelfFolder=$PSScriptRoot;
 $ClangbuilderRoot=Split-Path -Parent $SelfFolder
-Import-Module "$SelfFolder/ClangBuilderUtility.ps1"
+. "$SelfFolder/ClangBuilderUtility.ps1"
 
 if($VisualStudio -eq "110"){
 $VSTools="11"
@@ -102,7 +102,7 @@ $CRTLinkDebug="MDd"
 
 
 if($NMake){
-&cmake "..\$SourcesDir" -G`"NMake Makefiles`" -DCMAKE_CONFIGURATION_TYPES=$Flavor -DCMAKE_BUILD_TYPE=$Flavor -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON 
+&cmake "..\$SourcesDir" -G`"NMake Makefiles`" -DCMAKE_CONFIGURATION_TYPES=$Flavor -DCMAKE_BUILD_TYPE=$Flavor -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON
 
 if(Test-Path "Makefile"){
 &nmake
@@ -127,14 +127,14 @@ if(Test-Path "LLVM.sln"){
 
 }elseif($Arch -eq "ARM64" -and $VisualStudio -ge 141){
 
-&cmake "..\$SourcesDir" -G`"Visual Studio $VSTools ARM64`" -DCMAKE_CONFIGURATION_TYPES=$Flavor -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON  
+&cmake "..\$SourcesDir" -G`"Visual Studio $VSTools ARM64`" -DCMAKE_CONFIGURATION_TYPES=$Flavor -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON
 
 if(Test-Path "LLVM.sln"){
 &msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=$Flavor /p:Platform=ARM64 /t:ALL_BUILD
 }
 }else{
 
-&cmake "..\$SourcesDir" -G`"Visual Studio $VSTools`" -DCMAKE_CONFIGURATION_TYPES=$Flavor -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON 
+&cmake "..\$SourcesDir" -G`"Visual Studio $VSTools`" -DCMAKE_CONFIGURATION_TYPES=$Flavor -DCMAKE_BUILD_TYPE=$Configuration -DLLVM_USE_CRT_DEBUG=$CRTLinkDebug -DLLVM_USE_CRT_RELEASE=$CRTLinkRelease -DLLVM_USE_CRT_MINSIZEREL=$CRTLinkRelease -DLLVM_USE_CRT_RELWITHDBGINFO=$CRTLinkRelease    -DLLVM_APPEND_VC_REV:BOOL=ON
 
 if(Test-Path "LLVM.sln"){
 &msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=$Flavor /p:Platform=win32 /t:ALL_BUILD
@@ -144,12 +144,8 @@ if(Test-Path "LLVM.sln"){
 #
 }
 
-if($? -eq $True -and $Install){
+if($lastexitcode -eq 0 -and $Install){
 if(Test-Path "$PWD/LLVM.sln"){
 &cpack -C $Flavor
 }
 }
-
-
-
-

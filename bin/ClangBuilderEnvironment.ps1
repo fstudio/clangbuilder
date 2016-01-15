@@ -2,15 +2,15 @@
 #  ClangBuilderEnvironmnet.ps1
 #  Note: Clang Auto Build Environment
 #  Date:2016.01.02
-#  Author:Force <forcemz@outlook.com>    
+#  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 param (
     [ValidateSet("x86", "x64", "ARM", "ARM64")]
     [String]$Arch="x64",
-    
+
     [ValidateSet("Release", "Debug", "MinSizeRel", "RelWithDebug")]
     [String]$Flavor = "Release",
-    
+
     [ValidateSet("110", "120", "140", "141", "150")]
     [String]$VisualStudio="120",
     [Switch]$CleanEnv
@@ -32,9 +32,9 @@ $Host.UI.RawUI.WindowTitle="Clangbuilder PowerShell Utility"
 Write-Output "Clang Auto Builder [PowerShell] Utility tools"
 Write-Output "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
 
-$SelfFolder=[System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+$SelfFolder=$PSScriptRoot;
 
-Import-Module -Name "$SelfFolder/ClangBuilderUtility.ps1"
+. "$SelfFolder/ClangBuilderUtility.ps1"
 
 
 if($CleanEnv){

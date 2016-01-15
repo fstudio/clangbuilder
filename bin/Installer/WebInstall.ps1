@@ -2,11 +2,11 @@
 # Clangbuilder Environment Install
 # WebInstall Standalone
 # Date:2016.01.03
-# Author:Force <forcemz@outlook.com>    
+# Author:Force <forcemz@outlook.com>
 ####################################################################################################################>
 <#
 # https://raw.githubusercontent.com/fstudio/clangbuilder/master/bin/Installer/WebInstall.ps1 Internet Installer.
-# Run PowerShell IEX 
+# Run PowerShell IEX
 #>
 Set-StrictMode -Version latest
 Import-Module -Name BitsTransfer
@@ -55,22 +55,22 @@ $DownloadFd=Get-RegistryValue 'HKCU:Software\Microsoft\Windows\CurrentVersion\Ex
 $FileSigName=$FileUrl.Substring($NposIndex,$FileUrl.Length - $NposIndex)
 $FileSavePath="{0}\{1}" -f $DownloadFd,$FileSigName
 }
- Start-BitsTransfer $FileUrl  $FileSavePath 
+ Start-BitsTransfer $FileUrl  $FileSavePath
 }
 
 <#
 FOLDERID_Downloads
-GUID	{374DE290-123F-4565-9164-39C4925E467B}	
-Display Name	Downloads	
-Folder Type	PERUSER	
-Default Path 	%USERPROFILE%\Downloads	
-CSIDL Equivalent	None	
-Legacy Display Name	Not applicable	
+GUID	{374DE290-123F-4565-9164-39C4925E467B}
+Display Name	Downloads
+Folder Type	PERUSER
+Default Path 	%USERPROFILE%\Downloads
+CSIDL Equivalent	None
+Legacy Display Name	Not applicable
 Legacy Default Path 	Not applicable
 #>
 
 #HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\{374DE290-123F-4565-9164-39C4925E467B}
-###Default ,Your Should Input 
+###Default ,Your Should Input
 
 $Global:InstallPrefix=$null;
 
@@ -116,5 +116,6 @@ IF(!$(Test-Path "${env:TEMP}\clangbuilder"))
  Remove-Item -Force -Recurse "$env:TEMP\clangbuilder.zip"
  Remove-Item -Force -Recurse "$env:TEMP\clangbuilder"
 
- IEX "PowerShell -NoLogo -NoExit -File ${Global:InstallPrefix}\bin\Installer\Install.ps1"
+ &PowerShell -NoLogo -NoExit -File "${Global:InstallPrefix}\bin\Installer\Install.ps1"
+ 
  Write-Host -ForegroundColor Green "Process done"
