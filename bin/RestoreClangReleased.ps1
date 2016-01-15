@@ -10,7 +10,7 @@ param(
 )
 
 $SelfFolder=$PSScriptRoot;
-Invoke-Expression -Command "$SelfFolder/RepositoryCheckout.ps1"
+. "$SelfFolder/RepositoryCheckout.ps1"
 $ClangbuilderRoot=Split-Path -Parent $SelfFolder
 $BuildFolder="$ClangbuilderRoot/out"
 $ReleaseRevFolder="$BuildFolder/release"
