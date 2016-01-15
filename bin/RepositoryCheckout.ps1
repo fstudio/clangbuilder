@@ -4,9 +4,9 @@
 #  Date:2016.01.02
 #  Author:Force <forcemz@outlook.com>
 ##############################################################################>
-$SelfFolder=$PSScriptRoot;
+#$SelfFolder=$PSScriptRoot;
 
-Function Global:Restore-Repository{
+Function Restore-Repository{
     param(
         [Parameter(Position=0,Mandatory=$True,HelpMessage="Checkout URL")]
         [ValidateNotNullorEmpty()]

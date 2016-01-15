@@ -14,6 +14,7 @@ Invoke-Expression -Command "$SelfFolder/RepositoryCheckout.ps1"
 $ClangbuilderRoot=Split-Path -Parent $SelfFolder
 $BuildFolder="$ClangbuilderRoot/out"
 $ReleaseRevFolder="$BuildFolder/release"
+Write-Output "Release Folder: $ReleaseRevFolder"
 $LLVMRepositoriesRoot="http://llvm.org/svn/llvm-project"
 $ReleaseRevision="RELEASE_371/final"
 

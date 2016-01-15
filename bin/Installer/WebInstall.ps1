@@ -12,11 +12,11 @@
 Set-StrictMode -Version latest
 Import-Module -Name BitsTransfer
 
-Function Global:Get-RegistryValue($key, $value) {
+Function Get-RegistryValue($key, $value) {
     (Get-ItemProperty $key $value).$value
 }
 
-Function Global:Create-UnCompressZip
+Function Expand-ZipPackage
 {
     param(
         [Parameter(Position=0,Mandatory=$True,HelpMessage="Unzip sources")]
@@ -36,7 +36,7 @@ Function Global:Create-UnCompressZip
 }
 
 
-Function Global:Get-DownloadFile
+Function Get-DownloadFile
 {
     param
     (
@@ -51,7 +51,7 @@ Function Global:Get-DownloadFile
         $NposIndex=$FileUrl.LastIndexOf("/")+1
         IF($NposIndex -eq $FileUrl.Length)
         {
-            return $Fase
+            return $False
         }
         $DownloadFd=Get-RegistryValue 'HKCU:Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders' '{374DE290-123F-4565-9164-39C4925E467B}'
         $FileSigName=$FileUrl.Substring($NposIndex,$FileUrl.Length - $NposIndex)
@@ -74,18 +74,18 @@ Legacy Default Path 	Not applicable
 #HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\{374DE290-123F-4565-9164-39C4925E467B}
 ###Default ,Your Should Input
 
-$Global:ClangBuilderInstallRoot=""
+
 
 Function Get-InstallPrefix{
     param(
-        [Parameter(Position=0,Mandatory=$True,HelpMessage="Enter Install Prefix:")]
+        [Parameter(Position=0,Mandatory=$True,HelpMessage="Enter Clangbuilder Install Folder: ")]
         [ValidateNotNullorEmpty()]
         [String]$Prefix
     )
-    $Global:ClangBuilderInstallRoot=$Prefix
+   return $Prefix
 }
 
-Get-InstallPrefix
+$ClangBuilderInstallRoot=Get-InstallPrefix
 
 $DownloadInstallPackage="${env:TEMP}\clangbuilder.zip"
 $OfficaUrl="https://github.com/fstudio/clangbuilder/archive/master.zip"
@@ -98,7 +98,7 @@ if(!(Test-Path $DownloadInstallPackage)){
 }
 
 Unblock-File $DownloadInstallPackage
-Create-UnCompressZip -ZipSource $DownloadInstallPackage -Destination "${env:TEMP}\clangbuilder"
+Expand-ZipPackage -ZipSource $DownloadInstallPackage -Destination "${env:TEMP}\clangbuilder"
 
 IF(!$(Test-Path "${env:TEMP}\clangbuilder"))
 {
@@ -107,15 +107,15 @@ IF(!$(Test-Path "${env:TEMP}\clangbuilder"))
     return
 }
 
- IF(!(Test-Path $Global:ClangBuilderInstallRoot))
+ IF(!(Test-Path $ClangBuilderInstallRoot))
  {
-     mkdir -Force $Global:ClangBuilderInstallRoot
+     mkdir -Force $ClangBuilderInstallRoot
  }
 
- Copy-Item -Path "${Env:TEMP}\clangbuilder\clangbuilder-master\*" "$Global:ClangBuilderInstallRoot"  -Force -Recurse
+ Copy-Item -Path "${Env:TEMP}\clangbuilder\clangbuilder-master\*" "$ClangBuilderInstallRoot"  -Force -Recurse
  Remove-Item -Force -Recurse "$env:TEMP\clangbuilder.zip"
  Remove-Item -Force -Recurse "$env:TEMP\clangbuilder"
 
- &PowerShell -NoLogo -NoExit -File "$Global:ClangBuilderInstallRoot\bin\Installer\Install.ps1"
+ &PowerShell -NoLogo -NoExit -File "$ClangBuilderInstallRoot\bin\Installer\Install.ps1"
 
  Write-Output "Process done"

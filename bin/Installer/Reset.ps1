@@ -12,8 +12,6 @@ IF($PSVersionTable.PSVersion.Major -lt 3)
 }
 
 $SelfFolder=$PSScriptRoot;
-$SelfParent=Split-Path -Parent $SelfFolder
-$ClangbuilderRoot=Split-Path -Parent $SelfParent
 
 Invoke-Expression "$SelfFolder\Update.ps1"
 Invoke-Expression "$SelfFolder\Install.ps1 -Reset"

@@ -7,10 +7,10 @@
 
 
 
-Function Global:Running-Builder{
-param(
-[Parameter(Position=0,Mandatory=$True,HelpMessage="Enter a message for the Message Throw")]
-[ValidateNotNullorEmpty()]
-[string]$Message
-)
+Function RunningBuilder{
+    param(
+        [Parameter(Position=0,Mandatory=$True,HelpMessage="Enter a message for the Message Throw")]
+        [ValidateNotNullorEmpty()]
+        [string]$Message
+        )
 }

@@ -11,36 +11,29 @@ IF($PSVersionTable.PSVersion.Major -lt 3)
     return
 }
 
-$SelfFolder=$PSScriptRoot;
-$SelfParent=Split-Path -Parent $SelfFolder
-$ClangbuilderRoot=Split-Path -Parent $SelfParent
-Set-StrictMode -Version latest
-Import-Module -Name BitsTransfer
-
 Function Expand-ZipPackage
 {
     param(
-        [Parameter(Position=0,Mandatory=$True,HelpMessage="Unzip sources")]
+        [Parameter(Position=0,Mandatory=$True,HelpMessage="Zip Sources")]
         [ValidateNotNullorEmpty()]
         [String]$ZipSource,
-        [Parameter(Position=1,Mandatory=$True,HelpMessage="Output Directory")]
+        [Parameter(Position=1,Mandatory=$True,HelpMessage="Output Destination")]
         [ValidateNotNullorEmpty()]
         [String]$Destination
     )
     [System.Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')|Out-Null
-    Write-Host "Use System.IO.Compression.ZipFile Unzip `nPackage: $ZipSource`nOutput: $Destination"
+    Write-Output "Use System.IO.Compression.ZipFile Unzip `nPackage: $ZipSource`nOutput: $Destination"
     [System.IO.Compression.ZipFile]::ExtractToDirectory($ZipSource, $Destination)
 }
 
 
-Function Global:Get-GithubUpdatePackage
+Function Get-GithubUpdatePackage
 {
     param(
+        [Parameter(Position=0,Mandatory=$True,HelpMessage="Enter Install Root")]
+        [ValidateNotNullorEmpty()]
         [String]$Root
     )
-    if($Root -eq $null){
-        $Root=[String]$ClangbuilderRoot
-    }
     $ClangbuilderEnvPkUrl="https://github.com/fstudio/clangbuilder/archive/master.zip"
     $ClangbuilderEnvPkName="$env:TEMP\clangbuilder.zip"
     Start-BitsTransfer $ClangbuilderEnvPkUrl  $ClangbuilderEnvPkName
@@ -49,9 +42,15 @@ Function Global:Get-GithubUpdatePackage
     }
     Unblock-File $ClangbuilderEnvPkName
     Expand-ZipPackage -ZipSource $ClangbuilderEnvPkName -Destination "${env:TEMP}\ClangbuilderTEMP"
-    Copy-Item -Path "${Env:TEMP}\ClangbuilderTEMP\clangbuilder-master\*" $ClangbuilderRoot  -Force -Recurse
+    Copy-Item -Path "${Env:TEMP}\ClangbuilderTEMP\clangbuilder-master\*" $Root  -Force -Recurse
     Remove-Item -Force -Recurse "$ClangbuilderEnvPkName"
     Remove-Item -Force -Recurse "${env:TEMP}\ClangbuilderTEMP"
 }
+
+$SelfFolder=$PSScriptRoot;
+$SelfParent=Split-Path -Parent $SelfFolder
+$ClangbuilderRoot=Split-Path -Parent $SelfParent
+Set-StrictMode -Version latest
+Import-Module -Name BitsTransfer
 
 Get-GithubUpdatePackage -Root $ClangbuilderRoot

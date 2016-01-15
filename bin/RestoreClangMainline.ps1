@@ -14,17 +14,18 @@ Invoke-Expression -Command "$SelfFolder/RepositoryCheckout.ps1"
 $ClangbuilderRoot=Split-Path -Parent $SelfFolder
 $BuildFolder="$ClangbuilderRoot/out"
 $MainlineFolder="$BuildFolder/mainline"
+Write-Output "Mainline Source Folder: $MainlineFolder"
 $LLVMRepositoriesRoot="http://llvm.org/svn/llvm-project"
 
 IF(!(Test-Path $BuildFolder)){
-    mkdir $BuildFolder
+    mkdir -Force $BuildFolder
 }
 Push-Location $PWD
 Set-Location $BuildFolder
 
 Restore-Repository -URL "$LLVMRepositoriesRoot/llvm/trunk" -Folder "mainline"
 if(!(Test-Path "$BuildFolder/mainline/tools")){
-    Write-Host "Checkout LLVM Failed"
+    Write-Error "Checkout LLVM Failed"
     Exit
 }
 
@@ -41,7 +42,7 @@ IF($LLDB){
 }
 
 if(!(Test-Path "$BuildFolder/mainline/tools/clang/tools")){
-    Write-Host "Checkout Clang Failed"
+    Write-Error "Checkout Clang Failed"
     Exit
 }
 
