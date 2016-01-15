@@ -118,7 +118,7 @@ if(!(Test-Path "$SelfFolder/nsis/NSIS.exe")){
     Start-BitsTransfer -Source $NSISURL -Destination "$SelfFolder\NSIS.zip" -Description "Downloading NSIS"
     if(Test-Path "$SelfFolder\NSIS.zip"){
         Unblock-File -Path "$SelfFolder\NSIS.zip"
-        Expand-ZipPackage -ZipSource "$SelfFolder\NSIS.zip" -Destination "."
+        Expand-ZipPackage -ZipSource "$SelfFolder\NSIS.zip" -Destination "$SelfFolder"
         Rename-Item $NSISSub "nsis"
     }else{
         Write-Error "Download NSIS failure !"
@@ -133,7 +133,7 @@ if(!(Test-Path "$SelfFolder/GNUWin/bin/grep.exe")){
     Start-BitsTransfer -Source $GnuWinURL -Destination "$SelfFolder\GNUWin.zip" -Description "Downloading GNUWin"
     if(Test-Path "$SelfFolder\GNUWin.zip"){
         Unblock-File -Path "$SelfFolder\GNUWin.zip"
-        Expand-ZipPackage -ZipSource "$SelfFolder\GNUWin.zip" -Destination "GNUWin"
+        Expand-ZipPackage -ZipSource "$SelfFolder\GNUWin.zip" -Destination "$SelfFolder\GNUWin"
     }else{
         Write-Error "Download GNUWin tools failure !"
     }

@@ -5,7 +5,7 @@
 #  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 param(
-    [Switch]$LLDB,
+    [Switch]$LLDB
 )
 
 $SelfFolder=$PSScriptRoot;
