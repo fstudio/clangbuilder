@@ -25,7 +25,7 @@ $InvokerDir=$PSScriptRoot;
 
 $RegRouter="HKLM:\SOFTWARE\Microsoft"
 #vcpackages
-$NativeAMD64=$False
+#$NativeAMD64=$False
 
 $IsWindows64=[System.Environment]::Is64BitOperatingSystem
 
@@ -40,7 +40,7 @@ $VisualCRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key '1
 $SdkRoot=Get-RegistryValueEx -Path "$RegRouter\Microsoft SDKs\Windows\v10.0" -Key 'InstallationFolder'
 $ProductVersion=Get-RegistryValueEx -Path "$RegRouter\Microsoft SDKs\Windows\v10.0" -Key 'ProductVersion'
 $MSBuildRoot=Get-RegistryValueEx -Path "$RegRouter\MSBuild\14.0" -Key 'MSBuildOverrideTasksPath'
-$FSharpRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\14.0\Setup\F#" -Key 'ProductDir'
+#$FSharpRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\14.0\Setup\F#" -Key 'ProductDir'
 
 $FrameworkDIR=""
 $WindowsSDK_ExecutablePath=""
@@ -54,7 +54,7 @@ if($IsWindows64){
     $FrameworkDIR32=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key 'FrameworkDir32'
     $FrameworkVER32=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key 'FrameworkVer32'
     $WindowsSDK_ExecutablePath=Get-RegistryValueEx -Path "$RegRouter\Microsoft SDKs\NETFXSDK\4.6.1\WinSDK-NetFx40Tools" -Key 'InstallationFolder'
-    $FrameworkDIR="$FrameworkDIR64\$FrameworkVER32"
+    $FrameworkDIR="$FrameworkDIR32$FrameworkVER32"
 }
 
 #Append Include Directory
@@ -76,7 +76,11 @@ Push-PathFront -Path "${VSInstallRoot}Common7\IDE"
 Push-PathFront -Path "${SdkRoot}bin\x86"
 Push-PathFront -Path "${VisualCRoot}vcpackages"
 Push-PathFront -Path "$FrameworkDIR"
-Push-PathFront -Path "$FSharpRoot"
+
+if(Test-Path "$RegRouter\VisualStudio\14.0\Setup\F#"){
+    $FSharpRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\14.0\Setup\F#" -Key 'ProductDir'
+    Push-PathFront -Path "$FSharpRoot"
+}
 
 if($IsWindows64){
     Push-PathFront -Path "${MSBuildRoot}amd64"
