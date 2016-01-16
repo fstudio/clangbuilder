@@ -13,116 +13,113 @@ IF($PSVersionTable.BuildVersion.Major -lt 10){
     Exit
 }
 
-IF( $env:VS140COMNTOOLS -eq $null -or (Test-Path $env:VS140COMNTOOLS) -eq $false)
+IF( $null -eq $env:VS140COMNTOOLS  -or (Test-Path $env:VS140COMNTOOLS) -eq $false)
 {
-    Write-Error "Not Fond Vaild Install for Visual Studio 2015"
+    Write-Error "Visual Studio 2015 might not be installed"
     exit
 }
-
-#IF($Arch -eq "x86"){
-#    $target=1
-#}
-#IF($Arch -eq "x64"){
-#    $target=2
-#}
-#IF($Arch -eq "ARM"){
-#    $target=3
-#}
-#IF($Arch -eq "ARM64"){
-#    $target=4
-#}
 
 $InvokerDir=$PSScriptRoot;
 . "$InvokerDir/VisualStudioShared.ps1"
 
-IF(${env:ProgramFiles(x86)} -eq $null){
-   $SystemType=32
-   $ProgramDir=${env:ProgramFiles}
-}ELSE{
-   $SystemType=64
-   $ProgramDir=${env:ProgramFiles(x86)}
-}
 
-IF($SystemType -eq 64)
+$RegRouter="HKLM:\SOFTWARE\Microsoft"
+#vcpackages
+$NativeAMD64=$False
+
+$IsWindows64=[System.Environment]::Is64BitOperatingSystem
+
+IF($IsWindows64)
 {
-    $VSInstall=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' '14.0'
-    $VCDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' '14.0'
-    $SDKDIR=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v10.0' 'InstallationFolder'
-    $ProductVersion=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v10.0' 'ProductVersion'
-    IF(Test-Path 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\NETFXSDK\4.6.1\WinSDK-NetFx40Tools-x64'){
-        $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\NETFXSDK\4.6.1\WinSDK-NetFx40Tools-x64' 'InstallationFolder'
-    }ELSEIF(Test-Path 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\NETFXSDK\4.6\WinSDK-NetFx40Tools-x64'){
-        $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\NETFXSDK\4.6\WinSDK-NetFx40Tools-x64' 'InstallationFolder'
-    }ELSEIF(Test-Path 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.1A\WinSDK-NetFx40Tools-x64'){
-         $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows\v8.1A\WinSDK-NetFx40Tools-x64' 'InstallationFolder'
-    }
-    $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir64'
-    $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer64'
-    IF((Test-Path  'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\Setup\F#')){
-        $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
-    }
-    $MSBUILDKIT=Get-RegistryValue 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\MSBuild\14.0' 'MSBuildOverrideTasksPath'
-
-}ELSE{
-    $VSInstall=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' '14.0'
-    $VCDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' '14.0'
-    $SDKDIR=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0' 'InstallationFolder'
-    $ProductVersion=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0' 'ProductVersion'
-    IF(Test-Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\NETFXSDK\4.6.1\WinSDK-NetFx40Tools'){
-        $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\NETFXSDK\4.6.1\WinSDK-NetFx40Tools' 'InstallationFolder'
-    }ELSEIF(Test-Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\NETFXSDK\4.6\WinSDK-NetFx40Tools'){
-        $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\NETFXSDK\4.6\WinSDK-NetFx40Tools' 'InstallationFolder'
-    }ELSEIF(Test-Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.1A\WinSDK-NetFx40Tools'){
-         $NetTools=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.1A\WinSDK-NetFx40Tools' 'InstallationFolder'
-    }
-    $FrameworkDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkDir32'
-    $FrameworkVer=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 'FrameworkVer32'
-    IF((Test-Path  'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\Setup\F#')){
-        $FSharpDir=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\Setup\F#' 'ProductDir'
-    }
-    $MSBUILDKIT=Get-RegistryValue 'HKLM:\SOFTWARE\Microsoft\MSBuild\14.0' 'MSBuildOverrideTasksPath'
+    $RegRouter="HKLM:\SOFTWARE\Wow6432Node\Microsoft"
 }
 
-IF($FSharpDir -eq $null)
-{
-    $env:Path="$NetTools;${FrameworkDir}${FrameworkVer};$env:Path"
-}ELSE{
-    $env:Path="$FSharpDir;$NetTools;${FrameworkDir}${FrameworkVer};$env:Path"
+
+$VSInstallRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VS7" -Key '14.0'
+$VisualCRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key '14.0'
+$SdkRoot=Get-RegistryValueEx -Path "$RegRouter\Microsoft SDKs\Windows\v10.0" -Key 'InstallationFolder'
+$ProductVersion=Get-RegistryValueEx -Path "$RegRouter\Microsoft SDKs\Windows\v10.0" -Key 'ProductVersion'
+$MSBuildRoot=Get-RegistryValueEx -Path "$RegRouter\MSBuild\14.0" -Key 'MSBuildOverrideTasksPath'
+$FSharpRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\14.0\Setup\F#" -Key 'ProductDir'
+
+$FrameworkDIR=""
+$WindowsSDK_ExecutablePath=""
+
+if($IsWindows64){
+    $FrameworkDIR64=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key 'FrameworkDir64'
+    $FrameworkVER64=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key 'FrameworkVer64'
+    $WindowsSDK_ExecutablePath=Get-RegistryValueEx -Path "$RegRouter\Microsoft SDKs\NETFXSDK\4.6.1\WinSDK-NetFx40Tools-x64" -Key 'InstallationFolder'
+    $FrameworkDIR="$FrameworkDIR64\$FrameworkVER64"
+}else{
+    $FrameworkDIR32=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key 'FrameworkDir32'
+    $FrameworkVER32=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key 'FrameworkVer32'
+    $WindowsSDK_ExecutablePath=Get-RegistryValueEx -Path "$RegRouter\Microsoft SDKs\NETFXSDK\4.6.1\WinSDK-NetFx40Tools" -Key 'InstallationFolder'
+    $FrameworkDIR="$FrameworkDIR64\$FrameworkVER32"
 }
 
-$IDE="${env:VS140COMNTOOLS}..\IDE"
-$KitBin32="${SDKDIR}bin\x86"
-$kitBin64="${SDKDIR}bin\amd64"
-$KitBinARM="${SDKDIR}bin\ARM"
-$KitBinARM64="${SDKDIR}bin\ARM64"
-$KitInc="${SDKDIR}Include\${ProductVersion}\ucrt;${SDKDIR}Include\${ProductVersion}\um;${SDKDIR}Include\${ProductVersion}\Shared;${SDKDIR}Include\${ProductVersion}\WinRT"
-$KitLib32="${SDKDIR}Lib\${ProductVersion}\um\x86;${SDKDIR}Lib\${ProductVersion}\ucrt\x86"
-$KitLib64="${SDKDIR}Lib\${ProductVersion}\um\x64;${SDKDIR}Lib\${ProductVersion}\ucrt\x64"
-$KitLibARM="${SDKDIR}LIB\${ProductVersion}\um\ARM;${SDKDIR}Lib\${ProductVersion}\ucrt\ARM"
-$KitLibARM64="${SDKDIR}LIB\${ProductVersion}\um\ARM64;${SDKDIR}Lib\${ProductVersion}\ucrt\ARM64"
+#Append Include Directory
+Push-Include -Include "${SdkRoot}include\$ProductVersion\winrt"
+Push-Include -Include "${SdkRoot}include\$ProductVersion\shared"
+Push-Include -Include "${SdkRoot}include\$ProductVersion\um"
+Push-Include -Include "${SdkRoot}NETFXSDK\4.6.1\include\um"
+Push-Include -Include "${SdkRoot}include\$ProductVersion\ucrt"
+Push-Include -Include "${VisualCRoot}atlmfc\include"
+Push-Include -Include "${VisualCRoot}include"
 
-IF($Arch -eq "x86"){
-    $CompilerDir="${VCDir}bin"
-    $Library="${VCDir}lib"
-    $env:Path="$CompilerDir;${MSBUILDKIT};$KitBin32;$IDE;$env:PATH"
-    $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
-    $env:LIB="$KitLib32;${VCDir}LIB;$env:LIB"
-}ELSEIF($Arch -eq "x64"){
-    $CompilerDir="${VCDir}bin\x86_amd64"
-    $Library="${VCDir}lib\x86_amd64"
-    $env:Path="$CompilerDir;${VCDir}bin;${MSBUILDKIT}\amd64;$KitBin64;$IDE;$env:PATH"
-    $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
-    $env:LIB="$KitLib64;${VCDir}Lib\amd64;$env:LIB"
-}ELSEIF($Arch -eq "ARM"){
-    $CompilerDir="${VCDir}bin\x86_arm"
-    $Library="${VCDir}lib\arm"
-    $env:Path="$CompilerDir;${VCDir}bin;${MSBUILDKIT};$KitBinARM;$KitBin32;$IDE;$env:PATH"
-    $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
-    $env:LIB="$KitLibARM;${VCDir}LIB\arm;$env:LIB"
-}ELSEIF($Arch -eq "ARM64"){
-    $CompilerDir="${VCDir}bin\x86_arm64"
-    $Library="${VCDir}lib\arm64"
-    $env:Path="$CompilerDir;${VCDir}bin;${MSBUILDKIT};$KitBinARM;$KitBin32;$IDE;$env:PATH"
-    $env:INCLUDE="$KitInc;${VCDir}Include;$env:INCLUDE"
-    $env:LIB="$KitLibARM;${VCDir}LIB\arm64;$env:LIB"
+Push-LibraryDir -LibDIR "${SdkRoot}NETFXSDK\4.6.1\lib\$Arch"
+Push-LibraryDir -LibDIR "${SdkRoot}Lib\$ProductVersion\ucrt\$Arch"
+Push-LibraryDir -LibDIR "${SdkRoot}Lib\$ProductVersion\um\$Arch"
+
+Push-PathFront -Path "$WindowsSDK_ExecutablePath"
+Push-PathFront -Path "${VSInstallRoot}Common7\Tools"
+Push-PathFront -Path "${VSInstallRoot}Common7\IDE"
+Push-PathFront -Path "${SdkRoot}bin\x86"
+Push-PathFront -Path "${VisualCRoot}vcpackages"
+Push-PathFront -Path "$FrameworkDIR"
+Push-PathFront -Path "$FSharpRoot"
+
+if($IsWindows64){
+    Push-PathFront -Path "${MSBuildRoot}amd64"
+}else{
+    Push-PathFront -Path "${MSBuildRoot}"
+}
+
+if($Arch -eq "x86"){
+    Push-LibraryDir -LibDIR "${VisualCRoot}LIB"
+    Push-LibraryDir -LibDIR "${VisualCRoot}atlmfc\LIB"
+    Push-PathFront -Path "${VisualCRoot}bin"
+}elseif($Arch -eq "x64"){
+    Push-PathFront -Path "${SdkRoot}bin\x64"
+    Push-LibraryDir -LibDIR "${VisualCRoot}LIB\amd64"
+    Push-LibraryDir -LibDIR "${VisualCRoot}atlmfc\LIB\amd64"
+    if(Test-Path "${VisualCRoot}bin\amd64"){
+        Push-PathFront -Path "${VisualCRoot}bin\amd64"
+    }else{
+        Push-PathFront -Path "${VisualCRoot}bin"
+        Push-PathFront -Path "${VisualCRoot}bin\x86_amd64"
+    }
+}elseif($Arch -eq "ARM"){
+    Push-LibraryDir -LibDIR "${VisualCRoot}LIB\arm"
+    Push-LibraryDir -LibDIR "${VisualCRoot}atlmfc\LIB\arm"
+    if($IsWindows64){
+        Push-PathFront -Path "${SdkRoot}bin\x64"
+    }
+    if(Test-Path "${VisualCRoot}bin\amd64_arm"){
+        Push-PathFront -Path "${VisualCRoot}bin\amd64"
+        Push-PathFront -Path "${VisualCRoot}bin\amd64_arm"
+    }else{
+        Push-PathFront -Path "${VisualCRoot}bin"
+        Push-PathFront -Path "${VisualCRoot}bin\x86_arm"
+    }
+}elseif($Arch -eq "ARM64"){
+    if($IsWindows64){
+        Push-PathFront -Path "${SdkRoot}bin\x64"
+    }
+    if(Test-Path "${VisualCRoot}bin\amd64_arm64"){
+        Push-PathFront -Path "${VisualCRoot}bin\amd64"
+        Push-PathFront -Path "${VisualCRoot}bin\amd64_arm64"
+    }else{
+        Push-PathFront -Path "${VisualCRoot}bin"
+        Push-PathFront -Path "${VisualCRoot}bin\x86_arm64"
+    }
 }

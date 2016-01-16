@@ -6,11 +6,10 @@
 ##############################################################################>
 
 
-Function Loader-Modules{
-}
 
+$InvokerDir=$PSScriptRoot;
+. "$InvokerDir/VisualStudioShared.ps1"
 
-Function Loader-API{
-}
+$VSInstallRoot=Get-RegistryValue2 -Path 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' -Key '14.0'
 
-
+Write-Output $VSInstallRoot

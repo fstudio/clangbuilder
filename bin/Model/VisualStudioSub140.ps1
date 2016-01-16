@@ -18,9 +18,9 @@ IF($PSVersionTable.PSVersion.Major -lt 3)
     }
     Exit
 }
-IF( $env:VS140COMNTOOLS -eq $null -or (Test-Path $env:VS140COMNTOOLS) -eq $false)
+IF($null -eq $env:VS140COMNTOOLS -or (Test-Path $env:VS140COMNTOOLS) -eq $false)
 {
-  Write-Error "Not Fond Vaild Install for Visual Studio 2015"
+  Write-Error "Visual Studio 2015 might not be installed"
   return
 }
 
