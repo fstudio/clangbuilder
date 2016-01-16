@@ -18,6 +18,7 @@ using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 using System.Configuration;
 using System.Collections.ObjectModel;
+using System.Reflection;
 
 namespace ClangbuilderUI
 {
@@ -47,8 +48,51 @@ namespace ClangbuilderUI
         public MainWindow()
         {
             InitializeComponent();
+            if (Environment.GetEnvironmentVariable("VS140COMNTOOLS") != null)
+            {
+                String subKey = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion";
+                RegistryKey key = Registry.LocalMachine;
+                RegistryKey skey = key.OpenSubKey(subKey);
+                if (skey.GetValue("CurrentMajorVersionNumber") != null)
+                {
+                    int major = (int)skey.GetValue("CurrentMajorVersionNumber");
+                    if (major >= 10)
+                    {
+                        visualstudioVersion.SelectedIndex = 3;
+                    }
+                    else
+                    {
+                        visualstudioVersion.SelectedIndex = 2;
+                    }
+                }
+                else
+                {
+                    visualstudioVersion.SelectedIndex = 2;
+                }
+                //visualstudioVersion.SelectedIndex
+            }
+            else if (Environment.GetEnvironmentVariable("VS120COMNTOOLS") != null)
+            {
+                visualstudioVersion.SelectedIndex = 1;
+            }
+            else if (Environment.GetEnvironmentVariable("VS110COMNTOOLS") != null)
+            {
+                visualstudioVersion.SelectedIndex = 0;
+            }
+            else
+            {
+                this.ShowMessageAsync("Cannot find a supported version of VisualStudio !", "Visual Studio 2012 , 2013 and 2015");
+            }
+            if (System.Environment.Is64BitOperatingSystem)
+            {
+                arch.SelectedIndex = 1;
+            }
+            else
+            {
+                arch.SelectedIndex = 0;
+            }
         }
-        
+
         private async void ClangbuilderSettingsFeature(object sender, RoutedEventArgs e)
         {
             MetroDialogOptions.ColorScheme = MetroDialogColorScheme.Theme;
@@ -61,7 +105,7 @@ namespace ClangbuilderUI
                 ColorScheme = MetroDialogColorScheme.Theme
             };
 
-            MessageDialogResult result = await this.ShowMessageAsync("Clangbuilder UI Setting", 
+            MessageDialogResult result = await this.ShowMessageAsync("Clangbuilder UI Setting",
                 "Welcome to use the Clangbuilder Environment Configuration tool.\nCopyright \xA9 2016 ForceStudio All Rights Reserved. ",
                 MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary, mySettings);
 
@@ -72,8 +116,8 @@ namespace ClangbuilderUI
         }
         private bool StartupLauncher(String Args)
         {
-            String launcher=Process.GetCurrentProcess().MainModule.FileName;
-            launcher=System.IO.Path.GetDirectoryName(launcher);
+            String launcher = Process.GetCurrentProcess().MainModule.FileName;
+            launcher = System.IO.Path.GetDirectoryName(launcher);
             launcher += "\\launcher.exe";
             if (!System.IO.File.Exists(launcher))
             {
@@ -87,21 +131,21 @@ namespace ClangbuilderUI
             Process.Start(psInfo);
             return true;
         }
-        private String ArgumentsBuilder(object sender, RoutedEventArgs e,bool IsBuilder)
+        private String ArgumentsBuilder(object sender, RoutedEventArgs e, bool IsBuilder)
         {
-            String[] stringVs = {"110","120","140","141","150" };
-            String[] stringTarget = { "x86", "x64", "ARM", "ARM64" };
+            String[] stringVs = { "110", "120", "140", "141", "150" };
+            String[] stringArch = { "x86", "x64", "ARM", "ARM64" };
             String[] stringConfiguration = { "Release", "MinSizeRel", "RelWithDebInfo", "Debug" };
-            if (visualstudioVersion.SelectedIndex == -1 || target.SelectedIndex == -1 || configureType.SelectedIndex == -1)
+            if (visualstudioVersion.SelectedIndex == -1 || arch.SelectedIndex == -1 || flavor.SelectedIndex == -1)
             {
                 this.ShowMessageAsync("Cannot Continue !",
                     "VisualStudio ,Target , Configuration Must be selected !");
                 return null;
             }
-            String Args = "-V "+stringVs[visualstudioVersion.SelectedIndex]+" -T "+stringTarget[target.SelectedIndex];
+            String Args = "-V " + stringVs[visualstudioVersion.SelectedIndex] + " -T " + stringArch[arch.SelectedIndex];
             if (IsBuilder)
             {
-                Args += " -C " + stringConfiguration[configureType.SelectedIndex];
+                Args += " -C " + stringConfiguration[flavor.SelectedIndex];
                 Args += " -B";
                 if (IsCreateInstallPackage.IsChecked == true)
                 {
@@ -125,7 +169,7 @@ namespace ClangbuilderUI
                 }
 
             }
-            if (IsCleanEnvironment.IsChecked==true)
+            if (IsCleanEnvironment.IsChecked == true)
             {
                 Args += " -E";
             }
@@ -135,7 +179,7 @@ namespace ClangbuilderUI
         private void OnBuildingNow(object sender, RoutedEventArgs e)
         {
             String args = ArgumentsBuilder(sender, e, true);
-            if (args!=null)
+            if (args != null)
             {
                 StartupLauncher(args);
             }
