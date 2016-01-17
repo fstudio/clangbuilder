@@ -22,23 +22,6 @@ using System.Reflection;
 
 namespace ClangbuilderUI
 {
-    //public class ClangbuilderUIItem
-    //{
-    //    public string Content { set; get; }
-    //    public string Value { set; get; }
-    //    public int ID { set; get; }
-    //}
-    //public class ClangbuilderUICombobox : ObservableCollection<ClangbuilderUIItem>
-    //{
-    //    public ClangbuilderUICombobox()
-    //    {
-    //        this.Add(new ClangbuilderUIItem { ID = 1, Value = "110" ,Content="Visual Studio 2012 [Windows 8]"});
-    //        this.Add(new ClangbuilderUIItem { ID = 2, Value = "120", Content = "Visual Studio 2013 [Windows 8.1]" });
-    //        this.Add(new ClangbuilderUIItem { ID = 3, Value = "140", Content = "Visual Studio 2015 [Windows 8.1]" });
-    //        this.Add(new ClangbuilderUIItem { ID = 4, Value = "141", Content = "Visual Studio 2015 [Windows 10]" });
-    //        this.Add(new ClangbuilderUIItem { ID = 5, Value = "150", Content = "Visual Studio 15 " }); 
-    //    }
-    //}
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
@@ -48,48 +31,68 @@ namespace ClangbuilderUI
         public MainWindow()
         {
             InitializeComponent();
+
+            if (Environment.GetEnvironmentVariable("VS110COMNTOOLS") != null)
+            {
+                VS110.IsSelected = true;
+            }
+            else
+            {
+                VS110.IsEnabled = false;
+            }
+            if (Environment.GetEnvironmentVariable("VS120COMNTOOLS") != null)
+            {
+                VS120.IsSelected = true;
+            }
+            else
+            {
+                VS120.IsEnabled = false;
+            }
             if (Environment.GetEnvironmentVariable("VS140COMNTOOLS") != null)
             {
                 String subKey = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion";
                 RegistryKey key = Registry.LocalMachine;
                 RegistryKey skey = key.OpenSubKey(subKey);
-                if (skey.GetValue("CurrentMajorVersionNumber") != null)
+                if (skey.GetValue("CurrentMajorVersionNumber") != null&&(int)skey.GetValue("CurrentMajorVersionNumber")>=10)
                 {
-                    int major = (int)skey.GetValue("CurrentMajorVersionNumber");
-                    if (major >= 10)
-                    {
-                        visualstudioVersion.SelectedIndex = 3;
-                    }
-                    else
-                    {
-                        visualstudioVersion.SelectedIndex = 2;
-                    }
+                    VS141.IsSelected = true;
                 }
                 else
                 {
-                    visualstudioVersion.SelectedIndex = 2;
+                    VS140.IsSelected = true;
                 }
-                //visualstudioVersion.SelectedIndex
-            }
-            else if (Environment.GetEnvironmentVariable("VS120COMNTOOLS") != null)
-            {
-                visualstudioVersion.SelectedIndex = 1;
-            }
-            else if (Environment.GetEnvironmentVariable("VS110COMNTOOLS") != null)
-            {
-                visualstudioVersion.SelectedIndex = 0;
             }
             else
             {
-                this.ShowMessageAsync("Cannot find a supported version of VisualStudio !", "Visual Studio 2012 , 2013 and 2015");
+                VS140.IsEnabled = false;
+                VS141.IsEnabled = false;
             }
+
+            if (Environment.GetEnvironmentVariable("VS150COMNTOOLS") != null)
+            {
+                VS150.IsSelected = true;
+            }
+            else
+            {
+                VS150.IsEnabled = false;
+            }
+
+            if (VS141.IsSelected)
+            {
+                archARM64.IsEnabled = true;
+            }
+            else
+            {
+                archARM64.IsEnabled = false;
+            }
+
             if (System.Environment.Is64BitOperatingSystem)
             {
-                arch.SelectedIndex = 1;
+                archX64.IsSelected = true;
             }
             else
             {
-                arch.SelectedIndex = 0;
+                archX86.IsSelected = false;
             }
         }
 
@@ -191,6 +194,18 @@ namespace ClangbuilderUI
             if (args != null)
             {
                 StartupLauncher(args);
+            }
+        }
+
+        private void VisualStudioSelectChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (visualstudioVersion.SelectedIndex > 2)
+            {
+                archARM64.IsEnabled = true;
+            }
+            else
+            {
+                archARM64.IsEnabled = false;
             }
         }
     }

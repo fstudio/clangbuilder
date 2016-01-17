@@ -35,12 +35,14 @@
                   HorizontalAlignment="Left"
                   FontSize="15px"
                   Margin="135,20,0,0"  
-                  Width="360" Name="visualstudioVersion">
+                  Width="360" 
+                  SelectionChanged="VisualStudioSelectChanged"
+                  Name="visualstudioVersion">
             <ComboBoxItem Content="Visual Studio 2012 [Windows 8]" Name="VS110"/>
             <ComboBoxItem Content="Visual Studio 2013 [Windows 8.1]" Name="VS120"/>
             <ComboBoxItem Content="Visual Studio 2015 [Windows 8.1]" Name="VS140"/>
             <ComboBoxItem Content="Visual Studio 2015 [Windows 10]" Name="VS141"/>
-            <ComboBoxItem Content="Visual Studio 15 [Disabled]" Name="VS150" IsEnabled="False"/>
+            <ComboBoxItem Content="Visual Studio 15 [Next Version]" Name="VS150" IsEnabled="False"/>
         </ComboBox>
         <Label Content="Architecture: "   FontSize="15px" HorizontalAlignment="Left" 
                Margin="20,60,0,0" VerticalAlignment="Top"/>
@@ -50,10 +52,10 @@
                   Margin="135,60,0,0"  
                   VerticalAlignment="Top" 
                   Width="360" Name="arch">
-            <ComboBoxItem Content="x86"></ComboBoxItem>
-            <ComboBoxItem Content="x64"></ComboBoxItem>
-            <ComboBoxItem Content="ARM"></ComboBoxItem>
-            <ComboBoxItem Content="ARM64" IsEnabled="False"></ComboBoxItem>
+            <ComboBoxItem Content="x86" Name="archX86"></ComboBoxItem>
+            <ComboBoxItem Content="x64" Name="archX64"></ComboBoxItem>
+            <ComboBoxItem Content="ARM" Name="archARM"></ComboBoxItem>
+            <ComboBoxItem Content="ARM64" Name="archARM64" IsEnabled="False"></ComboBoxItem>
         </ComboBox>
         <Label Content="Flavor:" FontSize="15px" HorizontalAlignment="Left" 
                Margin="20,100,0,0" VerticalAlignment="Top"/>

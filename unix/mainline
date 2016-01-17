@@ -32,7 +32,7 @@ cd "$ClangBuilderDir/binary"
 cmake ../llvm -DCMAKE_BUILD_TYPE=Release  -DLLVM_APPEND_VC_REV:BOOL=ON
 
 if [ -f "$ClangBuilderDir/binary/Makefile" ]; then
-    cmake --build .
+    cmake --build . --config Release
 else
     echo "Cannot create Makefile,Please check log for details and retry !"
     exit
