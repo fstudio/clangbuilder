@@ -108,9 +108,10 @@ if($Static){
 
 
 Function Start-NMakeBuilder{
+    $NumberOfLogicalProcessors=(Get-WmiObject Win32_Processor).NumberOfLogicalProcessors
     cmake "..\$SourcesDir" -G"NMake Makefiles" -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
     if(Test-Path "Makefile"){
-        &nmake
+         &cmake --build . --config "$Flavor"
     }
 }
 

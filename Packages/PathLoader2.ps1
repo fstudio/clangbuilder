@@ -34,7 +34,7 @@ if(!(Test-Path "$PSScriptRoot\PackageStore.json")){
 
 $PackageStoreList=(Get-Content "$PSScriptRoot\PackageStore.json") -join "`n" | ConvertFrom-Json
 
-if($PackageStoreList.MSYS2 -ne $null){
+if($null -ne $PackageStoreList.MSYS2){
     Test-AddPath -Path $PackageStoreList.MSYS2
 }
 
