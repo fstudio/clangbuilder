@@ -1,6 +1,7 @@
 out/
 ClangbuilderUI.lnk
 bin/Required/
+Packages/Package.lock.json
 Packages/cmake/
 Packages/GNUWin/
 Packages/nsis/
