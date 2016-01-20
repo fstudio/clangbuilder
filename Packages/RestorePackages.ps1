@@ -12,8 +12,8 @@ Set-Location $SelfFolder
 Import-Module -Name BitsTransfer
 $IsWindows64=[System.Environment]::Is64BitOperatingSystem
 
-$CMakeURL="https://cmake.org/files/v3.4/cmake-3.4.1-win32-x86.zip"
-$CMakeSub="cmake-3.4.1-win32-x86"
+$CMakeURL="https://cmake.org/files/v3.4/cmake-3.4.2-win32-x86.zip"
+$CMakeSub="cmake-3.4.2-win32-x86"
 
 if($IsWindows64){
     $PythonURL="https://www.python.org/ftp/python/2.7.11/python-2.7.11.amd64.msi"
