@@ -285,7 +285,7 @@ int WINAPI wWinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPWSTR lpCmdLine
 			StringCbCatW(szBuffer, UNC_MAX_PATH, L" -Install");
 		}
 		if (useReleased) {
-			StringCbCatW(szBuffer, UNC_MAX_PATH, L" -Relased");
+			StringCbCatW(szBuffer, UNC_MAX_PATH, L" -Released");
 		}
 		if (useStaticCRT) {
 			StringCbCatW(szBuffer, UNC_MAX_PATH, L" -Static");

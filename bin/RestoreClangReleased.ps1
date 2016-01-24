@@ -16,7 +16,7 @@ $BuildFolder="$ClangbuilderRoot/out"
 $ReleaseRevFolder="$BuildFolder/release"
 Write-Output "Release Folder: $ReleaseRevFolder"
 $LLVMRepositoriesRoot="http://llvm.org/svn/llvm-project"
-$ReleaseRevision="RELEASE_371/final"
+$ReleaseRevision="RELEASE_380/rc1"
 
 IF(!(Test-Path $BuildFolder)){
     mkdir -Force $BuildFolder
