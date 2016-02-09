@@ -9,4 +9,6 @@ Packages/Python/
 Packages/Subversion/
 Packages/PackagesCache.index
 tools/Restore/
+*.pdb
+*.exe
 *.obj

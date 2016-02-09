@@ -6,9 +6,16 @@
 ##############################################################################>
 $SelfFolder=$PSScriptRoot;
 $ClangBuilderRoot=Split-Path -Parent $SelfFolder
+$NugetURL="https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
 
 Push-Location $PWD
 Set-Location $SelfFolder
+
+if(!(Test-Path "$SelfFolder\Nuget\Nuget.exe")){
+    Write-Output "Download Nuget now ....."
+    Invoke-WebRequest $NugetURL -OutFile "$SelfFolder\Nuget\Nuget.exe"
+}
+
 &cmd /c "$SelfFolder\ClangbuilderUITask.bat"
 $ClangbuilderUIRelease="$SelfFolder\ClangbuilderUI\ClangbuilderUI\bin\Release"
 if(!(Test-Path "$SelfFolder\Restore"))
