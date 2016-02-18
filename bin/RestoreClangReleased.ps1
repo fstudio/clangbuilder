@@ -5,8 +5,7 @@
 #  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 param(
-    [Switch]$LLDB,
-    [Switch]$RemoveOld
+    [Switch]$LLDB
 )
 
 $SelfFolder=$PSScriptRoot;
@@ -17,14 +16,26 @@ $ReleaseRevFolder="$BuildFolder/release"
 Write-Output "Release Folder: $ReleaseRevFolder"
 $LLVMRepositoriesRoot="http://llvm.org/svn/llvm-project"
 $ReleaseRevision="RELEASE_380/rc2"
+$LLVMUrlParent=$LLVMRepositoriesRoot+"/llvm/tags/"+$ReleaseRevision
+$Revision=380
+$RequireRemove=$FALSE
 
 IF(!(Test-Path $BuildFolder)){
     mkdir -Force $BuildFolder
 }
 
+IF(Test-Path "$BuildFolder/release"){
+    $rinfo=svn info "$BuildFolder/release"
+    #URL: http://llvm.org/svn/llvm-project/llvm/tags/RELEASE_X/X
+    if($rinfo[2] -inotlike $LLVMUrlParent){
+      $RequireRemove=$TRUE   
+    }
+}
+
+
 Push-Location $PWD
 Set-Location $BuildFolder
-IF((Test-Path "$BuildFolder/release") -and $RemoveOld){
+IF((Test-Path "$BuildFolder/release") -and $RequireRemove){
     Remove-Item -Force -Recurse "$BuildFolder/release"
 }
 Restore-Repository -URL "$LLVMRepositoriesRoot/llvm/tags/$ReleaseRevision" -Folder "release"
