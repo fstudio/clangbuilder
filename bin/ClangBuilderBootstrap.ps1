@@ -57,6 +57,8 @@ if($Clear){
     Reset-Environment
 }
 
+$ClangbuilderWorkdir="$ClangbuilderRoot\out\workdir"
+
 Invoke-Expression -Command "$SelfFolder\Model\VisualStudioSub$VisualStudio.ps1 $Arch"
 Invoke-Expression -Command "$SelfFolder\DiscoverToolChain.ps1"
 
@@ -70,13 +72,13 @@ if($Released){
     Invoke-Expression -Command "$SelfFolder\RestoreClangMainline.ps1"
 }
 
-if(!(Test-Path "$ClangbuilderRoot\out\workdir")){
-    mkdir -Force "$ClangbuilderRoot\out\workdir"
+if(!(Test-Path $ClangbuilderWorkdir)){
+    mkdir -Force $ClangbuilderWorkdir
 }else{
-    Remove-Item -Force -Recurse "$ClangbuilderRoot\out\workdir\*"
+    Remove-Item -Force -Recurse "$ClangbuilderWorkdir\*"
 }
 
-Set-Location "$ClangbuilderRoot\out\workdir"
+Set-Location $ClangbuilderWorkdir
 
 if($Static){
     $CRTLinkRelease="MT"
@@ -94,53 +96,55 @@ Set-Location build_stage0
 
 &cmake "..\..\$SourcesDir" -GNinja -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
 if($lastexitcode -ne 0){
- exit 1
+    exit 1
 }
 &ninja all 
 if($lastexitcode -ne 0){
- exit 1
+    exit 1
 }
 
 &ninja check 
 if($lastexitcode -ne 0){
- exit 1
+    exit 1
 }
 &ninja check-clang 
 if($lastexitcode -ne 0){
- exit 1
+    exit 1
 }
 
-Set-Location ..
+Set-Location $ClangbuilderWorkdir
 
 if(!(Test-Path build)){
     mkdir build
 }
+Set-Location build
 $env:CC="..\build_stage0\bin\clang-cl"
 $env:CXX="..\build_stage0\bin\clang-cl"
 &cmake "..\..\$SourcesDir" -GNinja -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
 if($lastexitcode -ne 0){
- exit 1
+    exit 1
 }
 &ninja all 
 if($lastexitcode -ne 0){
- exit 1
+    exit 1
 }
 &ninja check 
 if($lastexitcode -ne 0){
- exit 1
+    exit 1
 }
 &ninja check-clang 
 if($lastexitcode -ne 0){
- exit 1
+    exit 1
 }
 Write-Output "ClangBuilderBootstrap build success !"
+
 if($Install){
-&ninja package 
-if($lastexitcode -ne 0){
-Write-Output "Make installation package failed "
-}else{
-Write-Output "Make installation package success "
-}
+    &ninja package 
+    if($lastexitcode -ne 0){
+        Write-Output "Make installation package failed "
+    }else{
+        Write-Output "Make installation package success "
+    }
 }
 
 Set-Location ..
