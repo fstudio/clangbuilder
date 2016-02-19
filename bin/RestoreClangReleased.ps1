@@ -28,7 +28,7 @@ IF(Test-Path "$BuildFolder\release"){
     $cacheUrl=svn info --show-item url "$BuildFolder\release"
     #URL: http://llvm.org/svn/llvm-project/llvm/tags/RELEASE_X/X
     if($cacheUrl -ne $LLVMUrlParent){
-      Write-Output "Checkout URL `n  $cacheUrl not equal `n  $LLVMUrlParent`nRequire remove old llvm checkout file !"
+      Write-Output "Checkouted URL: `n  $cacheUrl not equal `nNew URL: `n  $LLVMUrlParent`nRequire remove old llvm checkout file !"
       $RequireRemove=$TRUE   
     }
 }
