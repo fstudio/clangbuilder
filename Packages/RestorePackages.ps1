@@ -42,7 +42,7 @@ $NSISSub="nsis-3.0b3"
 
 $GnuWinURL="http://sourceforge.net/projects/clangonwin/files/Install/Packages/ClangSetup-Package-GnuWin-win32.zip"
 
-
+$NinjaURL="https://github.com/ninja-build/ninja/releases/download/v1.6.0/ninja-win.zip"
 
 
 $PackageMap=@{}
@@ -51,6 +51,7 @@ $PackageMap["Subversion"]="1.9.3"
 $PackageMap["Python"]="2.7.11"
 $PackageMap["NSIS"]="3.0b3"
 $PackageMap["GNUWin"]="1.0"
+$PackageMap["Ninja"]="1.6.0"
 
 #### Test Package.lock.json
 $PackageLockJson=$null
@@ -75,6 +76,9 @@ if($PackageLockJson -ne $null){
     }
     if($PackageLockJson.GNUWin -ne $PackageMap["GNUWin"] -and (Test-Path "$SelfFolder\GNUWin")){
         Rename-Item "$SelfFolder\GNUWin" "$SelfFolder\GNUWin.bak"
+    }
+    if($PackageLockJson.Ninja -ne $PackageMap["Ninja"] -and (Test-Path "$SelfFolder\Ninja")){
+        Rename-Item "$SelfFolder\Ninja" "$SelfFolder\Ninja.bak"
     }
 }
 
@@ -154,7 +158,7 @@ if(!(Test-Path "$SelfFolder/nsis/NSIS.exe")){
     Write-Output "NSIS has been installed"
 }
 
-if(!(Test-Path "$SelfFolder/GNUWin/bin/grep.exe")){
+if(!(Test-Path "$SelfFolder\GNUWin\bin\grep.exe")){
     #Restore GNUWin
     Write-Output "Download GNUWin tools and Unzip it."
     Start-BitsTransfer -Source $GnuWinURL -Destination "$SelfFolder\GNUWin.zip" -Description "Downloading GNUWin"
@@ -166,6 +170,19 @@ if(!(Test-Path "$SelfFolder/GNUWin/bin/grep.exe")){
     }
 }else{
     Write-Output  "GNUWin has been installed"
+}
+
+if(!(Test-Path "$SelfFolder\Ninja\ninja.exe")){
+    Write-Output "Download Ninja-build utility now"
+    Start-BitsTransfer -Source $NinjaURL -Destination "$SelfFolder\Ninja.zip" -Description "Downloading Ninja-build"
+    if(Test-Path "$SelfFolder\Ninja.zip"){
+        Unblock-File -Path "$SelfFolder\Ninja.zip"
+        Expand-ZipPackage -ZipSource "$SelfFolder\Ninja.zip" -Destination "$SelfFolder\Ninja"
+    }else{
+        Write-Error "Download Ninja tools failure !"
+    }
+}else{
+    Write-Output  "ninja-build has been installed"
 }
 
 ##Check Package
@@ -198,6 +215,13 @@ if(!(Test-Path "$SelfFolder\GNUWin")){
         Rename-Item "$SelfFolder\GNUWin.bak" "$SelfFolder\GNUWin"
     }
 }
+
+if(!(Test-Path "$SelfFolder\Ninja")){
+    if(Test-Path "$SelfFolder\Ninja.bak"){
+        Rename-Item "$SelfFolder\Ninja.bak" "$SelfFolder\Ninja"
+    }
+}
+
 
 Remove-Item -Recurse -Force "$SelfFolder\*.bak"
 

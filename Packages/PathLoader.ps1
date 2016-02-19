@@ -10,7 +10,7 @@ $SubversionPath="$SelfFolder\Subversion\bin"
 $OfficaPythonPath="$SelfFolder\Python"
 $GNUWinPath="$SelfFolder\GNUWin\bin"
 $NSISPath="$SelfFolder\NSIS\bin"
-
+$NinjaPath="$SelfFolder\Ninja"
 
 Function Test-AddPath{
     param(
@@ -26,3 +26,4 @@ Test-AddPath -Path $SubversionPath
 Test-AddPath -Path $OfficaPythonPath
 Test-AddPath -Path $NSISPath
 Test-AddPath -Path $GNUWinPath
+Test-AddPath -Path $NinjaPath

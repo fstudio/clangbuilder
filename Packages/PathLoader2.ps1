@@ -11,6 +11,7 @@ $SubversionPath="$SelfFolder\Subversion\bin"
 $OfficaPythonPath="$SelfFolder\Python"
 #$GNUWinPath="$SelfFolder\GNUWin\bin"
 $NSISPath="$SelfFolder\NSIS\bin"
+$NinjaPath="$SelfFolder\Ninja"
 
 Function Test-AddPath{
     param(
@@ -25,11 +26,12 @@ Test-AddPath -Path $CMakePath
 Test-AddPath -Path $SubversionPath
 Test-AddPath -Path $OfficaPythonPath
 Test-AddPath -Path $NSISPath
+Test-AddPath -Path $NinjaPath
 #Test-AddPath -Path $GNUWinPath
 
 if(!(Test-Path "$PSScriptRoot\PackageStore.json")){
     Write-Error "Cannot Found PackageStore.json in $PSScriptRoot"
-    return 
+    return
 }
 
 $PackageStoreList=(Get-Content "$PSScriptRoot\PackageStore.json") -join "`n" | ConvertFrom-Json
@@ -37,4 +39,3 @@ $PackageStoreList=(Get-Content "$PSScriptRoot\PackageStore.json") -join "`n" | C
 if($null -ne $PackageStoreList.MSYS2){
     Test-AddPath -Path $PackageStoreList.MSYS2
 }
-
