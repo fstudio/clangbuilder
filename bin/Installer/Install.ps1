@@ -22,6 +22,6 @@ $ClangbuilderRoot=Split-Path -Parent $SelfParent
 . "$ClangbuilderRoot/tools/RestoreUtilitytools.ps1"
 
 if($Reset){
-    Remove-Item -Recurse -Force "$ClangbuilderRoot/Packages/*" -Exclude "*.ps1"
+    Remove-Item -Recurse -Force "$ClangbuilderRoot/packages/*" -Exclude "*.ps1"
 }
-Invoke-Expression -Command "$ClangbuilderRoot/Packages/RestorePackages.ps1"
+Invoke-Expression -Command "$ClangbuilderRoot/packages/RestorePackages.ps1"

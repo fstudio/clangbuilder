@@ -9,7 +9,7 @@ param(
 )
 $SelfFolder=$PSScriptRoot;
 $ClangbuilderRoot=Split-Path -Parent $SelfFolder
-$PackagesPath="$ClangbuilderRoot/Packages"
+$PackagesPath="$ClangbuilderRoot/packages"
 
 if($MSYS2){
     if(Test-Path "$PackagesPath/PathLoader2.ps1"){
