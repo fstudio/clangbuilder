@@ -83,3 +83,28 @@ if($Static){
     $CRTLinkRelease="MD"
     $CRTLinkDebug="MDd"
 }
+
+#stage0
+if(!(Test-Path build_stage0)){
+    mkdir -Force build_stage0
+}
+Set-Location build_stage0
+
+&cmake "..\..\$SourcesDir" -GNinja -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON || exit /b
+&ninja all || exit /b
+&ninja check || exit /b
+&ninja check-clang || exit /b
+
+Set-Location ..
+
+if(!(Test-Path build)){
+    mkdir build
+}
+$env:CC="..\build_stage0\bin\clang-cl"
+$env:CXX="..\build_stage0\bin\clang-cl"
+&cmake "..\..\$SourcesDir" -GNinja -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON || exit /b
+&ninja all || exit /b
+&ninja check || exit /b
+&ninja check-clang || exit /b
+&ninja package ||exit /b
+Set-Location ..
