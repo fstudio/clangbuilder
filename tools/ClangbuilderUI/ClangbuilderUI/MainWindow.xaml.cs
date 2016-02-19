@@ -138,46 +138,49 @@ namespace ClangbuilderUI
         {
             String[] stringVs = { "110", "120", "140", "141", "150" };
             String[] stringArch = { "x86", "x64", "ARM", "ARM64" };
-            String[] stringConfiguration = { "Release", "MinSizeRel", "RelWithDebInfo", "Debug" };
+            String[] stringFlavor = { "Release", "MinSizeRel", "RelWithDebInfo", "Debug" };
             if (visualstudioVersion.SelectedIndex == -1 || arch.SelectedIndex == -1 || flavor.SelectedIndex == -1)
             {
                 this.ShowMessageAsync("Cannot Continue !",
-                    "VisualStudio ,Target , Configuration Must be selected !");
+                    "VisualStudio ,Arch and Flavor Must be selected !");
                 return null;
             }
-            String Args = "-V " + stringVs[visualstudioVersion.SelectedIndex] + " -T " + stringArch[arch.SelectedIndex];
+            String Args = "--vs " + stringVs[visualstudioVersion.SelectedIndex] + " --arch " + stringArch[arch.SelectedIndex];
             if (IsBuilder)
             {
-                Args += " -C " + stringConfiguration[flavor.SelectedIndex];
-                Args += " -B";
+                Args += " --flavor " + stringFlavor[flavor.SelectedIndex];
+                if(IsClangBootstrap.IsChecked==true){
+                    Args += " --bootstrap";
+                }
                 if (IsCreateInstallPackage.IsChecked == true)
                 {
-                    Args += " -I";
+                    Args += " --install";
                 }
                 if (IsEnabledStaticRuntime.IsChecked == true)
                 {
-                    Args += " -S";
+                    Args += " --static";
                 }
                 if (IsUseNMakeBuilder.IsChecked == true)
                 {
-                    Args += " -N";
+                    Args += " --nmake";
                 }
                 if (IsBuildReleasedRevision.IsChecked == true)
                 {
-                    Args += " -R";
+                    Args += " --released";
                 }
                 if (IsBuidLLDB.IsChecked == true)
                 {
-                    Args += " -L";
+                    Args += " --lldb";
                 }
 
+            }else{
+                Args+=" --env";
             }
             if (IsCleanEnvironment.IsChecked == true)
             {
-                Args += " -E";
+                Args += " --clear";
             }
-            StartupLauncher(Args);
-            return null;
+            return Args;
         }
         private void OnBuildingNow(object sender, RoutedEventArgs e)
         {

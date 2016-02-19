@@ -8,9 +8,9 @@
         xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
         xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:behaviours="clr-namespace:MahApps.Metro.Behaviours;assembly=MahApps.Metro"
-        Title="Clangbuilder Environment Setting" 
+        Title="Clangbuilder Environment Setting"
         Height="480"
-        Width="600" 
+        Width="600"
         ShowIconOnTitleBar="True"
 		TitleCaps="False"
         ResizeMode="CanMinimize">
@@ -28,14 +28,14 @@
         </controls:WindowCommands>
     </controls:MetroWindow.RightWindowCommands>
     <Grid>
-        <Label Content="Visual Studio: "   FontSize="15px" HorizontalAlignment="Left" 
+        <Label Content="Visual Studio: "   FontSize="15px" HorizontalAlignment="Left"
                Margin="20,20,0,0" VerticalAlignment="Top"/>
         <ComboBox Controls:TextBoxHelper.ClearTextButton="True"
-                  VerticalAlignment="Top" 
+                  VerticalAlignment="Top"
                   HorizontalAlignment="Left"
                   FontSize="15px"
-                  Margin="135,20,0,0"  
-                  Width="360" 
+                  Margin="135,20,0,0"
+                  Width="360"
                   SelectionChanged="VisualStudioSelectChanged"
                   Name="visualstudioVersion">
             <ComboBoxItem Content="Visual Studio 2012 [Windows 8]" Name="VS110"/>
@@ -44,72 +44,78 @@
             <ComboBoxItem Content="Visual Studio 2015 [Windows 10]" Name="VS141"/>
             <ComboBoxItem Content="Visual Studio 15 [Next Version]" Name="VS150" IsEnabled="False"/>
         </ComboBox>
-        <Label Content="Architecture: "   FontSize="15px" HorizontalAlignment="Left" 
+        <Label Content="Architecture: "   FontSize="15px" HorizontalAlignment="Left"
                Margin="20,60,0,0" VerticalAlignment="Top"/>
         <ComboBox Controls:TextBoxHelper.ClearTextButton="True"
-                  HorizontalAlignment="Left"  
+                  HorizontalAlignment="Left"
                   FontSize="15px"
-                  Margin="135,60,0,0"  
-                  VerticalAlignment="Top" 
+                  Margin="135,60,0,0"
+                  VerticalAlignment="Top"
                   Width="360" Name="arch">
             <ComboBoxItem Content="x86" Name="archX86"></ComboBoxItem>
             <ComboBoxItem Content="x64" Name="archX64"></ComboBoxItem>
             <ComboBoxItem Content="ARM" Name="archARM"></ComboBoxItem>
             <ComboBoxItem Content="ARM64" Name="archARM64" IsEnabled="False"></ComboBoxItem>
         </ComboBox>
-        <Label Content="Flavor:" FontSize="15px" HorizontalAlignment="Left" 
+        <Label Content="Flavor:" FontSize="15px" HorizontalAlignment="Left"
                Margin="20,100,0,0" VerticalAlignment="Top"/>
         <ComboBox Controls:TextBoxHelper.ClearTextButton="True"
                   SelectedIndex="0"
-                  HorizontalAlignment="Left"  
+                  HorizontalAlignment="Left"
                   FontSize="15px"
-                  Margin="135,100,0,0"  
-                  VerticalAlignment="Top" 
+                  Margin="135,100,0,0"
+                  VerticalAlignment="Top"
                   Width="360" Name="flavor">
             <ComboBoxItem Content="Release" IsSelected="True"></ComboBoxItem>
             <ComboBoxItem Content="MinSizeRel"></ComboBoxItem>
             <ComboBoxItem Content="RelWithDebInfo"></ComboBoxItem>
             <ComboBoxItem Content="Debug"></ComboBoxItem>
         </ComboBox>
-        <Label Content="Switch: "   FontSize="15px" HorizontalAlignment="Left" 
+        <Label Content="Switch: "   FontSize="15px" HorizontalAlignment="Left"
                Margin="20,145,0,0" VerticalAlignment="Top"/>
-        <CheckBox Margin="135,145,0,0" 
+        <CheckBox Margin="135,145,0,0"
                   FontSize="15px"
-                  Content="Create Install Package" 
+                  IsChecked="False"
+                  Content="Clang Bootstrap"
                   VerticalAlignment="Top"
-                   HorizontalAlignment="Left" Name="IsCreateInstallPackage"/>
-        <CheckBox Margin="135,175,0,0" 
+                  HorizontalAlignment="Left" Name="IsClangBootstrap"/>
+        <CheckBox Margin="135,175,0,0"
                   FontSize="15px"
-                  Content="Use Clean Environment" 
+                  Content="Create Install Package"
                   VerticalAlignment="Top"
-                   HorizontalAlignment="Left" Name="IsCleanEnvironment"/>
-        <CheckBox Margin="135,210,0,0" 
+                  HorizontalAlignment="Left" Name="IsCreateInstallPackage"/>
+        <CheckBox Margin="135,210,0,0"
+                  FontSize="15px"
+                  Content="Use Clean Environment"
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Left" Name="IsCleanEnvironment"/>
+        <CheckBox Margin="135,240,0,0"
                   FontSize="15px"
                   IsChecked="True"
-                  Content="Use Static Runtime Library /MT(d)" 
+                  Content="Use Static Runtime Library /MT(d)"
                   VerticalAlignment="Top"
-                   HorizontalAlignment="Left" Name="IsEnabledStaticRuntime"/>
-        <CheckBox Margin="135,240,0,0" 
+                  HorizontalAlignment="Left" Name="IsEnabledStaticRuntime"/>
+        <CheckBox Margin="135,270,0,0"
                   FontSize="15px"
                   IsChecked="False"
-                  Content="Use NMake Makefiles" 
+                  Content="Use NMake Makefiles"
                   VerticalAlignment="Top"
-                   HorizontalAlignment="Left" Name="IsUseNMakeBuilder"/>
-        <CheckBox Margin="135,270,0,0" 
+                  HorizontalAlignment="Left" Name="IsUseNMakeBuilder"/>
+        <CheckBox Margin="135,300,0,0"
                   FontSize="15px"
                   IsChecked="False"
-                  Content="Build Released Revision" 
+                  Content="Build Released Revision"
                   VerticalAlignment="Top"
                   HorizontalAlignment="Left" Name="IsBuildReleasedRevision"/>
-        <CheckBox Margin="135,300,0,0" 
+        <CheckBox Margin="135,330,0,0"
                   FontSize="15px"
                   IsChecked="False"
-                  Content="Make LLDB (Not implemented)" 
+                  Content="Make LLDB (Not implemented)"
                   VerticalAlignment="Top"
                   HorizontalAlignment="Left" Name="IsBuidLLDB"/>
-        <Button Content="Startup Env " Click="OnStartupEnvironment" HorizontalAlignment="Left" 
-                Margin="135,320,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
-        <Button Content="Building now !" Click="OnBuildingNow" HorizontalAlignment="Left" 
-                Margin="325,320,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
+        <Button Content="Startup Env " Click="OnStartupEnvironment" HorizontalAlignment="Left"
+                Margin="135,360,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
+        <Button Content="Building now !" Click="OnBuildingNow" HorizontalAlignment="Left"
+                Margin="325,360,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
     </Grid>
 </controls:MetroWindow>
