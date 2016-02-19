@@ -145,40 +145,40 @@ namespace ClangbuilderUI
                     "VisualStudio ,Arch and Flavor Must be selected !");
                 return null;
             }
-            String Args = "--vs " + stringVs[visualstudioVersion.SelectedIndex] + " --arch " + stringArch[arch.SelectedIndex];
+            String Args = "-V " + stringVs[visualstudioVersion.SelectedIndex] + " -A " + stringArch[arch.SelectedIndex];
             if (IsBuilder)
             {
-                Args += " --flavor " + stringFlavor[flavor.SelectedIndex];
+                Args += " -F " + stringFlavor[flavor.SelectedIndex];
                 if(IsClangBootstrap.IsChecked==true){
-                    Args += " --bootstrap";
+                    Args += " -B";
                 }
                 if (IsCreateInstallPackage.IsChecked == true)
                 {
-                    Args += " --install";
+                    Args += " -I";
                 }
                 if (IsEnabledStaticRuntime.IsChecked == true)
                 {
-                    Args += " --static";
+                    Args += " -S";
                 }
                 if (IsUseNMakeBuilder.IsChecked == true)
                 {
-                    Args += " --nmake";
+                    Args += " -N";
                 }
                 if (IsBuildReleasedRevision.IsChecked == true)
                 {
-                    Args += " --released";
+                    Args += " -R";
                 }
                 if (IsBuidLLDB.IsChecked == true)
                 {
-                    Args += " --lldb";
+                    Args += " -L";
                 }
 
             }else{
-                Args+=" --env";
+                Args+=" -E";
             }
             if (IsCleanEnvironment.IsChecked == true)
             {
-                Args += " --clear";
+                Args += " -C";
             }
             return Args;
         }

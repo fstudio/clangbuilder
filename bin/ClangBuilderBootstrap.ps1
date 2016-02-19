@@ -31,12 +31,12 @@ if($PSVersionTable.PSVersion.Major -lt 3)
 }
 
 $Host.UI.RawUI.WindowTitle="Clangbuilder PowerShell Utility"
-Write-Output "Clang Auto Builder [PowerShell] Utility tools"
+Write-Output "ClangBuilder Utility tools [Bootstrap Channel]"
 Write-Output "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
 
 $SelfFolder=$PSScriptRoot;
 $ClangbuilderRoot=Split-Path -Parent $SelfFolder
-. "$SelfFolder/ClangBuilderUtility.ps1"
+. "$SelfFolder\ClangBuilderUtility.ps1"
 
 $VSTools="12"
 if($VisualStudio -eq "110"){
@@ -57,24 +57,26 @@ if($Clear){
     Reset-Environment
 }
 
-Invoke-Expression -Command "$SelfFolder/Model/VisualStudioSub$VisualStudio.ps1 $Arch"
-Invoke-Expression -Command "$SelfFolder/DiscoverToolChain.ps1"
+Invoke-Expression -Command "$SelfFolder\Model\VisualStudioSub$VisualStudio.ps1 $Arch"
+Invoke-Expression -Command "$SelfFolder\DiscoverToolChain.ps1"
 
 if($Released){
     $SourcesDir="release"
-    Invoke-Expression -Command "$SelfFolder/RestoreClangReleased.ps1"
+    Write-Output "Build last released revision"
+    Invoke-Expression -Command "$SelfFolder\RestoreClangReleased.ps1"
 }else{
     $SourcesDir="mainline"
-    Invoke-Expression -Command "$SelfFolder/RestoreClangMainline.ps1"
+    Write-Output "Build trunk branch"
+    Invoke-Expression -Command "$SelfFolder\RestoreClangMainline.ps1"
 }
 
-if(!(Test-Path "$ClangbuilderRoot/out/workdir")){
-    mkdir -Force "$ClangbuilderRoot/out/workdir"
+if(!(Test-Path "$ClangbuilderRoot\out\workdir")){
+    mkdir -Force "$ClangbuilderRoot\out\workdir"
 }else{
-    Remove-Item -Force -Recurse "$ClangbuilderRoot/out/workdir/*"
+    Remove-Item -Force -Recurse "$ClangbuilderRoot\out\workdir\*"
 }
 
-Set-Location "$ClangbuilderRoot/out/workdir"
+Set-Location "$ClangbuilderRoot\out\workdir"
 
 if($Static){
     $CRTLinkRelease="MT"
@@ -90,10 +92,23 @@ if(!(Test-Path build_stage0)){
 }
 Set-Location build_stage0
 
-&cmake "..\..\$SourcesDir" -GNinja -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON || exit /b
-&ninja all || exit /b
-&ninja check || exit /b
-&ninja check-clang || exit /b
+&cmake "..\..\$SourcesDir" -GNinja -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
+if($lastexitcode -ne 0){
+ exit 1
+}
+&ninja all 
+if($lastexitcode -ne 0){
+ exit 1
+}
+
+&ninja check 
+if($lastexitcode -ne 0){
+ exit 1
+}
+&ninja check-clang 
+if($lastexitcode -ne 0){
+ exit 1
+}
 
 Set-Location ..
 
@@ -102,9 +117,30 @@ if(!(Test-Path build)){
 }
 $env:CC="..\build_stage0\bin\clang-cl"
 $env:CXX="..\build_stage0\bin\clang-cl"
-&cmake "..\..\$SourcesDir" -GNinja -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON || exit /b
-&ninja all || exit /b
-&ninja check || exit /b
-&ninja check-clang || exit /b
-&ninja package ||exit /b
+&cmake "..\..\$SourcesDir" -GNinja -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
+if($lastexitcode -ne 0){
+ exit 1
+}
+&ninja all 
+if($lastexitcode -ne 0){
+ exit 1
+}
+&ninja check 
+if($lastexitcode -ne 0){
+ exit 1
+}
+&ninja check-clang 
+if($lastexitcode -ne 0){
+ exit 1
+}
+Write-Output "ClangBuilderBootstrap build success !"
+if($Install){
+&ninja package 
+if($lastexitcode -ne 0){
+Write-Output "Make installation package failed "
+}else{
+Write-Output "Make installation package success "
+}
+}
+
 Set-Location ..

@@ -81,32 +81,32 @@
                   HorizontalAlignment="Left" Name="IsClangBootstrap"/>
         <CheckBox Margin="135,175,0,0"
                   FontSize="15px"
-                  Content="Create Install Package"
+                  IsChecked="False"
+                  Content="Released Revision [like LLVM 3.8 rc2]"
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Left" Name="IsBuildReleasedRevision"/>
+        <CheckBox Margin="135,210,0,0"
+                  FontSize="15px"
+                  Content="Make installation package"
                   VerticalAlignment="Top"
                   HorizontalAlignment="Left" Name="IsCreateInstallPackage"/>
-        <CheckBox Margin="135,210,0,0"
+        <CheckBox Margin="135,240,0,0"
                   FontSize="15px"
                   Content="Use Clean Environment"
                   VerticalAlignment="Top"
                   HorizontalAlignment="Left" Name="IsCleanEnvironment"/>
-        <CheckBox Margin="135,240,0,0"
+        <CheckBox Margin="135,270,0,0"
                   FontSize="15px"
                   IsChecked="True"
                   Content="Use Static Runtime Library /MT(d)"
                   VerticalAlignment="Top"
                   HorizontalAlignment="Left" Name="IsEnabledStaticRuntime"/>
-        <CheckBox Margin="135,270,0,0"
+        <CheckBox Margin="135,300,0,0"
                   FontSize="15px"
                   IsChecked="False"
                   Content="Use NMake Makefiles"
                   VerticalAlignment="Top"
                   HorizontalAlignment="Left" Name="IsUseNMakeBuilder"/>
-        <CheckBox Margin="135,300,0,0"
-                  FontSize="15px"
-                  IsChecked="False"
-                  Content="Build Released Revision"
-                  VerticalAlignment="Top"
-                  HorizontalAlignment="Left" Name="IsBuildReleasedRevision"/>
         <CheckBox Margin="135,330,0,0"
                   FontSize="15px"
                   IsChecked="False"
@@ -114,8 +114,8 @@
                   VerticalAlignment="Top"
                   HorizontalAlignment="Left" Name="IsBuidLLDB"/>
         <Button Content="Startup Env " Click="OnStartupEnvironment" HorizontalAlignment="Left"
-                Margin="135,360,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
+                Margin="135,350,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
         <Button Content="Building now !" Click="OnBuildingNow" HorizontalAlignment="Left"
-                Margin="325,360,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
+                Margin="325,350,0,0" VerticalAlignment="Center" FontSize="15px"  Width="170"/>
     </Grid>
 </controls:MetroWindow>

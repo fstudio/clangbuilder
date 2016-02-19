@@ -174,7 +174,8 @@ if(!(Test-Path "$SelfFolder\GNUWin\bin\grep.exe")){
 
 if(!(Test-Path "$SelfFolder\Ninja\ninja.exe")){
     Write-Output "Download Ninja-build utility now"
-    Start-BitsTransfer -Source $NinjaURL -Destination "$SelfFolder\Ninja.zip" -Description "Downloading Ninja-build"
+    #Start-BitsTransfer -Source $NinjaURL -Destination "$SelfFolder\Ninja.zip" -Description "Downloading Ninja-build"
+     Invoke-WebRequest $NinjaURL -OutFile "$SelfFolder/Ninja.zip"
     if(Test-Path "$SelfFolder\Ninja.zip"){
         Unblock-File -Path "$SelfFolder\Ninja.zip"
         Expand-ZipPackage -ZipSource "$SelfFolder\Ninja.zip" -Destination "$SelfFolder\Ninja"
@@ -224,6 +225,7 @@ if(!(Test-Path "$SelfFolder\Ninja")){
 
 
 Remove-Item -Recurse -Force "$SelfFolder\*.bak"
+Remove-Item -Recurse -Force "$SelfFolder\*.zip"
 
 ##Write Lock File
 ConvertTo-Json $PackageMap |Out-File -Force -FilePath "$SelfFolder\Package.lock.json"

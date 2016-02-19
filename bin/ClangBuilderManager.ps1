@@ -34,7 +34,7 @@ if($PSVersionTable.PSVersion.Major -lt 3)
 }
 
 $Host.UI.RawUI.WindowTitle="Clangbuilder PowerShell Utility"
-Write-Output "Clang Auto Builder [PowerShell] Utility tools"
+Write-Output "ClangBuilder Utility tools [MSBuild Channel]"
 Write-Output "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
 
 $SelfFolder=$PSScriptRoot;
@@ -76,6 +76,7 @@ if($LLDB){
 
 if($Released){
     $SourcesDir="release"
+    Write-Output "Build last released revision"
     if($LLDB){
         Invoke-Expression -Command "$SelfFolder/RestoreClangReleased.ps1 -LLDB"
     }else{
@@ -83,6 +84,7 @@ if($Released){
     }
 }else{
     $SourcesDir="mainline"
+    Write-Output "Build trunk branch"
     if($LLDB){
         Invoke-Expression -Command "$SelfFolder/RestoreClangMainline.ps1 -LLDB"
     }else{

@@ -361,7 +361,7 @@ start:
 
     if ((optchar = (int)*place++) == (int)':' ||
         (optchar == (int)'-' && *place != '\0') ||
-        (oli = wcschr(options, optchar)) == NULL) {
+        (oli = wcschr(options, (wchar_t)optchar)) == NULL) {
         /*
         * If the user specified "-" and  '-' isn't listed in
         * options, return -1 (non-option) as per POSIX.

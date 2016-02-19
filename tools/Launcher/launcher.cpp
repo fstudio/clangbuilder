@@ -199,14 +199,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UNREFERENCED_PARAMETER(nCmdShow);
   const wchar_t *vs = L"120";
   const wchar_t *target = L"x64";
-  const wchar_t *configuration = L"Release";
+  const wchar_t *flavor = L"Release";
   bool createInstallPkg = false;
   bool clearEnv = false;
   bool useNmake = false;
-  bool useReleased = false;
+  bool buildReleasedRevision = false;
   bool useStaticCRT = false;
   bool buildLLDB = false;
-  bool IsBuilder = false;
   int channel = kUseMSBuild;
   int Argc = 0;
   auto Argv_ = CommandLineToArgvW(GetCommandLineW(), &Argc);
@@ -218,11 +217,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       {L"vs", required_argument, NULL, 'V'},
       {L"arch", required_argument, NULL, 'A'},
       {L"flavor", required_argument, NULL, 'F'},
-      {L"bootstarp", no_argument, NULL, 'B'},
+      {L"bootstrap", no_argument, NULL, 'B'},
       {L"env", no_argument, NULL, 'E'},
       {L"install", no_argument, NULL, 'I'},
       {L"clear", no_argument, NULL, 'C'},
-      {L"release", no_argument, NULL, 'R'},
+      {L"released", no_argument, NULL, 'R'},
       {L"static", no_argument, NULL, 'S'},
       {L"lldb", no_argument, NULL, 'L'},
       {L"nmake", no_argument, NULL, 'N'},
@@ -240,7 +239,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       target = optarg;
       break;
     case 'F':
-      configuration = optarg;
+      flavor = optarg;
       break;
     case 'B':
       channel = kNinjaBootstrap;
@@ -254,8 +253,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     case 'C':
       clearEnv = true;
       break;
-    case 'R':
-      useReleased = true;
+	case 'R':
+      buildReleasedRevision = true;
       break;
     case 'S':
       useStaticCRT = true;
@@ -277,13 +276,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   WCHAR szBuffer[UNC_MAX_PATH] = {0};
   StringCbPrintfW(szBuffer, UNC_MAX_PATH, L" -VisualStudio %s -Arch %s", vs,
                   target);
-  if (IsBuilder) {
+  if (channel!=kOpenEnvironment) {
     StringCbCatW(szBuffer, UNC_MAX_PATH, L" -Flavor ");
-    StringCbCatW(szBuffer, UNC_MAX_PATH, configuration);
+    StringCbCatW(szBuffer, UNC_MAX_PATH, flavor);
     if (createInstallPkg) {
       StringCbCatW(szBuffer, UNC_MAX_PATH, L" -Install");
     }
-    if (useReleased) {
+    if (buildReleasedRevision) {
       StringCbCatW(szBuffer, UNC_MAX_PATH, L" -Released");
     }
     if (useStaticCRT) {
