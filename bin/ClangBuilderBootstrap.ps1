@@ -30,7 +30,7 @@ if($PSVersionTable.PSVersion.Major -lt 3)
     Exit
 }
 
-$Host.UI.RawUI.WindowTitle="Clangbuilder PowerShell Utility"
+$Host.UI.RawUI.WindowTitle="Clangbuilder [Bootstrap Channel]"
 Write-Output "ClangBuilder Utility tools [Bootstrap Channel]"
 Write-Output "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
 
@@ -119,6 +119,7 @@ Set-Location $ClangbuilderWorkdir
 if(!(Test-Path build)){
     mkdir build
 }
+Write-Output "Use clang-cl bootstrap llvm now: "
 Set-Location build
 $env:CC="..\build_stage0\bin\clang-cl"
 $env:CXX="..\build_stage0\bin\clang-cl"
