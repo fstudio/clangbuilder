@@ -105,11 +105,13 @@ if($lastexitcode -ne 0){
 
 &ninja check 
 if($lastexitcode -ne 0){
-    exit 1
+    #exit 1
+    Write-Output "Ninja check failed !"
 }
 &ninja check-clang 
 if($lastexitcode -ne 0){
-    exit 1
+    #exit 1
+    Write-Output "Ninja check-clang failed !"
 }
 
 Set-Location $ClangbuilderWorkdir
@@ -130,11 +132,11 @@ if($lastexitcode -ne 0){
 }
 &ninja check 
 if($lastexitcode -ne 0){
-    exit 1
+    #exit 1
 }
 &ninja check-clang 
 if($lastexitcode -ne 0){
-    exit 1
+    #exit 1
 }
 Write-Output "ClangBuilderBootstrap build success !"
 
