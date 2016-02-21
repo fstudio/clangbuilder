@@ -11,6 +11,7 @@ packages/Subversion/
 packages/Ninja/
 packages/PackagesCache.index
 tools/Restore/
+tools/msvc
 *.pdb
 *.exe
 *.obj
