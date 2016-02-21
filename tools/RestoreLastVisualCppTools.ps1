@@ -27,7 +27,7 @@ Function Test-ExecuteFile
         [String]$ExeName
     )
     $myErr=@()
-     Get-command -commandType Application $ExeName -ErrorAction SilentlyContinue -ErrorVariable +myErr
+     Get-command -CommandType Application $ExeName -ErrorAction SilentlyContinue -ErrorVariable +myErr
      if($myErr.count -eq 0)
      {
          return $True
@@ -46,6 +46,7 @@ if(!(Test-Path $VisualCppToolsInstallDir)){
 Set-Location $VisualCppToolsInstallDir
 
 if(!(Test-Path $VisualCppToolsRevDir)){
+    Write-Output "NuGet Install VisualCppTools ......"
     &nuget install VisualCppTools -source $NuGetAddSource -Prerelease
 }
 

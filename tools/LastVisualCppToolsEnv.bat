@@ -1,5 +1,5 @@
 @echo off
-
+REM cannot use this batch file !
 set curDir=%~dp0
 
 @call :GetWindowsSdkDir
