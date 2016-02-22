@@ -4,26 +4,25 @@
 #  Date:2016.01.02
 #  Author:Force <forcemz@outlook.com>
 ##############################################################################>
-$SelfFolder=$PSScriptRoot;
-$ClangBuilderRoot=Split-Path -Parent $SelfFolder
+$ClangBuilderRoot=Split-Path -Parent $PSScriptRoot
 $NugetURL="https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
 
 Push-Location $PWD
-Set-Location $SelfFolder
+Set-Location $PSScriptRoot
 
-if(!(Test-Path "$SelfFolder\Nuget\Nuget.exe")){
-    Write-Output "Download Nuget now ....."
-    Invoke-WebRequest $NugetURL -OutFile "$SelfFolder\Nuget\Nuget.exe"
+if(!(Test-Path "$PSScriptRoot\NuGet\Nuget.exe")){
+    Write-Output "Download NuGet now ....."
+    Invoke-WebRequest $NugetURL -OutFile "$PSScriptRoot\NuGet\nuget.exe"
 }
 
-&cmd /c "$SelfFolder\ClangbuilderUITask.bat"
-$ClangbuilderUIRelease="$SelfFolder\ClangbuilderUI\ClangbuilderUI\bin\Release"
-if(!(Test-Path "$SelfFolder\Restore"))
+&cmd /c "$PSScriptRoot\ClangbuilderUITask.bat"
+$ClangbuilderUIRelease="$PSScriptRoot\ClangbuilderUI\ClangbuilderUI\bin\Release"
+if(!(Test-Path "$PSScriptRoot\Restore"))
 {
-    mkdir -Force "$SelfFolder\Restore"
+    mkdir -Force "$PSScriptRoot\Restore"
 }
-Copy-Item -Path "$ClangbuilderUIRelease\*" -Destination "$SelfFolder\Restore" -Exclude *.vshost.*,*.pdb  -Force -Recurse
-&cmd /c "$SelfFolder\CleanTask.bat"
+Copy-Item -Path "$ClangbuilderUIRelease\*" -Destination "$PSScriptRoot\Restore" -Exclude *.vshost.*,*.pdb  -Force -Recurse
+&cmd /c "$PSScriptRoot\CleanTask.bat"
 
 $Arch="32BIT"
 
@@ -32,15 +31,15 @@ if([System.Environment]::Is64BitOperatingSystem -eq $True)
     $Arch="64BIT"
 }
 
-if(Test-Path "$SelfFolder\Restore\ClangbuilderUI.exe"){
+if(Test-Path "$PSScriptRoot\Restore\ClangbuilderUI.exe"){
     if(!(Test-Path "$ClangBuilderRoot\ClangbuilderUI.lnk")){
         $cswshell=New-Object -ComObject WScript.Shell
         $clangbuilderlnk=$cswshell.CreateShortcut("$ClangBuilderRoot\ClangbuilderUI.lnk")
-        $clangbuilderlnk.TargetPath="$SelfFolder\Restore\ClangbuilderUI.exe"
+        $clangbuilderlnk.TargetPath="$PSScriptRoot\Restore\ClangbuilderUI.exe"
         $clangbuilderlnk.Description="Start ClangbuilderUI"
         $clangbuilderlnk.WindowStyle=1
         $clangbuilderlnk.WorkingDirectory="$ClangBuilderRoot\bin"
-        $clangbuilderlnk.IconLocation="$SelfFolder\Restore\ClangbuilderUI.exe,0"
+        $clangbuilderlnk.IconLocation="$PSScriptRoot\Restore\ClangbuilderUI.exe,0"
         $clangbuilderlnk.Save()
     }else{
         Write-Output "ClangbuilderUI.lnk already exists"
@@ -52,8 +51,8 @@ if(Test-Path "$SelfFolder\Restore\ClangbuilderUI.exe"){
 
 
 
-&cmd /c "$SelfFolder\LauncherTask.bat" $Arch
-Copy-Item -Path "$SelfFolder\Launcher\Launcher.exe"  -Destination "$SelfFolder\Restore"   -Force -Recurse
-&cmd /c "$SelfFolder\Launcher\cleanBuild.bat"
+&cmd /c "$PSScriptRoot\LauncherTask.bat" $Arch
+Copy-Item -Path "$PSScriptRoot\Launcher\Launcher.exe"  -Destination "$PSScriptRoot\Restore"   -Force -Recurse
+&cmd /c "$PSScriptRoot\Launcher\cleanBuild.bat"
 
 Pop-Location

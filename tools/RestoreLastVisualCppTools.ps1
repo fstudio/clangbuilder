@@ -18,6 +18,14 @@ $NugetToolsDir="$PSScriptRoot\Nuget"
 $VisualCppToolsPreRevision="14.0.23811"
 $VisualCppToolsNameRevision="VisualCppTools.${VisualCppToolsPreRevision}-Pre"
 $VisualCppToolsRevDir="$VisualCppToolsInstallDir\$VisualCppToolsNameRevision"
+$NuGetURL="https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
+
+Function Get-NuGetFile{
+    if(!(Test-Path "$PSScriptRoot\NuGet\nuget.exe")){
+        Write-Output "Download NuGet now ....."
+        Invoke-WebRequest $NuGetURL -OutFile "$PSScriptRoot\NuGet\nuget.exe"
+    }
+}
 
 Function Test-ExecuteFile
 {
