@@ -7,13 +7,11 @@
 param(
     [Switch]$LLDB
 )
+. "$PSScriptRoot/RepositoryCheckout.ps1"
 
-$SelfFolder=$PSScriptRoot;
-. "$SelfFolder/RepositoryCheckout.ps1"
-
-$ClangbuilderRoot=Split-Path -Parent $SelfFolder
-$BuildFolder="$ClangbuilderRoot/out"
-$MainlineFolder="$BuildFolder/mainline"
+$ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
+$BuildFolder="$ClangbuilderRoot\out"
+$MainlineFolder="$BuildFolder\mainline"
 Write-Output "Mainline Source Folder: $MainlineFolder"
 $LLVMRepositoriesRoot="http://llvm.org/svn/llvm-project"
 
