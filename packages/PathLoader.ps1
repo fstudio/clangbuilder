@@ -4,13 +4,12 @@
 #  Date:2016.01.02
 #  Author:Force <forcemz@outlook.com>
 ##############################################################################>
-$SelfFolder=$PSScriptRoot;
-$CMakePath="$SelfFolder\CMake\bin"
-$SubversionPath="$SelfFolder\Subversion\bin"
-$OfficaPythonPath="$SelfFolder\Python"
-$GNUWinPath="$SelfFolder\GNUWin\bin"
-$NSISPath="$SelfFolder\NSIS\bin"
-$NinjaPath="$SelfFolder\Ninja"
+$CMakePath="$PSScriptRoot\CMake\bin"
+$SubversionPath="$PSScriptRoot\Subversion\bin"
+$OfficaPythonPath="$PSScriptRoot\Python"
+$GNUWinPath="$PSScriptRoot\GNUWin\bin"
+$NSISPath="$PSScriptRoot\NSIS\bin"
+$NinjaPath="$PSScriptRoot\Ninja"
 
 Function Test-AddPath{
     param(

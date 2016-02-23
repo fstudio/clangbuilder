@@ -11,7 +11,5 @@ IF($PSVersionTable.PSVersion.Major -lt 3)
     return
 }
 
-$SelfFolder=$PSScriptRoot;
-
-Invoke-Expression "$SelfFolder\Update.ps1"
-Invoke-Expression "$SelfFolder\Install.ps1 -Reset"
+Invoke-Expression "$PSScriptRoot\Update.ps1"
+Invoke-Expression "$PSScriptRoot\Install.ps1 -Reset"

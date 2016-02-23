@@ -5,9 +5,8 @@
 #  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 Set-StrictMode -Version latest
-$SelfFolder=$PSScriptRoot;
 Push-Location $PWD
-Set-Location $SelfFolder
+Set-Location $PSScriptRoot
 
 Function Expand-ZipPackage
 {
@@ -57,40 +56,40 @@ $PackageMap["Ninja"]="1.6.0"
 $PackageLockJson=$null
 #$PackageLockJsonNew=ConvertTo-Json $PackageMap|ConvertFrom-Json
 
-if(Test-Path "$SelfFolder/Package.lock.json"){
-    $PackageLockJson=Get-Content -TotalCount -1 -Path "$SelfFolder/Package.lock.json" |ConvertFrom-Json
+if(Test-Path "$PSScriptRoot/Package.lock.json"){
+    $PackageLockJson=Get-Content -TotalCount -1 -Path "$PSScriptRoot/Package.lock.json" |ConvertFrom-Json
 }
 
 if($PackageLockJson -ne $null){
-    if($PackageLockJson.CMake -ne $PackageMap["CMake"] -and (Test-Path "$SelfFolder\CMake") ){
-        Rename-Item "$SelfFolder\CMake" "$SelfFolder\CMake.bak"
+    if($PackageLockJson.CMake -ne $PackageMap["CMake"] -and (Test-Path "$PSScriptRoot\CMake") ){
+        Rename-Item "$PSScriptRoot\CMake" "$PSScriptRoot\CMake.bak"
     }
-    if($PackageLockJson.Subversion -ne $PackageMap["Subversion"] -and (Test-Path "$SelfFolder\Subversion")){
-        Rename-Item "$SelfFolder\Subversion" "$SelfFolder\Subversion.bak"
+    if($PackageLockJson.Subversion -ne $PackageMap["Subversion"] -and (Test-Path "$PSScriptRoot\Subversion")){
+        Rename-Item "$PSScriptRoot\Subversion" "$PSScriptRoot\Subversion.bak"
     }
-    if($PackageLockJson.Python -ne $PackageMap["Python"] -and (Test-Path "$SelfFolder\Python")){
-        Rename-Item "$SelfFolder\Python" "$SelfFolder\Python.bak"
+    if($PackageLockJson.Python -ne $PackageMap["Python"] -and (Test-Path "$PSScriptRoot\Python")){
+        Rename-Item "$PSScriptRoot\Python" "$PSScriptRoot\Python.bak"
     }
-    if($PackageLockJson.NSIS -ne $PackageMap["NSIS"] -and (Test-Path "$SelfFolder\NSIS")){
-        Rename-Item "$SelfFolder\NSIS" "$SelfFolder\NSIS.bak"
+    if($PackageLockJson.NSIS -ne $PackageMap["NSIS"] -and (Test-Path "$PSScriptRoot\NSIS")){
+        Rename-Item "$PSScriptRoot\NSIS" "$PSScriptRoot\NSIS.bak"
     }
-    if($PackageLockJson.GNUWin -ne $PackageMap["GNUWin"] -and (Test-Path "$SelfFolder\GNUWin")){
-        Rename-Item "$SelfFolder\GNUWin" "$SelfFolder\GNUWin.bak"
+    if($PackageLockJson.GNUWin -ne $PackageMap["GNUWin"] -and (Test-Path "$PSScriptRoot\GNUWin")){
+        Rename-Item "$PSScriptRoot\GNUWin" "$PSScriptRoot\GNUWin.bak"
     }
-    if($PackageLockJson.Ninja -ne $PackageMap["Ninja"] -and (Test-Path "$SelfFolder\Ninja")){
-        Rename-Item "$SelfFolder\Ninja" "$SelfFolder\Ninja.bak"
+    if($PackageLockJson.Ninja -ne $PackageMap["Ninja"] -and (Test-Path "$PSScriptRoot\Ninja")){
+        Rename-Item "$PSScriptRoot\Ninja" "$PSScriptRoot\Ninja.bak"
     }
 }
 
-if(!(Test-Path "$SelfFolder/cmake/bin/cmake.exe")){
+if(!(Test-Path "$PSScriptRoot/cmake/bin/cmake.exe")){
     Write-Output "Download CMake and Unzip CMake"
     ###Restore CMake
-    Start-BitsTransfer -Source $CMakeURL -Destination "$SelfFolder\CMake.zip" -Description "Downloading CMake"
-    if(Test-Path "$SelfFolder\CMake.zip"){
-        Unblock-File -Path "$SelfFolder\CMake.zip"
-        Expand-ZipPackage -ZipSource "$SelfFolder\CMake.zip" -Destination "$SelfFolder"
+    Start-BitsTransfer -Source $CMakeURL -Destination "$PSScriptRoot\CMake.zip" -Description "Downloading CMake"
+    if(Test-Path "$PSScriptRoot\CMake.zip"){
+        Unblock-File -Path "$PSScriptRoot\CMake.zip"
+        Expand-ZipPackage -ZipSource "$PSScriptRoot\CMake.zip" -Destination "$PSScriptRoot"
         Rename-Item $CMakeSub "cmake"
-        Remove-Item -Force -Recurse "$SelfFolder\CMake.zip"
+        Remove-Item -Force -Recurse "$PSScriptRoot\CMake.zip"
     }else{
         Write-Error "Download CMake failure !"
     }
@@ -98,17 +97,17 @@ if(!(Test-Path "$SelfFolder/cmake/bin/cmake.exe")){
     Write-Output "CMake has been installed"
 }
 
-if(!(Test-Path "$SelfFolder/Python/python.exe")){
+if(!(Test-Path "$PSScriptRoot/Python/python.exe")){
     #Restore Python
     Write-Output "Download Python27 and Install Python, Not Require Administrator."
-    Start-BitsTransfer -Source $PythonURL -Destination "$SelfFolder\Python.msi" -Description "Downloading Python"
-    if(Test-Path "$SelfFolder\Python.msi"){
-        Unblock-File -Path "$SelfFolder\Python.msi"
-        Start-Process -FilePath msiexec -ArgumentList "/a `"$SelfFolder\Python.msi`" /qn TARGETDIR=`"$SelfFolder\Python`"" -NoNewWindow -Wait
+    Start-BitsTransfer -Source $PythonURL -Destination "$PSScriptRoot\Python.msi" -Description "Downloading Python"
+    if(Test-Path "$PSScriptRoot\Python.msi"){
+        Unblock-File -Path "$PSScriptRoot\Python.msi"
+        Start-Process -FilePath msiexec -ArgumentList "/a `"$PSScriptRoot\Python.msi`" /qn TARGETDIR=`"$PSScriptRoot\Python`"" -NoNewWindow -Wait
         if($lastexitcode -eq 0)
         {
-            Remove-Item -Force -Recurse "$SelfFolder\Python.msi"
-            Remove-Item -Force -Recurse "$SelfFolder\Python\Python.msi"
+            Remove-Item -Force -Recurse "$PSScriptRoot\Python.msi"
+            Remove-Item -Force -Recurse "$PSScriptRoot\Python\Python.msi"
         }else{
             Write-Error "Unpack Python.msi failure !"
         }
@@ -120,19 +119,19 @@ if(!(Test-Path "$SelfFolder/Python/python.exe")){
 }
 
 
-if(!(Test-Path "$SelfFolder/Subversion/bin/svn.exe")){
+if(!(Test-Path "$PSScriptRoot/Subversion/bin/svn.exe")){
     #Restore Subversion
     Write-Output "Download Subversion"
-    Start-BitsTransfer -Source $SubversionURL -Destination "$SelfFolder\Subversion.msi" -Description "Downloading Subversion"
-    if(Test-Path "$SelfFolder\Subversion.msi"){
-        Unblock-File -Path "$SelfFolder\Subversion.msi"
-        Start-Process -FilePath msiexec -ArgumentList "/a `"$SelfFolder\Subversion.msi`" /qn TARGETDIR=`"$SelfFolder\Subversion`"" -NoNewWindow -Wait
+    Start-BitsTransfer -Source $SubversionURL -Destination "$PSScriptRoot\Subversion.msi" -Description "Downloading Subversion"
+    if(Test-Path "$PSScriptRoot\Subversion.msi"){
+        Unblock-File -Path "$PSScriptRoot\Subversion.msi"
+        Start-Process -FilePath msiexec -ArgumentList "/a `"$PSScriptRoot\Subversion.msi`" /qn TARGETDIR=`"$PSScriptRoot\Subversion`"" -NoNewWindow -Wait
         if($lastexitcode -eq 0)
         {
-            Remove-Item -Force -Recurse "$SelfFolder\Subversion.msi"
-            Move-Item -Force "$SelfFolder\Subversion\Program Files\TortoiseSVN\*" "$SelfFolder\Subversion"
-            Remove-Item -Force -Recurse "$SelfFolder\Subversion\Program Files"
-            Remove-Item -Force -Recurse "$SelfFolder\Subversion\Subversion.msi"
+            Remove-Item -Force -Recurse "$PSScriptRoot\Subversion.msi"
+            Move-Item -Force "$PSScriptRoot\Subversion\Program Files\TortoiseSVN\*" "$PSScriptRoot\Subversion"
+            Remove-Item -Force -Recurse "$PSScriptRoot\Subversion\Program Files"
+            Remove-Item -Force -Recurse "$PSScriptRoot\Subversion\Subversion.msi"
         }else{
             Write-Error "Unpack Subversion.msi failure !"
         }
@@ -143,13 +142,13 @@ if(!(Test-Path "$SelfFolder/Subversion/bin/svn.exe")){
     Write-Output "Subversion has been installed"
 }
 
-if(!(Test-Path "$SelfFolder/nsis/NSIS.exe")){
+if(!(Test-Path "$PSScriptRoot/nsis/NSIS.exe")){
     #Restore NSIS
     Write-Output "Download NSIS and Unzip NSIS"
-    Start-BitsTransfer -Source $NSISURL -Destination "$SelfFolder\NSIS.zip" -Description "Downloading NSIS"
-    if(Test-Path "$SelfFolder\NSIS.zip"){
-        Unblock-File -Path "$SelfFolder\NSIS.zip"
-        Expand-ZipPackage -ZipSource "$SelfFolder\NSIS.zip" -Destination "$SelfFolder"
+    Start-BitsTransfer -Source $NSISURL -Destination "$PSScriptRoot\NSIS.zip" -Description "Downloading NSIS"
+    if(Test-Path "$PSScriptRoot\NSIS.zip"){
+        Unblock-File -Path "$PSScriptRoot\NSIS.zip"
+        Expand-ZipPackage -ZipSource "$PSScriptRoot\NSIS.zip" -Destination "$PSScriptRoot"
         Rename-Item $NSISSub "nsis"
     }else{
         Write-Error "Download NSIS failure !"
@@ -158,13 +157,13 @@ if(!(Test-Path "$SelfFolder/nsis/NSIS.exe")){
     Write-Output "NSIS has been installed"
 }
 
-if(!(Test-Path "$SelfFolder\GNUWin\bin\grep.exe")){
+if(!(Test-Path "$PSScriptRoot\GNUWin\bin\grep.exe")){
     #Restore GNUWin
     Write-Output "Download GNUWin tools and Unzip it."
-    Start-BitsTransfer -Source $GnuWinURL -Destination "$SelfFolder\GNUWin.zip" -Description "Downloading GNUWin"
-    if(Test-Path "$SelfFolder\GNUWin.zip"){
-        Unblock-File -Path "$SelfFolder\GNUWin.zip"
-        Expand-ZipPackage -ZipSource "$SelfFolder\GNUWin.zip" -Destination "$SelfFolder\GNUWin"
+    Start-BitsTransfer -Source $GnuWinURL -Destination "$PSScriptRoot\GNUWin.zip" -Description "Downloading GNUWin"
+    if(Test-Path "$PSScriptRoot\GNUWin.zip"){
+        Unblock-File -Path "$PSScriptRoot\GNUWin.zip"
+        Expand-ZipPackage -ZipSource "$PSScriptRoot\GNUWin.zip" -Destination "$PSScriptRoot\GNUWin"
     }else{
         Write-Error "Download GNUWin tools failure !"
     }
@@ -172,13 +171,13 @@ if(!(Test-Path "$SelfFolder\GNUWin\bin\grep.exe")){
     Write-Output  "GNUWin has been installed"
 }
 
-if(!(Test-Path "$SelfFolder\Ninja\ninja.exe")){
+if(!(Test-Path "$PSScriptRoot\Ninja\ninja.exe")){
     Write-Output "Download Ninja-build utility now"
-    #Start-BitsTransfer -Source $NinjaURL -Destination "$SelfFolder\Ninja.zip" -Description "Downloading Ninja-build"
-     Invoke-WebRequest $NinjaURL -OutFile "$SelfFolder/Ninja.zip"
-    if(Test-Path "$SelfFolder\Ninja.zip"){
-        Unblock-File -Path "$SelfFolder\Ninja.zip"
-        Expand-ZipPackage -ZipSource "$SelfFolder\Ninja.zip" -Destination "$SelfFolder\Ninja"
+    #Start-BitsTransfer -Source $NinjaURL -Destination "$PSScriptRoot\Ninja.zip" -Description "Downloading Ninja-build"
+     Invoke-WebRequest $NinjaURL -OutFile "$PSScriptRoot/Ninja.zip"
+    if(Test-Path "$PSScriptRoot\Ninja.zip"){
+        Unblock-File -Path "$PSScriptRoot\Ninja.zip"
+        Expand-ZipPackage -ZipSource "$PSScriptRoot\Ninja.zip" -Destination "$PSScriptRoot\Ninja"
     }else{
         Write-Error "Download Ninja tools failure !"
     }
@@ -187,48 +186,48 @@ if(!(Test-Path "$SelfFolder\Ninja\ninja.exe")){
 }
 
 ##Check Package
-if(!(Test-Path "$SelfFolder\CMake")){
-    if(Test-Path "$SelfFolder\CMake.bak"){
-        Rename-Item "$SelfFolder\CMake.bak" "$SelfFolder\CMake"
+if(!(Test-Path "$PSScriptRoot\CMake")){
+    if(Test-Path "$PSScriptRoot\CMake.bak"){
+        Rename-Item "$PSScriptRoot\CMake.bak" "$PSScriptRoot\CMake"
     }
 }
 
-if(!(Test-Path "$SelfFolder\Python")){
-    if(Test-Path "$SelfFolder\Python.bak"){
-        Rename-Item "$SelfFolder\Python.bak" "$SelfFolder\Python"
+if(!(Test-Path "$PSScriptRoot\Python")){
+    if(Test-Path "$PSScriptRoot\Python.bak"){
+        Rename-Item "$PSScriptRoot\Python.bak" "$PSScriptRoot\Python"
     }
 }
 
-if(!(Test-Path "$SelfFolder\Subversion")){
-    if(Test-Path "$SelfFolder\Subversion.bak"){
-        Rename-Item "$SelfFolder\Subversion.bak" "$SelfFolder\Subversion"
+if(!(Test-Path "$PSScriptRoot\Subversion")){
+    if(Test-Path "$PSScriptRoot\Subversion.bak"){
+        Rename-Item "$PSScriptRoot\Subversion.bak" "$PSScriptRoot\Subversion"
     }
 }
 
-if(!(Test-Path "$SelfFolder\NSIS")){
-    if(Test-Path "$SelfFolder\NSIS.bak"){
-        Rename-Item "$SelfFolder\NSIS.bak" "$SelfFolder\NSIS"
+if(!(Test-Path "$PSScriptRoot\NSIS")){
+    if(Test-Path "$PSScriptRoot\NSIS.bak"){
+        Rename-Item "$PSScriptRoot\NSIS.bak" "$PSScriptRoot\NSIS"
     }
 }
 
-if(!(Test-Path "$SelfFolder\GNUWin")){
-    if(Test-Path "$SelfFolder\GNUWin.bak"){
-        Rename-Item "$SelfFolder\GNUWin.bak" "$SelfFolder\GNUWin"
+if(!(Test-Path "$PSScriptRoot\GNUWin")){
+    if(Test-Path "$PSScriptRoot\GNUWin.bak"){
+        Rename-Item "$PSScriptRoot\GNUWin.bak" "$PSScriptRoot\GNUWin"
     }
 }
 
-if(!(Test-Path "$SelfFolder\Ninja")){
-    if(Test-Path "$SelfFolder\Ninja.bak"){
-        Rename-Item "$SelfFolder\Ninja.bak" "$SelfFolder\Ninja"
+if(!(Test-Path "$PSScriptRoot\Ninja")){
+    if(Test-Path "$PSScriptRoot\Ninja.bak"){
+        Rename-Item "$PSScriptRoot\Ninja.bak" "$PSScriptRoot\Ninja"
     }
 }
 
 
-Remove-Item -Recurse -Force "$SelfFolder\*.bak"
-Remove-Item -Recurse -Force "$SelfFolder\*.zip"
+Remove-Item -Recurse -Force "$PSScriptRoot\*.bak"
+Remove-Item -Recurse -Force "$PSScriptRoot\*.zip"
 
 ##Write Lock File
-ConvertTo-Json $PackageMap |Out-File -Force -FilePath "$SelfFolder\Package.lock.json"
+ConvertTo-Json $PackageMap |Out-File -Force -FilePath "$PSScriptRoot\Package.lock.json"
 
 Pop-Location
 Write-Output "Your can Load PathLoader to Setting Your Clangbuilder Environment"

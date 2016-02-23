@@ -37,9 +37,8 @@ $Host.UI.RawUI.WindowTitle="Clangbuilder PowerShell Utility"
 Write-Output "ClangBuilder Utility tools [MSBuild Channel]"
 Write-Output "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
 
-$SelfFolder=$PSScriptRoot;
-$ClangbuilderRoot=Split-Path -Parent $SelfFolder
-. "$SelfFolder/ClangBuilderUtility.ps1"
+$ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
+. "$PSScriptRoot/ClangBuilderUtility.ps1"
 
 $VSTools="12"
 if($VisualStudio -eq "110"){
@@ -60,16 +59,16 @@ if($Clear){
     Reset-Environment
 }
 
-Invoke-Expression -Command "$SelfFolder/Model/VisualStudioSub$VisualStudio.ps1 $Arch"
+Invoke-Expression -Command "$PSScriptRoot/Model/VisualStudioSub$VisualStudio.ps1 $Arch"
 
 if($MSYS2){
-    Invoke-Expression -Command "$SelfFolder/DiscoverToolChain.ps1 -MSYS2"
+    Invoke-Expression -Command "$PSScriptRoot/DiscoverToolChain.ps1 -MSYS2"
 }else{
-    Invoke-Expression -Command "$SelfFolder/DiscoverToolChain.ps1"
+    Invoke-Expression -Command "$PSScriptRoot/DiscoverToolChain.ps1"
 }
 
 if($LLDB){
-    if(!(Test-Path "$SelfFolder/Required/Python/python.exe")){
+    if(!(Test-Path "$PSScriptRoot/Required/Python/python.exe")){
         $LLDB=$False
     }
 }
@@ -78,17 +77,17 @@ if($Released){
     $SourcesDir="release"
     Write-Output "Build last released revision"
     if($LLDB){
-        Invoke-Expression -Command "$SelfFolder/RestoreClangReleased.ps1 -LLDB"
+        Invoke-Expression -Command "$PSScriptRoot/RestoreClangReleased.ps1 -LLDB"
     }else{
-        Invoke-Expression -Command "$SelfFolder/RestoreClangReleased.ps1"
+        Invoke-Expression -Command "$PSScriptRoot/RestoreClangReleased.ps1"
     }
 }else{
     $SourcesDir="mainline"
     Write-Output "Build trunk branch"
     if($LLDB){
-        Invoke-Expression -Command "$SelfFolder/RestoreClangMainline.ps1 -LLDB"
+        Invoke-Expression -Command "$PSScriptRoot/RestoreClangMainline.ps1 -LLDB"
     }else{
-        Invoke-Expression -Command "$SelfFolder/RestoreClangMainline.ps1"
+        Invoke-Expression -Command "$PSScriptRoot/RestoreClangMainline.ps1"
     }
 }
 

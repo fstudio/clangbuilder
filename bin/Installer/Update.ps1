@@ -47,8 +47,7 @@ Function Get-GithubUpdatePackage
     Remove-Item -Force -Recurse "${env:TEMP}\ClangbuilderTEMP"
 }
 
-$SelfFolder=$PSScriptRoot;
-$SelfParent=Split-Path -Parent $SelfFolder
+$SelfParent=Split-Path -Parent $PSScriptRoot
 $ClangbuilderRoot=Split-Path -Parent $SelfParent
 Set-StrictMode -Version latest
 Import-Module -Name BitsTransfer

@@ -5,10 +5,7 @@
 #  Author:Force <forcemz@outlook.com>    
 ##############################################################################>
 
-
-
-$InvokerDir=$PSScriptRoot;
-. "$InvokerDir/VisualStudioShared.ps1"
+. "$PSScriptRoot/VisualStudioShared.ps1"
 
 $VSInstallRoot=Get-RegistryValue2 -Path 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' -Key '14.0'
 

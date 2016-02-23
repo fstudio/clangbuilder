@@ -34,9 +34,8 @@ $Host.UI.RawUI.WindowTitle="Clangbuilder [Bootstrap Channel]"
 Write-Output "ClangBuilder Utility tools [Bootstrap Channel]"
 Write-Output "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
 
-$SelfFolder=$PSScriptRoot;
-$ClangbuilderRoot=Split-Path -Parent $SelfFolder
-. "$SelfFolder\ClangBuilderUtility.ps1"
+$ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
+. "$PSScriptRoot\ClangBuilderUtility.ps1"
 
 $VSTools="12"
 if($VisualStudio -eq "110"){
@@ -59,17 +58,17 @@ if($Clear){
 
 $ClangbuilderWorkdir="$ClangbuilderRoot\out\workdir"
 
-Invoke-Expression -Command "$SelfFolder\Model\VisualStudioSub$VisualStudio.ps1 $Arch"
-Invoke-Expression -Command "$SelfFolder\DiscoverToolChain.ps1"
+Invoke-Expression -Command "$PSScriptRoot\Model\VisualStudioSub$VisualStudio.ps1 $Arch"
+Invoke-Expression -Command "$PSScriptRoot\DiscoverToolChain.ps1"
 
 if($Released){
     $SourcesDir="release"
     Write-Output "Build last released revision"
-    Invoke-Expression -Command "$SelfFolder\RestoreClangReleased.ps1"
+    Invoke-Expression -Command "$PSScriptRoot\RestoreClangReleased.ps1"
 }else{
     $SourcesDir="mainline"
     Write-Output "Build trunk branch"
-    Invoke-Expression -Command "$SelfFolder\RestoreClangMainline.ps1"
+    Invoke-Expression -Command "$PSScriptRoot\RestoreClangMainline.ps1"
 }
 
 if(!(Test-Path $ClangbuilderWorkdir)){

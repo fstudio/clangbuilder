@@ -19,8 +19,7 @@ IF( $null -eq $env:VS140COMNTOOLS  -or (Test-Path $env:VS140COMNTOOLS) -eq $fals
     exit
 }
 
-$InvokerDir=$PSScriptRoot;
-. "$InvokerDir/VisualStudioShared.ps1"
+. "$PSScriptRoot/VisualStudioShared.ps1"
 
 
 $RegRouter="HKLM:\SOFTWARE\Microsoft"

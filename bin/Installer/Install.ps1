@@ -14,8 +14,7 @@ IF($PSVersionTable.PSVersion.Major -lt 3)
     return
 }
 
-$SelfFolder=$PSScriptRoot;
-$SelfParent=Split-Path -Parent $SelfFolder
+$SelfParent=Split-Path -Parent $PSScriptRoot
 $ClangbuilderRoot=Split-Path -Parent $SelfParent
 
 

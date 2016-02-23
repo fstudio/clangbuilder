@@ -21,8 +21,7 @@ IF($Arch -eq "ARM64"){
     Exit
 }
 
-$InvokerDir=$PSScriptRoot;
-. "$InvokerDir/VisualStudioShared.ps1"
+. "$PSScriptRoot/VisualStudioShared.ps1"
 
 $RegRouter="HKLM:\SOFTWARE\Microsoft"
 #vcpackages

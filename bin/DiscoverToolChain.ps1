@@ -7,8 +7,8 @@
 param(
     [Switch]$MSYS2
 )
-$SelfFolder=$PSScriptRoot;
-$ClangbuilderRoot=Split-Path -Parent $SelfFolder
+
+$ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
 $PackagesPath="$ClangbuilderRoot/packages"
 
 if($MSYS2){

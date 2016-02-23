@@ -8,9 +8,8 @@ param(
     [Switch]$LLDB
 )
 
-$SelfFolder=$PSScriptRoot;
-. "$SelfFolder\RepositoryCheckout.ps1"
-$ClangbuilderRoot=Split-Path -Parent $SelfFolder
+. "$PSScriptRoot\RepositoryCheckout.ps1"
+$ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
 $BuildFolder="$ClangbuilderRoot\out"
 $ReleaseRevFolder="$BuildFolder\release"
 Write-Output "Release Folder: $ReleaseRevFolder"
