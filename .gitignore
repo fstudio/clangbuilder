@@ -9,6 +9,7 @@ packages/nsis/
 packages/Python/
 packages/Subversion/
 packages/Ninja/
+packages/7zip/
 packages/PackagesCache.index
 tools/Restore/
 tools/msvc

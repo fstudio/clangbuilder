@@ -22,6 +22,32 @@ Function Expand-ZipPackage
     [System.IO.Compression.ZipFile]::ExtractToDirectory($ZipSource, $Destination)
 }
 
+Function Expand-MsiPackage{
+    param(
+        [Parameter(Position=0,Mandatory=$True,HelpMessage="MSI install package")]
+        [ValidateNotNullorEmpty()]
+        [String]$MsiPackage,
+        [Parameter(Position=1,Mandatory=$True,HelpMessage="Output Directory")]
+        [ValidateNotNullorEmpty()]
+        [String]$Destination
+    )
+    if(Test-Path $MsiPackage){
+        $retValue=99
+        $process=Start-Process -FilePath "msiexec" -ArgumentList "/a `"$MsiPackage`" /qn TARGETDIR=`"$Destination`""  -PassThru -WorkingDirectory "$PSScriptRoot"
+        Wait-Process -InputObject $process
+        $retValue=$process.ExitCode
+        if($retValue -eq 0){
+            Write-Host "Expand $MsiPackage success !"
+            return $TRUE
+        }
+        Write-Error "Invoke msiexec expend package: $MsiPackage failed !"
+    }else{
+        Write-Error "Cannot found MSI Package: $MsiPackage"
+    }
+    return $FALSE
+}
+
+
 Import-Module -Name BitsTransfer
 $IsWindows64=[System.Environment]::Is64BitOperatingSystem
 
@@ -103,8 +129,8 @@ if(!(Test-Path "$PSScriptRoot/Python/python.exe")){
     Start-BitsTransfer -Source $PythonURL -Destination "$PSScriptRoot\Python.msi" -Description "Downloading Python"
     if(Test-Path "$PSScriptRoot\Python.msi"){
         Unblock-File -Path "$PSScriptRoot\Python.msi"
-        Start-Process -FilePath msiexec -ArgumentList "/a `"$PSScriptRoot\Python.msi`" /qn TARGETDIR=`"$PSScriptRoot\Python`"" -NoNewWindow -Wait
-        if($lastexitcode -eq 0)
+        $pyresult=Expand-MsiPackage -MsiPackage "$PSScriptRoot\Python.msi" -Destination "$PSScriptRoot\Python"
+        if($pyresult)
         {
             Remove-Item -Force -Recurse "$PSScriptRoot\Python.msi"
             Remove-Item -Force -Recurse "$PSScriptRoot\Python\Python.msi"
@@ -125,8 +151,9 @@ if(!(Test-Path "$PSScriptRoot/Subversion/bin/svn.exe")){
     Start-BitsTransfer -Source $SubversionURL -Destination "$PSScriptRoot\Subversion.msi" -Description "Downloading Subversion"
     if(Test-Path "$PSScriptRoot\Subversion.msi"){
         Unblock-File -Path "$PSScriptRoot\Subversion.msi"
-        Start-Process -FilePath msiexec -ArgumentList "/a `"$PSScriptRoot\Subversion.msi`" /qn TARGETDIR=`"$PSScriptRoot\Subversion`"" -NoNewWindow -Wait
-        if($lastexitcode -eq 0)
+        #Start-Process -FilePath msiexec -ArgumentList "/a `"$PSScriptRoot\Subversion.msi`" /qn TARGETDIR=`"$PSScriptRoot\Subversion`"" -NoNewWindow -Wait
+        $svnResult=Expand-MsiPackage -MsiPackage "$PSScriptRoot\Subversion.msi" -Destination "$PSScriptRoot\Subversion"
+        if($svnResult)
         {
             Remove-Item -Force -Recurse "$PSScriptRoot\Subversion.msi"
             Move-Item -Force "$PSScriptRoot\Subversion\Program Files\TortoiseSVN\*" "$PSScriptRoot\Subversion"
