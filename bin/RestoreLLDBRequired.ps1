@@ -76,5 +76,11 @@ if(!(Test-Path "$RequiredFolder\Python27")){
 
 $env:PATH=$env:PATH+";"+"$RequiredFolder"
 
+# $SelfParent=Split-Path -Parent $PSScriptRoot
 
+# if(!(Test-Path "$SelfParent\packages\7zip\7z.exe")){
+#     ."$SelfParent\packages\Restore7zip.ps1"
+# }
+
+# $env:PATH=$env:PATH+";"+"$SelfParent\packages\7zip"
 
