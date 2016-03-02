@@ -38,7 +38,7 @@ Set-ExecutionPolicy RemoteSigned
 PowerShell, Enter:    
 ```powershell
 &{$wc=New-Object System.Net.WebClient;$wc.Proxy=[System.Net.WebRequest]::DefaultWebProxy;$wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;Invoke-Expression ($wc.DownloadString('https://raw.githubusercontent.com/fstudio/clangbuilder/master/bin/Installer/WebInstall.ps1'))}
-```   
+```
 
 Or:  
 
@@ -57,7 +57,7 @@ Build Clang,Base Visual Studio
 
 Or Your can use Mingw-w64,your can cross compile LLVM on Linux ,Mingw-w64 Support it.
 
-The Other,Your can use cmake to create MinGW Makefile,or NMake Makefile ,run it ,The C and C++ Compiler is Mingw-w64 tools ( i686-w64-mingw32-gcc ,x86_64-w64-mingw32-xxx)
+The Other,Your can use cmake to create MinGW Makefile,or NMake Makefile ,run it ,The C and C++ Compiler is Mingw-w64 tools ( i686-w64-mingw32-gcc ,x86_64-w64-mingw32-g++)
 
 
 ##Automated build
@@ -83,3 +83,4 @@ Launcher
 ##Other
 
 Copyright © 2016 ForceStudio. All Rights Reserved.
+
