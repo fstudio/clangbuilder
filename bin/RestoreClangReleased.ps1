@@ -14,7 +14,7 @@ $BuildFolder="$ClangbuilderRoot\out"
 $ReleaseRevFolder="$BuildFolder\release"
 Write-Output "Release Folder: $ReleaseRevFolder"
 $LLVMRepositoriesRoot="http://llvm.org/svn/llvm-project"
-$ReleaseRevision="RELEASE_380/rc3"
+$ReleaseRevision="RELEASE_380/final"
 $LLVMUrlParent=$LLVMRepositoriesRoot+"/llvm/tags/"+$ReleaseRevision
 $Revision=380
 $RequireRemove=$FALSE
