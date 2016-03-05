@@ -18,12 +18,14 @@ Function Restore-Repository{
     Push-Location $PWD
     IF((Test-Path "$Folder") -and (Test-Path "$Folder/.svn")){
         Set-Location "$Folder"
+        Write-Host "Update $Folder"
         &svn cleanup .
         &svn up .
     }ELSE{
         IF((Test-Path "$Folder")){
             Remove-Item -Force -Recurse "$Folder"
         }
+        Write-Host "Checkout $Folder"
         &svn co $URL "$Folder"
     }
     Pop-Location
