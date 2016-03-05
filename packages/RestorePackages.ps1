@@ -71,7 +71,7 @@ $NinjaURL="https://github.com/ninja-build/ninja/releases/download/v1.6.0/ninja-w
 
 
 $PackageMap=@{}
-$PackageMap["CMake"]="3.4.2"
+$PackageMap["CMake"]="3.4.3"
 $PackageMap["Subversion"]="1.9.3"
 $PackageMap["Python"]="2.7.11"
 $PackageMap["NSIS"]="3.0b3"
