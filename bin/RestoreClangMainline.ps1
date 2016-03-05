@@ -12,7 +12,10 @@ param(
 $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
 $BuildFolder="$ClangbuilderRoot\out"
 $MainlineFolder="$BuildFolder\mainline"
-Write-Output "Mainline Source Folder: $MainlineFolder"
+if($LLDB){
+    Write-Host "Include build lldb"
+}
+Write-Host "Mainline Source Folder: $MainlineFolder"
 $LLVMRepositoriesRoot="http://llvm.org/svn/llvm-project"
 
 IF(!(Test-Path $BuildFolder)){

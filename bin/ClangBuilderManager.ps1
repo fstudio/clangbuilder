@@ -166,13 +166,13 @@ Function Start-MSbuildAddLLDB{
         Exit 
     }
     if($Arch -eq "x64"){
-        &cmake "..\$SourcesDir" -G "Visual Studio $VSTools Win64" -DPYTHON_HOME=$PythonHome  -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
+        &cmake "..\$SourcesDir" -G "Visual Studio $VSTools Win64" -DPYTHON_HOME=$PythonHome -DLLDB_RELOCATABLE_PYTHON=1  -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
         if(Test-Path "LLVM.sln"){
             #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=x64 /t:ALL_BUILD
             &cmake --build . --config "$Flavor"
         }
     }elseif($Arch -eq "x86"){
-        &cmake "..\$SourcesDir" -G "Visual Studio $VSTools" -DPYTHON_HOME=$PythonHome -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
+        &cmake "..\$SourcesDir" -G "Visual Studio $VSTools" -DPYTHON_HOME=$PythonHome -DLLDB_RELOCATABLE_PYTHON=1 -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
         if(Test-Path "LLVM.sln"){
             #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=win32 /t:ALL_BUILD
             &cmake --build . --config "$Flavor"
@@ -182,12 +182,18 @@ Function Start-MSbuildAddLLDB{
     }
 }
 
-
-if($NMake){
-    Start-NMakeBuilder
+if($LLDB){
+    Write-Host "Start build llvm,include lldb"
+    Start-MSbuildAddLLDB
 }else{
-    Start-MSBuild
+    if($NMake){
+        Start-NMakeBuilder
+    }else{
+        Start-MSBuild
+    }
 }
+
+
 
 
 if($lastexitcode -eq 0 -and $Install){
