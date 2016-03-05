@@ -51,7 +51,7 @@ Function Expand-MsiPackage{
 Import-Module -Name BitsTransfer
 $IsWindows64=[System.Environment]::Is64BitOperatingSystem
 
-$CMakeURL="https://cmake.org/files/v3.4/cmake-3.4.2-win32-x86.zip"
+$CMakeURL="https://cmake.org/files/v3.4/cmake-3.4.3-win32-x86.zip"
 $CMakeSub="cmake-3.4.2-win32-x86"
 
 if($IsWindows64){

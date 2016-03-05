@@ -82,7 +82,7 @@
         <CheckBox Margin="135,175,0,0"
                   FontSize="15px"
                   IsChecked="False"
-                  Content="Released Revision [like LLVM 3.8 rc2]"
+                  Content="Released Revision [like LLVM 3.8 final]"
                   VerticalAlignment="Top"
                   HorizontalAlignment="Left" Name="IsBuildReleasedRevision"/>
         <CheckBox Margin="135,210,0,0"
