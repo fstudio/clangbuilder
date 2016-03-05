@@ -68,9 +68,7 @@ if($MSYS2){
 }
 
 if($LLDB){
-    if(!(Test-Path "$PSScriptRoot/Required/Python/python.exe")){
-        $LLDB=$False
-    }
+    Invoke-Expression -Command "$PSScriptRoot/RestoreLLDBRequired.ps1 -Arch $Arch"
 }
 
 if($Released){
@@ -145,6 +143,42 @@ Function Start-MSBuild{
             #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=win32 /t:ALL_BUILD
             &cmake --build . --config "$Flavor"
         }
+    }
+}
+
+Function Get-PythonInstall{
+    $IsWin64=[System.Environment]::Is64BitOperatingSystem
+    if($IsWin64 -and ($Arch -eq "x86"){
+        $PythonRegKey="HKCU:\SOFTWARE\Python\PythonCore\3.5-32\InstallPath"    
+    }else{
+        $PythonRegKey="HKCU:\SOFTWARE\Python\PythonCore\3.5\InstallPath"
+    }
+    if(Test-Path $PythonRegKey){
+        return (Get-ItemProperty $PythonRegKey).'(default)'
+    }
+    return $null
+}
+
+Function Start-MSbuildAddLLDB{
+    $PythonHome=Get-PythonInstall
+    if($null -eq $PythonHome){
+        Write-Error "Cannot found Python install !"
+        Exit 
+    }
+    if($Arch -eq "x64"){
+        &cmake "..\$SourcesDir" -G "Visual Studio $VSTools Win64" -DPYTHON_HOME=$PythonHome  -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
+        if(Test-Path "LLVM.sln"){
+            #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=x64 /t:ALL_BUILD
+            &cmake --build . --config "$Flavor"
+        }
+    }else if($Arch -eq "x86"){
+        &cmake "..\$SourcesDir" -G "Visual Studio $VSTools" -DPYTHON_HOME=$PythonHome -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
+        if(Test-Path "LLVM.sln"){
+            #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=win32 /t:ALL_BUILD
+            &cmake --build . --config "$Flavor"
+        }
+    }else{
+        Write-Error "Build lldb current not support $Arch"
     }
 }
 
