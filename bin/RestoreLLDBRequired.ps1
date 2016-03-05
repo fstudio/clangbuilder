@@ -88,14 +88,14 @@ if(Test-Path "$RequiredFolder\swigwin\swig.exe"){
 
 $IsWin64=[System.Environment]::Is64BitOperatingSystem
 $PythonRegKey="HKCU:\SOFTWARE\Python\PythonCore\3.5\InstallPath"
-if($IsWin64 -and ($Arch -eq "x86"){
+if($IsWin64 -and ($Arch -eq "x86")){
     $PythonRegKey="HKCU:\SOFTWARE\Python\PythonCore\3.5-32\InstallPath"    
 }
 
-if(!(Test-Path $PythonRegKey){
+if(!(Test-Path $PythonRegKey)){
     if($Arch -eq "x64"){
         Start-InstallPython -URL $PythonUrl64 -TargetDir "Python64"
-    }else if($Arch -eq "x86"){
+    }elseif($Arch -eq "x86"){
         Start-InstallPython -URL $PythonUrl32 -TargetDir "Python32"
     }else{
         exit
