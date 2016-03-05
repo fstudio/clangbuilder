@@ -110,7 +110,7 @@
         <CheckBox Margin="135,330,0,0"
                   FontSize="15px"
                   IsChecked="False"
-                  Content="Make LLDB (Not implemented)"
+                  Content="Make LLDB (Require Visual Studio 2015 or Later)"
                   VerticalAlignment="Top"
                   HorizontalAlignment="Left" Name="IsBuidLLDB"/>
         <Button Content="Startup Env " Click="OnStartupEnvironment" HorizontalAlignment="Left"

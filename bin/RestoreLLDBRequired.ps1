@@ -5,9 +5,9 @@
 #  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 Import-Module -Name BitsTransfer
-
+# See http://lldb.llvm.org/build.html#BuildingLldbOnWindows
 # PowerShell 5.0 :Expand-Archive
-Function Expend-ZipPackage
+Function Expand-ZipPackage
 {
     param(
         [Parameter(Position=0,Mandatory=$True,HelpMessage="Unzip sources")]
@@ -22,23 +22,6 @@ Function Expend-ZipPackage
     [System.IO.Compression.ZipFile]::ExtractToDirectory($Source, $Folder)
 }
 
-Function Restore-Python{
-    param(
-        [Parameter(Position=0,Mandatory=$True,HelpMessage="Enter URL")]
-        [ValidateNotNullorEmpty()]
-        [String]$URL,
-        [String]$Folder="$PSScriptRoot\Required"
-    )
-    Start-BitsTransfer -Source $URL -Destination "python27.zip" -Description "Downloading Python 27 sources"
-    if(Test-Path "python27.zip"){
-        Unblock-File -Path "python27.zip"
-        Expend-ZipPackage -Source "python27.zip" -Folder $Folder
-        Rename-Item "$PSScriptRoot\Required\python27-master" "$PSScriptRoot\Required\Python27"
-        Remove-Item -Force "python27.zip"
-    }else{
-        Write-Error "Download Python 27 sources failure !"
-    }
-}
 
 Function Restore-Swigwin{
     param(
@@ -50,7 +33,7 @@ Function Restore-Swigwin{
     Start-BitsTransfer -Source $URL -Destination "swigwin.zip" -Description "Downloading swigwin"
     if(Test-Path "swigwin.zip"){
         Unblock-File -Path "swigwin.zip"
-        Expend-ZipPackage -Source "swigwin.zip" -Folder $Folder
+        Expand-ZipPackage -Source "swigwin.zip" -Folder $Folder
         Rename-Item "$PSScriptRoot\Required\swigwin-3.0.8" "$PSScriptRoot\Required\swigwin"
         Remove-Item -Force "swigwin.zip"
     }else{
@@ -61,7 +44,8 @@ Function Restore-Swigwin{
 
 $RequiredFolder="$PSScriptRoot\Required"
 $SwigwinUrl="http://sourceforge.net/projects/swig/files/swigwin/swigwin-3.0.8/swigwin-3.0.8.zip"
-$PythonUrl="https://github.com/fstudio/python27/archive/master.zip"
+$PythonUrl64="https://www.python.org/ftp/python/3.5.1/python-3.5.1-amd64.exe"
+$PTVSUrl="https://ptvs.blob.core.windows.net/download/PTVS%20Dev%202016-03-03%20VS%202015.msi"
 
 Push-Location $PWD
 Set-Location $RequiredFolder
@@ -70,17 +54,5 @@ if(!(Test-Path "$RequiredFolder\swigwin\swig.exe")){
     Restore-Swigwin -URL $SwigwinUrl 
 }
 
-if(!(Test-Path "$RequiredFolder\Python27")){
-    Restore-Python -URL $PythonUrl
-}
 
-$env:PATH=$env:PATH+";"+"$RequiredFolder"
-
-# $SelfParent=Split-Path -Parent $PSScriptRoot
-
-# if(!(Test-Path "$SelfParent\packages\7zip\7z.exe")){
-#     ."$SelfParent\packages\Restore7zip.ps1"
-# }
-
-# $env:PATH=$env:PATH+";"+"$SelfParent\packages\7zip"
 
