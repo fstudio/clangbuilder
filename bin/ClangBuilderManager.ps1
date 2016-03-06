@@ -34,7 +34,7 @@ if($PSVersionTable.PSVersion.Major -lt 3)
 }
 
 $Host.UI.RawUI.WindowTitle="Clangbuilder PowerShell Utility"
-Write-Output "ClangBuilder Utility tools [MSBuild Channel]"
+Write-Output "ClangBuilder Utility tools [Normal Channel]"
 Write-Output "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
 
 $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
@@ -166,16 +166,16 @@ Function Start-MSbuildAddLLDB{
         Exit 
     }
     if($Arch -eq "x64"){
-        &cmake "..\$SourcesDir" -G "Visual Studio $VSTools Win64" -DPYTHON_HOME="$PythonHome" -DLLDB_RELOCATABLE_PYTHON=1  -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
+        &cmake "..\$SourcesDir" -GNinja -DPYTHON_HOME="$PythonHome" -DLLDB_RELOCATABLE_PYTHON=1  -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
         #-DLLDB_TEST_COMPILER="$PWD\bin\$Flavor\clang.exe"
-        if(Test-Path "LLVM.sln"){
+        if(Test-Path "build.ninja"){
             #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=x64 /t:ALL_BUILD
             &cmake --build . --config "$Flavor"
         }
     }elseif($Arch -eq "x86"){
-        &cmake "..\$SourcesDir" -G "Visual Studio $VSTools" -DPYTHON_HOME="$PythonHome" -DLLDB_RELOCATABLE_PYTHON=1 -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
+        &cmake "..\$SourcesDir" -GNinja -DPYTHON_HOME="$PythonHome" -DLLDB_RELOCATABLE_PYTHON=1 -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
         #-DLLDB_TEST_COMPILER="$PWD\bin\$Flavor\clang.exe"
-        if(Test-Path "LLVM.sln"){
+        if(Test-Path "build.ninja"){
             #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=win32 /t:ALL_BUILD
             &cmake --build . --config "$Flavor"
         }
