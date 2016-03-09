@@ -3,7 +3,7 @@ ClangbuilderUI.lnk
 bin/Required/
 packages/*.zip
 packages/Package.lock.json
-packages/cmake/
+packages/CMake/
 packages/GNUWin/
 packages/nsis/
 packages/Python/

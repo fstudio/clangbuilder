@@ -51,8 +51,8 @@ Function Expand-MsiPackage{
 Import-Module -Name BitsTransfer
 $IsWindows64=[System.Environment]::Is64BitOperatingSystem
 
-$CMakeURL="https://cmake.org/files/v3.4/cmake-3.4.3-win32-x86.zip"
-$CMakeSub="cmake-3.4.3-win32-x86"
+$CMakeURL="https://cmake.org/files/v3.5/cmake-3.5.0-win32-x86.zip"
+$CMakeSub="cmake-3.5.0-win32-x86"
 
 if($IsWindows64){
     $PythonURL="https://www.python.org/ftp/python/2.7.11/python-2.7.11.amd64.msi"
@@ -71,7 +71,7 @@ $NinjaURL="https://github.com/ninja-build/ninja/releases/download/v1.6.0/ninja-w
 
 
 $PackageMap=@{}
-$PackageMap["CMake"]="3.4.3"
+$PackageMap["CMake"]="3.5.0"
 $PackageMap["Subversion"]="1.9.3"
 $PackageMap["Python"]="2.7.11"
 $PackageMap["NSIS"]="3.0b3"
@@ -114,7 +114,7 @@ if(!(Test-Path "$PSScriptRoot/cmake/bin/cmake.exe")){
     if(Test-Path "$PSScriptRoot\CMake.zip"){
         Unblock-File -Path "$PSScriptRoot\CMake.zip"
         Expand-ZipPackage -ZipSource "$PSScriptRoot\CMake.zip" -Destination "$PSScriptRoot"
-        Rename-Item $CMakeSub "cmake"
+        Rename-Item $CMakeSub "CMake"
         Remove-Item -Force -Recurse "$PSScriptRoot\CMake.zip"
     }else{
         Write-Error "Download CMake failure !"
