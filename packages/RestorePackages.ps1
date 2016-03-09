@@ -176,7 +176,7 @@ if(!(Test-Path "$PSScriptRoot/nsis/NSIS.exe")){
     if(Test-Path "$PSScriptRoot\NSIS.zip"){
         Unblock-File -Path "$PSScriptRoot\NSIS.zip"
         Expand-ZipPackage -ZipSource "$PSScriptRoot\NSIS.zip" -Destination "$PSScriptRoot"
-        Rename-Item $NSISSub "nsis"
+        Rename-Item $NSISSub "NSIS"
     }else{
         Write-Error "Download NSIS failure !"
     }

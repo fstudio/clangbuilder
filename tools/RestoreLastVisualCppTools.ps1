@@ -10,13 +10,13 @@
 # nuget install VisualCppTools -source http://vcppdogfooding.azurewebsites.net/nuget/ -Prerelease
 
 Push-Location $PWD
-
-$NuGetUserConfig="$env:AppData\NuGet\NuGet.config"
+#XML sources: http://vcppdogfooding.azurewebsites.net/nuget/Packages
+#$NuGetUserConfig="$env:AppData\NuGet\NuGet.config"
 $NuGetAddSource="http://vcppdogfooding.azurewebsites.net/nuget/"
 $VisualCppToolsInstallDir="$PSScriptRoot\msvc"
 $NugetToolsDir="$PSScriptRoot\Nuget"
-$VisualCppToolsPreRevision="14.0.23811"
-$VisualCppToolsNameRevision="VisualCppTools.${VisualCppToolsPreRevision}-Pre"
+$VisualCppToolsPreRevision="14.0.23824-Pre"
+$VisualCppToolsNameRevision="VisualCppTools.${VisualCppToolsPreRevision}"
 $VisualCppToolsRevDir="$VisualCppToolsInstallDir\$VisualCppToolsNameRevision"
 $NuGetURL="https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
 
@@ -55,7 +55,7 @@ Set-Location $VisualCppToolsInstallDir
 
 if(!(Test-Path $VisualCppToolsRevDir)){
     Write-Output "NuGet Install VisualCppTools ......"
-    &nuget install VisualCppTools -source $NuGetAddSource -Prerelease
+    &nuget install VisualCppTools -Source $NuGetAddSource -Version $VisualCppToolsPreRevision -Prerelease
 }
 
 Pop-Location 
