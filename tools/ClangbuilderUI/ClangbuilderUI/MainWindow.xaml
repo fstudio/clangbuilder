@@ -76,7 +76,7 @@
         <CheckBox Margin="135,145,0,0"
                   FontSize="15px"
                   IsChecked="False"
-                  Content="Clang Bootstrap [Visual Studio 2015 not support]"
+                  Content="Clang Bootstrap"
                   VerticalAlignment="Top"
                   HorizontalAlignment="Left" Name="IsClangBootstrap"/>
         <CheckBox Margin="135,175,0,0"

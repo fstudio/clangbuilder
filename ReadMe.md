@@ -79,10 +79,8 @@ Launcher
 ## Suggest
 1. Best Platform is Windows 10 x64   
 2. -Clear flag will reset current process Environment PATH value, Resolve conflict environment variables    
-3. Clang bootstrap only support Visual Studio 2013 , Because clang-cl current <2016.03> cannot support Visual Studio 2015 STL, 
-Visual Studio 2015 support C++11,but clang-cl not allow !!!!.   
-4. Build LLDB require Visual Studio 2015, When you not install Python 3.x ,Clangbuilder will download python.exe after inform you install.   
-5. Build LLDB, not test on Windows x86, maybe cannot find PYTHONHOME.
+3. Build LLDB require Visual Studio 2015, When you not install Python 3.x ,Clangbuilder will download python.exe after inform you install.   
+4. Build LLDB, not test on Windows x86, maybe cannot find PYTHONHOME.
 
 
 

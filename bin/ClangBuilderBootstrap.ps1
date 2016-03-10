@@ -5,7 +5,7 @@
 #  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 param (
-    [ValidateSet("x86", "x64")]
+    [ValidateSet("x86", "x64", "ARM", "ARM64")]
     [String]$Arch="x64",
 
     [ValidateSet("Release", "Debug", "MinSizeRel", "RelWithDebug")]
@@ -38,18 +38,36 @@ $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
 . "$PSScriptRoot\ClangBuilderUtility.ps1"
 
 $VSTools="12"
+$MSVCFull="1800"
 if($VisualStudio -eq "110"){
     $VSTools="11"
+	$MSVCFull="1700"
 }elseif($VisualStudio -eq "120"){
     $VSTools="12"
+    $MSVCFull="1800"
 }elseif($VisualStudio -eq "140"){
     $VSTools="14"
+    $MSVCFull="1900"
 }elseif($VisualStudio -eq "141"){
     $VSTools="14"
+    $MSVCFull="1900"
 }elseif($VisualStudio -eq "150"){
     $VSTools="15"
+    $MSVCFull="2000"
 }ELSE{
     Write-Error "Unknown VisualStudio Version: $VisualStudio"
+}
+
+$ArchFlags="-m32"
+if($Arch -eq "x64"){
+    $ArchFlags="-m64"
+}elseif($Arch -eq "x86"){
+    $ArchFlags="-m32"
+}elseif($Arch -eq "ARM"){
+    #$ArchFlags="--target=arm-v7a-pc-win32"
+    #FIXME
+}else if($Arch -eq "ARM64"){
+    #FIXME
 }
 
 if($Clear){
@@ -111,6 +129,10 @@ Write-Output "Use clang-cl bootstrap llvm now: "
 Set-Location build
 $env:CC="..\build_stage0\bin\clang-cl"
 $env:CXX="..\build_stage0\bin\clang-cl"
+$env:cflags="-fmsc-version=$MSVCFull $ArchFlags $env:cflags"
+$env:cxxflags="-fmsc-version=$MSVCFull $ArchFlags $env:cxxflags"
+
+# -fmsc-version=1900
 &cmake "..\..\$SourcesDir" -GNinja -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
 if($lastexitcode -ne 0){
     exit 1

@@ -225,7 +225,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       break;
     }
   }
-  if (vs == nullptr || target == nullptr || flavor == nullptr) {
+  if (vs == nullptr) {
     Usage();
     return 0;
   }
