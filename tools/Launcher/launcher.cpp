@@ -85,7 +85,7 @@ void Usage() {
 
 enum ClangBuilderChannel : int {
   kOpenEnvironment = 0, ///
-  kUseMSBuild = 1,
+  kBaseBuilder = 1,
   kNinjaBootstrap
 };
 
@@ -100,7 +100,7 @@ int LauncherStartup(const wchar_t *args, int channel) {
   case kOpenEnvironment:
     psfile += L"\\bin\\ClangBuilderEnvironment.ps1";
     break;
-  case kUseMSBuild:
+  case kBaseBuilder:
     psfile += L"\\bin\\ClangBuilderManager.ps1";
     break;
   case kNinjaBootstrap:
@@ -158,7 +158,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   bool buildReleasedRevision = false;
   bool useStaticCRT = false;
   bool buildLLDB = false;
-  int channel = kUseMSBuild;
+  int channel = kBaseBuilder;
   int Argc = 0;
   auto Argv_ = CommandLineToArgvW(GetCommandLineW(), &Argc);
   wchar_t *const *Argv = Argv_;
@@ -244,10 +244,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     if (useStaticCRT) {
       StringCbCatW(szBuffer, UNC_MAX_PATH, L" -Static");
     }
-    if (useNmake && channel == kUseMSBuild) {
+    if (useNmake && channel == kBaseBuilder) {
       StringCbCatW(szBuffer, UNC_MAX_PATH, L" -NMake");
     }
-    if (buildLLDB && channel == kUseMSBuild) {
+    if (buildLLDB && channel == kBaseBuilder) {
       StringCbCatW(szBuffer, UNC_MAX_PATH, L" -LLDB");
     }
   }
