@@ -1,18 +1,16 @@
 /////
-#include <Windows.h>
-#include <stdio.h>
-#include <string>
+#include "Precompiled.h"
+#include "GetOptInc.h"
+#include "resource.h"
 #include <Shellapi.h>
-#include <commctrl.h>
-#include <tchar.h>
-#include <strsafe.h>
-#include <wchar.h>
-#include <processthreadsapi.h>
 #include <Shlobj.h>
 #include <Shlwapi.h>
-#include <sstream>
-#include "resource.h"
-#include "GetOptInc.h"
+#include <commctrl.h>
+#if defined(_WIN32_WINNT_WIN8) && defined(_WIN32_WINNT) &&                     \
+    _WIN32_WINNT >= _WIN32_WINNT_WIN8
+#include <Processthreadsapi.h>
+#endif
+#include <strsafe.h>
 
 #ifndef ASSERT
 #ifdef _DEBUG
@@ -35,19 +33,9 @@
 
 int OutErrorMessage(const wchar_t *errorMsg, const wchar_t *errorTitle);
 
-int cmdUnknownArgument(const wchar_t *args, void *data) {
-  int nButtonPressed = 0;
-  TaskDialog(NULL, GetModuleHandle(nullptr), L"Clangbuilder vNext Launcher",
-             L"cmd Unknown Options: ", args, TDCBF_OK_BUTTON, TD_ERROR_ICON,
-             &nButtonPressed);
-  auto p = static_cast<bool *>(data);
-  *p = true;
-  return 1;
-}
-
 void PrintVersion() {
   int nButtonPressed = 0;
-  TaskDialog(NULL, GetModuleHandle(nullptr), L"Clangbuilder  Launcher",
+  TaskDialog(NULL, GetModuleHandle(nullptr), L"Clangbuilder launcher",
              L"Version Info: ", LAUNCHER_APP_VERSION, TDCBF_OK_BUTTON,
              TD_INFORMATION_ICON, &nButtonPressed);
 }
@@ -72,36 +60,6 @@ HRESULT CALLBACK TaskDialogCallbackProc(__in HWND hwnd, __in UINT msg,
   return S_OK;
 }
 
-LRESULT WINAPI AboutMessageShow(__in HWND hwndParent, __in HINSTANCE hInstance,
-                                __out_opt int *pnButton,
-                                __out_opt int *pnRadioButton) {
-  TASKDIALOGCONFIG tdConfig;
-  // BOOL bElevated = FALSE;
-  memset(&tdConfig, 0, sizeof(tdConfig));
-  tdConfig.cbSize = sizeof(tdConfig);
-  tdConfig.hwndParent = hwndParent;
-  tdConfig.hInstance = hInstance;
-  tdConfig.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION | TDF_EXPAND_FOOTER_AREA |
-                     TDF_POSITION_RELATIVE_TO_WINDOW | TDF_SIZE_TO_CONTENT |
-                     TDF_ENABLE_HYPERLINKS;
-  tdConfig.nDefaultRadioButton = *pnRadioButton;
-  tdConfig.pszWindowTitle = L"Clangbuilder Launcher";
-  tdConfig.pszMainInstruction = _T("Clangbuilder Launcher Info");
-  tdConfig.hMainIcon = static_cast<HICON>(
-      LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDI_ICON_LAUNCHER)));
-  tdConfig.dwFlags |= TDF_USE_HICON_MAIN;
-  tdConfig.pszContent = L"Launcher Normal";
-  tdConfig.cxWidth = 270;
-  tdConfig.pszExpandedInformation =
-      _T("For more information about this tool, ")
-      _T("Visit: <a href=\"http://forcemz.net/\">Force.Charlie</a>");
-  tdConfig.pszCollapsedControlText = _T("More information");
-  tdConfig.pszExpandedControlText = _T("Less information");
-  tdConfig.pfCallback = TaskDialogCallbackProc;
-  HRESULT hr = TaskDialogIndirect(&tdConfig, pnButton, pnRadioButton, NULL);
-  return hr;
-}
-
 const wchar_t usageInfo[] =
     L"OVERVIEW: Clangbuilder launcher utility\n"
     L"\nOPTIONS:\n"
@@ -122,10 +80,7 @@ const wchar_t usageInfo[] =
     L"  -H\t[--help] Print Help Message";
 
 void Usage() {
-  MessageBoxW(nullptr, usageInfo, L"Clangbuilder Launcher Help", MB_OK);
-  int nButton = 0;
-  int nRadioButton = 0;
-  AboutMessageShow(nullptr, GetModuleHandle(nullptr), &nButton, &nRadioButton);
+  MessageBoxW(nullptr, usageInfo, L"Clangbuilder launcher Usage", MB_OK);
 }
 
 enum ClangBuilderChannel : int {
@@ -151,16 +106,13 @@ int LauncherStartup(const wchar_t *args, int channel) {
   case kNinjaBootstrap:
     psfile += L"\\bin\\ClangBuilderBootstrap.ps1";
     break;
-  default: {
-    std::wstring msg =
-        L"Not support channel value: " + std::to_wstring(channel);
-    OutErrorMessage(msg.c_str(), L"Not support clangbuilder channel !");
+  default:
+    psfile = L"Not support channel value: " + std::to_wstring(channel);
+    OutErrorMessage(psfile.c_str(), L"Not support clangbuilder channel !");
     return -2;
-  }
   }
   if (!PathFileExistsW(psfile.c_str())) {
     OutErrorMessage(psfile.c_str(), L"PathFileExists return false");
-    // OutErrorMessage(args, L"Show Args");
     return -1;
   }
 
@@ -197,9 +149,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
   UNREFERENCED_PARAMETER(nCmdShow);
-  const wchar_t *vs = L"120";
-  const wchar_t *target = L"x64";
-  const wchar_t *flavor = L"Release";
+  const wchar_t *vs = nullptr;
+  const wchar_t *target = nullptr;
+  const wchar_t *flavor = nullptr;
   bool createInstallPkg = false;
   bool clearEnv = false;
   bool useNmake = false;
@@ -253,7 +205,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     case 'C':
       clearEnv = true;
       break;
-	case 'R':
+    case 'R':
       buildReleasedRevision = true;
       break;
     case 'S':
@@ -273,10 +225,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       break;
     }
   }
+  if (vs == nullptr || target == nullptr || flavor == nullptr) {
+    Usage();
+    return 0;
+  }
   WCHAR szBuffer[UNC_MAX_PATH] = {0};
   StringCbPrintfW(szBuffer, UNC_MAX_PATH, L" -VisualStudio %s -Arch %s", vs,
                   target);
-  if (channel!=kOpenEnvironment) {
+  if (channel != kOpenEnvironment) {
     StringCbCatW(szBuffer, UNC_MAX_PATH, L" -Flavor ");
     StringCbCatW(szBuffer, UNC_MAX_PATH, flavor);
     if (createInstallPkg) {
@@ -315,7 +271,7 @@ int OutErrorMessage(const wchar_t *errorMsg, const wchar_t *errorTitle) {
                      TDF_POSITION_RELATIVE_TO_WINDOW | TDF_SIZE_TO_CONTENT |
                      TDF_ENABLE_HYPERLINKS;
   tdConfig.nDefaultRadioButton = nRadioButton;
-  tdConfig.pszWindowTitle = L"Clangbuilder Launcher Error";
+  tdConfig.pszWindowTitle = L"Clangbuilder launcher Error";
   tdConfig.pszMainInstruction = errorTitle;
   tdConfig.hMainIcon = static_cast<HICON>(
       LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDI_ICON_LAUNCHER)));
@@ -323,7 +279,8 @@ int OutErrorMessage(const wchar_t *errorMsg, const wchar_t *errorTitle) {
   tdConfig.pszContent = errorMsg;
   tdConfig.pszExpandedInformation =
       _T("For more information about this tool, ")
-      _T("Visit: <a href=\"https://github.com/fstudio\">Force Charlie</a>");
+      _T("Visit: <a href=\"https://github.com/fstudio/clangbuilder\">Force ")
+      _T("Charlie</a>");
   tdConfig.pszCollapsedControlText = _T("More information");
   tdConfig.pszExpandedControlText = _T("Less information");
   tdConfig.pfCallback = TaskDialogCallbackProc;

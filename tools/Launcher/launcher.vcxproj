@@ -84,10 +84,12 @@
   <ItemGroup>
     <ClCompile Include="GetOptInc.cpp" />
     <ClCompile Include="launcher.cpp" />
+	<ClCompile Include="Precompiled.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GetOptInc.h" />
     <ClInclude Include="resource.h" />
+	<ClInclude Include="Precompiled.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Launcher.rc" />

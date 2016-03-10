@@ -8,7 +8,7 @@
         xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
         xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:behaviours="clr-namespace:MahApps.Metro.Behaviours;assembly=MahApps.Metro"
-        Title="Clangbuilder Environment Setting"
+        Title="Clangbuilder Utilities"
         Height="480"
         Width="600"
         ShowIconOnTitleBar="True"

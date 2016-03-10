@@ -108,7 +108,7 @@ namespace ClangbuilderUI
                 ColorScheme = MetroDialogColorScheme.Theme
             };
 
-            MessageDialogResult result = await this.ShowMessageAsync("Clangbuilder UI Setting",
+            MessageDialogResult result = await this.ShowMessageAsync("Clangbuilder UI Utility",
                 "Welcome to use the Clangbuilder Environment Configuration tool.\nCopyright \xA9 2016 ForceStudio All Rights Reserved. ",
                 MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary, mySettings);
 
@@ -124,8 +124,7 @@ namespace ClangbuilderUI
             launcher += "\\launcher.exe";
             if (!System.IO.File.Exists(launcher))
             {
-                this.ShowMessageAsync("Not Found Launcher.exe In this Path:", launcher);
-                //this.ShowMessageAsync(Args, launcher);
+                this.ShowMessageAsync("Not Found launcher.exe in this Path:", launcher);
                 return false;
             }
             ProcessStartInfo psInfo = new ProcessStartInfo();
