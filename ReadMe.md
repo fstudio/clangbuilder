@@ -87,6 +87,6 @@ Launcher
 
 
 ## Other
-First Author: @fcharlie     
+First Author: Force.Charlie     
 Copyright © 2016 ForceStudio. All Rights Reserved.
 
