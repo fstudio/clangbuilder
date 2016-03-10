@@ -1,9 +1,8 @@
-Clang Auto Builder
-===
-ClangOnWin Build Environment vNext, Long Term Evolution   
+# Clang Builder   
+Clang Build Environment On Windows, Long Term Evolution   
 
-##Installation:
-####Usually:
+## Installation:
+#### Usually:
 Download from Github, If your known use Git  
 
 ```
@@ -33,7 +32,7 @@ Set-ExecutionPolicy RemoteSigned
 ```
 
 
-####WebInstaller:
+#### Web Installer:
 
 PowerShell, Enter:    
 ```powershell
@@ -50,17 +49,17 @@ Cmd Enter:
 **Your Should Input Your ClangSetup Install Loaction!!!!**
 
 
-##ClangOnWin  
+## Clang on Windows  
 
-Build Clang,Base Visual Studio
->Visual Studio 2013 or Later,It's Best for VisualStudio 2013 Update 4
+When Build Clang on Windows,Best of Visual Studio version
+>VisualStudio 2013 Update 4
 
 Or Your can use Mingw-w64,your can cross compile LLVM on Linux ,Mingw-w64 Support it.
 
 The Other,Your can use cmake to create MinGW Makefile,or NMake Makefile ,run it ,The C and C++ Compiler is Mingw-w64 tools ( i686-w64-mingw32-gcc ,x86_64-w64-mingw32-g++)
 
 
-##Automated build
+## Automated build
 Run    
 ```cmd
 PowerShell -File .\bin\ClangbuilderManager.ps1 -VisualStudio 120 -Arch x64 -Flavor Release -Clear -Static
@@ -68,7 +67,7 @@ PowerShell -File .\bin\ClangbuilderManager.ps1 -VisualStudio 120 -Arch x64 -Flav
 
 
 
-##User Interface
+## User Interface
 ClangbuilderUI        
 
 ![clangbuilderUI](https://raw.githubusercontent.com/fstudio/clangbuilder/master/doc/images/ClangbuilderUI.jpg)
@@ -77,10 +76,17 @@ Launcher
 ![launcher](https://raw.githubusercontent.com/fstudio/clangbuilder/master/doc/images/launcher.jpg)
 
 
-##Use Clean Environment
--Clear Flag will reset current process Environment Path Value.
+## Suggest
+1. Best Platform is Windows 10 x64   
+2. -Clear flag will reset current process Environment PATH value, Resolve conflict environment variables    
+3. Clang bootstrap only support Visual Studio 2013 , Because clang-cl current current cannot parse Visual Studio 2015 headers and library.   
+4. Build LLDB require Visual Studio 2015, When you not install Python 3.x ,Clangbuilder will download python.exe after inform you install.   
+5. Build LLDB, not test on Windows x86, maybe cannot find PYTHONHOME.
 
-##Other
 
+
+
+## Other
+First Author: @fcharlie     
 Copyright © 2016 ForceStudio. All Rights Reserved.
 
