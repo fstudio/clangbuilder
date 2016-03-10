@@ -64,9 +64,10 @@ if($Arch -eq "x64"){
 }elseif($Arch -eq "x86"){
     $ArchFlags="-m32"
 }elseif($Arch -eq "ARM"){
-    #$ArchFlags="--target=arm-v7a-pc-win32"
+    $ArchFlags="--target=arm-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
     #FIXME
-}else if($Arch -eq "ARM64"){
+}elseif($Arch -eq "ARM64"){
+    $ArchFlags="--target=arm64-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
     #FIXME
 }
 
