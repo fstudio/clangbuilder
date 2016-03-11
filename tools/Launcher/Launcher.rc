@@ -4,7 +4,9 @@
 #define LAUNCHER_COPYRIGHT L"Copyright \x00a9 2016 The ForceStudio.All Rights Reserved"
 
 IDI_ICON_LAUNCHER ICON "Launcher.ico"
+#ifndef CMAKE_BUILD
 1 RT_MANIFEST Launcher.exe.manifest
+#endif
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 2,0,1,0
