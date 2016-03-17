@@ -42,7 +42,7 @@
             <ComboBoxItem Content="Visual Studio 2013 [Windows 8.1]" Name="VS120"/>
             <ComboBoxItem Content="Visual Studio 2015 [Windows 8.1]" Name="VS140"/>
             <ComboBoxItem Content="Visual Studio 2015 [Windows 10]" Name="VS141"/>
-            <ComboBoxItem Content="Visual Studio 15 [Next Version]" Name="VS150" IsEnabled="False"/>
+            <ComboBoxItem Content="Visual Studio 15 [Preview]" Name="VS150" />
         </ComboBox>
         <Label Content="Architecture: "   FontSize="15px" HorizontalAlignment="Left"
                Margin="20,60,0,0" VerticalAlignment="Top"/>

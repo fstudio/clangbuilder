@@ -52,9 +52,10 @@ if($MSYS2){
 
 
 Write-Output "Clangbuilder Environment Set done
-Visual Studio $VisualStudioVersion Arch $Arch
+Visual Studio $VisualStudioVersion Arch $Arch 
 V110 - VisualStudio 2012
 V120 - VisualStudio 2013
 V140 - VisualStudio 2015 Windows 8.1 SDK
 V141 - VisualStudio 2015 Windows 10 SDK
+V150 - VisualStudio 15 Preview
 "
