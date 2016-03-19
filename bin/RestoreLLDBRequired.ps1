@@ -83,7 +83,7 @@ if(!(Test-Path "$RequiredFolder\swigwin\swig.exe")){
 }
 
 if(Test-Path "$RequiredFolder\swigwin\swig.exe"){
-    $env:Path="$Path;${env:Path}"
+    $env:Path="$RequiredFolder\swigwin;${env:Path}"
 }
 
 $IsWin64=[System.Environment]::Is64BitOperatingSystem
