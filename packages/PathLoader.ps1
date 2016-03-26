@@ -10,6 +10,17 @@ $OfficaPythonPath="$PSScriptRoot\Python"
 $GNUWinPath="$PSScriptRoot\GNUWin\bin"
 $NSISPath="$PSScriptRoot\NSIS\bin"
 $NinjaPath="$PSScriptRoot\Ninja"
+$GitWindowsReg="HKLM:SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
+
+Function Resolve-GitWindowsPath{
+   if(Test-Path $GitWindowsReg){
+       $GitInstallLocation=(Get-ItemProperty $GitWindowsReg).InstallLocation;
+       if(Test-Path "$GitInstallLocation\bin"){
+           return "$GitInstallLocation\bin"
+       }
+   }
+   return $null
+}
 
 Function Test-AddPath{
     param(
@@ -18,6 +29,12 @@ Function Test-AddPath{
     if(Test-Path $Path){
         $env:Path="$Path;${env:Path}"
     }
+}
+
+$GitBinaryPath=Resolve-GitWindowsPath
+
+if($null -ne $GitBinaryPath){
+    Test-AddPath -Path $GitBinaryPath
 }
 
 Test-AddPath -Path $CMakePath
