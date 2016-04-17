@@ -13,6 +13,7 @@ packages/7zip/
 packages/PackagesCache.index
 tools/Restore/
 tools/msvc
+.vscode/*.db
 .clang_complete
 *.pdb
 *.exe
