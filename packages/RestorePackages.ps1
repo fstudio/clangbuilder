@@ -51,8 +51,8 @@ Function Expand-MsiPackage{
 Import-Module -Name BitsTransfer
 $IsWindows64=[System.Environment]::Is64BitOperatingSystem
 
-$CMakeURL="https://cmake.org/files/v3.5/cmake-3.5.0-win32-x86.zip"
-$CMakeSub="cmake-3.5.0-win32-x86"
+$CMakeURL="https://cmake.org/files/v3.5/cmake-3.5.2-win32-x86.zip"
+$CMakeSub="cmake-3.5.2-win32-x86"
 
 if($IsWindows64){
     $PythonURL="https://www.python.org/ftp/python/2.7.11/python-2.7.11.amd64.msi"
@@ -62,8 +62,8 @@ if($IsWindows64){
     $SubversionURL="https://sourceforge.net/projects/tortoisesvn/files/1.9.3/Application/TortoiseSVN-1.9.3.27038-win32-svn-1.9.3.msi"
 }
 
-$NSISURL="http://sourceforge.net/projects/nsis/files/NSIS%203%20Pre-release/3.0b3/nsis-3.0b3.zip"
-$NSISSub="nsis-3.0b3"
+$NSISURL="http://sourceforge.net/projects/nsis/files/NSIS%203%20Pre-release/3.0rc1/nsis-3.0rc1.zip"
+$NSISSub="nsis-3.0rc1"
 
 $GnuWinURL="http://sourceforge.net/projects/clangonwin/files/Install/Packages/ClangSetup-Package-GnuWin-win32.zip"
 
@@ -71,10 +71,10 @@ $NinjaURL="https://github.com/ninja-build/ninja/releases/download/v1.6.0/ninja-w
 
 
 $PackageMap=@{}
-$PackageMap["CMake"]="3.5.0"
+$PackageMap["CMake"]="3.5.2"
 $PackageMap["Subversion"]="1.9.3"
 $PackageMap["Python"]="2.7.11"
-$PackageMap["NSIS"]="3.0b3"
+$PackageMap["NSIS"]="3.0rc1"
 $PackageMap["GNUWin"]="1.0"
 $PackageMap["Ninja"]="1.6.0"
 
