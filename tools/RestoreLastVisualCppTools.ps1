@@ -15,7 +15,7 @@ Push-Location $PWD
 $NuGetAddSource="http://vcppdogfooding.azurewebsites.net/nuget/"
 $VisualCppToolsInstallDir="$PSScriptRoot\msvc"
 $NugetToolsDir="$PSScriptRoot\Nuget"
-$VisualCppToolsPreRevision="14.0.24022-Pre"
+$VisualCppToolsPreRevision="14.0.24026-Pre"
 $VisualCppToolsNameRevision="VisualCppTools.${VisualCppToolsPreRevision}"
 $VisualCppToolsRevDir="$VisualCppToolsInstallDir\$VisualCppToolsNameRevision"
 $NuGetURL="https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
