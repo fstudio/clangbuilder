@@ -55,7 +55,8 @@ Set-Location $VisualCppToolsInstallDir
 
 if(!(Test-Path $VisualCppToolsRevDir)){
     Write-Output "NuGet Install VisualCppTools ......"
-    &nuget  install VisualCppTools -Source $NuGetAddSource -Version $VisualCppToolsPreRevision -Prerelease
+    #&nuget  install VisualCppTools -Source $NuGetAddSource -Version $VisualCppToolsPreRevision -Prerelease
+	&nuget  install VisualCppTools -Source $NuGetAddSource  -Prerelease
 }
 
 Pop-Location 
