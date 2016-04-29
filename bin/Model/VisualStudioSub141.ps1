@@ -41,6 +41,13 @@ $ProductVersion=Get-RegistryValueEx -Path "$RegRouter\Microsoft SDKs\Windows\v10
 $MSBuildRoot=Get-RegistryValueEx -Path "$RegRouter\MSBuild\14.0" -Key 'MSBuildOverrideTasksPath'
 #$FSharpRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\14.0\Setup\F#" -Key 'ProductDir'
 
+$SdkItem=Get-ChildItem "$SdkRoot\Include"
+foreach($i in $SdkItem){
+    if($i -imatch $ProductVersion){
+      $ProductVersion=$i
+    }
+}
+
 $FrameworkDIR=""
 $WindowsSDK_ExecutablePath=""
 

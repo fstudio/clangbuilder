@@ -45,6 +45,14 @@ $MSBuildRoot=Get-RegistryValueEx -Path "$RegRouter\MSBuild\15.0" -Key 'MSBuildOv
 $FrameworkDIR=""
 $WindowsSDK_ExecutablePath=""
 
+$SdkItem=Get-ChildItem "$SdkRoot\Include"
+foreach($i in $SdkItem){
+    if($i -imatch $ProductVersion){
+      $ProductVersion=$i
+    }
+}
+
+
 if($IsWindows64){
     $FrameworkDIR64=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key 'FrameworkDir64'
     $FrameworkVER64=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key 'FrameworkVer64'
