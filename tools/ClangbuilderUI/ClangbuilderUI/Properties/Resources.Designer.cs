@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ClangSetupvNextSet.Properties
+namespace ClangbuilderUI.Properties
 {
 
 
