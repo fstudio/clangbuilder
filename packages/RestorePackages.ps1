@@ -56,10 +56,10 @@ $CMakeSub="cmake-3.5.2-win32-x86"
 
 if($IsWindows64){
     $PythonURL="https://www.python.org/ftp/python/2.7.11/python-2.7.11.amd64.msi"
-    $SubversionURL="http://downloads.sourceforge.net/projects/tortoisesvn/files/1.9.3/Application/TortoiseSVN-1.9.3.27038-x64-svn-1.9.3.msi"
+    $SubversionURL="http://downloads.sourceforge.net/projects/tortoisesvn/files/1.9.4/Application/TortoiseSVN-1.9.4.27285-x64-svn-1.9.4.msi"
 }else{
     $PythonURL="https://www.python.org/ftp/python/2.7.11/python-2.7.11.msi"
-    $SubversionURL="http://downloads.sourceforge.net/projects/tortoisesvn/files/1.9.3/Application/TortoiseSVN-1.9.3.27038-win32-svn-1.9.3.msi"
+    $SubversionURL="http://downloads.sourceforge.net/projects/tortoisesvn/files/1.9.4/Application/TortoiseSVN-1.9.4.27285-win32-svn-1.9.4.msi"
 }
 
 $NSISURL="http://downloads.sourceforge.net/project/nsis/NSIS%203%20Pre-release/3.0rc1/nsis-3.0rc1.zip"
@@ -72,7 +72,7 @@ $NinjaURL="https://github.com/ninja-build/ninja/releases/download/v1.6.0/ninja-w
 
 $PackageMap=@{}
 $PackageMap["CMake"]="3.5.2"
-$PackageMap["Subversion"]="1.9.3"
+$PackageMap["Subversion"]="1.9.4"
 $PackageMap["Python"]="2.7.11"
 $PackageMap["NSIS"]="3.0rc1"
 $PackageMap["GNUWin"]="1.0"
