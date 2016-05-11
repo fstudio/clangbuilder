@@ -30,10 +30,10 @@ Function Expand-MsiPackage{
 Import-Module -Name BitsTransfer
 $IsWindows64=[System.Environment]::Is64BitOperatingSystem
 
-$_7zipUrl="http://www.7-zip.org/a/7z1514.msi"
+$_7zipUrl="http://www.7-zip.org/a/7z1600.msi"
 
 if($IsWindows64){
-    $_7zipUrl="http://www.7-zip.org/a/7z1514-x64.msi"
+    $_7zipUrl="http://www.7-zip.org/a/7z1600-x64.msi"
 }
 
 Start-BitsTransfer -Source $_7zipUrl -Destination "$PSScriptRoot\7zip.msi" -Description "Downloading 7zip"
