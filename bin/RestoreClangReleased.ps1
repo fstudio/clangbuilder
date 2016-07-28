@@ -17,7 +17,7 @@ if($LLDB){
 }
 Write-Host "Release Folder: $ReleaseRevFolder"
 $LLVMRepositoriesRoot="http://llvm.org/svn/llvm-project"
-$ReleaseRevision="RELEASE_380/final"
+$ReleaseRevision="RELEASE_381/final"
 $LLVMUrlParent=$LLVMRepositoriesRoot+"/llvm/tags/"+$ReleaseRevision
 $Revision=380
 $RequireRemove=$FALSE
