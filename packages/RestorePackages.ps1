@@ -63,7 +63,7 @@ if($IsWindows64){
     $SubversionURL="http://downloads.sourceforge.net/projects/tortoisesvn/files/1.9.4/Application/TortoiseSVN-1.9.4.27285-win32-svn-1.9.4.msi"
 }
 
-$NSISURL="https://sourceforge.net/projects/nsis/files/NSIS%203/3.0/nsis-3.0.zip"
+$NSISURL="http://downloads.sourceforge.net/project/nsis/NSIS%203/3.0/nsis-3.0.zip"
 $NSISSub="nsis-3.0"
 
 $GnuWinURL="http://downloads.sourceforge.net/projects/clangonwin/files/Install/Packages/ClangSetup-Package-GnuWin-win32.zip"
