@@ -52,32 +52,32 @@ Import-Module -Name BitsTransfer
 $IsWindows64=[System.Environment]::Is64BitOperatingSystem
 
 if($IsWindows64){
-    $CMakeURL="https://cmake.org/files/v3.6/cmake-3.6.0-win64-x64.zip"
-    $CMakeSub="cmake-3.6.0-win64-x64"
+    $CMakeURL="https://cmake.org/files/v3.6/cmake-3.6.1-win64-x64.zip"
+    $CMakeSub="cmake-3.6.1-win64-x64"
     $PythonURL="https://www.python.org/ftp/python/2.7.11/python-2.7.11.amd64.msi"
     $SubversionURL="http://downloads.sourceforge.net/projects/tortoisesvn/files/1.9.4/Application/TortoiseSVN-1.9.4.27285-x64-svn-1.9.4.msi"
 }else{
-    $CMakeURL="https://cmake.org/files/v3.6/cmake-3.6.0-win32-x86.zip"
-    $CMakeSub="cmake-3.6.0-win32-x86"
+    $CMakeURL="https://cmake.org/files/v3.6/cmake-3.6.1-win32-x86.zip"
+    $CMakeSub="cmake-3.6.1-win32-x86"
     $PythonURL="https://www.python.org/ftp/python/2.7.11/python-2.7.11.msi"
     $SubversionURL="http://downloads.sourceforge.net/projects/tortoisesvn/files/1.9.4/Application/TortoiseSVN-1.9.4.27285-win32-svn-1.9.4.msi"
 }
 
-$NSISURL="http://downloads.sourceforge.net/project/nsis/NSIS%203%20Pre-release/3.0rc1/nsis-3.0rc1.zip"
-$NSISSub="nsis-3.0rc1"
+$NSISURL="https://sourceforge.net/projects/nsis/files/NSIS%203/3.0/nsis-3.0.zip"
+$NSISSub="nsis-3.0"
 
 $GnuWinURL="http://downloads.sourceforge.net/projects/clangonwin/files/Install/Packages/ClangSetup-Package-GnuWin-win32.zip"
 
-$NinjaURL="https://github.com/ninja-build/ninja/releases/download/v1.6.0/ninja-win.zip"
+$NinjaURL="https://github.com/ninja-build/ninja/releases/download/v1.7.1/ninja-win.zip"
 
 
 $PackageMap=@{}
-$PackageMap["CMake"]="3.6.0"
+$PackageMap["CMake"]="3.6.1"
 $PackageMap["Subversion"]="1.9.4"
 $PackageMap["Python"]="2.7.11"
-$PackageMap["NSIS"]="3.0rc1"
+$PackageMap["NSIS"]="3.0"
 $PackageMap["GNUWin"]="1.0"
-$PackageMap["Ninja"]="1.6.0"
+$PackageMap["Ninja"]="1.7.1"
 
 #### Test Package.lock.json
 $PackageLockJson=$null
