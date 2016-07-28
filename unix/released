@@ -1,7 +1,7 @@
 #!/bin/bash
 ClangBuilderDir=$(cd `dirname $0`; pwd)
 
-ReleaseTag="RELEASE_380/final/"
+ReleaseTag="RELEASE_381/final/"
 
 function Restore-Repositories(){
     pushd $PWD
