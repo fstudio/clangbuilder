@@ -30,6 +30,10 @@ if(!(Test-Path "$BuildFolder/mainline/tools")){
     Exit
 }
 
+Set-Location "$BuildFolder/mainline/projects"
+Restore-Repository -URL "$LLVMRepositoriesRoot/libcxx/trunk" -Folder "libcxx"
+Restore-Repository -URL "$LLVMRepositoriesRoot/libcxxabi/trunk" -Folder "libcxxabi"
+
 Set-Location "$BuildFolder/mainline/tools"
 Restore-Repository -URL "$LLVMRepositoriesRoot/cfe/trunk" -Folder "clang"
 Restore-Repository -URL "$LLVMRepositoriesRoot/lld/trunk" -Folder "lld"
