@@ -1,0 +1,51 @@
+{
+    "Packages": [
+        {
+            "Name": "MinGit",
+            "X86URL": "https://github.com/git-for-windows/git/releases/download/v2.10.0.windows.1/MinGit-2.10.0-32-bit.zip",
+            "X64URL": "https://github.com/git-for-windows/git/releases/download/v2.10.0.windows.1/MinGit-2.10.0-64-bit.zip",
+            "Extension": "zip",
+            "Mount": "/cmd",
+            "Version": "2.10.0"
+        },
+        {
+            "Name": "CMake",
+            "X86URL": "https://cmake.org/files/v3.6/cmake-3.6.1-win32-x86.zip",
+            "X64URL": "https://cmake.org/files/v3.6/cmake-3.6.1-win64-x64.zip",
+            "Extension": "zip",
+            "Version": "3.6.1"
+        },
+        {
+            "Name": "Python",
+            "X86URL": "https://www.python.org/ftp/python/2.7.11/python-2.7.11.amd64.msi",
+            "X64URL": "https://www.python.org/ftp/python/2.7.11/python-2.7.11.msi",
+            "Extension": "msi",
+            "Version": "2.7.11"
+        },
+        {
+            "Name": "Subversion",
+            "X86URL": "http://downloads.sourceforge.net/projects/tortoisesvn/files/1.9.4/Application/TortoiseSVN-1.9.4.27285-win32-svn-1.9.4.msi",
+            "X64URL": "http://downloads.sourceforge.net/projects/tortoisesvn/files/1.9.4/Application/TortoiseSVN-1.9.4.27285-x64-svn-1.9.4.msi",
+            "Extension": "msi",
+            "Version": "1.9.4"
+        },
+        {
+            "Name": "NSIS",
+            "URL": "http://downloads.sourceforge.net/project/nsis/NSIS%203/3.0/nsis-3.0.zip",
+            "Extension": "zip",
+            "Version": "3.0"
+        },
+        {
+            "Name": "GNUWin",
+            "URL": "http://downloads.sourceforge.net/projects/clangonwin/files/Install/Packages/ClangSetup-Package-GnuWin-win32.zip",
+            "Extension": "zip",
+            "Version": "1.0"
+        },
+        {
+            "Name": "Ninja",
+            "URL": "https://github.com/ninja-build/ninja/releases/download/v1.7.1/ninja-win.zip",
+            "Extension": "msi",
+            "Version": "1.7.1"
+        }
+    ]
+}

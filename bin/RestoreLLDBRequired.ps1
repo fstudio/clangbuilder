@@ -69,9 +69,9 @@ Function Restore-Swigwin{
 
 
 $RequiredFolder="$PSScriptRoot\Required"
-$SwigwinUrl="http://sourceforge.net/projects/swig/files/swigwin/swigwin-3.0.8/swigwin-3.0.8.zip"
-$PythonUrl64="https://www.python.org/ftp/python/3.5.1/python-3.5.1-amd64.exe"
-$PythonUrl32="https://www.python.org/ftp/python/3.5.1/python-3.5.1.exe"
+$SwigwinUrl="http://sourceforge.net/projects/swig/files/swigwin/swigwin-3.0.10/swigwin-3.0.10.zip"
+$PythonUrl64="https://www.python.org/ftp/python/3.5.2/python-3.5.2-amd64.exe"
+$PythonUrl32="https://www.python.org/ftp/python/3.5.2/python-3.5.2.exe"
 #https://docs.python.org/3.5/using/windows.html
 #CMAKE -DPYTHON_HOME=$PSScriptRoot/Python$Arch
 

@@ -1,9 +1,11 @@
 out/
 ClangbuilderUI.lnk
 bin/Required/
+packages/*.bak
 packages/*.zip
 packages/Package.lock.json
 packages/CMake/
+packages/MinGit/
 packages/GNUWin/
 packages/nsis/
 packages/Python/
