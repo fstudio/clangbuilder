@@ -39,7 +39,7 @@ Function Initialize-MsiArchive{
     param(
         [String]$Name
     )
-    $Item_=Get-ChildItem -Path $Name -File -Filter ".msi"
+    $Item_=Get-ChildItem -Path "$Name\*.msi"
     foreach($i in $Item_){
         Remove-Item -Path $i.FullName
     }
