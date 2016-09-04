@@ -44,7 +44,7 @@
         {
             "Name": "Ninja",
             "URL": "https://github.com/ninja-build/ninja/releases/download/v1.7.1/ninja-win.zip",
-            "Extension": "msi",
+            "Extension": "zip",
             "Version": "1.7.1"
         }
     ]
