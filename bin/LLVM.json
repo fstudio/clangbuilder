@@ -1,0 +1,32 @@
+{
+    "Mainline": {
+        "llvm": {
+            "URL": "",
+            "Path": "/out"
+        },
+        "clang": {
+            "URL": "",
+            "Path": "/out/tools/clang"
+        },
+        "lld": {
+            "URL": "",
+            "Path": "/out/tools/lld"
+        },
+        "lldb": {
+            "URL": "",
+            "Path": "/out/tools/lldb"
+        },
+        "extra": {
+            "URL": "",
+            "Path": "/out/tools/clang/tools/extra"
+        },
+        "libcxx": {
+            "URL": "",
+            "Path": "/out/projects/libcxx"
+        },
+        "libcxxabi": {
+            "URL": "",
+            "Path": "/out/projects/libcxx"
+        }
+    }
+}

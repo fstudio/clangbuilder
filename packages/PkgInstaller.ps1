@@ -127,14 +127,14 @@ $IsWindows64=[System.Environment]::Is64BitOperatingSystem
 $PkgMetadata=Get-Content -Path "$PSScriptRoot/PkgSources.json" |ConvertFrom-Json
 $PkgCached=Get-Content -Path "$PSScriptRoot/Package.lock.json" |ConvertFrom-Json
 #Write-Host $PkgMetadata.Packages
-$Installed=@{}
+$InstalledPkgMap=@{}
 
 #Write-Host $PkgMetadata.Packages.Length
 
 foreach($i in $PkgMetadata.Packages){
     $Name=$i.Name
     if($i.Version -eq $PkgCached.$Name){
-        $Installed[$Name]=$PkgCached.$Name
+        $InstalledPkgMap[$Name]=$PkgCached.$Name
         Write-Host "$Name is up to date !"
         continue 
     }
@@ -157,11 +157,15 @@ foreach($i in $PkgMetadata.Packages){
         if((Test-Path "$Name.bak")){
             Remove-Item -Force -Recurse "$Name.bak"
         }
+        $InstalledPkgMap[$Name]=$i.Version
     }elseif((Test-Path "$Name.bak")){
         Move-Item "$Name.bak" "$Name"
         continue
     }
     Initialize-ClangbuilderTools -Name $Name -Extension $i.Extension
+    
 }
+
+ConvertTo-Json $InstalledPkgMap |Out-File -Force -FilePath "$PSScriptRoot\Package.lock.json"
 
 Set-Location $LastCurrentDir

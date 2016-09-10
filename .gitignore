@@ -15,6 +15,7 @@ packages/7zip/
 packages/PackagesCache.index
 tools/Restore/
 tools/msvc
+tools/VisualCppTools.lock.json
 .vscode/*.db
 .clang_complete
 *.pdb

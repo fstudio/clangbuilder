@@ -1,0 +1,19 @@
+{
+    "VisualStudio": [
+        {
+            "Title": "Visual Studio 2015 for Windows 10",
+            "Version": 140,
+            "Sdkversion": "10.14393.0"
+        },
+        {
+            "Title": "Visual Studio 2015 for Windows 8",
+            "Version": 140,
+            "Sdkversion": "8.1"
+        },
+        {
+            "Title": "Visual Studio 2013",
+            "Version": 120,
+            "Sdkversion": "8.1"
+        }
+    ]
+}

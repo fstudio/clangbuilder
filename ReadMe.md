@@ -87,5 +87,5 @@ Launcher
 
 ## Other
 First Author: Force.Charlie     
-Copyright © 2016 ForceStudio. All Rights Reserved.
+Copyright Â© 2016 ForceStudio. All Rights Reserved.
 

@@ -15,9 +15,6 @@ Push-Location $PWD
 $NuGetAddSource="http://vcppdogfooding.azurewebsites.net/nuget/"
 $VisualCppToolsInstallDir="$PSScriptRoot\msvc"
 $NugetToolsDir="$PSScriptRoot\Nuget"
-$VisualCppToolsPreRevision="14.0.24124-Pre"
-$VisualCppToolsNameRevision="VisualCppTools.${VisualCppToolsPreRevision}"
-$VisualCppToolsRevDir="$VisualCppToolsInstallDir\$VisualCppToolsNameRevision"
 $NuGetURL="https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
 
 Function Get-NuGetFile{
@@ -53,8 +50,33 @@ if(!(Test-Path $VisualCppToolsInstallDir)){
 
 Set-Location $VisualCppToolsInstallDir
 
+
+$NugetXml=Invoke-WebRequest -Uri "$NuGetAddSource/Packages"
+
+$PackageMetadata=[xml]$NugetXml.Content
+
+$VisualCppToolsURL=$PackageMetadata.feed.entry.content.src
+
+$VisualCppToolsVersion=$PackageMetadata.feed.entry.properties.Version
+
+if((Test-Path "$PSScriptRoot/VisualCppTools.lock.json")){
+    $Pkglock=Get-Content "$PSScriptRoot/VisualCppTools.lock.json" |ConvertFrom-Json
+    if($Pkglock.VisualCppTools -eq $VisualCppToolsVersion){
+        Write-Host "VisualCppTools is up to date, Version: $VisualCppToolsVersion"
+        return ;
+    }
+}
+
+
 Write-Output "NuGet Install VisualCppTools ......"
+Write-Output "VisualCppTools Download URL:`n$VisualCppToolsURL"
 #&nuget  install VisualCppTools -Source $NuGetAddSource -Version $VisualCppToolsPreRevision -Prerelease
 &nuget  install VisualCppTools -Source $NuGetAddSource  -Prerelease
+
+if((Test-Path "$PSScriptRoot/msvc/VisualCppTools.$VisualCppToolsVersion")){
+    $InstalledMap=@{}
+    $InstalledMap["VisualCppTools"]=$VisualCppToolsVersion
+    ConvertTo-Json $InstalledMap |Out-File -Force -FilePath "$PSScriptRoot\VisualCppTools.lock.json"
+}
 
 Pop-Location 
