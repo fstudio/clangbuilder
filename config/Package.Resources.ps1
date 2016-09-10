@@ -1,2 +1,0 @@
-
-$Python="https://python.org"
