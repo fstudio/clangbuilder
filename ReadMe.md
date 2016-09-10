@@ -1,15 +1,19 @@
-# Clang Builder   
+# Clang Builder
+
 Clang Build Environment On Windows, Long Term Evolution   
 
 ## Installation:
-#### Usually:
-Download from Github, If your known use Git  
 
-```
+### Usually:
+
+Download from Github, If your known use Git
+
+```shell
 git clone https://github.com/fstudio/clangbuilder.git clangbuilder
 ```
 
-Click the *Install.bat* in the clangbuilder directory, this will run PowerShell startup  *bin/Installer/Install.ps1*      
+Click the *Install.bat* in the clangbuilder directory, this will run PowerShell startup  *bin/Installer/Install.ps1* 
+
 It is recommended that whenever you have PowerShell scripts, and try not to delete the project file in the tools directory.
 
 Similarly, you can start a PowerShell runs Install.ps1, generally run PowerShell scripts on the Windows right-click menu option, you can right-click the menu "*run with PowerShell*"
@@ -21,7 +25,7 @@ If you are unable to run the script, please enter
 Get-ExecutionPolicy
 ```
 
-Output:   
+**Output**:
 
 > Restricted
 
@@ -34,22 +38,22 @@ Set-ExecutionPolicy RemoteSigned
 
 #### Web Installer:
 
-PowerShell, Enter:    
+PowerShell, Enter:
+
 ```powershell
 &{$wc=New-Object System.Net.WebClient;$wc.Proxy=[System.Net.WebRequest]::DefaultWebProxy;$wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;Invoke-Expression ($wc.DownloadString('https://raw.githubusercontent.com/fstudio/clangbuilder/master/bin/Installer/WebInstall.ps1'))}
 ```
 
-Or:  
+Or CMD Enter:
 
-Cmd Enter:   
 ```cmd
 @powershell -NoProfile -ExecutionPolicy unrestricted -Command "&{$wc=New-Object System.Net.WebClient;$wc.Proxy=[System.Net.WebRequest]::DefaultWebProxy;$wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;Invoke-Expression ($wc.DownloadString('https://raw.githubusercontent.com/fstudio/clangbuilder/master/bin/Installer/WebInstall.ps1'))}"
 ```
 
-**Your Should Input Your ClangSetup Install Loaction!!!!**
+By default **Your Should Input Your Clangbuilder Install Loaction!!!!**
 
 
-## Clang on Windows  
+## Clang on Windows
 
 When Build Clang on Windows,Best of Visual Studio version
 >VisualStudio 2013 Update 4
@@ -60,7 +64,9 @@ The Other,Your can use cmake to create MinGW Makefile,or NMake Makefile ,run it 
 
 
 ## Automated build
-Run    
+
+run
+
 ```cmd
 PowerShell -File .\bin\ClangbuilderManager.ps1 -VisualStudio 120 -Arch x64 -Flavor Release -Clear -Static
 ```
@@ -68,24 +74,28 @@ PowerShell -File .\bin\ClangbuilderManager.ps1 -VisualStudio 120 -Arch x64 -Flav
 
 
 ## User Interface
-ClangbuilderUI        
+
+ClangbuilderUI
 
 ![clangbuilderUI](https://raw.githubusercontent.com/fstudio/clangbuilder/master/doc/images/ClangbuilderUI.jpg)
 
-Launcher       
+Launcher
+
 ![launcher](https://raw.githubusercontent.com/fstudio/clangbuilder/master/doc/images/launcher.jpg)
 
 
 ## Suggest
-1. Best Platform is Windows 10 x64   
-2. -Clear flag will reset current process Environment PATH value, Resolve conflict environment variables    
-3. Build LLDB require Visual Studio 2015, When you not install Python 3.x ,Clangbuilder will download python.exe after inform you install.   
-4. Build LLDB, not test on Windows x86, maybe cannot find PYTHONHOME.
+
++ Best Platform is Windows 10 x64
++ -Clear flag will reset current process Environment PATH value, Resolve conflict environment variables
++ Build LLDB require Visual Studio 2015, When you not install Python 3.x ,Clangbuilder will download python.exe after inform you install.
++ Build LLDB, not test on Windows x86, maybe cannot find PYTHONHOME.
 
 
 
 
 ## Other
-First Author: Force.Charlie     
+
+First Author: Force.Charlie  
 Copyright © 2016 ForceStudio. All Rights Reserved.
 
