@@ -31,7 +31,7 @@ namespace ClangbuilderUI
         public MainWindow()
         {
             InitializeComponent();
-
+            //BorderAbout.Content = "About\x2665";
             if (Environment.GetEnvironmentVariable("VS110COMNTOOLS") != null)
             {
                 VS110.IsSelected = true;
@@ -108,8 +108,8 @@ namespace ClangbuilderUI
                 ColorScheme = MetroDialogColorScheme.Theme
             };
 
-            MessageDialogResult result = await this.ShowMessageAsync("Clangbuilder UI Utility",
-                "Welcome to use the Clangbuilder Environment Configuration tool.\nCopyright \xA9 2016 ForceStudio All Rights Reserved. ",
+            MessageDialogResult result = await this.ShowMessageAsync("Clangbuilder \x2665 Utility",
+                "Welcome to use the Clangbuilder Utility.\nCopyright \xA9 2016 ForceStudio All Rights Reserved. ",
                 MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary, mySettings);
 
             if (result == MessageDialogResult.Negative)
