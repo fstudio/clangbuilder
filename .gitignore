@@ -21,4 +21,5 @@ tools/VisualCppTools.lock.json
 *.pdb
 *.exe
 *.obj
+*.res
 *.BROWSE.VC*
