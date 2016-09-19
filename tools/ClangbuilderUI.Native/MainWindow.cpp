@@ -485,26 +485,17 @@ bool SearchClangbuilderPsEngine(std::wstring &psfile, const wchar_t *name)
 {
 	std::array<wchar_t, PATHCCH_MAX_CCH> engine_;
 	GetModuleFileNameW(HINST_THISCOMPONENT, engine_.data(), PATHCCH_MAX_CCH);
-	PathRemoveFileSpecW(engine_.data());
-	std::wstring tmpfile(engine_.data());
-	tmpfile.append(L"\\bin\\").append(name);
-	if (PathFileExistsW(tmpfile.c_str())) {
-		psfile.assign(std::move(tmpfile));
-		return true;
-	}
-	PathRemoveFileSpecW(engine_.data());
-	tmpfile.assign(engine_.data());
-	tmpfile.append(L"\\bin\\").append(name);
-	if (PathFileExistsW(tmpfile.c_str())) {
-		psfile.assign(std::move(tmpfile));
-		return true;
-	}
-	PathRemoveFileSpecW(engine_.data());
-	tmpfile.assign(engine_.data());
-	tmpfile.append(L"\\bin\\").append(name);
-	if (PathFileExistsW(tmpfile.c_str())) {
-		psfile.assign(std::move(tmpfile));
-		return true;
+	std::wstring tmpfile;
+	for (int i = 0; i < 5; i++) {
+		if (!PathRemoveFileSpecW(engine_.data())) {
+			return false;
+		}
+		tmpfile.assign(engine_.data());
+		tmpfile.append(L"\\bin\\").append(name);
+		if (PathFileExistsW(tmpfile.c_str())) {
+			psfile.assign(std::move(tmpfile));
+			return true;
+		}
 	}
 	return false;
 }
