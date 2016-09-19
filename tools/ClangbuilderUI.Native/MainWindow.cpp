@@ -11,14 +11,6 @@
 #include "MainWindow.h"
 #include "MessageWindow.h"
 
-//#include <exception>
-#pragma comment(lib,"Comctl32.lib")
-#pragma comment(lib,"ComDlg32.Lib")
-#pragma comment(lib, "d2d1.lib")
-#pragma comment(lib,"dwrite.lib")
-#pragma comment(lib,"shcore.lib")
-#pragma comment(lib,"Winmm.lib")
-
 #ifndef HINST_THISCOMPONENT
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #define HINST_THISCOMPONENT ((HINSTANCE)&__ImageBase)
@@ -116,11 +108,11 @@ public:
 	{
 		HRESULT hr = E_FAIL;
 		hr = SetProcessDpiAwareness(awareness);
-		auto l = E_INVALIDARG;
+		//auto l = E_INVALIDARG;
 		if (hr == S_OK) {
 			m_Awareness = awareness;
 		} else {
-			MessageBox(NULL, (LPCWSTR)L"SetProcessDpiAwareness Error", (LPCWSTR)L"Error", MB_OK);
+			MessageBoxW(NULL,L"SetProcessDpiAwareness Error", L"Error", MB_OK);
 		}
 		return;
 	}

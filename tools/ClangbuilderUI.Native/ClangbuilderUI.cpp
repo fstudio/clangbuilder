@@ -43,6 +43,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
+	UNREFERENCED_PARAMETER(nCmdShow);
+	UNREFERENCED_PARAMETER(hInstance);
 	DotComInitialize dot;
 	HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
 	return WindowMessageRunLoop();
