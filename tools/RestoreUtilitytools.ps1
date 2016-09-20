@@ -15,21 +15,22 @@ if(!(Test-Path "$PSScriptRoot\NuGet\Nuget.exe")){
     Invoke-WebRequest $NugetURL -OutFile "$PSScriptRoot\NuGet\nuget.exe"
 }
 
-&cmd /c "$PSScriptRoot\ClangbuilderUITask.bat"
-$ClangbuilderUIRelease="$PSScriptRoot\ClangbuilderUI\ClangbuilderUI\bin\Release"
-if(!(Test-Path "$PSScriptRoot\Restore"))
-{
-    mkdir -Force "$PSScriptRoot\Restore"
-}
-Copy-Item -Path "$ClangbuilderUIRelease\*" -Destination "$PSScriptRoot\Restore" -Exclude *.vshost.*,*.pdb  -Force -Recurse
-&cmd /c "$PSScriptRoot\CleanTask.bat"
-
 $Arch="32BIT"
 
 if([System.Environment]::Is64BitOperatingSystem -eq $True)
 {
     $Arch="64BIT"
 }
+
+&cmd /c "$PSScriptRoot\ClangbuilderUI.bat $Arch"
+if(!(Test-Path "$PSScriptRoot\Restore"))
+{
+    mkdir -Force "$PSScriptRoot\Restore"
+}
+Copy-Item -Path "$PSScriptRoot\ClangbuilderUI\ClangbuilderUI.exe" -Destination "$PSScriptRoot\Restore"
+
+
+
 
 if(Test-Path "$PSScriptRoot\Restore\ClangbuilderUI.exe"){
     if(!(Test-Path "$ClangBuilderRoot\ClangbuilderUI.lnk")){
@@ -48,11 +49,5 @@ if(Test-Path "$PSScriptRoot\Restore\ClangbuilderUI.exe"){
     Write-Error "Cannot found ClangbuilderUI.exe "
 }
 
-
-
-
-&cmd /c "$PSScriptRoot\LauncherTask.bat" $Arch
-Copy-Item -Path "$PSScriptRoot\Launcher\Launcher.exe"  -Destination "$PSScriptRoot\Restore"   -Force -Recurse
-&cmd /c "$PSScriptRoot\Launcher\cleanBuild.bat"
 
 Pop-Location
