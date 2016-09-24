@@ -1,6 +1,6 @@
-# Clang Builder
+# ClangBuilder
 
-Clang Build Environment On Windows, Long Term Evolution
+ClangBuilder is Build Clang Environment On Windows. Fecth Packages, Auto build
 
 ## Installation
 
@@ -55,14 +55,15 @@ By default **Your Should Input Your Clangbuilder Install Loaction!!!!**
 
 ## Clang on Windows
 
-When Build Clang on Windows,Best of Visual Studio version
+Clangbuilder Now Only support use Visual C++ build Clang LLVM LLDB. And Best Visual Studio Version:
+
 >VisualStudio 2015
 
-Or Your can use Mingw-w64,your can cross compile LLVM on Linux ,Mingw-w64 Support it.
->MSYS2
+Aslo, Your can use MSYS2, use pacman install Clang.
 
-The Other,Your can use cmake to create MinGW Makefile,or NMake Makefile ,run it ,The C and C++ Compiler is Mingw-w64 tools ( i686-w64-mingw32-gcc ,x86_64-w64-mingw32-g++)
-
+```shell
+pacman -S clang
+```
 
 ## Automated build
 
