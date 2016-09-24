@@ -1,10 +1,10 @@
 # Clang Builder
 
-Clang Build Environment On Windows, Long Term Evolution   
+Clang Build Environment On Windows, Long Term Evolution
 
-## Installation:
+## Installation
 
-### Usually:
+### Usually
 
 Download from Github, If your known use Git
 
@@ -36,7 +36,7 @@ Set-ExecutionPolicy RemoteSigned
 ```
 
 
-#### Web Installer:
+#### Web Installer
 
 PowerShell, Enter:
 
@@ -56,9 +56,10 @@ By default **Your Should Input Your Clangbuilder Install Loaction!!!!**
 ## Clang on Windows
 
 When Build Clang on Windows,Best of Visual Studio version
->VisualStudio 2013 Update 4
+>VisualStudio 2015
 
 Or Your can use Mingw-w64,your can cross compile LLVM on Linux ,Mingw-w64 Support it.
+>MSYS2
 
 The Other,Your can use cmake to create MinGW Makefile,or NMake Makefile ,run it ,The C and C++ Compiler is Mingw-w64 tools ( i686-w64-mingw32-gcc ,x86_64-w64-mingw32-g++)
 
@@ -73,20 +74,12 @@ PowerShell -File .\bin\ClangbuilderManager.ps1 -VisualStudio 120 -Arch x64 -Flav
 
 
 
-## User Interface
+## ClangbuilderUI
 
-ClangbuilderUI
+Your can click ClangbuilderUI, select your Visual Studio Version and Arch, and configuration
 
-![clangbuilderUI](https://raw.githubusercontent.com/fstudio/clangbuilder/master/doc/images/ClangbuilderUI.png)
+![clangbuilder](./doc/images/ClangbuilderUI.png)
 
-
-Clangbuilder Native
-
-![clangbuilder.native](./doc/images/ClangbuilderUI.Native.png)
-
-Launcher
-
-![launcher](https://raw.githubusercontent.com/fstudio/clangbuilder/master/doc/images/launcher.jpg)
 
 
 ## Suggest
@@ -99,8 +92,8 @@ Launcher
 
 
 
-## Other
+## Copyright
 
-First Author: Force.Charlie  
+Author: Force.Charlie  
 Copyright © 2016 ForceStudio. All Rights Reserved.
 
