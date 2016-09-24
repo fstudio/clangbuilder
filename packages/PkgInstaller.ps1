@@ -153,6 +153,8 @@ foreach($i in $PkgMetadata.Packages){
         Get-ClangbuilderToos -Uri $i.URL -Name $Name -Extension $i.Extension
     }
     Install-ClangbuilderTools -Name $Name -Extension $i.Extension
+    $DownloadFile=$Name+"."+$i.Extension
+    Remove-Item -Path $DownloadFile
     if((Test-Path "$Name")){
         if((Test-Path "$Name.bak")){
             Remove-Item -Force -Recurse "$Name.bak"

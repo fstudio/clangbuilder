@@ -25,7 +25,7 @@ Function Find-ExecutablePath{
     }
     $wapperdir="$Name\cmd"
     if((Test-Path $wapperdir)){
-        $d=Get-Item -Path $exebin
+        $d=Get-Item -Path $wapperdir
         return $d.FullName
     }
     # self exe

@@ -18,7 +18,6 @@ param (
     [Switch]$NMake,
     [Switch]$Released,
     [Switch]$Install,
-    [Switch]$MSYS2,
     [Switch]$Clear
 )
 
@@ -60,12 +59,7 @@ if($Clear){
 }
 
 Invoke-Expression -Command "$PSScriptRoot/Model/VisualStudioSub$VisualStudio.ps1 $Arch"
-
-if($MSYS2){
-    Invoke-Expression -Command "$PSScriptRoot/DiscoverToolChain.ps1 -MSYS2"
-}else{
-    Invoke-Expression -Command "$PSScriptRoot/DiscoverToolChain.ps1"
-}
+Invoke-Expression -Command "$ClangbuilderRoot/packages/PathLoaderEx.ps1"
 
 if($LLDB){
     Invoke-Expression -Command "$PSScriptRoot/RestoreLLDBRequired.ps1 -Arch $Arch"

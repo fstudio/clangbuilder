@@ -13,7 +13,6 @@ param (
 
     [ValidateSet("110", "120", "140", "141", "150")]
     [String]$VisualStudio="120",
-    [Switch]$Msys2,
     [Switch]$Clear
 )
 
@@ -28,14 +27,13 @@ if($PSVersionTable.PSVersion.Major -lt 3)
     Exit
 }
 
-$Host.UI.RawUI.WindowTitle="Clangbuilder PowerShell Utility"
+$Host.UI.RawUI.WindowTitle="Clangbuilder Utility"
 
-Write-Output "Clang Auto Builder [PowerShell] Utility tools"
+Write-Output "Clang Builder Utility tools [PowerShell]"
 Write-Output "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
 
-$SelfFolder=$PSScriptRoot;
-
-. "$SelfFolder/ClangBuilderUtility.ps1"
+$ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
+. "$PSScriptRoot/ClangBuilderUtility.ps1"
 
 
 if($Clear){
@@ -43,12 +41,8 @@ if($Clear){
 }
 
 
-Invoke-Expression -Command "$SelfFolder/Model/VisualStudioSub$VisualStudio.ps1 -Arch $Arch"
-if($MSYS2){
-    Invoke-Expression -Command "$SelfFolder/DiscoverToolChain.ps1 -MSYS2"
-}else{
-    Invoke-Expression -Command "$SelfFolder/DiscoverToolChain.ps1"
-}
+Invoke-Expression -Command "$PSScriptRoot/Model/VisualStudioSub$VisualStudio.ps1 -Arch $Arch"
+Invoke-Expression -Command "$ClangbuilderRoot/packages/PathLoaderEx.ps1"
 
 
 Write-Output "Clangbuilder Environment Set done
