@@ -9,7 +9,7 @@ param(
 )
 IF($PSVersionTable.PSVersion.Major -lt 3)
 {
-    Write-Error "Visual Studio Enviroment vNext Must Run on Windows PowerShell 3 or Later,`nYour PowerShell version Is :${Host}"
+    Write-Error "Clangbuilder Require PowerShell 3 or Later,`nYour PowerShell version Is :${Host}"
     [System.Console]::ReadKey()
     return
 }
