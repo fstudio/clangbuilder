@@ -2,11 +2,11 @@
     "Packages": [
         {
             "Name": "MinGit",
-            "X86URL": "https://github.com/git-for-windows/git/releases/download/v2.10.0.windows.1/MinGit-2.10.0-32-bit.zip",
-            "X64URL": "https://github.com/git-for-windows/git/releases/download/v2.10.0.windows.1/MinGit-2.10.0-64-bit.zip",
+            "X86URL": "https://github.com/git-for-windows/git/releases/download/v2.10.0.windows.1/MinGit-2.10.1-32-bit.zip",
+            "X64URL": "https://github.com/git-for-windows/git/releases/download/v2.10.1.windows.1/MinGit-2.10.1-64-bit.zip",
             "Extension": "zip",
             "Mount": "/cmd",
-            "Version": "2.10.0"
+            "Version": "2.10.1"
         },
         {
             "Name": "CMake",
