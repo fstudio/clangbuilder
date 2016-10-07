@@ -13,12 +13,6 @@ IF($PSVersionTable.BuildVersion.Major -lt 10){
     Exit
 }
 
-IF( $null -eq $env:VS150COMNTOOLS  -or (Test-Path $env:VS150COMNTOOLS) -eq $false)
-{
-    Write-Error "Visual Studio 15 might not be installed"
-    exit
-}
-
 
 . "$PSScriptRoot/VisualStudioShared.ps1"
 
@@ -36,102 +30,12 @@ IF($IsWindows64)
 
 
 $VSInstallRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VS7" -Key '15.0'
-$VisualCRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key '15.0'
-$SdkRoot=Get-RegistryValueEx -Path "$RegRouter\Microsoft SDKs\Windows\v10.0" -Key 'InstallationFolder'
-$ProductVersion=Get-RegistryValueEx -Path "$RegRouter\Microsoft SDKs\Windows\v10.0" -Key 'ProductVersion'
-$MSBuildRoot=Get-RegistryValueEx -Path "$RegRouter\MSBuild\15.0" -Key 'MSBuildOverrideTasksPath'
-#$FSharpRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\14.0\Setup\F#" -Key 'ProductDir'
+$VisualCppEnvFile="${VSInstallRoot}Common7\IDE\VisualCpp\Auxiliary\Build\vcvarsall.bat"
 
-$FrameworkDIR=""
-$WindowsSDK_ExecutablePath=""
-
-$SdkItem=Get-ChildItem "$SdkRoot\Include"
-foreach($i in $SdkItem){
-    if($i -imatch $ProductVersion){
-      $ProductVersion=$i
-    }
-}
-
-
-if($IsWindows64){
-    $FrameworkDIR64=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key 'FrameworkDir64'
-    $FrameworkVER64=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key 'FrameworkVer64'
-    $WindowsSDK_ExecutablePath=Get-RegistryValueEx -Path "$RegRouter\Microsoft SDKs\NETFXSDK\4.6.1\WinSDK-NetFx40Tools-x64" -Key 'InstallationFolder'
-    $FrameworkDIR="$FrameworkDIR64\$FrameworkVER64"
-}else{
-    $FrameworkDIR32=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key 'FrameworkDir32'
-    $FrameworkVER32=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VC7" -Key 'FrameworkVer32'
-    $WindowsSDK_ExecutablePath=Get-RegistryValueEx -Path "$RegRouter\Microsoft SDKs\NETFXSDK\4.6.1\WinSDK-NetFx40Tools" -Key 'InstallationFolder'
-    $FrameworkDIR="$FrameworkDIR32$FrameworkVER32"
-}
-
-#Append Include Directory
-Push-Include -Include "${SdkRoot}include\$ProductVersion\winrt"
-Push-Include -Include "${SdkRoot}include\$ProductVersion\shared"
-Push-Include -Include "${SdkRoot}include\$ProductVersion\um"
-Push-Include -Include "${SdkRoot}NETFXSDK\4.6.1\include\um"
-Push-Include -Include "${SdkRoot}include\$ProductVersion\ucrt"
-Push-Include -Include "${VisualCRoot}atlmfc\include"
-Push-Include -Include "${VisualCRoot}include"
-
-Push-LibraryDir -LibDIR "${SdkRoot}NETFXSDK\4.6.1\lib\$Arch"
-Push-LibraryDir -LibDIR "${SdkRoot}Lib\$ProductVersion\ucrt\$Arch"
-Push-LibraryDir -LibDIR "${SdkRoot}Lib\$ProductVersion\um\$Arch"
-
-Push-PathFront -Path "$WindowsSDK_ExecutablePath"
-Push-PathFront -Path "${VSInstallRoot}Common7\Tools"
-Push-PathFront -Path "${VSInstallRoot}Common7\IDE"
-Push-PathFront -Path "${SdkRoot}bin\x86"
-Push-PathFront -Path "${VisualCRoot}vcpackages"
-Push-PathFront -Path "$FrameworkDIR"
-
-if(Test-Path "$RegRouter\VisualStudio\15.0\Setup\F#"){
-    $FSharpRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\15.0\Setup\F#" -Key 'ProductDir'
-    Push-PathFront -Path "$FSharpRoot"
-}
-
-if($IsWindows64){
-    Push-PathFront -Path "${MSBuildRoot}amd64"
-}else{
-    Push-PathFront -Path "${MSBuildRoot}"
-}
-
-if($Arch -eq "x86"){
-    Push-LibraryDir -LibDIR "${VisualCRoot}LIB"
-    Push-LibraryDir -LibDIR "${VisualCRoot}atlmfc\LIB"
-    Push-PathFront -Path "${VisualCRoot}bin"
-}elseif($Arch -eq "x64"){
-    Push-PathFront -Path "${SdkRoot}bin\x64"
-    Push-LibraryDir -LibDIR "${VisualCRoot}LIB\amd64"
-    Push-LibraryDir -LibDIR "${VisualCRoot}atlmfc\LIB\amd64"
-    if(Test-Path "${VisualCRoot}bin\amd64"){
-        Push-PathFront -Path "${VisualCRoot}bin\amd64"
-    }else{
-        Push-PathFront -Path "${VisualCRoot}bin"
-        Push-PathFront -Path "${VisualCRoot}bin\x86_amd64"
-    }
-}elseif($Arch -eq "ARM"){
-    Push-LibraryDir -LibDIR "${VisualCRoot}LIB\arm"
-    Push-LibraryDir -LibDIR "${VisualCRoot}atlmfc\LIB\arm"
-    if($IsWindows64){
-        Push-PathFront -Path "${SdkRoot}bin\x64"
-    }
-    if(Test-Path "${VisualCRoot}bin\amd64_arm"){
-        Push-PathFront -Path "${VisualCRoot}bin\amd64"
-        Push-PathFront -Path "${VisualCRoot}bin\amd64_arm"
-    }else{
-        Push-PathFront -Path "${VisualCRoot}bin"
-        Push-PathFront -Path "${VisualCRoot}bin\x86_arm"
-    }
+if($Arch -eq "ARM"){
+    Invoke-BatchFile -Path $VisualCppEnvFile -ArgumentList x86_arm
 }elseif($Arch -eq "ARM64"){
-    if($IsWindows64){
-        Push-PathFront -Path "${SdkRoot}bin\x64"
-    }
-    if(Test-Path "${VisualCRoot}bin\amd64_arm64"){
-        Push-PathFront -Path "${VisualCRoot}bin\amd64"
-        Push-PathFront -Path "${VisualCRoot}bin\amd64_arm64"
-    }else{
-        Push-PathFront -Path "${VisualCRoot}bin"
-        Push-PathFront -Path "${VisualCRoot}bin\x86_arm64"
-    }
+    Write-Host "ARM64 stay tuned !"
+}else{
+    Invoke-BatchFile -Path $VisualCppEnvFile -ArgumentList $Arch
 }

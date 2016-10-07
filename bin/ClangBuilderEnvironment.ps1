@@ -51,5 +51,5 @@ V110 - VisualStudio 2012
 V120 - VisualStudio 2013
 V140 - VisualStudio 2015 Windows 8.1 SDK
 V141 - VisualStudio 2015 Windows 10 SDK
-V150 - VisualStudio 15 Preview
+V150 - VisualStudio 2017 (15) Preview
 "
