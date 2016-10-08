@@ -111,6 +111,7 @@ Function Start-NMakeBuilder{
 
 
 Function Start-MSBuild{
+    Write-Host "Use Visual Studio $VSTools $Arch"
     if($Arch -eq "x64"){
         &cmake "..\$SourcesDir" -G "Visual Studio $VSTools Win64" -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
         if(Test-Path "LLVM.sln"){
