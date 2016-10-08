@@ -32,6 +32,12 @@ IF($IsWindows64)
 $VSInstallRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VS7" -Key '15.0'
 $VisualCppEnvFile="${VSInstallRoot}Common7\IDE\VisualCpp\Auxiliary\Build\vcvarsall.bat"
 
+$BuiltinCMake="${VSInstallRoot}Common7\IDE\CommonExtensions\Microsoft\CMake\CMake"
+
+if((Test-Path $BuiltinCMake)){
+    Push-PathFront -Path "$BuiltinCMake\bin"
+}
+
 if($Arch -eq "ARM"){
     Invoke-BatchFile -Path $VisualCppEnvFile -ArgumentList x86_arm
 }elseif($Arch -eq "ARM64"){

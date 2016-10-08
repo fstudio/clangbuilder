@@ -58,8 +58,8 @@ if($Clear){
     Reset-Environment
 }
 
-Invoke-Expression -Command "$PSScriptRoot/Model/VisualStudioSub$VisualStudio.ps1 $Arch"
 Invoke-Expression -Command "$ClangbuilderRoot/packages/PathLoaderEx.ps1"
+Invoke-Expression -Command "$PSScriptRoot/Model/VisualStudioSub$VisualStudio.ps1 $Arch"
 
 if($LLDB){
     Invoke-Expression -Command "$PSScriptRoot/RestoreLLDBRequired.ps1 -Arch $Arch"

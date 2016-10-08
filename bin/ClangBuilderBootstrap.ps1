@@ -77,8 +77,9 @@ if($Clear){
 
 $ClangbuilderWorkdir="$ClangbuilderRoot\out\workdir"
 
-Invoke-Expression -Command "$PSScriptRoot\Model\VisualStudioSub$VisualStudio.ps1 $Arch"
 Invoke-Expression -Command "$ClangbuilderRoot/packages/PathLoaderEx.ps1"
+Invoke-Expression -Command "$PSScriptRoot\Model\VisualStudioSub$VisualStudio.ps1 $Arch"
+
 
 if($Released){
     $SourcesDir="release"

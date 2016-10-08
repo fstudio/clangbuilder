@@ -28,7 +28,7 @@ Function Push-PathBack{
         [String]$Path
     )
     if(Test-Path $Path){
-        $env:PATH="$env:PATH;$PATH"
+        $env:PATH="${env:PATH};$Path"
     }
 }
 
@@ -38,7 +38,7 @@ Function Push-PathFront{
         [String]$Path
     )
     if(Test-Path $Path){
-        $env:PATH="$PATH;$env:PATH"
+        $env:PATH="$Path;${env:PATH}"
     }
 }
 
