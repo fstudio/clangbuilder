@@ -41,6 +41,34 @@ Function Test-AddPath{
     }
 }
 
+Function Test-ExecuteFile
+{
+    param(
+        [Parameter(Position=0,Mandatory=$True,HelpMessage="Enter Execute Name")]
+        [ValidateNotNullorEmpty()]
+        [String]$ExeName
+    )
+    $myErr=@()
+     Get-command -CommandType Application $ExeName -ErrorAction SilentlyContinue -ErrorVariable +myErr
+     if($myErr.count -eq 0)
+     {
+         return $True
+     }
+     return $False
+}
+
+Function Get-RegistryValueEx{
+    param(
+        [ValidateNotNullorEmpty()]
+        [String]$Path,
+        [ValidateNotNullorEmpty()]
+        [String]$Key
+    )
+    if(!(Test-Path $Path)){
+        return 
+    }
+    (Get-ItemProperty $Path $Key).$Key
+}
 
 $LastCurrentDir=Get-Location
 Set-Location $PSScriptRoot
@@ -52,6 +80,18 @@ foreach($i in $Members){
     $Dir=Find-ExecutablePath -Name $i.Name
     if($null -ne $Dir){
         Test-AddPath $Dir
+    }
+}
+
+if(!(Test-ExecuteFile "git")){
+    $gitkey="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
+    $gitkey2="HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
+    if(Test-Path $gitkey){
+       $gitinstall=Get-RegistryValueEx $gitkey "InstallLocation"
+       Test-AddPath "${gitinstall}\bin"
+    }elseif(Test-Path $gitkey2){
+        $gitinstall=Get-RegistryValueEx $gitkey2 "InstallLocation"
+        Test-AddPath "${gitinstall}\bin"
     }
 }
 
