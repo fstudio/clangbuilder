@@ -81,11 +81,15 @@ Your can click ClangbuilderUI, select your Visual Studio Version and Arch, and c
 
 ![clangbuilder](./doc/images/ClangbuilderUI.png)
 
+## Commandline
 
+```cmd
+./bin/clangbuilder
+```
 
 ## Suggest
 
-+ Best Platform is Windows 10 x64
++ Best Platform is Windows 10 x64 (ClangbuilderUI Require Windows 8.1 or Later, Windows 7 should use cmdline)
 + -Clear flag will reset current process Environment PATH value, Resolve conflict environment variables
 + Build LLDB require Visual Studio 2015, When you not install Python 3.x ,Clangbuilder will download python.exe after inform you install.
 + Build LLDB, not test on Windows x86, maybe cannot find PYTHONHOME.
