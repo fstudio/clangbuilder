@@ -19,6 +19,7 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #define WS_NORESIZEWINDOW (WS_OVERLAPPED     | \
                              WS_CAPTION        | \
                              WS_SYSMENU        | \
+							 WS_CLIPCHILDREN | \
                              WS_MINIMIZEBOX )
 
 template<class Interface>
