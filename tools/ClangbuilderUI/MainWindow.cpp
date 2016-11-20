@@ -44,102 +44,6 @@ int RectWidth(RECT Rect)
 	return Rect.right - Rect.left;
 }
 
-class CDPI {
-public:
-	CDPI()
-	{
-		m_nScaleFactor = 0;
-		m_nScaleFactorSDA = 0;
-		m_Awareness = PROCESS_DPI_UNAWARE;
-	}
-
-	int  Scale(int x)
-	{
-		// DPI Unaware:  Return the input value with no scaling.
-		// These apps are always virtualized to 96 DPI and scaled by the system for the DPI of the monitor where shown.
-		if (m_Awareness == PROCESS_DPI_UNAWARE) {
-			return x;
-		}
-
-		// System DPI Aware:  Return the input value scaled by the factor determined by the system DPI when the app was launched.
-		// These apps render themselves according to the DPI of the display where they are launched, and they expect that scaling
-		// to remain constant for all displays on the system.
-		// These apps are scaled up or down when moved to a display with a different DPI from the system DPI.
-		if (m_Awareness == PROCESS_SYSTEM_DPI_AWARE) {
-			return MulDiv(x, m_nScaleFactorSDA, 100);
-		}
-
-		// Per-Monitor DPI Aware:  Return the input value scaled by the factor for the display which contains most of the window.
-		// These apps render themselves for any DPI, and re-render when the DPI changes (as indicated by the WM_DPICHANGED window message).
-		return MulDiv(x, m_nScaleFactor, 100);
-	}
-
-	UINT GetScale()
-	{
-		if (m_Awareness == PROCESS_DPI_UNAWARE) {
-			return 100;
-		}
-
-		if (m_Awareness == PROCESS_SYSTEM_DPI_AWARE) {
-			return m_nScaleFactorSDA;
-		}
-
-		return m_nScaleFactor;
-	}
-
-	void SetScale(__in UINT iDPI)
-	{
-		m_nScaleFactor = MulDiv(iDPI, 100, 96);
-		if (m_nScaleFactorSDA == 0) {
-			m_nScaleFactorSDA = m_nScaleFactor;  // Save the first scale factor, which is all that SDA apps know about
-		}
-		return;
-	}
-
-	PROCESS_DPI_AWARENESS GetAwareness()
-	{
-		HANDLE hProcess;
-		hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, GetCurrentProcessId());
-		GetProcessDpiAwareness(hProcess, &m_Awareness);
-		return m_Awareness;
-	}
-
-	void SetAwareness(PROCESS_DPI_AWARENESS awareness)
-	{
-		HRESULT hr = E_FAIL;
-		hr = SetProcessDpiAwareness(awareness);
-		//auto l = E_INVALIDARG;
-		if (hr == S_OK) {
-			m_Awareness = awareness;
-		} else {
-			MessageBoxW(NULL,L"SetProcessDpiAwareness Error", L"Error", MB_OK);
-		}
-		return;
-	}
-
-	// Scale rectangle from raw pixels to relative pixels.
-	void ScaleRect(__inout RECT *pRect)
-	{
-		pRect->left = Scale(pRect->left);
-		pRect->right = Scale(pRect->right);
-		pRect->top = Scale(pRect->top);
-		pRect->bottom = Scale(pRect->bottom);
-	}
-
-	// Scale Point from raw pixels to relative pixels.
-	void ScalePoint(__inout POINT *pPoint)
-	{
-		pPoint->x = Scale(pPoint->x);
-		pPoint->y = Scale(pPoint->y);
-	}
-
-private:
-	UINT m_nScaleFactor;
-	UINT m_nScaleFactorSDA;
-	PROCESS_DPI_AWARENESS m_Awareness;
-};
-
-
 const wchar_t *ArchList[] = {
 	L"x86",
 	L"x64",
@@ -165,14 +69,10 @@ MainWindow::MainWindow()
 	m_pWriteFactory(nullptr),
 	m_pWriteTextFormat(nullptr)
 {
-	g_Dpi = new CDPI();
-	g_Dpi->SetAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+
 }
 MainWindow::~MainWindow()
 {
-	if (g_Dpi) {
-		delete g_Dpi;
-	}
 	SafeRelease(&m_pWriteTextFormat);
 	SafeRelease(&m_pWriteFactory);
 	SafeRelease(&m_pBasicTextBrush);
@@ -183,23 +83,9 @@ MainWindow::~MainWindow()
 
 LRESULT MainWindow::InitializeWindow()
 {
-	HMONITOR hMonitor;
-	POINT    pt;
-	UINT     dpix = 0, dpiy = 0;
 	HRESULT  hr = E_FAIL;
 
-	// Get the DPI for the main monitor, and set the scaling factor
-	pt.x = 1;
-	pt.y = 1;
-	hMonitor = MonitorFromPoint(pt, MONITOR_DEFAULTTONEAREST);
-	hr = GetDpiForMonitor(hMonitor, MDT_EFFECTIVE_DPI, &dpix, &dpiy);
-
-	if (hr != S_OK) {
-		::MessageBox(NULL, (LPCWSTR)L"GetDpiForMonitor failed", (LPCWSTR)L"Notification", MB_OK);
-		return FALSE;
-	}
-	g_Dpi->SetScale(dpix);
-	RECT layout = { g_Dpi->Scale(100), g_Dpi->Scale(100), g_Dpi->Scale(800), g_Dpi->Scale(640) };
+	RECT layout = {100,100,800,600 };
 	Create(nullptr, layout, L"Clangbuilder Environment Utility",
 		   WS_NORESIZEWINDOW,
 		   WS_EX_APPWINDOW | WS_EX_WINDOWEDGE);
@@ -277,13 +163,13 @@ HRESULT MainWindow::OnRender()
 #pragma warning(disable:4267)
 	if (SUCCEEDED(hr)) {
 		RECT rect;
-		GetWindowRect(&rect);
+		GetClientRect(&rect);
 		m_pHwndRenderTarget->BeginDraw();
 		m_pHwndRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
 		m_pHwndRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
 
-		m_pHwndRenderTarget->DrawRectangle(D2D1::RectF(20, 10, rect.right - rect.left - 40, 150), m_AreaBorderBrush, 1.0);
-		m_pHwndRenderTarget->DrawRectangle(D2D1::RectF(20, 150, rect.right - rect.left - 40, 390), m_AreaBorderBrush, 1.0);
+		m_pHwndRenderTarget->DrawRectangle(D2D1::RectF(20, 10, rect.right - rect.left - 20, 150), m_AreaBorderBrush, 1.0);
+		m_pHwndRenderTarget->DrawRectangle(D2D1::RectF(20, 150, rect.right - rect.left - 20, rect.bottom-rect.top-20), m_AreaBorderBrush, 1.0);
 
 		for (auto &label : label_) {
 			if (label.text.empty())
@@ -416,8 +302,8 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHan
 	hCheckNMake_ = LambdaCreateWindow(WC_BUTTONW, L"Use NMake Makefiles", CHECKBOXSTYLE, 200, 310, 360, 27, nullptr);
 	hCheckLLDB_ = LambdaCreateWindow(WC_BUTTONW, L"Build LLDB (Visual Studio 2015 or Later)", CHECKBOXSTYLE, 200, 340, 360, 27, nullptr);
 	//Button_SetElevationRequiredState
-	hButtonTask_ = LambdaCreateWindow(WC_BUTTONW, L"Build Now", PUSHBUTTONSTYLE, 200, 420, 195, 30, (HMENU)IDC_BUTTON_STARTTASK);
-	hButtonEnv_ = LambdaCreateWindow(WC_BUTTONW, L"Startup Env", PUSHBUTTONSTYLE | BS_ICON, 410, 420, 195, 30, (HMENU)IDC_BUTTON_STARTENV);
+	hButtonTask_ = LambdaCreateWindow(WC_BUTTONW, L"Build Now", PUSHBUTTONSTYLE, 200, 395, 195, 30, (HMENU)IDC_BUTTON_STARTTASK);
+	hButtonEnv_ = LambdaCreateWindow(WC_BUTTONW, L"Startup Env", PUSHBUTTONSTYLE | BS_ICON, 410, 395, 195, 30, (HMENU)IDC_BUTTON_STARTENV);
 
 	HMENU hSystemMenu = ::GetSystemMenu(m_hWnd, FALSE);
 	InsertMenuW(hSystemMenu, SC_CLOSE, MF_ENABLED, IDM_CLANGBUILDER_ABOUT, L"About ClangbuilderUI\tAlt+F1");

@@ -45,7 +45,6 @@ struct KryceLabel {
 };
 
 
-class CDPI;
 class MainWindow :public CWindowImpl<MainWindow, CWindow, CMetroWindowTraits> {
 public:
 	MainWindow();
@@ -74,7 +73,6 @@ public:
 	LRESULT OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	////
 private:
-	CDPI *g_Dpi;
 	ID2D1Factory *m_pFactory;
 	ID2D1HwndRenderTarget* m_pHwndRenderTarget;
 	ID2D1SolidColorBrush* m_pBasicTextBrush;
