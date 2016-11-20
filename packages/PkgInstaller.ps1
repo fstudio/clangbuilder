@@ -35,6 +35,28 @@ Function Initialize-ZipArchive{
     }
 }
 
+Function ParseMsiArchiveFolder{
+    param(
+        [String]$Name,
+        [String]$Subdir
+    )
+    $ProgramFilesSubDir="$Name\$Subdir"
+    if((Test-Path $ProgramFilesSubDir)){
+        $Item_=Get-ChildItem -Path $ProgramFilesSubDir
+        if($Item_.Count -eq 1){
+            if($Item_[0].Attributes -ne 'Directory'){
+                Move-Item -Path $Item_[0].FullName -Destination $Name
+                return $TRUE;
+            }
+            $SubFile=$Item_[0].FullName
+            Move-Item -Force -Path "$SubFile/*" -Destination $Name
+            Remove-Item -Force -Recurse $ProgramFilesSubDir
+            return $TRUE;
+        }
+    }
+    return $FALSE;
+}
+
 Function Initialize-MsiArchive{
     param(
         [String]$Name
@@ -43,19 +65,14 @@ Function Initialize-MsiArchive{
     foreach($i in $Item_){
         Remove-Item -Path $i.FullName
     }
-    $ProgramFilesSubDir="$Name\Program Files"
-    if((Test-Path $ProgramFilesSubDir)){
-        $Item_=Get-ChildItem -Path $ProgramFilesSubDir
-        if($Item_.Count -eq 1){
-            if($Item_[0].Attributes -ne 'Directory'){
-                Move-Item -Path $Item_[0].FullName -Destination $Name
-                return true;
-            }
-            $SubFile=$Item_[0].FullName
-            Move-Item -Force -Path "$SubFile/*" -Destination $Name
-            Remove-Item -Force -Recurse $ProgramFilesSubDir
+    $result=ParseMsiArchiveFolder -Name $Name -Subdir "Program Files"
+    if(!$result){
+        $result=ParseMsiArchiveFolder -Name $Name -Subdir "ProgramFiles64"
+        if(!$result){
+            $result=ParseMsiArchiveFolder -Name $Name -Subdir "Files"
         }
     }
+    return $result
 }
 
 
