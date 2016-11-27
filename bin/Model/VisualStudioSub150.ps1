@@ -31,7 +31,9 @@ IF($IsWindows64)
 
 
 $VSInstallRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VS7" -Key '15.0'
-$VisualCppEnvFile="${VSInstallRoot}Common7\IDE\VisualCpp\Auxiliary\Build\vcvarsall.bat"
+$VisualCppEnvFile="${VSInstallRoot}\VC\Auxiliary\Build\vcvarsall.bat"
+
+#$VCBuildTools=Get-RegistryValueEx -Path ""
 
 $BuiltinCMakeDir="${VSInstallRoot}Common7\IDE\CommonExtensions\Microsoft\CMake\CMake"
 
