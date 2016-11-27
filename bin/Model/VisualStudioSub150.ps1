@@ -42,7 +42,7 @@ if((Test-Path $BuiltinCMakeDir) -and $UseBuiltinCMake){
 }
 
 if($Arch -eq "ARM"){
-    Invoke-BatchFile -Path $VisualCppEnvFile -ArgumentList x86_arm
+    Invoke-BatchFile -Path $VisualCppEnvFile -ArgumentList "x86_arm"
 }elseif($Arch -eq "ARM64"){
     Write-Host "ARM64 stay tuned !"
 }elseif($Arch -eq "x64"){
