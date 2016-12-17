@@ -190,11 +190,27 @@ if($LLDB){
     }
 }
 
-
+Function DoInstallCompilerRT{
+    param(
+        [String]$TargetDir,
+        [String]$Configuration
+    )
+    $filelist=Get-ChildItem "$TargetDir"  -Recurse *.cmake | Foreach-Object {$_.FullName}
+    foreach($file in $filelist){
+        $content=Get-Content $file
+        Clear-Content $file
+        foreach($line in $content) {
+            $lr=$line.Replace("`$(Configuration)", "$Configuration")
+            Add-Content $file -Value $lr
+        }
+    }
+}
 
 
 if($lastexitcode -eq 0 -and $Install){
     if(Test-Path "$PWD/LLVM.sln"){
+        #$(Configuration)
+        DoInstallCompilerRT -TargetDir "./projects/compiler-rt/lib" -Configuration $Flavor
         &cpack -C "$Flavor"
     }
 }
