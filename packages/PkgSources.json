@@ -10,10 +10,10 @@
         },
         {
             "Name": "CMake",
-            "X86URL": "https://cmake.org/files/v3.7/cmake-3.7.1-win64-x64.zip",
-            "X64URL": "https://cmake.org/files/v3.7/cmake-3.7.1-win64-x64.zip",
+            "X86URL": "https://cmake.org/files/v3.7/cmake-3.7.2-win64-x64.zip",
+            "X64URL": "https://cmake.org/files/v3.7/cmake-3.7.2-win64-x64.zip",
             "Extension": "zip",
-            "Version": "3.7.1"
+            "Version": "3.7.2"
         },
         {
             "Name": "Python",

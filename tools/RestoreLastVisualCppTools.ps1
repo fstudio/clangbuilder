@@ -44,6 +44,11 @@ if(!(Test-ExecuteFile "nuget")){
     $env:PATH=$env:PATH+";"+$NugetToolsDir
 }
 
+if(!(Test-ExecuteFile "nuget")){
+    Get-NuGetFile
+}
+
+
 if(!(Test-Path $VisualCppToolsInstallDir)){
     mkdir -Force $VisualCppToolsInstallDir
 }
