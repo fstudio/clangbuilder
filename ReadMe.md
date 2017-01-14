@@ -100,5 +100,5 @@ Your can click ClangbuilderUI, select your Visual Studio Version and Arch, and c
 ## Copyright
 
 Author: Force.Charlie  
-Copyright © 2016 ForceStudio. All Rights Reserved.
+Copyright © 2017 ForceStudio. All Rights Reserved.
 

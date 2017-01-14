@@ -32,7 +32,7 @@ if($PSVersionTable.PSVersion.Major -lt 3)
 
 $Host.UI.RawUI.WindowTitle="Clangbuilder [Bootstrap Channel]"
 Write-Output "ClangBuilder Utility tools [Bootstrap Channel]"
-Write-Output "Copyright $([Char]0xA9) 2016. FroceStudio. All Rights Reserved."
+Write-Output "Copyright $([Char]0xA9) 2017. FroceStudio. All Rights Reserved."
 
 $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
 . "$PSScriptRoot\ClangBuilderUtility.ps1"
