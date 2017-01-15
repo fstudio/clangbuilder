@@ -69,9 +69,9 @@ Function Restore-Swigwin{
 
 
 $RequiredFolder="$PSScriptRoot\Required"
-$SwigwinUrl="http://sourceforge.net/projects/swig/files/swigwin/swigwin-3.0.10/swigwin-3.0.10.zip"
-$PythonUrl64="https://www.python.org/ftp/python/3.5.2/python-3.5.2-amd64.exe"
-$PythonUrl32="https://www.python.org/ftp/python/3.5.2/python-3.5.2.exe"
+$SwigwinUrl="http://sourceforge.net/projects/swig/files/swigwin/swigwin-3.0.11/swigwin-3.0.11.zip"
+$PythonUrl64="https://www.python.org/ftp/python/3.6.0/python-3.6.0-amd64.exe"
+$PythonUrl32="https://www.python.org/ftp/python/3.6.0/python-3.6.0.exe"
 #https://docs.python.org/3.5/using/windows.html
 #CMAKE -DPYTHON_HOME=$PSScriptRoot/Python$Arch
 
@@ -87,9 +87,9 @@ if(Test-Path "$RequiredFolder\swigwin\swig.exe"){
 }
 
 $IsWin64=[System.Environment]::Is64BitOperatingSystem
-$PythonRegKey="HKCU:\SOFTWARE\Python\PythonCore\3.5\InstallPath"
+$PythonRegKey="HKCU:\SOFTWARE\Python\PythonCore\3.6\InstallPath"
 if($IsWin64 -and ($Arch -eq "x86")){
-    $PythonRegKey="HKCU:\SOFTWARE\Python\PythonCore\3.5-32\InstallPath"    
+    $PythonRegKey="HKCU:\SOFTWARE\Python\PythonCore\3.6-32\InstallPath"    
 }
 
 if(!(Test-Path $PythonRegKey)){
