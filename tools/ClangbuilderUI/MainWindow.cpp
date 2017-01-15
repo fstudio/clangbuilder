@@ -358,7 +358,7 @@ LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOO
 	MessageWindowEx(
 		m_hWnd,
 		L"About Clangbuilder",
-		L"Prerelease: 1.0.0.0\nCopyright \xA9 2016, Force Charlie. All Rights Reserved.",
+		L"Prerelease: 1.0.0.0\nCopyright \xA9 2017, Force Charlie. All Rights Reserved.",
 		L"For more information about this tool.\nVisit: <a href=\"http://forcemz.net/\">forcemz.net</a>",
 		kAboutWindow);
 	return S_OK;
