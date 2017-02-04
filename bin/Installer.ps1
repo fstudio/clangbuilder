@@ -19,6 +19,10 @@ $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
 
 . "$ClangbuilderRoot/tools/RestoreUtilitytools.ps1"
 
+if(!(Test-Path "$ClangbuilderRoot/pkgs")){
+    mkdir -Path "$ClangbuilderRoot/pkgs"
+}
+
 if($Reset){
     Remove-Item -Recurse -Force "$ClangbuilderRoot/pkgs/*"
 }
