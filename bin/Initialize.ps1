@@ -21,6 +21,15 @@ Function Global:Test-AddPathEx{
     }
 }
 
+Function Global:Update-Title{
+    param(
+        [String]$Title
+    )
+    $MyTitle=$Host.UI.RawUI.WindowTitle+$Title
+    $Host.UI.RawUI.WindowTitle=$MyTitle
+}
+
+
 $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
 $HomeDir=$env:HOMEDRIVE+$env:HOMEPATH;
 $InitializeFile="$ClangbuilderRoot/config/initialize.json"
