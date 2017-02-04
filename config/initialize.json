@@ -1,0 +1,6 @@
+{
+    "Title":"Clangbuilder Initialize Environment",
+    "PATH":[
+        "@tools/nuget"
+    ]
+}
