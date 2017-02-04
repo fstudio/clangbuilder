@@ -36,7 +36,6 @@ Function Add-AbstractPath{
     }else{
         $FullDir=$Dir;
     }
-    Write-Host "Show $FullDir"
     Test-AddPathEx -Path $FullDir
 }
 
