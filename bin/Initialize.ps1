@@ -29,6 +29,11 @@ Function Global:Update-Title{
     $Host.UI.RawUI.WindowTitle=$MyTitle
 }
 
+Function Test-IsAdministrator{
+([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
+        [Security.Principal.WindowsBuiltInRole] "Administrator")
+}
+
 
 $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
 $HomeDir=$env:HOMEDRIVE+$env:HOMEPATH;

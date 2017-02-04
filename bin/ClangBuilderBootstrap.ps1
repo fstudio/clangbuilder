@@ -19,20 +19,9 @@ param (
     [Switch]$Clear
 )
 
-if($PSVersionTable.PSVersion.Major -lt 3)
-{
-    $PSVersionString=$PSVersionTable.PSVersion.Major
-    Write-Error "Clangbuilder must run under PowerShell 3.0 or later host environment !"
-    Write-Error "Your PowerShell Version:$PSVersionString"
-    if($Host.Name -eq "ConsoleHost"){
-        [System.Console]::ReadKey()
-    }
-    Exit
-}
+. "$PSScriptRoot/Initialize.ps1"
 
-$Host.UI.RawUI.WindowTitle="Clangbuilder [Bootstrap Channel]"
-Write-Output "ClangBuilder Utility tools [Bootstrap Channel]"
-Write-Output "Copyright $([Char]0xA9) 2017. FroceStudio. All Rights Reserved."
+Update-Title -Title " [Bootstrap]"
 
 $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
 . "$PSScriptRoot\ClangBuilderUtility.ps1"
@@ -77,7 +66,7 @@ if($Clear){
 
 $ClangbuilderWorkdir="$ClangbuilderRoot\out\workdir"
 
-Invoke-Expression -Command "$ClangbuilderRoot/packages/PathLoaderEx.ps1"
+Invoke-Expression -Command "$PSScriptRoot/PathLoader.ps1"
 Invoke-Expression -Command "$PSScriptRoot\Model\VisualStudioSub$VisualStudio.ps1 $Arch"
 
 

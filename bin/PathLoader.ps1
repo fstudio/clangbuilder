@@ -1,8 +1,8 @@
 #!/usr/bin/env powershell
 <#############################################################################
-#  PathLoaderEx.ps1
+#  PathLoader.ps1
 #  Note: Clangbuilder Package Installer
-#  Date: 2016.09
+#  Date: 2017.01
 #  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 
@@ -71,8 +71,12 @@ Function Get-RegistryValueEx{
 }
 
 $LastCurrentDir=Get-Location
-Set-Location $PSScriptRoot
-$PkgCached=Get-Content -Path "$PSScriptRoot/Package.lock.json" |ConvertFrom-Json
+
+$ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
+$InstallDir="$ClangbuilderRoot/pkgs"
+Set-Location $InstallDir
+
+$PkgCached=Get-Content -Path "$ClangbuilderRoot/pkgs/packages.lock.json" |ConvertFrom-Json
 
 $Members=Get-Member -InputObject $PkgCached -MemberType NoteProperty
 

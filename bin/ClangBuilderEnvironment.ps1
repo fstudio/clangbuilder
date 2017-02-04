@@ -16,21 +16,9 @@ param (
     [Switch]$Clear
 )
 
-if($PSVersionTable.PSVersion.Major -lt 3)
-{
-    $PSVersionString=$PSVersionTable.PSVersion.Major
-    Write-Error "Clangbuilder must run under PowerShell 3.0 or later host environment !"
-    Write-Error "Your PowerShell Version:$PSVersionString"
-    if($Host.Name -eq "ConsoleHost"){
-        [System.Console]::ReadKey()
-    }
-    Exit
-}
+. "$PSScriptRoot/Initialize.ps1"
 
-$Host.UI.RawUI.WindowTitle="Clangbuilder Utility"
-
-Write-Output "Clang Builder Utility tools [PowerShell]"
-Write-Output "Copyright $([Char]0xA9) 2017. FroceStudio. All Rights Reserved."
+Update-Title -Title " [Env]"
 
 $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
 . "$PSScriptRoot/ClangBuilderUtility.ps1"
@@ -40,16 +28,16 @@ if($Clear){
     Reset-Environment
 }
 
-Invoke-Expression -Command "$ClangbuilderRoot/packages/PathLoaderEx.ps1"
+Invoke-Expression -Command "$PSScriptRoot/PathLoader.ps1"
 Invoke-Expression -Command "$PSScriptRoot/Model/VisualStudioSub$VisualStudio.ps1 -Arch $Arch"
 
 
 
 Write-Output "Clangbuilder Environment configure done
 Visual Studio $VisualStudioVersion Arch $Arch 
-V110 - VisualStudio 2012
-V120 - VisualStudio 2013
-V140 - VisualStudio 2015 Windows 8.1 SDK
-V141 - VisualStudio 2015 Windows 10 SDK
-V150 - VisualStudio 2017
+V110 - Visual Studio 2012
+V120 - Visual Studio 2013
+V140 - Visual Studio 2015 Windows 8.1 SDK
+V141 - Visual Studio 2015 Windows 10 SDK
+V150 - Visual Studio 2017
 "
