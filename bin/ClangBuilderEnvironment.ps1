@@ -45,7 +45,7 @@ Invoke-Expression -Command "$PSScriptRoot/Model/VisualStudioSub$VisualStudio.ps1
 
 
 
-Write-Output "Clangbuilder Environment Set done
+Write-Output "Clangbuilder Environment configure done
 Visual Studio $VisualStudioVersion Arch $Arch 
 V110 - VisualStudio 2012
 V120 - VisualStudio 2013

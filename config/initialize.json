@@ -1,6 +1,7 @@
 {
-    "Title":"Clangbuilder Initialize Environment",
-    "PATH":[
-        "@tools/nuget"
+    "Title": "Clangbuilder Utilities Environment",
+    "Welcome": "Clangbuilder Utilities Environment\n",
+    "PATH": [
+        "@tools\\nuget"
     ]
 }
