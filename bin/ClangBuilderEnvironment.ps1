@@ -21,25 +21,11 @@ param (
 Update-Title -Title " [Env]"
 
 $Sdklow=$false
-$VS="14.0"
+$VS=$VisualStudio.Substring(0,2)+".0"
 
-switch($VisualStudio){ {$_ -eq "110"}{
-        $VS="11.0"
-    }{$_ -eq "120"}{
-        $VS="12.0"
-    }{$_ -eq "140"}{
-        $Sdklow=$true
-        $VS="14.0"
-    } {$_ -eq "141"}{
-        $VS="14.0"
-    } {$_ -eq "150"}{
-        $Sdklow=$true
-        $VS="15.0"
-    } {$_ -eq "151"}{
-        $VS="15.0"
-    }
+if($VisualStudio -eq "140" -or ($VisualStudio -eq "150")){
+    $Sdklow=$true
 }
-
 
 $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
 
