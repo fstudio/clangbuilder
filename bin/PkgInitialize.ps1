@@ -16,7 +16,7 @@ Function Get-ClangbuilderToos{
         [String]$Extension
     )
     Write-Host "Downloading $Name ..."
-    Invoke-WebRequest -Uri $Uri -OutFile "$Name.$Extension"
+    Invoke-WebRequest -Uri $Uri -OutFile "$Name.$Extension" -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox
 }
 
 Function Initialize-ZipArchive{
@@ -155,7 +155,7 @@ foreach($i in $PkgMetadata.Packages){
     $Name=$i.Name
     if($i.Version -eq $PkgCached.$Name){
         $InstalledPkgMap[$Name]=$PkgCached.$Name
-        Write-Host "$Name is up to date !"
+        Write-Host -ForegroundColor Green "$Name is up to date !"
         continue 
     }
     #Invoke-WebRequest -Uri $i.X64URL -OutFile $Name.$i.Extension

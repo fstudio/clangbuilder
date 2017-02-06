@@ -50,10 +50,6 @@ if($Clear){
 Invoke-Expression -Command "$PSScriptRoot/PathLoader.ps1"
 Invoke-Expression -Command "$PSScriptRoot/Model/VisualStudioSub$VisualStudio.ps1 $Arch"
 
-if($LLDB){
-    Invoke-Expression -Command "$PSScriptRoot/RestoreLLDBRequired.ps1 -Arch $Arch"
-}
-
 if($Released){
     $SourcesDir="release"
     Write-Output "Build last released revision"
@@ -130,23 +126,11 @@ Function Start-MSBuild{
     }
 }
 
-Function Get-PythonInstall{
-    $IsWin64=[System.Environment]::Is64BitOperatingSystem
-    if($IsWin64 -and ($Arch -eq "x86")){
-        $PythonRegKey="HKCU:\SOFTWARE\Python\PythonCore\3.5-32\InstallPath"    
-    }else{
-        $PythonRegKey="HKCU:\SOFTWARE\Python\PythonCore\3.5\InstallPath"
-    }
-    if(Test-Path $PythonRegKey){
-        return (Get-ItemProperty $PythonRegKey).'(default)'
-    }
-    return $null
-}
-
 Function Start-MSbuildAddLLDB{
-    $PythonHome=Get-PythonInstall
+    . "$PSScriptRoot\LLDBInitialize.ps1"
+    $PythonHome=Get-Pyhome -Arch $Arch
     if($null -eq $PythonHome){
-        Write-Error "Cannot found Python install !"
+        Write-Error "Not Found python 3.5 or later install on your system ! "
         Exit 
     }
     if($Arch -eq "x64"){
