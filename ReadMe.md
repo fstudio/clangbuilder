@@ -5,22 +5,9 @@ Automated tools help developers on Windows platforms building LLVM and clang.
 
 ## Installation
 
-### Usually
+### PowerShell Policy
 
-Download from Github, If your known use Git
-
-```shell
-git clone https://github.com/fstudio/clangbuilder.git clangbuilder
-```
-
-Click the *Install.bat* in the clangbuilder directory, this will run PowerShell startup  *bin/Installer.ps1* 
-
-It is recommended that whenever you have PowerShell scripts, and try not to delete the project file in the tools directory.
-
-Similarly, you can start a PowerShell runs Install.ps1, generally run PowerShell scripts on the Windows right-click menu option, you can right-click the menu "*run with PowerShell*"
-Above procedure does not require administrator privileges.
-
-If you are unable to run the script, please enter
+Often you need to change the Power Shell execution policy
 
 ```powershell
 Get-ExecutionPolicy
@@ -35,6 +22,24 @@ Please run PowerShell with administrator rights, and Enter:
 ```powershell
 Set-ExecutionPolicy RemoteSigned
 ```
+
+### General Setup
+
+Clone clangbuilder on Github
+
+```shell
+git clone https://github.com/fstudio/clangbuilder.git clangbuilder
+```
+
+Click the *Install.bat* in the clangbuilder directory, this will run PowerShell startup  *bin/Installer.ps1* 
+
+The installation script will compile ClangbuilderUI and create a shortcut, download required packages.
+
+Directory layout is as follows:
+
+![images-1](./doc/images/treelayout.png)
+
+
 
 
 
