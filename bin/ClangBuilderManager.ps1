@@ -54,17 +54,17 @@ if($Released){
     $SourcesDir="release"
     Write-Output "Build last released revision"
     if($LLDB){
-        Invoke-Expression -Command "$PSScriptRoot/RestoreClangReleased.ps1 -LLDB"
+        Invoke-Expression -Command "$PSScriptRoot\LLVMInitialize.ps1 -LLDB" 
     }else{
-        Invoke-Expression -Command "$PSScriptRoot/RestoreClangReleased.ps1"
+        Invoke-Expression -Command "$PSScriptRoot\LLVMInitialize.ps1" 
     }
 }else{
     $SourcesDir="mainline"
     Write-Output "Build trunk branch"
     if($LLDB){
-        Invoke-Expression -Command "$PSScriptRoot/RestoreClangMainline.ps1 -LLDB"
+        Invoke-Expression -Command "$PSScriptRoot\LLVMInitialize.ps1 -LLDB -Mainline" 
     }else{
-        Invoke-Expression -Command "$PSScriptRoot/RestoreClangMainline.ps1"
+        Invoke-Expression -Command "$PSScriptRoot\LLVMInitialize.ps1 -Mainline" 
     }
 }
 

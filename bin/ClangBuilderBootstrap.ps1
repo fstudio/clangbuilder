@@ -30,7 +30,7 @@ $VSTools="12"
 $MSVCFull="1800"
 if($VisualStudio -eq "110"){
     $VSTools="11"
-	$MSVCFull="1700"
+    $MSVCFull="1700"
 }elseif($VisualStudio -eq "120"){
     $VSTools="12"
     $MSVCFull="1800"
@@ -69,15 +69,14 @@ $ClangbuilderWorkdir="$ClangbuilderRoot\out\workdir"
 Invoke-Expression -Command "$PSScriptRoot/PathLoader.ps1"
 Invoke-Expression -Command "$PSScriptRoot\Model\VisualStudioSub$VisualStudio.ps1 $Arch"
 
-
 if($Released){
     $SourcesDir="release"
     Write-Output "Build last released revision"
-    Invoke-Expression -Command "$PSScriptRoot\RestoreClangReleased.ps1"
+    Invoke-Expression -Command "$PSScriptRoot\LLVMInitialize.ps1"
 }else{
     $SourcesDir="mainline"
     Write-Output "Build trunk branch"
-    Invoke-Expression -Command "$PSScriptRoot\RestoreClangMainline.ps1"
+    Invoke-Expression -Command "$PSScriptRoot\LLVMInitialize.ps1 -mainline"
 }
 
 if(!(Test-Path $ClangbuilderWorkdir)){
