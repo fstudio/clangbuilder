@@ -74,7 +74,7 @@ Your can click ClangbuilderUI, select your Visual Studio Version and Arch, and c
 
 ## Startup Env
 
-When you only need to start a console environment, you can click on the 'Startup Env'。
+When you only need to start a console environment, you can click on the `Startup Env`。
 
 ## Add Portable Utilities
 
