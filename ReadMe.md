@@ -69,9 +69,17 @@ Your can click ClangbuilderUI, select your Visual Studio Version and Arch, and c
 ## Suggest
 
 + Best Platform is Windows 10 x64 
-+ -Clear flag will reset current process Environment PATH value, Resolve conflict environment variables
-+ Build LLDB require Visual Studio 2015, When you not install Python 3.x ,Clangbuilder will download python.exe after inform you install.
-+ Build LLDB, not test on Windows x86, maybe cannot find PYTHONHOME.
++ Select `Use Clean Environment` will reset current process Environment PATH value, Resolve conflict environment variables
++ If your will build lldb, your should install python3.
+
+## Startup Env
+
+When you only need to start a console environment, you can click on the 'Startup Env'。
+
+## Add Portable Utilities
+
+You can modify `config/packages.json`, 
+and then double-click install.bat to the software you need as part of the Clangbuilder is added to the environment
 
 
 
