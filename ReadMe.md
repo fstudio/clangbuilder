@@ -1,6 +1,7 @@
-# ClangBuilder
+# Clangbuilder
 
-ClangBuilder is Build Clang Environment On Windows. Fecth Packages, Auto build
+Automated tools help developers on Windows platforms building LLVM and clang.
+ 
 
 ## Installation
 
@@ -12,7 +13,7 @@ Download from Github, If your known use Git
 git clone https://github.com/fstudio/clangbuilder.git clangbuilder
 ```
 
-Click the *Install.bat* in the clangbuilder directory, this will run PowerShell startup  *bin/Installer/Install.ps1* 
+Click the *Install.bat* in the clangbuilder directory, this will run PowerShell startup  *bin/Installer.ps1* 
 
 It is recommended that whenever you have PowerShell scripts, and try not to delete the project file in the tools directory.
 
@@ -36,41 +37,19 @@ Set-ExecutionPolicy RemoteSigned
 ```
 
 
-#### Web Installer
-
-PowerShell, Enter:
-
-```powershell
-&{$wc=New-Object System.Net.WebClient;$wc.Proxy=[System.Net.WebRequest]::DefaultWebProxy;$wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;Invoke-Expression ($wc.DownloadString('https://raw.githubusercontent.com/fstudio/clangbuilder/master/bin/Installer/WebInstall.ps1'))}
-```
-
-Or CMD Enter:
-
-```cmd
-@powershell -NoProfile -ExecutionPolicy unrestricted -Command "&{$wc=New-Object System.Net.WebClient;$wc.Proxy=[System.Net.WebRequest]::DefaultWebProxy;$wc.Proxy.Credentials=[System.Net.CredentialCache]::DefaultNetworkCredentials;Invoke-Expression ($wc.DownloadString('https://raw.githubusercontent.com/fstudio/clangbuilder/master/bin/Installer/WebInstall.ps1'))}"
-```
-
-By default **Your Should Input Your Clangbuilder Install Loaction!!!!**
-
 
 ## Clang on Windows
 
-Clangbuilder Now Only support use Visual C++ build Clang LLVM LLDB. And Best Visual Studio Version:
+Clangbuilder Now Only support use Visual C++ build Clang LLVM LLDB. 
+
+Best Visual Studio Version:
 
 >VisualStudio 2015
 
-Aslo, Your can use MSYS2, use pacman install Clang.
+Additional, Your can use MSYS2, use pacman install Clang.
 
 ```shell
 pacman -S clang
-```
-
-## Automated build
-
-run
-
-```cmd
-PowerShell -File .\bin\ClangbuilderManager.ps1 -VisualStudio 120 -Arch x64 -Flavor Release -Clear -Static
 ```
 
 

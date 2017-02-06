@@ -21,7 +21,6 @@ param (
 Update-Title -Title " [Env]"
 
 $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
-. "$PSScriptRoot/ClangBuilderUtility.ps1"
 
 
 if($Clear){

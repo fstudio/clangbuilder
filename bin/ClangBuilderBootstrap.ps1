@@ -22,9 +22,7 @@ param (
 . "$PSScriptRoot/Initialize.ps1"
 
 Update-Title -Title " [Bootstrap]"
-
 $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
-. "$PSScriptRoot\ClangBuilderUtility.ps1"
 
 $VSTools="12"
 $MSVCFull="1800"

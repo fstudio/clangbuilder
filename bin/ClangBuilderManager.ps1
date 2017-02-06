@@ -26,7 +26,6 @@ param (
 Update-Title -Title " [Building]"
 
 $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
-. "$PSScriptRoot/ClangBuilderUtility.ps1"
 
 $VSTools="12"
 if($VisualStudio -eq "110"){
