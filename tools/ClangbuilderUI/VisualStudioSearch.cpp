@@ -7,7 +7,8 @@ static VisualStudioToolsEnv vsenv[] = {
 	{ L"12.0", L"Visual Studio 2013 for Windows 8.1", 120 },
 	{ L"14.0", L"Visual Studio 2015 for Windows 8.1", 140 },
 	{ L"14.0", L"Visual Studio 2015 for Windows 10", 141 },
-	{ L"15.0", L"Visual Studio 2017 for Windows10", 150 }
+	{ L"15.0", L"Visual Studio 2017 for Windows 8.1", 150 },
+	{ L"15.0", L"Visual Studio 2017 for Windows 10", 151 }
 };
 
 /// HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\VisualStudio\SxS\VS7 11.0 12.0 14.0 15.0

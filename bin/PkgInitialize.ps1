@@ -81,10 +81,11 @@ Function Initialize-ClangbuilderTools{
         [String]$Name,
         [String]$Extension
     )
-    Switch($Extension)
-    {
-        {$_ -eq "zip"}{Initialize-ZipArchive -Name $Name}
-        {$_ -eq "msi"}{Initialize-MsiArchive -Name $Name}
+    Switch($Extension) { {$_ -eq "zip"}{
+            Initialize-ZipArchive -Name $Name
+        } {$_ -eq "msi"}{
+            Initialize-MsiArchive -Name $Name
+        }
     }
 }
 
@@ -95,7 +96,7 @@ Function Expand-Msi{
         [Parameter(Position=1,Mandatory=$True,HelpMessage="Unpack Directory")]
         [String]$DestinationPath
     )
-        if(Test-Path $Path){
+    if(Test-Path $Path){
         $retValue=99
         $process=Start-Process -FilePath "msiexec" -ArgumentList "/a `"$Path`" /qn TARGETDIR=`"$DestinationPath`""  -PassThru -WorkingDirectory "$PSScriptRoot"
         Wait-Process -InputObject $process
@@ -115,23 +116,24 @@ Function Expand-Msi{
 # Expand-Archive 
 # Install Package
 Function Install-ClangbuilderTools{
-param(
-    [String]$Name,
-    [ValidateSet("zip","msi")]
-    [String]$Extension
-)
-$File=$Name+"."+$Extension
+    param(
+        [String]$Name,
+        [ValidateSet("zip","msi")]
+        [String]$Extension
+    )
+    $File=$Name+"."+$Extension
 
-if(!(Test-Path $File)){
-    Write-Host "$File Not Found, download failed !"
-    return $False
-}
+    if(!(Test-Path $File)){
+        Write-Host "$File Not Found, download failed !"
+        return $False
+    }
 
-Switch($Extension)
-{
-    {$_ -eq "zip"}{Expand-Archive -Path $File -DestinationPath $Name}
-    {$_ -eq "msi"}{Expand-Msi -Path $File -DestinationPath $Name}
-}
+    Switch($Extension) { {$_ -eq "zip"}{
+            Expand-Archive -Path $File -DestinationPath $Name
+        } {$_ -eq "msi"}{
+            Expand-Msi -Path $File -DestinationPath $Name
+        }
+    }
 }
 
 $LastCurrentDir=Get-Location
@@ -164,11 +166,11 @@ foreach($i in $PkgMetadata.Packages){
         Rename-Item $Name "$Name.bak"
     }
     if($null -eq  $i.URL){
-       if($IsWindows64){
-           Get-ClangbuilderToos -Uri $i.X64URL -Name $Name -Extension $i.Extension
-       }else{
-           Get-ClangbuilderToos -Uri $i.X86URL -Name $Name -Extension $i.Extension
-       }
+        if($IsWindows64){
+            Get-ClangbuilderToos -Uri $i.X64URL -Name $Name -Extension $i.Extension
+        }else{
+            Get-ClangbuilderToos -Uri $i.X86URL -Name $Name -Extension $i.Extension
+        }
     }else{
         Get-ClangbuilderToos -Uri $i.URL -Name $Name -Extension $i.Extension
     }
