@@ -37,7 +37,7 @@ The installation script will compile ClangbuilderUI and create a shortcut, downl
 
 Directory layout is as follows:
 
-![images-1](./doc/images/treelayout.png)
+![images-1](./docs/images/treelayout.png)
 
 
 
@@ -63,7 +63,7 @@ pacman -S clang
 
 Your can click ClangbuilderUI, select your Visual Studio Version and Arch, and configuration
 
-![clangbuilder](./doc/images/ClangbuilderUI.png)
+![clangbuilder](./docs/images/ClangbuilderUI.png)
 
 ## Commandline
 
