@@ -30,6 +30,27 @@ Function Update-LLVM{
     Pop-Location
 }
 
+Function CheckWorktree{
+    param(
+        [String]$Folder,
+        [String]$Url
+    )
+    Push-Location $PWD
+    IF(Test-Path "$Folder"){
+        if(Test-Path "$Folder/.svn"){
+            Set-Location "$Folder"
+            [xml]$info=svn info --xml
+            if($info.info.entry.url -ne $Url){
+                Pop-Location
+                Remove-Item $Folder -Force -Recurse
+            }
+        }else{
+            Remove-Item $Folder -Force -Recurse
+        }
+    }
+    Pop-Location
+}
+
 $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
 $LatestObj=Get-Content -Path "$ClangbuilderRoot/config/latest.json" |ConvertFrom-Json
 
@@ -45,6 +66,7 @@ if($Mainline){
 }else{
     $UrlSuffix="tags/$TagName"
     $SourcesDir="$OutDir\release"
+    CheckWorktree -Folder $SourcesDir -Url "$LLVMRepositoriesRoot/llvm/$UrlSuffix"
 }
 
 
