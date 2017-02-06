@@ -27,19 +27,25 @@ Update-Title -Title " [Building]"
 
 $ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
 
-$VSTools="12"
-if($VisualStudio -eq "110"){
-    $VSTools="11"
-}elseif($VisualStudio -eq "120"){
-    $VSTools="12"
-}elseif($VisualStudio -eq "140"){
-    $VSTools="14"
-}elseif($VisualStudio -eq "141"){
-    $VSTools="14"
-}elseif($VisualStudio -eq "150"){
-    $VSTools="15"
-}ELSE{
-    Write-Error "Unknown VisualStudio Version: $VisualStudio"
+
+$Sdklow=$false
+$VS="14.0"
+
+switch($VisualStudio){ {$_ -eq "110"}{
+        $VS="11.0"
+    }{$_ -eq "120"}{
+        $VS="12.0"
+    }{$_ -eq "140"}{
+        $Sdklow=$true
+        $VS="14.0"
+    } {$_ -eq "141"}{
+        $VS="14.0"
+    } {$_ -eq "150"}{
+        $Sdklow=$true
+        $VS="15.0"
+    } {$_ -eq "151"}{
+        $VS="15.0"
+    }
 }
 
 if($Clear){
@@ -47,7 +53,12 @@ if($Clear){
 }
 
 Invoke-Expression -Command "$PSScriptRoot/PathLoader.ps1"
-Invoke-Expression -Command "$PSScriptRoot/Model/VisualStudioSub$VisualStudio.ps1 $Arch"
+if($Sdklow){
+    Invoke-Expression -Command "$PSScriptRoot/VisualStudioEnvinit.ps1 -Arch $Arch -VisualStudio $VS -Sdklow"
+}else{
+    Invoke-Expression -Command "$PSScriptRoot/VisualStudioEnvinit.ps1 -Arch $Arch -VisualStudio $VS"
+}
+
 
 if($Released){
     $SourcesDir="release"

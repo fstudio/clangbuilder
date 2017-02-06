@@ -101,6 +101,7 @@ if($VisualStudio -eq "15.0"){
 }
 
 if($Sdklow){
+    Write-Host "Attention Please: Use Windows 8.1 SDK"
     $ArgumentList +=" 8.1"
 }
 
