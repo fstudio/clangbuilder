@@ -63,7 +63,7 @@ pacman -S clang
 
 Your can click ClangbuilderUI, select your Visual Studio Version and Arch, and configuration
 
-![clangbuilder](./images/ClangbuilderUI.png)
+![clangbuilder](./images/cbui.png)
 
 ## Commandline
 
@@ -77,9 +77,9 @@ Your can click ClangbuilderUI, select your Visual Studio Version and Arch, and c
 + Select `Use Clean Environment` will reset current process Environment PATH value, Resolve conflict environment variables
 + If your will build lldb, your should install python3.
 
-## Startup Env
+## Environment Console
 
-When you only need to start a console environment, you can click on the `Startup Env`。
+When you only need to start a console environment, you can click on the `Environment Console`。
 
 ## Add Portable Utilities
 

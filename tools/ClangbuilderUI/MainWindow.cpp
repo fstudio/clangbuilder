@@ -303,8 +303,8 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHan
 	hCheckNMake_ = LambdaCreateWindow(WC_BUTTONW, L"Use NMake Makefiles", CHECKBOXSTYLE, 200, 310, 360, 27, nullptr);
 	hCheckLLDB_ = LambdaCreateWindow(WC_BUTTONW, L"Build LLDB (Visual Studio 2015 or Later)", CHECKBOXSTYLE, 200, 340, 360, 27, nullptr);
 	//Button_SetElevationRequiredState
-	hButtonTask_ = LambdaCreateWindow(WC_BUTTONW, L"Build Now", PUSHBUTTONSTYLE, 200, 395, 195, 30, (HMENU)IDC_BUTTON_STARTTASK);
-	hButtonEnv_ = LambdaCreateWindow(WC_BUTTONW, L"Startup Env", PUSHBUTTONSTYLE | BS_ICON, 410, 395, 195, 30, (HMENU)IDC_BUTTON_STARTENV);
+	hButtonTask_ = LambdaCreateWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 395, 195, 30, (HMENU)IDC_BUTTON_STARTTASK);
+	hButtonEnv_ = LambdaCreateWindow(WC_BUTTONW, L"Environment Console", PUSHBUTTONSTYLE | BS_ICON, 405, 395, 195, 30, (HMENU)IDC_BUTTON_STARTENV);
 
 	HMENU hSystemMenu = ::GetSystemMenu(m_hWnd, FALSE);
 	InsertMenuW(hSystemMenu, SC_CLOSE, MF_ENABLED, IDM_CLANGBUILDER_ABOUT, L"About ClangbuilderUI\tAlt+F1");
