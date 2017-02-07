@@ -11,7 +11,7 @@ param (
     [ValidateSet("Release", "Debug", "MinSizeRel", "RelWithDebug")]
     [String]$Flavor = "Release",
 
-    [ValidateSet("110", "120", "140", "141", "150")]
+    [ValidateSet("110", "120", "140", "141", "150","151")]
     [String]$VisualStudio="120",
     [Switch]$LLDB,
     [Switch]$Static,
