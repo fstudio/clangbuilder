@@ -18,7 +18,7 @@ param (
 
 . "$PSScriptRoot/Initialize.ps1"
 
-Update-Title -Title " [Env]"
+Update-Title -Title " [Console Environment]"
 
 $Sdklow=$false
 $VS=$VisualStudio.Substring(0,2)+".0"
