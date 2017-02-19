@@ -55,6 +55,15 @@ if(!(Test-Path $VisualCppToolsInstallDir)){
 
 Set-Location $VisualCppToolsInstallDir
 
+Function CompareVersion(){
+    param(
+        [String]$Pre,
+        [String]$Next
+    )
+
+}
+
+
 
 $NugetXml=Invoke-WebRequest -Uri "$NuGetAddSource/Packages"
 
@@ -62,7 +71,15 @@ $PackageMetadata=[xml]$NugetXml.Content
 
 $VisualCppToolsURL=$PackageMetadata.feed.entry.content.src
 
-$VisualCppToolsVersion=$PackageMetadata.feed.entry.properties.Version
+$VisualCppToolsVersionRaw=$PackageMetadata.feed.entry.properties.Version
+
+if($VisualCppToolsVersionRaw.GetType().IsArray){
+    Write-Host "VisualCppTools: $VisualCppToolsVersionRaw"
+    $VisualCppToolsVersion=$VisualCppToolsVersionRaw[$VisualCppToolsVersionRaw.Count-1]
+
+}else{
+    $VisualCppToolsVersion=$VisualCppToolsVersionRaw
+}
 
 if((Test-Path "$PSScriptRoot/VisualCppTools.lock.json")){
     $Pkglock=Get-Content "$PSScriptRoot/VisualCppTools.lock.json" |ConvertFrom-Json
