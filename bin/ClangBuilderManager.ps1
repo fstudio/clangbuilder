@@ -84,85 +84,50 @@ if($Static){
 }
 
 
-Function Start-NMakeBuilder{
-    $NumberOfLogicalProcessors=(Get-WmiObject Win32_Processor).NumberOfLogicalProcessors
-    Write-Output "Number Of Logical Processor: $NumberOfLogicalProcessors"
-    cmake "..\$SourcesDir" -G"NMake Makefiles" -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DCMAKE_BUILD_TYPE="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
-    if(Test-Path "Makefile"){
-         &cmake --build . --config "$Flavor"
-    }
+$VisualStudioTarget="Visual Studio $VSTools"
+
+if($Arch -eq "x64"){
+    $VisualStudioTarget+=" Win64"
+}elseif($Arch -eq "ARM"){
+    $VisualStudioTarget+=" ARM"
+}elseif($Arch -eq "ARM64"){
+    $VisualStudioTarget+=" ARM64"
 }
 
-
-Function Start-MSBuild{
-    Write-Host "Use Visual Studio $VSTools $Arch"
-    if($Arch -eq "x64"){
-        &cmake "..\$SourcesDir" -G "Visual Studio $VSTools Win64" -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
-        if(Test-Path "LLVM.sln"){
-            #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=x64 /t:ALL_BUILD
-            &cmake --build . --config "$Flavor"
-        }
-
-    }elseif($Arch -eq "ARM"){
-        &cmake "..\$SourcesDir" -G "Visual Studio $VSTools ARM" -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
-        if(Test-Path "LLVM.sln"){
-            #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=ARM /t:ALL_BUILD
-            &cmake --build . --config "$Flavor"
-        }
-
-    }elseif($Arch -eq "ARM64" -and $VisualStudio -ge 141){
-        &cmake "..\$SourcesDir" -G "Visual Studio $VSTools ARM64" -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_ENABLE_ASSERTIONS=ON  -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
-        if(Test-Path "LLVM.sln"){
-            #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration=$Flavor /p:Platform=ARM64 /t:ALL_BUILD
-            &cmake --build . --config "$Flavor"
-        }
-    }else{
-        &cmake "..\$SourcesDir" -G "Visual Studio $VSTools" -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
-        if(Test-Path "LLVM.sln"){
-            #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=win32 /t:ALL_BUILD
-            &cmake --build . --config "$Flavor"
-        }
-    }
-}
-
-Function Start-MSbuildAddLLDB{
+if($LLDB){
     . "$PSScriptRoot\LLDBInitialize.ps1"
     $PythonHome=Get-Pyhome -Arch $Arch
     if($null -eq $PythonHome){
         Write-Error "Not Found python 3.5 or later install on your system ! "
         Exit 
     }
-    if($Arch -eq "x64"){
-        &cmake "..\$SourcesDir" -GNinja -DPYTHON_HOME="$PythonHome" -DLLDB_RELOCATABLE_PYTHON=1  -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
-        #-DLLDB_TEST_COMPILER="$PWD\bin\$Flavor\clang.exe"
-        if(Test-Path "build.ninja"){
+    Write-Host -ForegroundColor Yellow "Building LLVM with lldb,msbuild, $VisualStudioTarget"
+    &cmake "..\$SourcesDir" -G $VisualStudioTarget -DPYTHON_HOME="$PythonHome" -DLLDB_RELOCATABLE_PYTHON=1  -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
+    if(Test-Path "LLVM.sln"){
+        #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=x64 /t:ALL_BUILD
+        &cmake --build . --config "$Flavor"
+    }
+}else{
+    if ($NMake) {
+        $NumberOfLogicalProcessors=(Get-WmiObject Win32_Processor).NumberOfLogicalProcessors
+        Write-Output "Processor count: $NumberOfLogicalProcessors"
+        Write-Host -ForegroundColor Yellow "Building LLVM without lldb, NMake, $VisualStudioTarget"
+        cmake "..\$SourcesDir" -G"NMake Makefiles" -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DCMAKE_BUILD_TYPE="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
+        if(Test-Path "Makefile"){
+            &cmake --build . --config "$Flavor"
+        }
+    }else{
+        Write-Host -ForegroundColor Yellow "Building LLVM without lldb, msbuild, $VisualStudioTarget"
+        &cmake "..\$SourcesDir" -G $VisualStudioTarget -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
+        if(Test-Path "LLVM.sln"){
             #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=x64 /t:ALL_BUILD
             &cmake --build . --config "$Flavor"
         }
-    }elseif($Arch -eq "x86"){
-        &cmake "..\$SourcesDir" -GNinja -DPYTHON_HOME="$PythonHome" -DLLDB_RELOCATABLE_PYTHON=1 -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
-        #-DLLDB_TEST_COMPILER="$PWD\bin\$Flavor\clang.exe"
-        if(Test-Path "build.ninja"){
-            #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=win32 /t:ALL_BUILD
-            &cmake --build . --config "$Flavor"
-        }
-    }else{
-        Write-Error "Build lldb current not support $Arch"
     }
 }
 
-if($LLDB){
-    Write-Host "Start build llvm,include lldb"
-    Start-MSbuildAddLLDB
-}else{
-    if($NMake){
-        Start-NMakeBuilder
-    }else{
-        Start-MSBuild
-    }
-}
 
-Function DoInstallCompilerRT{
+Function FixInstall{
     param(
         [String]$TargetDir,
         [String]$Configuration
@@ -182,7 +147,7 @@ Function DoInstallCompilerRT{
 if($lastexitcode -eq 0 -and $Install){
     if(Test-Path "$PWD/LLVM.sln"){
         #$(Configuration)
-        DoInstallCompilerRT -TargetDir "./projects/compiler-rt/lib" -Configuration $Flavor
+        FixInstall -TargetDir "./projects/compiler-rt/lib" -Configuration $Flavor
         &cpack -C "$Flavor"
     }
 }
