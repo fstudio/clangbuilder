@@ -81,7 +81,8 @@ Function Initialize-ClangbuilderTools{
         [String]$Name,
         [String]$Extension
     )
-    Switch($Extension) { {$_ -eq "zip"}{
+    Switch($Extension) {
+        {$_ -eq "zip"}{
             Initialize-ZipArchive -Name $Name
         } {$_ -eq "msi"}{
             Initialize-MsiArchive -Name $Name
@@ -118,7 +119,7 @@ Function Expand-Msi{
 Function Install-ClangbuilderTools{
     param(
         [String]$Name,
-        [ValidateSet("zip","msi")]
+        [ValidateSet("zip","msi","exe")]
         [String]$Extension
     )
     $File=$Name+"."+$Extension
@@ -132,6 +133,11 @@ Function Install-ClangbuilderTools{
             Expand-Archive -Path $File -DestinationPath $Name
         } {$_ -eq "msi"}{
             Expand-Msi -Path $File -DestinationPath $Name
+        } {$_ -eq "exe"}{
+            if (!(Test-Path $Name)) {
+                mkdir $Name
+            }
+            Copy-Item -Path $File -Destination $Name -Force
         }
     }
 }
