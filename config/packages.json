@@ -2,11 +2,11 @@
     "Packages": [
         {
             "Name": "MinGit",
-            "X86URL": "https://npm.taobao.org/mirrors/git-for-windows/2.12.0.windows.2/MinGit-2.12.0.2-32-bit.zip",
-            "X64URL": "https://npm.taobao.org/mirrors/git-for-windows/2.12.0.windows.2/MinGit-2.12.0.2-64-bit.zip",
+            "X86URL": "https://npm.taobao.org/mirrors/git-for-windows/2.12.1.windows.1/MinGit-2.12.1-32-bit.zip",
+            "X64URL": "https://npm.taobao.org/mirrors/git-for-windows/2.12.1.windows.1/MinGit-2.12.1-64-bit.zip",
             "Extension": "zip",
             "Mount": "/cmd",
-            "Version": "2.12.0.2"
+            "Version": "2.12.1"
         },
         {
             "Name": "CMake",
