@@ -180,7 +180,7 @@ HRESULT MainWindow::OnRender()
 										   m_pWriteTextFormat,
 										   D2D1::RectF(label.layout.left, label.layout.top, label.layout.right, label.layout.bottom),
 										   m_pBasicTextBrush,
-										   D2D1_DRAW_TEXT_OPTIONS_NONE, DWRITE_MEASURING_MODE_NATURAL);
+										   D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT , DWRITE_MEASURING_MODE_NATURAL);
 		}
 		m_pWriteTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 		hr = m_pHwndRenderTarget->EndDraw();
