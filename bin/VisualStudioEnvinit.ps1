@@ -51,10 +51,7 @@ $IsWindows64=[System.Environment]::Is64BitOperatingSystem
 
 IF($IsWindows64) {
     $RegRouter="HKLM:\SOFTWARE\Wow6432Node\Microsoft"
-}else{
-
 }
-
 
 switch($Arch){ {$_ -eq "x64"}{
         if($IsWindows64){
