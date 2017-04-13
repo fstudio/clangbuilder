@@ -7,6 +7,18 @@
 $ClangBuilderRoot=Split-Path -Parent $PSScriptRoot
 $NugetURL="https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
 
+Function Get-RegistryValueEx{
+    param(
+        [ValidateNotNullorEmpty()]
+        [String]$Path,
+        [ValidateNotNullorEmpty()]
+        [String]$Key
+    )
+    if(!(Test-Path $Path)){
+        return 
+    }
+    (Get-ItemProperty $Path $Key).$Key
+}
 
 Function Invoke-BatchFile{
     param(
@@ -37,7 +49,17 @@ if(!(Test-Path "$PSScriptRoot\NuGet\Nuget.exe")){
     Invoke-WebRequest $NugetURL -OutFile "$PSScriptRoot\NuGet\nuget.exe"
 }
 
+$RegRouter="HKLM:\SOFTWARE\Microsoft"
+$IsWindows64=[System.Environment]::Is64BitOperatingSystem
 
+IF($IsWindows64) {
+    $RegRouter="HKLM:\SOFTWARE\Wow6432Node\Microsoft"
+}
+
+$VS15InstallRoot=Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VS7" -Key "15.0"
+
+
+$VisualStudioEnvBatch150="${VS15InstallRoot}\VC\Auxiliary\Build\vcvarsall.bat"
 $VisualStudioEnvBatch140="$env:VS140COMNTOOLS..\..\VC\vcvarsall.bat"
 $VisualStudioEnvBatch120="$env:VS120COMNTOOLS..\..\VC\vcvarsall.bat"
 $VisualStudioEnvBatch110="$env:VS110COMNTOOLS..\..\VC\vcvarsall.bat"
@@ -51,7 +73,11 @@ if([System.Environment]::Is64BitOperatingSystem -eq $True)
     $Arch="Win64"
 }
 
-if(Test-Path $VisualStudioEnvBatch140){
+if(Test-Path $VisualStudioEnvBatch150)
+{
+    Write-Host "Use Visual Studio 2017 $Arch"
+    Invoke-BatchFile -Path $VisualStudioEnvBatch150 -ArgumentList $ArchArgument
+}else if(Test-Path $VisualStudioEnvBatch140){
     Write-Host "Use Visual Studio 2015 $Arch"
     Invoke-BatchFile -Path $VisualStudioEnvBatch140 -ArgumentList $ArchArgument
 }elseif(Test-Path $VisualStudioEnvBatch120){
@@ -61,7 +87,7 @@ if(Test-Path $VisualStudioEnvBatch140){
     Write-Host "Use Visual Studio 2012 $Arch"
     Invoke-BatchFile -Path $VisualStudioEnvBatch110 -ArgumentList $ArchArgument
 }else{
-    Write-Error "Not Found any support visual studio"
+    Write-Error "ClangbuilderUI required Visual Studio 2013 or 2015 or 2017"
     return 1;
 }
 
