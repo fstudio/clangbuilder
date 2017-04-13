@@ -126,14 +126,15 @@ Function Install-ClangbuilderTools{
     $File=$Name+"."+$Extension
 
     if(!(Test-Path $File)){
-        Write-Host "$File Not Found, download failed !"
+        Write-Host "$File not exists, download failed !"
         return $False
     }
 
     Switch($Extension) { {$_ -eq "zip"}{
             Expand-Archive -Path $File -DestinationPath $Name
         } {$_ -eq "msi"}{
-            Expand-Msi -Path $File -DestinationPath $Name
+            
+            Expand-Msi -Path "$PWD\$File" -DestinationPath "$PWD\$Name"
         } {$_ -eq "exe"}{
             if (!(Test-Path $Name)) {
                 mkdir $Name
@@ -182,7 +183,9 @@ foreach($i in $PkgMetadata.Packages){
     }else{
         Get-ClangbuilderToos -Uri $i.URL -Name $Name -Extension $i.Extension
     }
-    Install-ClangbuilderTools -Name $Name -Extension $i.Extension
+    if(!(Install-ClangbuilderTools -Name $Name -Extension $i.Extension)){
+        Write-Host "Install $Name broken !"
+    }
     $DownloadFile=$Name+"."+$i.Extension
     Remove-Item -Path $DownloadFile
     if((Test-Path "$Name")){
@@ -194,8 +197,9 @@ foreach($i in $PkgMetadata.Packages){
         Move-Item "$Name.bak" "$Name"
         continue
     }
-    Initialize-ClangbuilderTools -Name $Name -Extension $i.Extension
-    
+    if(Test-Path $Name){
+        Initialize-ClangbuilderTools -Name $Name -Extension $i.Extension
+    }
 }
 
 ConvertTo-Json $InstalledPkgMap |Out-File -Force -FilePath "$InstallDir/packages.lock.json"
