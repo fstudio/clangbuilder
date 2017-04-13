@@ -77,7 +77,7 @@ if(Test-Path $VisualStudioEnvBatch150)
 {
     Write-Host "Use Visual Studio 2017 $Arch"
     Invoke-BatchFile -Path $VisualStudioEnvBatch150 -ArgumentList $ArchArgument
-}else if(Test-Path $VisualStudioEnvBatch140){
+}elseif(Test-Path $VisualStudioEnvBatch140){
     Write-Host "Use Visual Studio 2015 $Arch"
     Invoke-BatchFile -Path $VisualStudioEnvBatch140 -ArgumentList $ArchArgument
 }elseif(Test-Path $VisualStudioEnvBatch120){
