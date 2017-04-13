@@ -15,8 +15,9 @@ Function Get-ClangbuilderToos{
         [Parameter(Position=2,Mandatory=$True,HelpMessage="Package Extension")]
         [String]$Extension
     )
-    Write-Host "Downloading $Name ..."
-    Invoke-WebRequest -Uri $Uri -OutFile "$Name.$Extension" -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox
+    Write-Host "Downloading $Uri ..."
+    $Result=Invoke-WebRequest -Uri $Uri -OutFile "$Name.$Extension" -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox -PassThru
+
 }
 
 Function Initialize-ZipArchive{
@@ -151,6 +152,7 @@ Set-Location $InstallDir
 
 ### SET Path
 $IsWindows64=[System.Environment]::Is64BitOperatingSystem
+
 
 $PkgMetadata=Get-Content -Path "$ClangbuilderRoot/config/packages.json" |ConvertFrom-Json
 $PkgCached=Get-Content -Path "$InstallDir/packages.lock.json" |ConvertFrom-Json

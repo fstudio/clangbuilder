@@ -17,8 +17,8 @@
         },
         {
             "Name": "Python",
-            "X86URL": "https://www.python.org/ftp/python/2.7.11/python-2.7.11.amd64.msi",
-            "X64URL": "https://www.python.org/ftp/python/2.7.11/python-2.7.11.msi",
+            "X86URL": "https://www.python.org/ftp/python/2.7.11/python-2.7.11.msi",
+            "X64URL": "https://www.python.org/ftp/python/2.7.11/python-2.7.11.amd64.msi",
             "Extension": "msi",
             "Version": "2.7.11"
         },
