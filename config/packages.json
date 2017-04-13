@@ -55,9 +55,9 @@
         },
         {
             "Name": "vswhere",
-            "URL": "https://github.com/Microsoft/vswhere/releases/download/1.0.55/vswhere.exe",
+            "URL": "https://github.com/Microsoft/vswhere/releases/download/1.0.62/vswhere.exe",
             "Extension": "exe",
-            "Version": "1.0.55"
+            "Version": "1.0.62"
         }
     ]
 }
