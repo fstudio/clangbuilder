@@ -58,6 +58,12 @@
             "URL": "https://github.com/Microsoft/vswhere/releases/download/1.0.62/vswhere.exe",
             "Extension": "exe",
             "Version": "1.0.62"
+        },
+        {
+            "Name": "NuGet",
+            "URL": "https://dist.nuget.org/win-x86-commandline/v4.1.0/nuget.exe",
+            "Extension": "exe",
+            "Version": "4.1.0"
         }
     ]
 }
