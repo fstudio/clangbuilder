@@ -15,7 +15,7 @@ Push-Location $PWD
 $NuGetAddSource="http://vcppdogfooding.azurewebsites.net/nuget/"
 $VisualCppToolsInstallDir="$PSScriptRoot\msvc"
 $NugetToolsDir="$PSScriptRoot\Nuget"
-$NuGetURL="https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
+$NuGetURL="https://dist.nuget.org/win-x86-commandline/v4.1.0/nuget.exe"
 
 Function Get-NuGetFile{
     if(!(Test-Path "$PSScriptRoot\NuGet\nuget.exe")){

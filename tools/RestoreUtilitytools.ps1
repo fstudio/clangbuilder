@@ -5,7 +5,7 @@
 #  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 $ClangBuilderRoot=Split-Path -Parent $PSScriptRoot
-$NugetURL="https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
+$NugetURL="https://dist.nuget.org/win-x86-commandline/v4.1.0/nuget.exe"
 
 Function Get-RegistryValueEx{
     param(
