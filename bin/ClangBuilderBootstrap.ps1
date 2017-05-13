@@ -11,7 +11,7 @@ param (
     [ValidateSet("Release", "Debug", "MinSizeRel", "RelWithDebug")]
     [String]$Flavor = "Release",
 
-    [ValidateSet("110", "120", "140", "141", "150")]
+    [ValidateSet("110", "120", "140", "141", "150", "151")]
     [String]$VisualStudio = "120",
     [Switch]$Static,
     [Switch]$Released,
@@ -55,27 +55,32 @@ if ($Clear) {
 
 $ClangbuilderWorkdir = "$ClangbuilderRoot\out\workdir"
 
+$VisualStudioArgs = "$PSScriptRoot/VisualStudioEnvinit.ps1 -Arch $Arch -VisualStudio $VS"
 Invoke-Expression -Command "$PSScriptRoot/PathLoader.ps1"
 if ($Sdklow) {
-    Invoke-Expression -Command "$PSScriptRoot/VisualStudioEnvinit.ps1 -Arch $Arch -VisualStudio $VS -Sdklow"
+    $VisualStudioArgs += " -Sdklow"
 }
-else {
-    Invoke-Expression -Command "$PSScriptRoot/VisualStudioEnvinit.ps1 -Arch $Arch -VisualStudio $VS"
-}
-
+Invoke-Expression -Command $VisualStudioArgs
 Invoke-Expression -Command "$PSScriptRoot/Extranllibs.ps1 -Arch $Arch"
 
 
+$LLVMInitializeArgs = "$ClangbuilderRoot\bin\LLVMInitialize.ps1"
 if ($Released) {
-    $SourcesDir = "release"
-    Write-Output "Build last released revision"
-    Invoke-Expression -Command "$PSScriptRoot\LLVMInitialize.ps1"
+    Write-Output "LLVM Release Tag"
+    $LLVMSource = "$ClangbuilderRoot\out\release"
 }
 else {
-    $SourcesDir = "mainline"
-    Write-Output "Build trunk branch"
-    Invoke-Expression -Command "$PSScriptRoot\LLVMInitialize.ps1 -mainline"
+    Write-Output "LLVM Mainline branch"
+    $LLVMSource = "$ClangbuilderRoot\out\mainline"
+    $LLVMInitializeArgs += " -Mainline"
 }
+
+if ($LLDB) {
+    $LLVMInitializeArgs += " -LLDB"
+}
+
+# Update LLVM sources
+Invoke-Expression -Command $LLVMInitializeArgs
 
 if (!(Test-Path $ClangbuilderWorkdir)) {
     mkdir -Force $ClangbuilderWorkdir
@@ -101,7 +106,7 @@ if (!(Test-Path build_stage0)) {
 }
 Set-Location build_stage0
 
-&cmake "..\..\$SourcesDir" -GNinja -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
+&cmake "$LLVMSource" -GNinja -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
 if ($lastexitcode -ne 0) {
     exit 1
 }
@@ -123,7 +128,7 @@ $env:cflags = "-fmsc-version=$MSVCFull $ArchFlags $env:cflags"
 $env:cxxflags = "-fmsc-version=$MSVCFull $ArchFlags $env:cxxflags"
 
 # -fmsc-version=1900
-&cmake "..\..\$SourcesDir" -GNinja -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
+&cmake "$LLVMSource" -GNinja -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
 if ($lastexitcode -ne 0) {
     exit 1
 }
