@@ -53,41 +53,27 @@ IF ($IsWindows64) {
     $RegRouter = "HKLM:\SOFTWARE\Wow6432Node\Microsoft"
 }
 
-switch ($Arch) {
-    {$_ -eq "x64"} {
-        if ($IsWindows64) {
-            $ArgumentList = "amd64"
-        }
-        else {
-            $ArgumentList = "x86_amd64"
-        }
-    } {$_ -eq "x86"} {
-        if ($IsWindows64) {
-            $ArgumentList = "x86"
-        }
-        else {
-            $ArgumentList = "amd64_x86"
-        }
-    } {
-        $_ -eq "ARM"
-
-    } {
-        if ($IsWindows64) {
-            $ArgumentList = "amd64_arm"
-        }
-        else {
-            $ArgumentList = "x86_arm"
-        }
-        
-    } {$_ -eq "ARM64"} {
-        if ($IsWindows64) {
-            $ArgumentList = "amd64_arm64"
-        }
-        else {
-            $ArgumentList = "x86_arm64"
-        }
-    }
+$ArchListX86 = @{
+    "x86"   = "x86";
+    "x64"   = "x86_amd64";
+    "ARM"   = "x86_arm";
+    "ARM64" = "x64_arm64"
 }
+
+$ArchListX64 = @{
+    "x86"   = "amd64_x86";
+    "x64"   = "amd64";
+    "ARM"   = "amd64_arm";
+    "ARM64" = "amd64_arm64"
+}
+
+if ($IsWindows64) {
+    $ArgumentList = $ArchListX64[$Arch]
+}
+else {
+    $ArgumentList = $ArchListX86[$Arch]
+}
+
 
 $VSInstallRoot = Get-RegistryValueEx -Path "$RegRouter\VisualStudio\SxS\VS7" -Key $VisualStudio
 

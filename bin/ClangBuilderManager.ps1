@@ -23,7 +23,23 @@ param (
 
 . "$PSScriptRoot/Initialize.ps1"
 
-Update-Title -Title " [Progress]"
+$VisualStudioList = @{
+    "151" = "Visual Studio 2017";
+    "150" = "Visual Studio 2017 for Windows 8.1";
+    "141" = "Visual Studio 2015";
+    "140" = "Visual Studio 2015 for Windows 8.1";
+    "120" = "Visual Studio 2013";
+    "110" = "Visual Studio 2012"
+}
+$ArchList = @{
+    "x86"   = "";
+    "x64"   = "Win64";
+    "ARM"   = "ARM";
+    "ARM64" = "ARM64"
+}
+$VisualStudioProduction = $VisualStudioList[$VisualStudio]
+$ArchText = $ArchList[$Arch]
+Update-Title -Title " [$VisualStudioProduction] - $ArchText"
 
 $Global:ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
 $Global:LLDB = $LLDB
@@ -89,13 +105,7 @@ if ($NMake) {
     Update-Title " (NMake)"
 }
 else {
-    if ($Arch -eq "x64") {
-        $Global:CMakeArguments += " -G`"Visual Studio $VSTools Win64`""
-    }
-    else {
-        $Global:CMakeArguments += " -G`"Visual Studio $VSTools $Arch`""
-    }
-    Update-Title " (Visual Studio $VSTools $Arch)"
+    $Global:CMakeArguments += " -G`"Visual Studio $VSTools $ArchText`""
 }
 
 $Global:CMakeArguments += " -DCMAKE_CONFIGURATION_TYPES=$Flavor -DCMAKE_BUILD_TYPE=$Flavor -DLLVM_APPEND_VC_REV=ON"

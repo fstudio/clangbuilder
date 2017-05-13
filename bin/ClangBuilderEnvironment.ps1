@@ -18,7 +18,7 @@ param (
 
 . "$PSScriptRoot/Initialize.ps1"
 
-Update-Title -Title " [Environment]"
+
 
 $Sdklow = $false
 $VS = $VisualStudio.Substring(0, 2) + ".0"
@@ -26,6 +26,24 @@ $VS = $VisualStudio.Substring(0, 2) + ".0"
 if ($VisualStudio -eq "140" -or ($VisualStudio -eq "150")) {
     $Sdklow = $true
 }
+
+$VisualStudioList = @{
+    "151" = "Visual Studio 2017";
+    "150" = "Visual Studio 2017 for Windows 8.1";
+    "141" = "Visual Studio 2015";
+    "140" = "Visual Studio 2015 for Windows 8.1";
+    "120" = "Visual Studio 2013";
+    "110" = "Visual Studio 2012"
+}
+$ArchList = @{
+    "x86"   = "";
+    "x64"   = "Win64";
+    "ARM"   = "ARM";
+    "ARM64" = "ARM64"
+}
+$VisualStudioProduction = $VisualStudioList[$VisualStudio]
+$ArchText=$ArchList[$Arch]
+Update-Title -Title " [$VisualStudioProduction] - $ArchText"
 
 $ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
 
@@ -36,14 +54,11 @@ if ($Clear) {
 
 Invoke-Expression -Command "$PSScriptRoot/PathLoader.ps1"
 if ($Sdklow) {
-    Invoke-Expression -Command "$PSScriptRoot/VisualStudioEnvinit.ps1 -Arch $Arch -VisualStudio $VS -Sdklow"
+    $VisualStudioArgs += " -Sdklow"
 }
-else {
-    Invoke-Expression -Command "$PSScriptRoot/VisualStudioEnvinit.ps1 -Arch $Arch -VisualStudio $VS"
-}
-
+$VisualStudioArgs = "$PSScriptRoot/VisualStudioEnvinit.ps1 -Arch $Arch -VisualStudio $VS"
+Invoke-Expression -Command $VisualStudioArgs
 Invoke-Expression -Command "$PSScriptRoot/Extranllibs.ps1 -Arch $Arch"
-
 Write-Output "Clangbuilder Environment configure done
 Visual Studio $VS - $Arch 
 "
