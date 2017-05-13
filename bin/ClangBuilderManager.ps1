@@ -58,9 +58,10 @@ $Global:Released = $Released
 $Global:Install = $Install
 $Global:ClangbuilderRoot = $ClangbuilderRoot
 
+
 Function Global:Update-LLVM {
     if ($Global:Released) {
-        $SourcesDir = "release"
+        $Global:LLVMSource = "release"
         Write-Output "Build last released revision"
         if ($Global:LLDB) {
             Invoke-Expression -Command "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1 -LLDB" 
@@ -70,7 +71,7 @@ Function Global:Update-LLVM {
         }
     }
     else {
-        $SourcesDir = "mainline"
+        $Global:LLVMSource = "mainline"
         Write-Output "Build trunk branch"
         if ($Global:LLDB) {
             Invoke-Expression -Command "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1 -LLDB -Mainline" 
@@ -122,7 +123,7 @@ if ($LLDB) {
         Exit 
     }
     Write-Host -ForegroundColor Yellow "Building LLVM with lldb,msbuild, $VisualStudioTarget"
-    &cmake "..\$SourcesDir" -G $VisualStudioTarget -DPYTHON_HOME="$PythonHome" -DLLDB_RELOCATABLE_PYTHON=1  -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
+    &cmake "$Global:LLVMSource" -G $VisualStudioTarget -DPYTHON_HOME="$PythonHome" -DLLDB_RELOCATABLE_PYTHON=1  -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
     if (Test-Path "LLVM.sln") {
         #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=x64 /t:ALL_BUILD
         &cmake --build . --config "$Flavor"
@@ -133,14 +134,14 @@ else {
         $NumberOfLogicalProcessors = (Get-WmiObject Win32_Processor).NumberOfLogicalProcessors
         Write-Output "Processor count: $NumberOfLogicalProcessors"
         Write-Host -ForegroundColor Yellow "Building LLVM without lldb, NMake, $VisualStudioTarget"
-        cmake "..\$SourcesDir" -G"NMake Makefiles" -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DCMAKE_BUILD_TYPE="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
+        cmake "$Global:LLVMSource" -G"NMake Makefiles" -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DCMAKE_BUILD_TYPE="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
         if (Test-Path "Makefile") {
             &cmake --build . --config "$Flavor"
         }
     }
     else {
         Write-Host -ForegroundColor Yellow "Building LLVM without lldb, msbuild, $VisualStudioTarget"
-        &cmake "..\$SourcesDir" -G $VisualStudioTarget -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
+        &cmake "$Global:LLVMSource" -G $VisualStudioTarget -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
         if (Test-Path "LLVM.sln") {
             #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=x64 /t:ALL_BUILD
             &cmake --build . --config "$Flavor"
