@@ -2,6 +2,7 @@ out/
 ClangbuilderUI.lnk
 bin/Required/
 pkgs/
+libs/
 packages/*.bak
 packages/*.zip
 packages/Package.lock.json

@@ -87,7 +87,9 @@ You can modify `config/packages.json`,
 and then double-click install.bat to the software you need as part of the Clangbuilder is added to the environment
 
 
+## Add Extranl Libs
 
+You can add extranl lib, such as [z3](https://github.com/Z3Prover/z3) , more info to view ExternalLibs.md
 
 ## Copyright
 

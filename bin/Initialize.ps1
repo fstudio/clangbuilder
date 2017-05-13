@@ -1,58 +1,59 @@
 #!/usr/bin/env poewershell
 #initialize clangbuilder environment common
 
-if($PSVersionTable.PSVersion.Major -lt 3)
-{
-    $PSVersionString=$PSVersionTable.PSVersion.Major
+if ($PSVersionTable.PSVersion.Major -lt 3) {
+    $PSVersionString = $PSVersionTable.PSVersion.Major
     Write-Error "Clangbuilder must run under PowerShell 3.0 or later host environment !"
     Write-Error "Your PowerShell Version:$PSVersionString"
-    if($Host.Name -eq "ConsoleHost"){
+    if ($Host.Name -eq "ConsoleHost") {
         [System.Console]::ReadKey()
     }
     Exit
 }
 
-Function Global:Test-AddPathEx{
+Function Global:Test-AddPathEx {
     param(
         [String]$Path
     )
-    if(Test-Path $Path){
-        $env:Path="$Path;${env:Path}"
+    if (Test-Path $Path) {
+        $env:Path = "$Path;${env:Path}"
     }
 }
 
-Function Global:Reset-Environment{
-    $env:Path="${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
+Function Global:Reset-Environment {
+    $env:Path = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
 }
 
-Function Global:Update-Title{
+Function Global:Update-Title {
     param(
         [String]$Title
     )
-    $MyTitle=$Host.UI.RawUI.WindowTitle+$Title
-    $Host.UI.RawUI.WindowTitle=$MyTitle
+    $MyTitle = $Host.UI.RawUI.WindowTitle + $Title
+    $Host.UI.RawUI.WindowTitle = $MyTitle
 }
 
-Function Test-IsAdministrator{
-([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
-        [Security.Principal.WindowsBuiltInRole] "Administrator")
+Function Test-IsAdministrator {
+    ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
+            [Security.Principal.WindowsBuiltInRole] "Administrator")
 }
 
 
-$ClangbuilderRoot=Split-Path -Parent $PSScriptRoot
-$HomeDir=$env:HOMEDRIVE+$env:HOMEPATH;
-$InitializeFile="$ClangbuilderRoot/config/initialize.json"
+$ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
+$HomeDir = $env:HOMEDRIVE + $env:HOMEPATH;
+$InitializeFile = "$ClangbuilderRoot/config/initialize.json"
 
-Function Add-AbstractPath{
+Function Add-AbstractPath {
     param(
         [String]$Dir
     )
-    if($Dir.StartsWith("@")){
-        $FullDir=$ClangbuilderRoot+"\"+$Dir.Substring(1);
-    }elseif($Dir.StartsWith("~")){
-        $FullDir=$HomeDir+"\"+$Dir.Substring(1);
-    }else{
-        $FullDir=$Dir;
+    if ($Dir.StartsWith("@")) {
+        $FullDir = $ClangbuilderRoot + "\" + $Dir.Substring(1);
+    }
+    elseif ($Dir.StartsWith("~")) {
+        $FullDir = $HomeDir + "\" + $Dir.Substring(1);
+    }
+    else {
+        $FullDir = $Dir;
     }
     Test-AddPathEx -Path $FullDir
 }
@@ -63,11 +64,11 @@ if (!(Test-Path $InitializeFile)) {
     return 0 ### when not exists initialize.json
 }
 
-$InitializeObj=Get-Content -Path $InitializeFile |ConvertFrom-Json
+$InitializeObj = Get-Content -Path $InitializeFile |ConvertFrom-Json
 
 # Window Title
 if ($null -ne $InitializeObj.Title) {
-    $Host.UI.RawUI.WindowTitle=$InitializeObj.Title
+    $Host.UI.RawUI.WindowTitle = $InitializeObj.Title
 }
 
 
@@ -78,7 +79,7 @@ if ($null -ne $InitializeObj.Welcome) {
 # 
 
 if ($null -ne $InitializeObj.PATH) {
-    foreach($Np in $InitializeObj.PATH){
+    foreach ($Np in $InitializeObj.PATH) {
         Add-AbstractPath -Dir $Np
     }
 }
