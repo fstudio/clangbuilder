@@ -1,14 +1,14 @@
 {
-    "Repositories":[
+    "Repositories": [
         {
-            "Name":"llvm",
-            "Mount":"llvm",
-            "Uri":""
-        }
-        ,{
-            "Name":"clang",
-            "Mount":"llvm/tools/clang",
-            "Uri":""
+            "Name": "llvm",
+            "Mount": "llvm",
+            "Uri": ""
+        },
+        {
+            "Name": "clang",
+            "Mount": "llvm/tools/clang",
+            "Uri": ""
         }
     ]
 }
