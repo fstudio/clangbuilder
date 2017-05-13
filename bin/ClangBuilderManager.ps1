@@ -23,10 +23,13 @@ param (
 
 . "$PSScriptRoot/Initialize.ps1"
 
-Update-Title -Title " [Building]"
+Update-Title -Title " [Progress]"
 
-$ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
-
+$Global:ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
+$Global:LLDB = $LLDB
+$Global:Flavor = $Flavor
+$Global:Released = $Released
+$Global:Install = $Install
 
 $Sdklow = $false
 $VSTools = $VisualStudio.Substring(0, 2)
@@ -41,53 +44,34 @@ if ($Clear) {
     Reset-Environment
 }
 
+$VisualStudioArgs = "$PSScriptRoot/VisualStudioEnvinit.ps1 -Arch $Arch -VisualStudio $VS"
 Invoke-Expression -Command "$PSScriptRoot/PathLoader.ps1"
 if ($Sdklow) {
-    Invoke-Expression -Command "$PSScriptRoot/VisualStudioEnvinit.ps1 -Arch $Arch -VisualStudio $VS -Sdklow"
+    $VisualStudioArgs += " -Sdklow"
 }
-else {
-    Invoke-Expression -Command "$PSScriptRoot/VisualStudioEnvinit.ps1 -Arch $Arch -VisualStudio $VS"
-}
-
+Invoke-Expression -Command $VisualStudioArgs
 Invoke-Expression -Command "$PSScriptRoot/Extranllibs.ps1 -Arch $Arch"
 
-# Move value to global
-$Global:LLDB = $LLDB
-$Global:Flavor = $Flavor
-$Global:Released = $Released
-$Global:Install = $Install
-$Global:ClangbuilderRoot = $ClangbuilderRoot
-
+# Update LLVMInitialize Script command
+$Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1"
 if ($Released) {
+    Write-Output "LLVM Release Tag"
     $Global:LLVMSource = "$Global:ClangbuilderRoot\out\release"
 }
 else {
+    Write-Output "LLVM Mainline branch"
     $Global:LLVMSource = "$Global:ClangbuilderRoot\out\mainline"
+    $Global:LLVMInitializeArgs += " -Mainline"
 }
 
-Function Global:Update-LLVM {
-    if ($Global:Released) {
-        Write-Output "Build last released revision"
-        if ($Global:LLDB) {
-            Invoke-Expression -Command "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1 -LLDB" 
-        }
-        else {
-            Invoke-Expression -Command "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1" 
-        }
-    }
-    else {
-        Write-Output "Build trunk branch"
-        if ($Global:LLDB) {
-            Invoke-Expression -Command "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1 -LLDB -Mainline" 
-        }
-        else {
-            Invoke-Expression -Command "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1 -Mainline" 
-        }
-    }
+if ($Global:LLDB) {
+    $Global:LLVMInitializeArgs += " -LLDB"
 }
 
-Update-LLVM
+# Update LLVM sources
+Invoke-Expression -Command $Global:LLVMInitializeArgs
 
+### Cleanup workdir
 if (!(Test-Path "$ClangbuilderRoot/out/workdir")) {
     mkdir -Force "$ClangbuilderRoot/out/workdir"
 }
@@ -97,62 +81,46 @@ else {
 
 Set-Location "$ClangbuilderRoot/out/workdir"
 
-if ($Static) {
-    $CRTLinkRelease = "MT"
-    $CRTLinkDebug = "MTd"
+# Builder CMake Arguments
+$Global:CMakeArguments = "`"$Global:LLVMSource`""
+
+if ($NMake) {
+    $Global:CMakeArguments += " -G`"NMake Makefiles`""
+    Update-Title " (NMake)"
 }
 else {
-    $CRTLinkRelease = "MD"
-    $CRTLinkDebug = "MDd"
+    if ($Arch -eq "x64") {
+        $Global:CMakeArguments += " -G`"Visual Studio $VSTools Win64`""
+    }
+    else {
+        $Global:CMakeArguments += " -G`"Visual Studio $VSTools $Arch`""
+    }
+    Update-Title " (Visual Studio $VSTools $Arch)"
 }
 
+$Global:CMakeArguments += " -DCMAKE_CONFIGURATION_TYPES=$Flavor -DCMAKE_BUILD_TYPE=$Flavor -DLLVM_APPEND_VC_REV=ON"
 
-$VisualStudioTarget = "Visual Studio $VSTools"
+if ($Static) {
+    $Global:CMakeArguments += " -DLLVM_USE_CRT_RELEASE=MT -DLLVM_USE_CRT_MINSIZEREL=MT "
+}
 
-if ($Arch -eq "x64") {
-    $VisualStudioTarget += " Win64"
-}
-elseif ($Arch -eq "ARM") {
-    $VisualStudioTarget += " ARM"
-}
-elseif ($Arch -eq "ARM64") {
-    $VisualStudioTarget += " ARM64"
-}
 
 if ($LLDB) {
     . "$PSScriptRoot\LLDBInitialize.ps1"
     $PythonHome = Get-Pyhome -Arch $Arch
     if ($null -eq $PythonHome) {
-        Write-Error "Not Found python 3.5 or later install on your system ! "
+        Write-Error "Please Install Python 3.5+ ! "
         Exit 
     }
     Write-Host -ForegroundColor Yellow "Building LLVM with lldb,msbuild, $VisualStudioTarget"
-    &cmake "$Global:LLVMSource" -G $VisualStudioTarget -DPYTHON_HOME="$PythonHome" -DLLDB_RELOCATABLE_PYTHON=1  -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON 
-    if (Test-Path "LLVM.sln") {
-        #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=x64 /t:ALL_BUILD
-        &cmake --build . --config "$Flavor"
-    }
+    $Global:CMakeArguments += " -DPYTHON_HOME=`"$PythonHome`" -DLLDB_RELOCATABLE_PYTHON=1"
 }
-else {
-    if ($NMake) {
-        $NumberOfLogicalProcessors = (Get-WmiObject Win32_Processor).NumberOfLogicalProcessors
-        Write-Output "Processor count: $NumberOfLogicalProcessors"
-        Write-Host -ForegroundColor Yellow "Building LLVM without lldb, NMake, $VisualStudioTarget"
-        cmake "$Global:LLVMSource" -G"NMake Makefiles" -DCMAKE_CONFIGURATION_TYPES="$Flavor" -DCMAKE_BUILD_TYPE="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
-        if (Test-Path "Makefile") {
-            &cmake --build . --config "$Flavor"
-        }
-    }
-    else {
-        Write-Host -ForegroundColor Yellow "Building LLVM without lldb, msbuild, $VisualStudioTarget"
-        &cmake "$Global:LLVMSource" -G $VisualStudioTarget -DCMAKE_CONFIGURATION_TYPES="$Flavor"  -DLLVM_ENABLE_ASSERTIONS=ON -DCMAKE_BUILD_TYPE="$Flavor" -DLLVM_USE_CRT_RELEASE="$CRTLinkRelease" -DLLVM_USE_CRT_MINSIZEREL="$CRTLinkRelease" -DLLVM_APPEND_VC_REV=ON
-        if (Test-Path "LLVM.sln") {
-            #&msbuild /nologo LLVM.sln /t:Rebuild /p:Configuration="$Flavor" /p:Platform=x64 /t:ALL_BUILD
-            &cmake --build . --config "$Flavor"
-        }
-    }
+&cmake $Global:CMakeArguments.Split()
+if ($lastexitcode -ne 0) {
+    Write-Error "CMake exit: $lastexitcode"
+    return ;
 }
-
+&cmake --build . --config "$Flavor"
 
 Function Global:FixInstall {
     param(
@@ -180,7 +148,7 @@ if ($lastexitcode -eq 0 -and $Install) {
 
 
 Function Global:Update-Build {
-    Update-LLVM
+    Invoke-Expression -Command $Global:LLVMInitializeArgs
     Set-Location "$Global:ClangbuilderRoot/out/workdir"
     &cmake --build . --config "$Global:Flavor"
     if ($Global:Install) {
