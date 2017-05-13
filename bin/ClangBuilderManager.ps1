@@ -58,10 +58,15 @@ $Global:Released = $Released
 $Global:Install = $Install
 $Global:ClangbuilderRoot = $ClangbuilderRoot
 
+if ($Released) {
+    $Global:LLVMSource = "$Global:ClangbuilderRoot\out\release"
+}
+else {
+    $Global:LLVMSource = "$Global:ClangbuilderRoot\out\mainline"
+}
 
 Function Global:Update-LLVM {
     if ($Global:Released) {
-        $Global:LLVMSource = "$Global:ClangbuilderRoot\out\release"
         Write-Output "Build last released revision"
         if ($Global:LLDB) {
             Invoke-Expression -Command "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1 -LLDB" 
@@ -71,7 +76,6 @@ Function Global:Update-LLVM {
         }
     }
     else {
-        $Global:LLVMSource = "$Global:ClangbuilderRoot\out\release"
         Write-Output "Build trunk branch"
         if ($Global:LLDB) {
             Invoke-Expression -Command "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1 -LLDB -Mainline" 
