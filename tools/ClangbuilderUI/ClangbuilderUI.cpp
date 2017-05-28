@@ -10,7 +10,9 @@ class DotComInitialize {
 public:
 	DotComInitialize()
 	{
-		CoInitialize(NULL);
+		if (FAILED(CoInitialize(NULL))) {
+			throw std::runtime_error("CoInitialize failed");
+		}
 	}
 	~DotComInitialize()
 	{

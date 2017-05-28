@@ -98,7 +98,7 @@ else {
     $VisualCppEnvFile = "${VSInstallRoot}\VC\vcvarsall.bat"
 }
 
-if ($Sdklow) {
+if ($Sdklow -and ($VisualStudio -eq "14.0" -or $VisualStudio -eq "15.0")) {
     Write-Host "Attention Please: Use Windows 8.1 SDK"
     $ArgumentList += " 8.1"
 }

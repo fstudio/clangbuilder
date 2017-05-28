@@ -20,9 +20,6 @@ Function Global:Test-AddPathEx {
     }
 }
 
-Function Global:Reset-Environment {
-    $env:Path = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
-}
 
 Function Global:Update-Title {
     param(

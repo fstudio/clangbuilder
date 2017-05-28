@@ -169,8 +169,10 @@ HRESULT MainWindow::OnRender()
 		m_pHwndRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
 		m_pHwndRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
 
-		m_pHwndRenderTarget->DrawRectangle(D2D1::RectF(20, 10, rect.right - rect.left - 20, 150), m_AreaBorderBrush, 1.0);
-		m_pHwndRenderTarget->DrawRectangle(D2D1::RectF(20, 150, rect.right - rect.left - 20, rect.bottom-rect.top-20), m_AreaBorderBrush, 1.0);
+		m_pHwndRenderTarget->DrawRectangle(
+			D2D1::RectF(20, 10, rect.right - rect.left - 20, 150), m_AreaBorderBrush, 1.0);
+		m_pHwndRenderTarget->DrawRectangle(
+			D2D1::RectF(20, 150, rect.right - rect.left - 20, rect.bottom-rect.top-20), m_AreaBorderBrush, 1.0);
 
 		for (auto &label : label_) {
 			if (label.text.empty())
@@ -223,32 +225,47 @@ void MainWindow::OnResize(
 
 HRESULT MainWindow::InitializeControl()
 {
-	if (!VisualStudioSearch(index_)) {
+	if (!VisualStudioSearch(instances_)) {
 		return S_FALSE;
 	}
 	assert(hCobVS_);
 	assert(hCobArch_);
 	assert(hCobFlavor_);
 	assert(hCheckBoostrap_);
-	assert(hCheckReleased_);
+	assert(hCheckLatest_);
 	assert(hCheckPackaged_);
 	assert(hCheckCleanEnv_);
 	assert(hCheckLink_);
-	assert(hCheckNMake_);
 	assert(hCheckLLDB_);
 	assert(hButtonTask_);
 	assert(hButtonEnv_);
-	for (auto &i : index_) {
-		::SendMessage(hCobVS_, CB_ADDSTRING, 0, (LPARAM)(i.name.c_str()));
+
+	for (auto &i : instances_) {
+		::SendMessage(hCobVS_, CB_ADDSTRING, 0, (LPARAM)(i.description.c_str()));
 	}
-	::SendMessage(hCobVS_, CB_SETCURSEL, index_.size() - 1, 0);
+	int index = instances_.empty() ? 0 : (instances_.size() - 1);
+	for (auto iter = instances_.begin();iter!= instances_.end(); iter++) {
+		if (iter->description.find(L"Preview") == iter->description.npos) {
+			if (iter->installversion.size() > 4) {
+				index = (int)(iter - instances_.begin());
+			}
+		}
+	}
+	::SendMessage(hCobVS_, CB_SETCURSEL, (WPARAM)(index), 0);
+	
 	for (auto &a : ArchList) {
 		::SendMessage(hCobArch_, CB_ADDSTRING, 0, (LPARAM)a);
 	}
 #ifdef _M_X64
 	::SendMessage(hCobArch_, CB_SETCURSEL, 1, 0);
 #else
-	::SendMessage(hCobArch_, CB_SETCURSEL, 0, 0);
+	if (KrIsWow64Process()) {
+		::SendMessage(hCobArch_, CB_SETCURSEL, 1, 0);
+	}
+	else {
+		::SendMessage(hCobArch_, CB_SETCURSEL, 0, 0);
+	}
+	
 #endif
 
 	for (auto &f : FlavorList) {
@@ -295,16 +312,16 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHan
 	hCobVS_ = LambdaCreateWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 20, 400, 30, nullptr);
 	hCobArch_ = LambdaCreateWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 60, 400, 30, nullptr);
 	hCobFlavor_ = LambdaCreateWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 100, 400, 30, nullptr);
-	hCheckBoostrap_ = LambdaCreateWindow(WC_BUTTONW, L"Clang Boostrap", CHECKBOXSTYLE, 200, 160, 360, 27, nullptr);
-	hCheckReleased_ = LambdaCreateWindow(WC_BUTTONW, L"Released Revision", CHECKBOXSTYLE, 200, 190, 360, 27, nullptr);
-	hCheckPackaged_ = LambdaCreateWindow(WC_BUTTONW, L"Make installation package", CHECKBOXSTYLE, 200, 220, 360, 27, nullptr);
-	hCheckCleanEnv_ = LambdaCreateWindow(WC_BUTTONW, L"Use Clean Environment", CHECKBOXSTYLE, 200, 250, 360, 27, nullptr);
-	hCheckLink_ = LambdaCreateWindow(WC_BUTTONW, L"Link Static Runtime Library", CHECKBOXSTYLE, 200, 280, 360, 27, nullptr);
-	hCheckNMake_ = LambdaCreateWindow(WC_BUTTONW, L"Use NMake Makefiles", CHECKBOXSTYLE, 200, 310, 360, 27, nullptr);
+	hCheckSdklow_ = LambdaCreateWindow(WC_BUTTONW, L"SDK Compatibility (Windows 8.1 SDK) (Env)", CHECKBOXSTYLE, 200, 160, 360, 27, nullptr);
+	hCheckBoostrap_ = LambdaCreateWindow(WC_BUTTONW, L"Clang Bootstrap", CHECKBOXSTYLE, 200, 190, 360, 27, nullptr);
+	hCheckLatest_ = LambdaCreateWindow(WC_BUTTONW, L"Build the latest release", CHECKBOXSTYLE, 200, 220, 360, 27, nullptr);
+	hCheckPackaged_ = LambdaCreateWindow(WC_BUTTONW, L"Create Installation Package", CHECKBOXSTYLE, 200, 250, 360, 27, nullptr);
+	hCheckCleanEnv_ = LambdaCreateWindow(WC_BUTTONW, L"Use Clean Environment (Env)", CHECKBOXSTYLE, 200, 280, 360, 27, nullptr);
+	hCheckLink_ = LambdaCreateWindow(WC_BUTTONW, L"Link Static Runtime Library", CHECKBOXSTYLE, 200, 310, 360, 27, nullptr);
 	hCheckLLDB_ = LambdaCreateWindow(WC_BUTTONW, L"Build LLDB (Visual Studio 2015 or Later)", CHECKBOXSTYLE, 200, 340, 360, 27, nullptr);
 	//Button_SetElevationRequiredState
-	hButtonTask_ = LambdaCreateWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 395, 195, 30, (HMENU)IDC_BUTTON_STARTTASK);
-	hButtonEnv_ = LambdaCreateWindow(WC_BUTTONW, L"Environment Console", PUSHBUTTONSTYLE | BS_ICON, 405, 395, 195, 30, (HMENU)IDC_BUTTON_STARTENV);
+	hButtonTask_ = LambdaCreateWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 390, 195, 30, (HMENU)IDC_BUTTON_STARTTASK);
+	hButtonEnv_ = LambdaCreateWindow(WC_BUTTONW, L"Environment Console", PUSHBUTTONSTYLE | BS_ICON, 405, 390, 195, 30, (HMENU)IDC_BUTTON_STARTENV);
 
 	HMENU hSystemMenu = ::GetSystemMenu(m_hWnd, FALSE);
 	InsertMenuW(hSystemMenu, SC_CLOSE, MF_ENABLED, IDM_CLANGBUILDER_ABOUT, L"About ClangbuilderUI\tAlt+F1");
@@ -314,7 +331,7 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHan
 	label_.push_back(KryceLabel(30, 100, 190, 130, L"Configuration\t\x2699:"));
 	label_.push_back(KryceLabel(30, 160, 190, 200, L"Compile Switch\t\xD83D\xDCE6:"));
 	///
-	if (!InitializeControl()) {
+	if (FAILED(InitializeControl())) {
 
 	}
 	//DeleteObject(hFont);
@@ -358,7 +375,7 @@ LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOO
 	MessageWindowEx(
 		m_hWnd,
 		L"About Clangbuilder",
-		L"Prerelease: 1.0.0.0\nCopyright \xA9 2017, Force Charlie. All Rights Reserved.",
+		L"Prerelease: 2.0.0.0\nCopyright \xA9 2017, Force Charlie. All Rights Reserved.",
 		L"For more information about this tool.\nVisit: <a href=\"http://forcemz.net/\">forcemz.net</a>",
 		kAboutWindow);
 	return S_OK;
@@ -370,14 +387,16 @@ LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOO
 */
 bool SearchClangbuilderPsEngine(std::wstring &psfile, const wchar_t *name)
 {
-	std::array<wchar_t, PATHCCH_MAX_CCH> engine_;
-	GetModuleFileNameW(HINST_THISCOMPONENT, engine_.data(), PATHCCH_MAX_CCH);
+	std::wstring engine_(PATHCCH_MAX_CCH, L'\0');
+	auto buffer = &engine_[0];
+	//std::array<wchar_t, PATHCCH_MAX_CCH> engine_;
+	GetModuleFileNameW(HINST_THISCOMPONENT, buffer, PATHCCH_MAX_CCH);
 	std::wstring tmpfile;
 	for (int i = 0; i < 5; i++) {
-		if (!PathRemoveFileSpecW(engine_.data())) {
+		if (!PathRemoveFileSpecW(buffer)) {
 			return false;
 		}
-		tmpfile.assign(engine_.data());
+		tmpfile.assign(buffer);
 		tmpfile.append(L"\\bin\\").append(name);
 		if (PathFileExistsW(tmpfile.c_str())) {
 			psfile.assign(std::move(tmpfile));
@@ -398,6 +417,34 @@ bool InitializeSearchPowershell(std::wstring &ps)
 	return true;
 }
 
+#ifndef _M_X64
+class FsRedirection {
+public:
+	typedef BOOL WINAPI fntype_Wow64DisableWow64FsRedirection(PVOID *OldValue);
+	typedef BOOL WINAPI fntype_Wow64RevertWow64FsRedirection(PVOID *OldValue);
+	FsRedirection() {
+		auto hModule = KrModule();
+		auto pfnWow64DisableWow64FsRedirection = (fntype_Wow64DisableWow64FsRedirection*)GetProcAddress(
+			hModule,
+			"Wow64DisableWow64FsRedirection");
+		if (pfnWow64DisableWow64FsRedirection) {
+			pfnWow64DisableWow64FsRedirection(&OldValue);
+		}
+	}
+	~FsRedirection() {
+		auto hModule = KrModule();
+		auto pfnWow64RevertWow64FsRedirection = (fntype_Wow64RevertWow64FsRedirection*)GetProcAddress(
+			hModule,
+			"Wow64RevertWow64FsRedirection");
+		if (pfnWow64RevertWow64FsRedirection) {
+			pfnWow64RevertWow64FsRedirection(&OldValue);
+		}
+	}
+private:
+	PVOID OldValue = NULL;
+};
+#endif
+
 bool PsCreateProcess(LPWSTR pszCommand)
 {
 	PROCESS_INFORMATION pi;
@@ -407,6 +454,9 @@ bool PsCreateProcess(LPWSTR pszCommand)
 	si.cb = sizeof(si);
 	si.dwFlags = STARTF_USESHOWWINDOW;
 	si.wShowWindow = SW_SHOW;
+#ifdef _M_IX86 //// Only x86 on Windows 64 
+	FsRedirection fsRedirection;
+#endif
 	if (CreateProcessW(nullptr, pszCommand, NULL, NULL, FALSE,
 		CREATE_NEW_CONSOLE | NORMAL_PRIORITY_CLASS, NULL, NULL,
 		&si, &pi)) {
@@ -443,35 +493,24 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& b
 		return S_FALSE;
 	}
 	std::wstring engine_;
-	if (Button_GetCheck(hCheckBoostrap_) == BST_CHECKED) {
-		if (!SearchClangbuilderPsEngine(engine_, L"ClangBuilderBootstrap.ps1")) {
-			MessageWindowEx(
-				m_hWnd,
-				L"Not Found Clangbuilder Engine",
-				L"Not Found ClangBuilderBootstrap.ps1",
-				nullptr, kFatalWindow);
-			return false;
-		}
-	} else {
-		if (!SearchClangbuilderPsEngine(engine_, L"ClangBuilderManager.ps1")) {
-			MessageWindowEx(
-				m_hWnd,
-				L"Not Found Clangbuilder Engine",
-				L"Not Found ClangBuilderManager.ps1",
-				nullptr, kFatalWindow);
-			return false;
-		}
+	if (!SearchClangbuilderPsEngine(engine_, L"ClangbuilderTarget.ps1")) {
+		MessageWindowEx(
+			m_hWnd,
+			L"Not Found Clangbuilder Engine",
+			L"Not Found ClangbuilderTarget.ps1",
+			nullptr, kFatalWindow);
+		return false;
 	}
 	Command.append(L" -NoLogo -NoExit   -File \"").append(engine_).push_back('"');
 	auto vsindex_ = ComboBox_GetCurSel(hCobVS_);
-	if (vsindex_ < 0 || index_.size() <= (size_t)vsindex_) {
+	if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_) {
 		return S_FALSE;
 	}
 	auto archindex_ = ComboBox_GetCurSel(hCobArch_);
 	if (archindex_ < 0 || sizeof(ArchList) <= archindex_) {
 		return S_FALSE;
 	}
-	if (index_[vsindex_].version <= 140) {
+	if (instances_[vsindex_].installversion.size() <= 4) {
 		if (archindex_ >= 3) {
 			MessageWindowEx(
 				m_hWnd,
@@ -486,32 +525,37 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& b
 		return S_FALSE;
 	}
 
-	Command.append(L" -VisualStudio ").append(std::to_wstring(index_[vsindex_].version));
+	Command.append(L" -InstallId ").append(instances_[vsindex_].installid);
+	Command.append(L" -InstallationVersion ").append(instances_[vsindex_].installversion);
 	Command.append(L" -Arch ").append(ArchList[archindex_]);
 	Command.append(L" -Flavor ").append(FlavorList[flavor_]);
 	///
-	if (Button_GetCheck(hCheckReleased_) == BST_CHECKED) {
-		Command.append(L" -Released");
+	if (Button_GetCheck(hCheckBoostrap_) == BST_CHECKED) {
+		Command.append(L" -Bootstrap");
+	}
+	if (Button_GetCheck(hCheckLatest_) == BST_CHECKED) {
+		Command.append(L" -Latest");
+	}
+
+	if (Button_GetCheck(hCheckSdklow_) == BST_CHECKED) {
+		Command.append(L" -Sdklow");
 	}
 
 	if (Button_GetCheck(hCheckPackaged_) == BST_CHECKED) {
-		Command.append(L" -Install");
+		Command.append(L" -Package");
 	}
 
 	if (Button_GetCheck(hCheckLink_) == BST_CHECKED) {
 		Command.append(L" -Static");
 	}
 
-	if (Button_GetCheck(hCheckNMake_) == BST_CHECKED) {
-		Command.append(L" -NMake");
-	}
 
 	if (Button_GetCheck(hCheckLLDB_) == BST_CHECKED) {
 		Command.append(L" -LLDB");
 	}
 
 	if (Button_GetCheck(hCheckCleanEnv_) == BST_CHECKED) {
-		Command.append(L" -Clear");
+		Command.append(L" -ClearEnv");
 	}
 	if (!PsCreateProcess(&Command[0])) {
 		////
@@ -540,24 +584,24 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL&
 		return S_FALSE;
 	}
 	std::wstring engine_;
-	if (!SearchClangbuilderPsEngine(engine_, L"ClangBuilderEnvironment.ps1")) {
+	if (!SearchClangbuilderPsEngine(engine_, L"ClangbuilderTarget.ps1")) {
 		MessageWindowEx(
 			m_hWnd,
 			L"Not Found Clangbuilder Engine",
-			L"Not Found ClangBuilderEnvironment.ps1",
+			L"Not Found ClangbuilderTarget.ps1",
 			nullptr, kFatalWindow);
 		return false;
 	}
 	Command.append(L" -NoLogo -NoExit   -File \"").append(engine_).push_back('"');
 	auto vsindex_ = ComboBox_GetCurSel(hCobVS_);
-	if (vsindex_ < 0 || index_.size() <= (size_t)vsindex_) {
+	if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_) {
 		return S_FALSE;
 	}
 	auto archindex_ = ComboBox_GetCurSel(hCobArch_);
 	if (archindex_ < 0 || sizeof(ArchList) <= archindex_) {
 		return S_FALSE;
 	}
-	if (index_[vsindex_].version <= 140) {
+	if (instances_[vsindex_].installversion.size() <= 4) {
 		if (archindex_ >= 3) {
 			MessageWindowEx(
 				m_hWnd,
@@ -567,13 +611,16 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL&
 			return S_FALSE;
 		}
 	}
-	Command.append(L" -VisualStudio ").append(std::to_wstring(index_[vsindex_].version));
+	Command.append(L" -Environment -InstallId ").append(instances_[vsindex_].installid);
+	Command.append(L" -InstallationVersion ").append(instances_[vsindex_].installversion);
 	Command.append(L" -Arch ").append(ArchList[archindex_]);
-
-	// Search File
-	if (Button_GetCheck(hCheckCleanEnv_) == BST_CHECKED) {
-		Command.append(L" -Clear");
+	if (Button_GetCheck(hCheckSdklow_) == BST_CHECKED) {
+		Command.append(L" -Sdklow");
 	}
+	if (Button_GetCheck(hCheckCleanEnv_) == BST_CHECKED) {
+		Command.append(L" -ClearEnv");
+	}
+
 	if (!PsCreateProcess(&Command[0])) {
 		auto errmsg = FormatMessageInternal();
 		if (errmsg) {

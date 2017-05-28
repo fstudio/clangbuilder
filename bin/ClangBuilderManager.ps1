@@ -21,6 +21,11 @@ param (
     [Switch]$Clear
 )
 
+if ($Clear) {
+    $env:Path = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
+}
+
+
 . "$PSScriptRoot/Initialize.ps1"
 
 $VisualStudioList = @{
@@ -55,10 +60,6 @@ if ($VisualStudio -eq "140" -or ($VisualStudio -eq "150")) {
     $Sdklow = $true
 }
 
-
-if ($Clear) {
-    Reset-Environment
-}
 
 $VisualStudioArgs = "$PSScriptRoot/VisualStudioEnvinit.ps1 -Arch $Arch -VisualStudio $VS"
 Invoke-Expression -Command "$PSScriptRoot/PathLoader.ps1"

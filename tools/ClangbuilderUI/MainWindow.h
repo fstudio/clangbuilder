@@ -94,16 +94,16 @@ private:
 	HWND hCobVS_;
 	HWND hCobArch_;
 	HWND hCobFlavor_;
+	HWND hCheckSdklow_;
 	HWND hCheckBoostrap_;
-	HWND hCheckReleased_;
+	HWND hCheckLatest_;
 	HWND hCheckPackaged_;
 	HWND hCheckCleanEnv_;
 	HWND hCheckLink_;
-	HWND hCheckNMake_;
 	HWND hCheckLLDB_;
 	HWND hButtonTask_;
 	HWND hButtonEnv_;
 	std::vector<KryceLabel> label_;
-	std::vector<VisualStudioIndex> index_;
+	std::vector<VisualStudioInstance> instances_;
 };
 #endif

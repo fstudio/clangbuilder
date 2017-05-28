@@ -19,6 +19,11 @@ param (
     [Switch]$Clear
 )
 
+if ($Clear) {
+    $env:Path = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
+}
+
+
 . "$PSScriptRoot/Initialize.ps1"
 
 Update-Title -Title " [Bootstrap]"
@@ -49,9 +54,6 @@ elseif ($Arch -eq "ARM64") {
     #FIXME
 }
 
-if ($Clear) {
-    Reset-Environment
-}
 
 $ClangbuilderWorkdir = "$ClangbuilderRoot\out\workdir"
 

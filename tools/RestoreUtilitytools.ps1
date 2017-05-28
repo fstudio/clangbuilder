@@ -105,20 +105,20 @@ if(!(Test-Path "$PSScriptRoot\Restore"))
     mkdir -Force "$PSScriptRoot\Restore"
 }
 
-Copy-Item -Path "ClangbuilderUI.exe" -Destination "$PSScriptRoot\Restore"
+Copy-Item -Path "ClangbuilderUI.exe" -Destination "$ClangBuilderRoot\utils"
 &nmake clean
 Set-Location $PSScriptRoot
 
 
-if(Test-Path "$PSScriptRoot\Restore\ClangbuilderUI.exe"){
+if(Test-Path "$ClangBuilderRoot\utils\ClangbuilderUI.exe"){
     if(!(Test-Path "$ClangBuilderRoot\ClangbuilderUI.lnk")){
         $cswshell=New-Object -ComObject WScript.Shell
         $clangbuilderlnk=$cswshell.CreateShortcut("$ClangBuilderRoot\ClangbuilderUI.lnk")
-        $clangbuilderlnk.TargetPath="$PSScriptRoot\Restore\ClangbuilderUI.exe"
+        $clangbuilderlnk.TargetPath="$ClangBuilderRoot\utils\ClangbuilderUI.exe"
         $clangbuilderlnk.Description="Start ClangbuilderUI"
         $clangbuilderlnk.WindowStyle=1
-        $clangbuilderlnk.WorkingDirectory="$ClangBuilderRoot\bin"
-        $clangbuilderlnk.IconLocation="$PSScriptRoot\Restore\ClangbuilderUI.exe,0"
+        $clangbuilderlnk.WorkingDirectory="$ClangBuilderRoot\utils"
+        $clangbuilderlnk.IconLocation="$ClangBuilderRoot\utils\ClangbuilderUI.exe,0"
         $clangbuilderlnk.Save()
     }else{
         Write-Output "ClangbuilderUI.lnk already exists"
