@@ -6,7 +6,7 @@ file Copyright.txt or https://cmake.org/licensing for details.  */
 #ifndef NOMINMAX
 #define NOMINMAX // Undefine min and max defined by windows.h
 #endif
-
+#include <objbase.h>
 // Published by Visual Studio Setup team
 #include "Setup.Configuration.h"
 
