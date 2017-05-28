@@ -90,8 +90,12 @@ if ($Bootstrap) {
     $Global:CMakeArguments += "-GNinja"
 }
 else {
-    $Global:Installation = $InstallationVersion.Substring(0,2)
+    $Global:Installation = $InstallationVersion.Substring(0, 2)
     $Global:CMakeArguments += " -G`"Visual Studio $Global:Installation $ArchName`""
+}
+
+if ([System.Environment]::Is64BitOperatingSystem) {
+    $Global:CMakeArguments += " -Thost=x64";
 }
 
 $Global:CMakeArguments += " -DCMAKE_CONFIGURATION_TYPES=$Flavor -DCMAKE_BUILD_TYPE=$Flavor -DLLVM_APPEND_VC_REV=ON"
