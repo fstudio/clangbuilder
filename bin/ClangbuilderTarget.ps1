@@ -83,6 +83,7 @@ $ArchTable = @{
 $ArchName = $ArchTable[$Arch];
 
 # Builder CMake Arguments
+$Global:Installation = $InstallationVersion.Substring(0, 2)
 
 if ($Bootstrap) {
     if (!(Test-Path "$ClangbuilderRoot/out/build_stage0")) {
@@ -103,7 +104,6 @@ else {
         Remove-Item -Force -Recurse "$ClangbuilderRoot/out/msbuild/*"
     }
     Set-Location "$ClangbuilderRoot/out/msbuild"
-    $Global:Installation = $InstallationVersion.Substring(0, 2)
     $Global:CMakeArguments = "-G`"Visual Studio $Global:Installation $ArchName`""
     if ([System.Environment]::Is64BitOperatingSystem) {
         $Global:CMakeArguments += " -Thost=x64";
