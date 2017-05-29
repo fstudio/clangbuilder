@@ -71,15 +71,7 @@ if ($Global:LLDB) {
 # Update LLVM sources
 Invoke-Expression -Command $Global:LLVMInitializeArgs
 
-### Cleanup workdir
-if (!(Test-Path "$ClangbuilderRoot/out/workdir")) {
-    mkdir -Force "$ClangbuilderRoot/out/workdir"
-}
-else {
-    Remove-Item -Force -Recurse "$ClangbuilderRoot/out/workdir/*"
-}
 
-Set-Location "$ClangbuilderRoot/out/workdir"
 
 $ArchTable = @{
     "x86"   = "";
@@ -91,27 +83,49 @@ $ArchTable = @{
 $ArchName = $ArchTable[$Arch];
 
 # Builder CMake Arguments
-$Global:CMakeArguments = "`"$Global:LLVMSource`""
 
 if ($Bootstrap) {
-    $Global:CMakeArguments += " -GNinja"
+    if (!(Test-Path "$ClangbuilderRoot/out/build_stage0")) {
+        mkdir -Force "$ClangbuilderRoot/out/build_stage0"
+    }
+    else {
+        Remove-Item -Force -Recurse "$ClangbuilderRoot/out/build_stage0/*"
+    }
+    Set-Location "$ClangbuilderRoot/out/build_stage0"
+    $Global:CMakeArguments = "-GNinja -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_CRT_RELEASE=MT"
+    $Global:CMakeArguments += "  -DCMAKE_INSTALL_UCRT_LIBRARIES=ON -DLLDB_RELOCATABLE_PYTHON=1"
 }
 else {
+    if (!(Test-Path "$ClangbuilderRoot/out/msbuild")) {
+        mkdir -Force "$ClangbuilderRoot/out/msbuild"
+    }
+    else {
+        Remove-Item -Force -Recurse "$ClangbuilderRoot/out/msbuild/*"
+    }
+    Set-Location "$ClangbuilderRoot/out/msbuild"
     $Global:Installation = $InstallationVersion.Substring(0, 2)
-    $Global:CMakeArguments += " -G`"Visual Studio $Global:Installation $ArchName`""
+    $Global:CMakeArguments = "-G`"Visual Studio $Global:Installation $ArchName`""
     if ([System.Environment]::Is64BitOperatingSystem) {
         $Global:CMakeArguments += " -Thost=x64";
+    }
+    $Global:CMakeArguments += " -DCMAKE_CONFIGURATION_TYPES=$Flavor -DCMAKE_BUILD_TYPE=$Flavor"
+    $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=ON -DBUILD_SHARED_LIBS=ON"
+    # -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
+    $UpFlavor = $Flavor.ToUpper()
+    if ($Flavor -eq "Release" -or $Flavor -eq "MinSizeRel") {
+        $MTStaticLINK = "MT"
+    }
+    else {
+        $MTStaticLINK = "MTd"
+    }
+    if ($Static) {
+        $Global:CMakeArguments += " -DLLVM_USE_CRT_$UpFlavor=$MTStaticLINK"
     }
 }
 
 
 
 
-$Global:CMakeArguments += " -DCMAKE_CONFIGURATION_TYPES=$Flavor -DCMAKE_BUILD_TYPE=$Flavor -DLLVM_APPEND_VC_REV=ON"
-# -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
-if ($Static) {
-    $Global:CMakeArguments += " -DLLVM_USE_CRT_RELEASE=MT -DLLVM_USE_CRT_MINSIZEREL=MT "
-}
 
 if ($LLDB) {
     . "$PSScriptRoot\LLDBInitialize.ps1"
@@ -124,7 +138,11 @@ if ($LLDB) {
     $Global:CMakeArguments += " -DPYTHON_HOME=`"$PythonHome`" -DLLDB_RELOCATABLE_PYTHON=1"
 }
 
-&cmake $Global:CMakeArguments.Split()
+$Global:CMakeArguments += " `"$Global:LLVMSource`""
+$Global:CMakeArgv = $Global:CMakeArguments.Split()
+Write-Host "cmake $Global:CMakeArgv"
+
+&cmake $Global:CMakeArgv
 if ($lastexitcode -ne 0) {
     Write-Error "CMake exit: $lastexitcode"
     return ;
@@ -164,6 +182,13 @@ Function Global:Update-Build {
 
 
 if ($Bootstrap) {
+    if (!(Test-Path "$ClangbuilderRoot/out/build")) {
+        mkdir -Force "$ClangbuilderRoot/out/build"
+    }
+    else {
+        Remove-Item -Force -Recurse "$ClangbuilderRoot/out/build/*"
+    }
+    Set-Location "$ClangbuilderRoot/out/build"
     $env:CC = "..\build_stage0\bin\clang-cl"
     $env:CXX = "..\build_stage0\bin\clang-cl"
     $VisualCppVersionTable = @{
