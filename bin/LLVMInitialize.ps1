@@ -58,7 +58,6 @@ $LatestObj = Get-Content -Path "$ClangbuilderRoot/config/latest.json" |ConvertFr
 
 $TagName = $LatestObj.Suffix
 $LLVMRepositoriesRoot = "http://llvm.org/svn/llvm-project"
-$CurrentDir = Get-Location
 $OutDir = "$ClangbuilderRoot\out"
 
 

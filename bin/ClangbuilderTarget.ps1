@@ -16,6 +16,7 @@ param (
     [Switch]$Static,
     [Switch]$Latest,
     [Switch]$Package,
+    #[Switch]$Libcxx,
     [Switch]$ClearEnv
 )
 
@@ -46,7 +47,13 @@ if ($Environment) {
 }
 
 $Global:LLDB = $LLDB
-$Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1"
+if ($Latest) {
+    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1"
+}
+else {
+    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitializeEx.ps1"
+}
+
 if ($Latest) {
     Write-Host "Build llvm latest released version"
     $Global:LLVMSource = "$Global:ClangbuilderRoot\out\release"
@@ -87,16 +94,18 @@ $ArchName = $ArchTable[$Arch];
 $Global:CMakeArguments = "`"$Global:LLVMSource`""
 
 if ($Bootstrap) {
-    $Global:CMakeArguments += "-GNinja"
+    $Global:CMakeArguments += " -GNinja"
 }
 else {
     $Global:Installation = $InstallationVersion.Substring(0, 2)
     $Global:CMakeArguments += " -G`"Visual Studio $Global:Installation $ArchName`""
+    if ([System.Environment]::Is64BitOperatingSystem) {
+        $Global:CMakeArguments += " -Thost=x64";
+    }
 }
 
-if ([System.Environment]::Is64BitOperatingSystem) {
-    $Global:CMakeArguments += " -Thost=x64";
-}
+
+
 
 $Global:CMakeArguments += " -DCMAKE_CONFIGURATION_TYPES=$Flavor -DCMAKE_BUILD_TYPE=$Flavor -DLLVM_APPEND_VC_REV=ON"
 # -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
@@ -168,9 +177,12 @@ if ($Bootstrap) {
     else {
         $VisualCppVersion = "1910"
     }
+    if ($Global:Installation -eq "15") {
+        $Global:CMakeArguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON"
+    }
     $env:cflags = "-fmsc-version=$VisualCppVersion $ArchFlags $env:cflags"
     $env:cxxflags = "-fmsc-version=$VisualCppVersion $ArchFlags $env:cxxflags"
-    &cmake $Global:CMakeArguments.Split()
+    &cmake $Global:CMakeArguments.Split() 
     if ($lastexitcode -ne 0) {
         exit 1
     }
