@@ -91,6 +91,12 @@ and then double-click install.bat to the software you need as part of the Clangb
 
 You can add extranl lib, such as [z3](https://github.com/Z3Prover/z3) , more info to view ExternalLibs.md
 
+## Bootstrap
+
+**If your memory is small, use ninja to build LLVM, and in the process of linking, the build process is slow due to memory contention. And the computer may even lose its response.**
+
+Link clang requre 1.5GB memory，other require 0.8GB，and Ninja create N+ (processor default 6) link process, requre (0.8xN+0.7)GB or great memory  
+
 ## Copyright
 
 Author: Force.Charlie  

@@ -147,7 +147,28 @@ if ($lastexitcode -ne 0) {
     Write-Error "CMake exit: $lastexitcode"
     return ;
 }
-&cmake --build . --config "$Flavor"
+
+Function Parallel() {
+    $MemSize = (Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory
+    $ProcessorCount = $env:NUMBER_OF_PROCESSORS
+    $MemParallelRaw = $MemSize / 1610612736 #1.5GB
+    [int]$MemParallel = [Math]::Floor($MemParallelRaw)
+    if ($MemParallel -eq 0) {
+        # when memory less 1.5GB, parallel use 1
+        $MemParallel = 1
+    }
+    return [Math]::Min($ProcessorCount, $MemParallel)
+}
+
+if ($Bootstrap) {
+    $PN = & Parallel
+    &ninja all -j $PN
+}
+else {
+    &cmake --build . --config "$Flavor"
+}
+
+
 
 Function Global:FixInstall {
     param(
@@ -211,12 +232,12 @@ if ($Bootstrap) {
     if ($lastexitcode -ne 0) {
         exit 1
     }
-    &ninja all 
+    &ninja all -j $PN
     if ($lastexitcode -ne 0) {
         exit 1
     }
     if ($Package) {
-        &ninja package 
+        &cpack -C "$Flavor"
         if ($lastexitcode -ne 0) {
             Write-Host "Make installation package failed "
         }
