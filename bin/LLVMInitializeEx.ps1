@@ -19,7 +19,7 @@ Function Update-LLVM {
         Set-Location "$Folder"
         Write-Host "Update $Folder"
         &git checkout .
-        &git pull .
+        &git pull origin master
     }
     ELSE {
         IF ((Test-Path "$Folder")) {
