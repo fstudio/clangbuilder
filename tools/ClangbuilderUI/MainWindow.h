@@ -94,8 +94,8 @@ private:
 	HWND hCobVS_;
 	HWND hCobArch_;
 	HWND hCobFlavor_;
+	HWND hBuildEngine;
 	HWND hCheckSdklow_;
-	HWND hCheckBoostrap_;
 	HWND hCheckLatest_;
 	HWND hCheckPackaged_;
 	HWND hCheckCleanEnv_;

@@ -36,6 +36,9 @@ const wchar_t *ArchList[] = {L"x86", L"x64", L"ARM", L"ARM64"};
 
 const wchar_t *FlavorList[] = {L"Release", L"MinSizeRel", L"RelWithDebInfo",
                                L"Debug"};
+
+const wchar_t *BuildEngineList[] = {L"MSBuild", L"Ninja", L"NinjaBootstrap"};
+
 /*
  * Resources Initialize and Release
  */
@@ -116,9 +119,9 @@ HRESULT MainWindow::OnRender() {
     m_pHwndRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
 
     m_pHwndRenderTarget->DrawRectangle(
-        D2D1::RectF(20, 10, rect.right - rect.left - 20, 150),
+        D2D1::RectF(20, 10, rect.right - rect.left - 20, 180),
         m_AreaBorderBrush, 1.0);
-    m_pHwndRenderTarget->DrawRectangle(D2D1::RectF(20, 150,
+    m_pHwndRenderTarget->DrawRectangle(D2D1::RectF(20, 180,
                                                    rect.right - rect.left - 20,
                                                    rect.bottom - rect.top - 20),
                                        m_AreaBorderBrush, 1.0);
@@ -180,7 +183,7 @@ HRESULT MainWindow::InitializeControl() {
   assert(hCobVS_);
   assert(hCobArch_);
   assert(hCobFlavor_);
-  assert(hCheckBoostrap_);
+  assert(hBuildEngine);
   assert(hCheckLatest_);
   assert(hCheckPackaged_);
   assert(hCheckCleanEnv_);
@@ -221,6 +224,11 @@ HRESULT MainWindow::InitializeControl() {
   }
 
   ::SendMessage(hCobFlavor_, CB_SETCURSEL, 0, 0);
+
+  for (auto e : BuildEngineList) {
+    ::SendMessage(hBuildEngine, CB_ADDSTRING, 0, (LPARAM)e);
+  }
+  ::SendMessage(hBuildEngine, CB_SETCURSEL, 0, 0);
   Button_SetCheck(hCheckLink_, 1);
   return S_OK;
 }
@@ -266,12 +274,12 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
                                  30, nullptr);
   hCobFlavor_ = LambdaCreateWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 100,
                                    400, 30, nullptr);
+  hBuildEngine = LambdaCreateWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 140,
+                                    400, 30, nullptr);
+
   hCheckSdklow_ = LambdaCreateWindow(
       WC_BUTTONW, L"SDK Compatibility (Windows 8.1 SDK) (Env)", CHECKBOXSTYLE,
-      200, 160, 360, 27, nullptr);
-  hCheckBoostrap_ =
-      LambdaCreateWindow(WC_BUTTONW, L"Clang Bootstrap", CHECKBOXSTYLE, 200,
-                         190, 360, 27, nullptr);
+      200, 190, 360, 27, nullptr);
   hCheckLatest_ = LambdaCreateWindow(WC_BUTTONW, L"Build the latest release",
                                      CHECKBOXSTYLE, 200, 220, 360, 27, nullptr);
   hCheckPackaged_ =
@@ -299,10 +307,11 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
 
   label_.push_back(
       KryceLabel(30, 20, 190, 50, L"Visual Studio\t\xD83C\xDD9A:"));
-  label_.push_back(KryceLabel(30, 60, 190, 90, L"Address Mode\t\xD83D\xDEE0:"));
+  label_.push_back(KryceLabel(30, 60, 190, 90, L"Address Mode\t\xD83D\xDCBB:"));
   label_.push_back(KryceLabel(30, 100, 190, 130, L"Configuration\t\x2699:"));
   label_.push_back(
-      KryceLabel(30, 160, 190, 200, L"Compile Switch\t\xD83D\xDCE6:"));
+      KryceLabel(30, 140, 190, 170, L"Build Engine\t\xD83D\xDEE0:"));
+  label_.push_back(KryceLabel(30, 190, 190, 220, L"Build Options\t\x2611:"));
   ///
   if (FAILED(InitializeControl())) {
   }
@@ -345,7 +354,7 @@ LRESULT MainWindow::OnCtlColorStatic(UINT nMsg, WPARAM wParam, LPARAM lParam,
 LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                    BOOL &bHandled) {
   MessageWindowEx(m_hWnd, L"About Clangbuilder",
-                  L"Prerelease: 2.0.0.0\nCopyright \xA9 2017, Force Charlie. "
+                  L"Prerelease: 2.0.1\nCopyright \xA9 2017, Force Charlie. "
                   L"All Rights Reserved.",
                   L"For more information about this tool.\nVisit: <a "
                   L"href=\"http://forcemz.net/\">forcemz.net</a>",
@@ -469,7 +478,7 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return S_FALSE;
   }
   auto archindex_ = ComboBox_GetCurSel(hCobArch_);
-  if (archindex_ < 0 || sizeof(ArchList) <= archindex_) {
+  if (archindex_ < 0 || ARRAYSIZE(ArchList) <= archindex_) {
     return S_FALSE;
   }
   if (instances_[vsindex_].installversion.size() <= 4) {
@@ -481,7 +490,12 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     }
   }
   auto flavor_ = ComboBox_GetCurSel(hCobFlavor_);
-  if (flavor_ < 0 || sizeof(FlavorList) <= flavor_) {
+  if (flavor_ < 0 || ARRAYSIZE(FlavorList) <= flavor_) {
+    return S_FALSE;
+  }
+
+  auto be = ComboBox_GetCurSel(hBuildEngine);
+  if (be < 0 || ARRAYSIZE(BuildEngineList) <= be) {
     return S_FALSE;
   }
 
@@ -490,10 +504,8 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
       .append(instances_[vsindex_].installversion);
   Command.append(L" -Arch ").append(ArchList[archindex_]);
   Command.append(L" -Flavor ").append(FlavorList[flavor_]);
-  ///
-  if (Button_GetCheck(hCheckBoostrap_) == BST_CHECKED) {
-    Command.append(L" -Bootstrap");
-  }
+  Command.append(L" -Engine ").append(BuildEngineList[be]);
+
   if (Button_GetCheck(hCheckLatest_) == BST_CHECKED) {
     Command.append(L" -Latest");
   }

@@ -7,12 +7,14 @@ param (
     [ValidateSet("Release", "Debug", "MinSizeRel", "RelWithDebug")]
     [String]$Flavor = "Release",
 
+    [ValidateSet("MSBuild", "Ninja", "NinjaBootstrap")]
+    [String]$Engine = "MSBuild",
     [String]$InstallId, # install id
     [String]$InstallationVersion, # installationVersion
     [Switch]$Environment, # start environment 
     [Switch]$Sdklow, # low sdk support
     [Switch]$LLDB,
-    [Switch]$Bootstrap,
+    #[Switch]$Bootstrap,
     [Switch]$Static,
     [Switch]$Latest,
     [Switch]$Package,
@@ -20,6 +22,17 @@ param (
     [Switch]$ClearEnv
 )
 
+Function Parallel() {
+    $MemSize = (Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory
+    $ProcessorCount = $env:NUMBER_OF_PROCESSORS
+    $MemParallelRaw = $MemSize / 1610612736 #1.5GB
+    [int]$MemParallel = [Math]::Floor($MemParallelRaw)
+    if ($MemParallel -eq 0) {
+        # when memory less 1.5GB, parallel use 1
+        $MemParallel = 1
+    }
+    return [Math]::Min($ProcessorCount, $MemParallel)
+}
 
 if ($ClearEnv) {
     $env:Path = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
@@ -71,8 +84,6 @@ if ($Global:LLDB) {
 # Update LLVM sources
 Invoke-Expression -Command $Global:LLVMInitializeArgs
 
-
-
 $ArchTable = @{
     "x86"   = "";
     "x64"   = "Win64";
@@ -80,52 +91,12 @@ $ArchTable = @{
     "ARM64" = "ARM64"
 }
 
-$ArchName = $ArchTable[$Arch];
-
+$Global:ArchName = $ArchTable[$Arch];
 # Builder CMake Arguments
 $Global:Installation = $InstallationVersion.Substring(0, 2)
-
-if ($Bootstrap) {
-    if (!(Test-Path "$ClangbuilderRoot/out/build_stage0")) {
-        mkdir -Force "$ClangbuilderRoot/out/build_stage0"
-    }
-    else {
-        Remove-Item -Force -Recurse "$ClangbuilderRoot/out/build_stage0/*"
-    }
-    Set-Location "$ClangbuilderRoot/out/build_stage0"
-    $Global:CMakeArguments = "-GNinja -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_CRT_RELEASE=MT"
-    $Global:CMakeArguments += "  -DCMAKE_INSTALL_UCRT_LIBRARIES=ON -DLLDB_RELOCATABLE_PYTHON=1"
-}
-else {
-    if (!(Test-Path "$ClangbuilderRoot/out/msbuild")) {
-        mkdir -Force "$ClangbuilderRoot/out/msbuild"
-    }
-    else {
-        Remove-Item -Force -Recurse "$ClangbuilderRoot/out/msbuild/*"
-    }
-    Set-Location "$ClangbuilderRoot/out/msbuild"
-    $Global:CMakeArguments = "-G`"Visual Studio $Global:Installation $ArchName`""
-    if ([System.Environment]::Is64BitOperatingSystem) {
-        $Global:CMakeArguments += " -Thost=x64";
-    }
-    $Global:CMakeArguments += " -DCMAKE_CONFIGURATION_TYPES=$Flavor -DCMAKE_BUILD_TYPE=$Flavor"
-    $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=ON -DBUILD_SHARED_LIBS=ON"
-    # -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
-    $UpFlavor = $Flavor.ToUpper()
-    if ($Flavor -eq "Release" -or $Flavor -eq "MinSizeRel") {
-        $MTStaticLINK = "MT"
-    }
-    else {
-        $MTStaticLINK = "MTd"
-    }
-    if ($Static) {
-        $Global:CMakeArguments += " -DLLVM_USE_CRT_$UpFlavor=$MTStaticLINK"
-    }
-}
-
-
-
-
+$Global:FinalWorkdir = ""
+$Global:Flavor = $Flavor
+$Global:CMakeArguments = " `"$Global:LLVMSource`""
 
 if ($LLDB) {
     . "$PSScriptRoot\LLDBInitialize.ps1"
@@ -138,36 +109,108 @@ if ($LLDB) {
     $Global:CMakeArguments += " -DPYTHON_HOME=`"$PythonHome`" -DLLDB_RELOCATABLE_PYTHON=1"
 }
 
-$Global:CMakeArguments += " `"$Global:LLVMSource`""
-$Global:CMakeArgv = $Global:CMakeArguments.Split()
-Write-Host "cmake $Global:CMakeArgv"
-
-&cmake $Global:CMakeArgv
-if ($lastexitcode -ne 0) {
-    Write-Error "CMake exit: $lastexitcode"
-    return ;
-}
-
-Function Parallel() {
-    $MemSize = (Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory
-    $ProcessorCount = $env:NUMBER_OF_PROCESSORS
-    $MemParallelRaw = $MemSize / 1610612736 #1.5GB
-    [int]$MemParallel = [Math]::Floor($MemParallelRaw)
-    if ($MemParallel -eq 0) {
-        # when memory less 1.5GB, parallel use 1
-        $MemParallel = 1
-    }
-    return [Math]::Min($ProcessorCount, $MemParallel)
-}
-
-if ($Bootstrap) {
-    $PN = & Parallel
-    &ninja all -j $PN
+$Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor  -DLLVM_APPEND_VC_REV=ON"
+# -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
+$UpFlavor = $Flavor.ToUpper()
+if ($Flavor -eq "Release" -or $Flavor -eq "MinSizeRel") {
+    $MTStaticLINK = "MT"
 }
 else {
-    &cmake --build . --config "$Flavor"
+    $MTStaticLINK = "MTd"
+}
+if ($Static) {
+    $Global:CMakeArguments += " -DLLVM_USE_CRT_$UpFlavor=$MTStaticLINK"
 }
 
+Function Set-Workdir {
+    param(
+        [String]$Path
+    )
+    if (Test-Path $Path) {
+        Remove-Item -Force -Recurse "$Path/*"
+    }
+    else {
+        mkdir $Path
+    }
+    Set-Location $Path
+}
+
+Function Invoke-MSBuild {
+    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\msbuild"
+    Set-Workdir $Global:FinalWorkdir
+    $CMakePrivateArguments = "-G`"Visual Studio $Global:Installation $Global:ArchName`" "
+    if ([System.Environment]::Is64BitOperatingSystem) {
+        $CMakePrivateArguments += "-Thost=x64 ";
+    }
+    $CMakePrivateArguments += $Global:CMakeArguments
+    Write-Host $CMakePrivateArguments
+    #$CMakeArgv = $CMakePrivateArguments.Split()
+    #&cmake $CMakeArgv|Write-Host
+    $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
+    if ($pi.ExitCode -ne 0) {
+        Write-Error "CMake exit: $($pi.ExitCode)"
+        return 1
+    }
+    $pi2 = Start-Process cmake -ArgumentList "--build . --config $Global:Flavor" -NoNewWindow -Wait -PassThru
+    return $pi2.ExitCode
+}
+
+
+Function Invoke-Ninja {
+    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\ninja"
+    Set-Workdir $Global:FinalWorkdir
+    $CMakePrivateArguments = "-GNinja -DCMAKE_INSTALL_UCRT_LIBRARIES=ON $Global:CMakeArguments"
+    Write-Host $CMakePrivateArguments
+    $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
+    if ($pi.ExitCode -ne 0) {
+        Write-Error "CMake exit: $($pi.ExitCode)"
+        return 1
+    }
+    $PN = & Parallel
+    $pi2 = Start-Process ninja -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
+    #&ninja all -j $PN
+    return $pi2.ExitCode
+    #return $lastexitcode
+}
+
+
+Function Invoke-NinjaBootstrap {
+    $result = &Invoke-Ninja
+    if ($result -ne 0) {
+        Write-Error "Prebuild due to error terminated !"
+        return $result
+    }
+    $env:CC = "$Global:FinalWorkdir\bin\clang-cl"
+    $env:CXX = "$Global:FinalWorkdir\bin\clang-cl"
+    $VisualCppVersionTable = @{
+        "14.0" = "1900";
+        "12.0" = "1800";
+        "11.0" = "1700"
+    };
+    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\bootstrap"
+    Set-Workdir $Global:FinalWorkdir
+    $CMakePrivateArguments = "-GNinja $Global:CMakeArguments"
+    if ($VisualCppVersionTable.ContainsKey($InstallationVersion)) {
+        $VisualCppVersion = $VisualCppVersionTable[$InstallationVersion]
+    }
+    else {
+        $VisualCppVersion = "1910"
+    }
+    if ($Global:Installation -eq "15") {
+        $CMakePrivateArguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON"
+    }
+    $env:cflags = "-fmsc-version=$VisualCppVersion $ArchFlags $env:cflags"
+    $env:cxxflags = "-fmsc-version=$VisualCppVersion $ArchFlags $env:cxxflags"
+    Write-Host $CMakePrivateArguments
+    $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
+    if ($pi.ExitCode -ne 0) {
+        Write-Error "CMake exit: $($pi.ExitCode)"
+        return 1
+    }
+    $PN = & Parallel
+    $pi = Start-Process ninja -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
+    return $pi.ExitCode
+}
 
 
 Function Global:FixInstall {
@@ -186,72 +229,40 @@ Function Global:FixInstall {
     }
 }
 
-if ($lastexitcode -ne 0) {
-    Write-Error "Build failed"
-    return ;
-}
-
 Function Global:Update-Build {
     Invoke-Expression -Command $Global:LLVMInitializeArgs
     Set-Location "$Global:ClangbuilderRoot/out/workdir"
-    &cmake --build . --config "$Global:Flavor"
-    if ($Global:Install) {
+    $pi = Start-Process cmake -ArgumentList "--build . --config $Global:Flavor" -NoNewWindow -Wait -PassThru
+    if ($Global:Install -and $pi.ExitCode -eq 0) {
         FixInstall -TargetDir "./projects/compiler-rt/lib" -Configuration $Global:Flavor
-        &cpack -C "$Flavor"
+        Start-Process cpack -ArgumentList "-C $Global:Flavor" -NoNewWindow -Wait -PassThru
     }
 }
 
+$MyResult = -1
 
-if ($Bootstrap) {
-    if (!(Test-Path "$ClangbuilderRoot/out/build")) {
-        mkdir -Force "$ClangbuilderRoot/out/build"
-    }
-    else {
-        Remove-Item -Force -Recurse "$ClangbuilderRoot/out/build/*"
-    }
-    Set-Location "$ClangbuilderRoot/out/build"
-    $env:CC = "..\build_stage0\bin\clang-cl"
-    $env:CXX = "..\build_stage0\bin\clang-cl"
-    $VisualCppVersionTable = @{
-        "14.0" = "1900";
-        "12.0" = "1800";
-        "11.0" = "1700"
-    };
-    if ($VisualCppVersionTable.ContainsKey($InstallationVersion)) {
-        $VisualCppVersion = $VisualCppVersionTable[$InstallationVersion]
-    }
-    else {
-        $VisualCppVersion = "1910"
-    }
-    if ($Global:Installation -eq "15") {
-        $Global:CMakeArguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON"
-    }
-    $env:cflags = "-fmsc-version=$VisualCppVersion $ArchFlags $env:cflags"
-    $env:cxxflags = "-fmsc-version=$VisualCppVersion $ArchFlags $env:cxxflags"
-    &cmake $Global:CMakeArguments.Split() 
-    if ($lastexitcode -ne 0) {
-        exit 1
-    }
-    &ninja all -j $PN
-    if ($lastexitcode -ne 0) {
-        exit 1
-    }
-    if ($Package) {
-        &cpack -C "$Flavor"
-        if ($lastexitcode -ne 0) {
-            Write-Host "Make installation package failed "
-        }
-        else {
-            Write-Host "Make installation package success "
-        }
+switch ($Engine) {
+    {$_ -eq "MSBuild"} {
+        Write-Host "Build LLVM use MSBuild"
+        $MyResult = &Invoke-MSBuild
+    } {$_ -eq "Ninja"} {
+        Write-Host "Build LLVM use Ninja"
+        $MyResult = &Invoke-Ninja
+    } {$_ -eq "NinjaBootstrap"} {
+        Write-Host "Build Bootstrap Ninja"
+        $MyResult = &Invoke-NinjaBootstrap
     }
 }
-else {
-    if ($Package) {
-        if (Test-Path "$PWD/LLVM.sln") {
-            #$(Configuration)
-            FixInstall -TargetDir "./projects/compiler-rt/lib" -Configuration $Flavor
-            &cpack -C "$Flavor"
-        }
+
+if ($MyResult -ne 0) {
+    Write-Error "build llvm is stopped !"
+    return ;
+}
+
+if ($Package) {
+    if (Test-Path "$PWD/LLVM.sln") {
+        #$(Configuration)
+        FixInstall -TargetDir "./projects/compiler-rt/lib" -Configuration $Flavor
     }
+    &cpack -C "$Flavor"
 }

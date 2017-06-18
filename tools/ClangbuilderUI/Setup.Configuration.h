@@ -655,6 +655,15 @@ struct DECLSPEC_UUID("9871385B-CA69-48F2-BC1F-7A37CBF0B1EF") DECLSPEC_NOVTABLE I
     STDMETHOD(GetErrorLogFilePath)(
         _Outptr_result_maybenull_ BSTR* pbstrErrorLogFilePath
         ) = 0;
+
+    /// <summary>
+    /// Gets the path to the main setup log.
+    /// </summary>
+    /// <param name="pbstrChip">The path to the main setup log.</param>
+    /// <returns>Standard HRESULT indicating success or failure.</returns>
+    STDMETHOD(GetLogFilePath)(
+        _Outptr_result_maybenull_ BSTR* pbstrLogFilePath
+        ) = 0;
 };
 #endif
 
