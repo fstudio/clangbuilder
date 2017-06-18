@@ -207,27 +207,29 @@ Function Invoke-NinjaBootstrap {
         Write-Error "Prebuild due to error terminated !"
         return $result
     }
-    $env:CC = "$Global:FinalWorkdir\bin\clang-cl"
-    $env:CXX = "$Global:FinalWorkdir\bin\clang-cl"
+    $CMDClangcl = "$Global:FinalWorkdir\bin\clang-cl.exe"
     $VisualCppVersionTable = @{
-        "14.0" = "1900";
-        "12.0" = "1800";
-        "11.0" = "1700"
+        "15.0" = "19.10";
+        "14.0" = "19.00";
+        "12.0" = "18.00";
+        "11.0" = "17.00"
     };
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\bootstrap"
     Set-Workdir $Global:FinalWorkdir
     $CMakePrivateArguments = "-GNinja $Global:CMakeArguments"
+    $CMakePrivateArguments += " -DCMAKE_C_COMPILER=`"$CMDClangcl`" -DCMAKE_CXX_COMPILER=`"$CMDClangcl`""
     if ($VisualCppVersionTable.ContainsKey($InstallationVersion)) {
         $VisualCppVersion = $VisualCppVersionTable[$InstallationVersion]
     }
     else {
-        $VisualCppVersion = "1910"
+        $VisualCppVersion = "19.00"
     }
-    if ($Global:Installation -eq "15") {
-        $CMakePrivateArguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON"
+    $CMakePrivateArguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=${VisualCppVersion}`""
+    $CMakePrivateArguments += " -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=${VisualCppVersion}`""
+    if ($Global:Installation -eq "14" -or ($Global:Installation -eq "15")) {
+        $CMakePrivateArguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
+        $CMakePrivateArguments += " -DLIBCXX_ENABLE_STATIC=NO -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=NO"
     }
-    $env:cflags = "-fmsc-version=$VisualCppVersion $ArchFlags $env:cflags"
-    $env:cxxflags = "-fmsc-version=$VisualCppVersion $ArchFlags $env:cxxflags"
     Write-Host $CMakePrivateArguments
     $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
     if ($pi.ExitCode -ne 0) {
@@ -289,7 +291,6 @@ if ($MyResult -ne 0) {
 
 
 if ($Package) {
-    Set-Location $LLVMWorkdir
     if (Test-Path "$PWD/LLVM.sln") {
         #$(Configuration)
         FixInstall -TargetDir "./projects/compiler-rt/lib" -Configuration $Flavor
@@ -297,9 +298,9 @@ if ($Package) {
     &cpack -C "$Flavor"
 }
 
-if ($Libcxx) {
+if ($Libcxx -and ($Engine -ne "NinjaBootstrap")) {
     $MylibcxxResult = &Buildinglibcxx
-    if($MylibcxxResult -eq 0){
+    if ($MylibcxxResult -eq 0) {
         &cpack -C "$Flavor"
     }
 }
