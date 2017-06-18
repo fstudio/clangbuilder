@@ -14,11 +14,10 @@ param (
     [Switch]$Environment, # start environment 
     [Switch]$Sdklow, # low sdk support
     [Switch]$LLDB,
-    #[Switch]$Bootstrap,
     [Switch]$Static,
     [Switch]$Latest,
     [Switch]$Package,
-    #[Switch]$Libcxx,
+    [Switch]$Libcxx,
     [Switch]$ClearEnv
 )
 
@@ -133,6 +132,34 @@ Function Set-Workdir {
         mkdir $Path
     }
     Set-Location $Path
+}
+
+# Please see: http://libcxx.llvm.org/docs/BuildingLibcxx.html#experimental-support-for-windows
+Function Buildinglibcxx {
+    $CMDClangcl = "$Global:FinalWorkdir\bin\clang-cl.exe"
+    if (!(Test-Path $CMDClangcl)) {
+        $CMDClangcl = "$Global:FinalWorkdir\bin\${Global:Flavor}\clang-cl.exe"
+        if (!(Test-Path $CMDClangcl)) {
+            return 1
+        }
+    }
+    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\libcxxtarget"
+    Set-Workdir $Global:FinalWorkdir
+    $CMakePrivateArguments = "-GNinja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_SYSTEM_NAME=Windows"
+    $CMakePrivateArguments += " -DCMAKE_C_COMPILER=`"$CMDClangcl`" -DCMAKE_CXX_COMPILER=`"$CMDClangcl`""
+    $CMakePrivateArguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=19.00`" -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=19.00`""
+    $CMakePrivateArguments += " -DLIBCXX_ENABLE_SHARED=YES -DLIBCXX_ENABLE_STATIC=NO -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=NO"
+    $CMakePrivateArguments += " -DLLVM_PATH=`"${Global:LLVMSource}`""
+    $CMakePrivateArguments += " ${Global:LLVMSource}\projects\libcxx"
+    $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
+    if ($pi.ExitCode -ne 0) {
+        Write-Error "CMake exit: $($pi.ExitCode)"
+        return 1
+    }
+    $PN = & Parallel
+    $pi2 = Start-Process ninja -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
+    #&ninja all -j $PN
+    return $pi2.ExitCode
 }
 
 Function Invoke-MSBuild {
@@ -259,10 +286,20 @@ if ($MyResult -ne 0) {
     return ;
 }
 
+
+
 if ($Package) {
+    Set-Location $LLVMWorkdir
     if (Test-Path "$PWD/LLVM.sln") {
         #$(Configuration)
         FixInstall -TargetDir "./projects/compiler-rt/lib" -Configuration $Flavor
     }
     &cpack -C "$Flavor"
+}
+
+if ($Libcxx) {
+    $MylibcxxResult = &Buildinglibcxx
+    if($MylibcxxResult -eq 0){
+        &cpack -C "$Flavor"
+    }
 }
