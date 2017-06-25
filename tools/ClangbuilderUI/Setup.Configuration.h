@@ -86,6 +86,11 @@ typedef struct ISetupInstance ISetupInstance;
 typedef struct ISetupInstance2 ISetupInstance2;
 #endif
 
+#ifndef __ISetupInstanceCatalog_FWD_DEFINED__
+#define __ISetupInstanceCatalog_FWD_DEFINED__
+typedef struct ISetupInstanceCatalog ISetupInstanceCatalog;
+#endif
+
 #ifndef __ISetupLocalizedProperties_FWD_DEFINED__
 #define __ISetupLocalizedProperties_FWD_DEFINED__
 typedef struct ISetupLocalizedProperties ISetupLocalizedProperties;
@@ -345,6 +350,34 @@ struct DECLSPEC_UUID("89143C9A-05AF-49B0-B717-72E218A2185C") DECLSPEC_NOVTABLE I
     STDMETHOD(GetEnginePath)(
         _Outptr_result_maybenull_ BSTR* pbstrEnginePath
         ) = 0;
+};
+#endif
+
+EXTERN_C const IID IID_ISetupInstanceCatalog;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+/// <summary>
+/// Information about a catalog used to install an instance.
+/// </summary>
+struct DECLSPEC_UUID("9AD8E40F-39A2-40F1-BF64-0A6C50DD9EEB") DECLSPEC_NOVTABLE ISetupInstanceCatalog : public IUnknown
+{
+    /// <summary>
+    /// Gets catalog information properties.
+    /// </summary>
+    /// <param name="ppCatalogInfo">A pointer to an instance of <see cref="ISetupPropertyStore"/>.</param>
+    /// <returns>Standard HRESULT indicating success or failure, including E_FILENOTFOUND if the instance state does not exist and E_NOTFOUND if the property does not exist.</returns>
+    STDMETHOD(GetCatalogInfo)(
+        _Out_ ISetupPropertyStore** ppCatalogInfo
+    ) = 0;
+
+    /// <summary>
+    /// Gets a value indicating whether the catalog is a prerelease.
+    /// </summary>
+    /// <param name="pfIsPrerelease">Whether the catalog for the instance is a prerelease version.</param>
+    /// <returns>Standard HRESULT indicating success or failure, including E_FILENOTFOUND if the instance state does not exist and E_NOTFOUND if the property does not exist.</returns>
+    STDMETHOD(IsPrerelease)(
+        _Out_ VARIANT_BOOL* pfIsPrerelease
+    ) = 0;
 };
 #endif
 
