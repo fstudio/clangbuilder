@@ -16,7 +16,7 @@ Function Get-ClangbuilderToos {
         [String]$Extension
     )
     Write-Host "Downloading $Uri ..."
-    $Result = Invoke-WebRequest -Uri $Uri -OutFile "$Name.$Extension" -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox -PassThru
+    $Result = Invoke-WebRequest -Uri $Uri -OutFile "$Name.$Extension" -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox -PassThru -UseBasicParsing
 
 }
 
