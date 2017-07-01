@@ -92,12 +92,12 @@ if((Test-Path "$PSScriptRoot/VisualCppTools.lock.json")){
 
 
 Write-Output "NuGet Install VisualCppTools ......"
-Write-Output "VisualCppTools Download URL:`n$VisualCppToolsURL $$VisualCppToolsVersion"
+Write-Output "VisualCppTools Download URL:`n$VisualCppToolsURL $VisualCppToolsVersion"
 #&nuget  install VisualCppTools -Source $NuGetAddSource -Version $VisualCppToolsPreRevision -Prerelease
 #&nuget  install VisualCppTools -Source $NuGetAddSource -Prerelease
 &nuget install VisualCppTools.Community.VS2017Layout -Source $NuGetAddSource -Prerelease
 
-if((Test-Path "$PSScriptRoot/msvc/VisualCppTools.$VisualCppToolsVersion")){
+if((Test-Path "$PSScriptRoot/msvc/VisualCppTools.Community.VS2017Layout.$VisualCppToolsVersion")){
     $InstalledMap=@{}
     $InstalledMap["VisualCppTools"]=$VisualCppToolsVersion
     ConvertTo-Json $InstalledMap |Out-File -Force -FilePath "$PSScriptRoot\VisualCppTools.lock.json"
