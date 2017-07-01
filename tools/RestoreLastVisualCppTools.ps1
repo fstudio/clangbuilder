@@ -20,7 +20,7 @@ $NuGetURL="https://dist.nuget.org/win-x86-commandline/v4.1.0/nuget.exe"
 Function Get-NuGetFile{
     if(!(Test-Path "$PSScriptRoot\NuGet\nuget.exe")){
         Write-Output "Download NuGet now ....."
-        Invoke-WebRequest $NuGetURL -OutFile "$PSScriptRoot\NuGet\nuget.exe"
+        Invoke-WebRequest $NuGetURL -UseBasicParsing -OutFile "$PSScriptRoot\NuGet\nuget.exe"
     }
 }
 
@@ -65,20 +65,21 @@ Function CompareVersion(){
 
 
 
-$NugetXml=Invoke-WebRequest -Uri "$NuGetAddSource/Packages"
+$NugetXml=Invoke-WebRequest -UseBasicParsing -Uri "$NuGetAddSource/Packages"
 
 $PackageMetadata=[xml]$NugetXml.Content
 
-$VisualCppToolsURL=$PackageMetadata.feed.entry.content.src
+
 
 $VisualCppToolsVersionRaw=$PackageMetadata.feed.entry.properties.Version
 
 if($VisualCppToolsVersionRaw.GetType().IsArray){
     Write-Host "VisualCppTools: $VisualCppToolsVersionRaw"
     $VisualCppToolsVersion=$VisualCppToolsVersionRaw[$VisualCppToolsVersionRaw.Count-1]
-
+	$VisualCppToolsURL=$PackageMetadata.feed.entry.content.src[$VisualCppToolsVersionRaw.Count-1]
 }else{
     $VisualCppToolsVersion=$VisualCppToolsVersionRaw
+	$VisualCppToolsURL=$PackageMetadata.feed.entry.content.src
 }
 
 if((Test-Path "$PSScriptRoot/VisualCppTools.lock.json")){
@@ -91,9 +92,10 @@ if((Test-Path "$PSScriptRoot/VisualCppTools.lock.json")){
 
 
 Write-Output "NuGet Install VisualCppTools ......"
-Write-Output "VisualCppTools Download URL:`n$VisualCppToolsURL"
+Write-Output "VisualCppTools Download URL:`n$VisualCppToolsURL $$VisualCppToolsVersion"
 #&nuget  install VisualCppTools -Source $NuGetAddSource -Version $VisualCppToolsPreRevision -Prerelease
-&nuget  install VisualCppTools -Source $NuGetAddSource  -Prerelease
+#&nuget  install VisualCppTools -Source $NuGetAddSource -Prerelease
+&nuget install VisualCppTools.Community.VS2017Layout -Source $NuGetAddSource -Prerelease
 
 if((Test-Path "$PSScriptRoot/msvc/VisualCppTools.$VisualCppToolsVersion")){
     $InstalledMap=@{}
