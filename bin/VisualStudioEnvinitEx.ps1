@@ -69,13 +69,21 @@ else {
 }
 
 
+$FixedVer = [System.Version]::Parse("15.3.26621.3")
 
 $vsinstalls = vswhere -legacy -format json|ConvertFrom-JSON
+
 foreach ($item in $vsinstalls) {
     if ($item.instanceId -eq $InstallId) {
-
         $vsinstall = $item.installationPath
         $vsversion = $item.installationVersion
+        $ver = [System.Version]::Parse($vsversion)
+        $result = $ver.CompareTo($FixedVer)
+        if (($Arch -eq "ARM64") -and ($result -lt 0)) {
+            Write-Host "Use Enterprise WDK support ARM64"
+            Invoke-Expression "$PSScriptRoot\EnterpriseWDK.ps1"
+            return ;
+        }
         Write-Host "Use: Visual Studio $vsversion"
         Write-Host "Initialize from: $vsinstall"
         if ($InstallId.StartsWith("VisualStudio")) {
