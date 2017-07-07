@@ -207,17 +207,20 @@ Function Invoke-NinjaBootstrap {
         Write-Error "Prebuild due to error terminated !"
         return $result
     }
-    $CMDClangcl = "$Global:FinalWorkdir\bin\clang-cl.exe"
+    #$CMDClangcl = "$Global:FinalWorkdir\bin\clang-cl.exe"
     $VisualCppVersionTable = @{
         "15.0" = "19.10";
         "14.0" = "19.00";
         "12.0" = "18.00";
         "11.0" = "17.00"
     };
+    $env:CC="$Global:FinalWorkdir\bin\clang-cl.exe"
+    $env:CXX="$Global:FinalWorkdir\bin\clang-cl.exe"
+    Write-Host "update env:CC env:CXX ${env:CC} ${env:CXX}"
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\bootstrap"
     Set-Workdir $Global:FinalWorkdir
     $CMakePrivateArguments = "-GNinja $Global:CMakeArguments"
-    $CMakePrivateArguments += " -DCMAKE_C_COMPILER=`"$CMDClangcl`" -DCMAKE_CXX_COMPILER=`"$CMDClangcl`""
+    #$CMakePrivateArguments += " -DCMAKE_C_COMPILER=`"$CMDClangcl`" -DCMAKE_CXX_COMPILER=`"$CMDClangcl`""
     if ($VisualCppVersionTable.ContainsKey($InstallationVersion)) {
         $VisualCppVersion = $VisualCppVersionTable[$InstallationVersion]
     }
@@ -237,6 +240,7 @@ Function Invoke-NinjaBootstrap {
         return 1
     }
     $PN = & Parallel
+    Write-Host "Now build llvm ..."
     $pi = Start-Process ninja -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
     return $pi.ExitCode
 }
