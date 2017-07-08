@@ -7,7 +7,7 @@ param (
     [ValidateSet("Release", "Debug", "MinSizeRel", "RelWithDebug")]
     [String]$Flavor = "Release",
 
-    [ValidateSet("MSBuild", "Ninja", "NinjaBootstrap")]
+    [ValidateSet("MSBuild", "Ninja", "NinjaBootstrap", "NinjaIterate")]
     [String]$Engine = "MSBuild",
     [String]$InstallId, # install id
     [String]$InstallationVersion, # installationVersion
@@ -37,9 +37,10 @@ if ($ClearEnv) {
     $env:Path = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
 }
 
+$Global:ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
+
 ## initialize
 . "$PSScriptRoot/Initialize.ps1"
-
 . "$PSScriptRoot/PathLoader.ps1"
 
 $VisualStudioArgs = "$PSScriptRoot/VisualStudioEnvinitEx.ps1 -Arch $Arch -InstallId $InstallId"
@@ -91,6 +92,7 @@ $ArchTable = @{
 }
 
 $Global:ArchName = $ArchTable[$Arch];
+$Global:ArchValue = $Arch;
 # Builder CMake Arguments
 $Global:Installation = $InstallationVersion.Substring(0, 2)
 $Global:FinalWorkdir = ""
@@ -201,6 +203,77 @@ Function Invoke-Ninja {
 }
 
 
+Function Get-PrecompiledLLVM {
+    # get 
+    $PrecompiledJSON = "$Global:ClangbuilderRoot\config\precompiled.json"
+    if (!(Test-Path $PrecompiledJSON)) {
+        return ""
+    }
+    $LLVMJSON = Get-Content -Path $PrecompiledJSON |ConvertFrom-Json
+    if ($null -eq $LLVMJSON.LLVM) {
+        return ""
+    }
+    $LLVMObj = $LLVMJSON.LLVM
+    if ($null -eq $LLVMObj.Path) {
+        return ""
+    }
+    return $LLVMObj.Path
+}
+
+Function Invoke-NinjaIterate {
+    $VisualCppVersionTable = @{
+        "15.0" = "19.10";
+        "14.0" = "19.00";
+        "12.0" = "18.00";
+        "11.0" = "17.00"
+    };
+    $ClangMarchArgument = @{
+        "x64"   = "-m64";
+        "x86"   = "-m32";
+        "ARM"   = "--target=arm-win32 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1";
+        "ARM64" = "--target=arm64-win32 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
+    }
+    # 
+    $PrecompiledLLVM = &Get-PrecompiledLLVM
+    if ($PrecompiledLLVM -eq "") {
+        return 1
+    }
+    if (!(Test-Path $PrecompiledLLVM)) {
+        Write-Host "$PrecompiledLLVM not exists"
+        return 1
+    }
+    $MarchArgument = $ClangMarchArgument[$Global:ArchValue]
+    $env:CC = "$PrecompiledLLVM\bin\clang-cl.exe"
+    $env:CXX = "$PrecompiledLLVM\bin\clang-cl.exe"
+    Write-Host "update env:CC env:CXX ${env:CC} ${env:CXX}"
+    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\precompile"
+    Set-Workdir $Global:FinalWorkdir
+    $CMakePrivateArguments = "-GNinja $Global:CMakeArguments"
+    if ($VisualCppVersionTable.ContainsKey($InstallationVersion)) {
+        $VisualCppVersion = $VisualCppVersionTable[$InstallationVersion]
+    }
+    else {
+        $VisualCppVersion = "19.00"
+    }
+    $CMakePrivateArguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=${VisualCppVersion} $MarchArgument`""
+    $CMakePrivateArguments += " -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=${VisualCppVersion} $MarchArgument`""
+    if ($Global:Installation -eq "14" -or ($Global:Installation -eq "15")) {
+        $CMakePrivateArguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
+        $CMakePrivateArguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
+        #$CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
+    }
+    Write-Host $CMakePrivateArguments
+    $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
+    if ($pi.ExitCode -ne 0) {
+        Write-Error "CMake exit: $($pi.ExitCode)"
+        return 1
+    }
+    $PN = & Parallel
+    Write-Host "Now build llvm ..."
+    $pi = Start-Process ninja -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
+    return $pi.ExitCode
+}
+
 Function Invoke-NinjaBootstrap {
     $result = &Invoke-Ninja
     if ($result -ne 0) {
@@ -285,6 +358,8 @@ switch ($Engine) {
     } {$_ -eq "NinjaBootstrap"} {
         Write-Host "Build Bootstrap Ninja"
         $MyResult = &Invoke-NinjaBootstrap
+    } {$_ -eq "NinjaIterate"} {
+        $MyResult = &Invoke-NinjaIterate
     }
 }
 

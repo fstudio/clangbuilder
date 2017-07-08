@@ -16,12 +16,14 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #define HINST_THISCOMPONENT ((HINSTANCE)&__ImageBase)
 #endif
 
-#define WS_NORESIZEWINDOW                                                      \
+#define WS_NORESIZEWINDOW \
   (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN | WS_MINIMIZEBOX)
 
 template <class Interface>
-inline void SafeRelease(Interface **ppInterfaceToRelease) {
-  if (*ppInterfaceToRelease != NULL) {
+inline void SafeRelease(Interface **ppInterfaceToRelease)
+{
+  if (*ppInterfaceToRelease != NULL)
+  {
     (*ppInterfaceToRelease)->Release();
 
     (*ppInterfaceToRelease) = NULL;
@@ -37,7 +39,7 @@ const wchar_t *ArchList[] = {L"x86", L"x64", L"ARM", L"ARM64"};
 const wchar_t *FlavorList[] = {L"Release", L"MinSizeRel", L"RelWithDebInfo",
                                L"Debug"};
 
-const wchar_t *BuildEngineList[] = {L"MSBuild", L"Ninja", L"NinjaBootstrap"};
+const wchar_t *BuildEngineList[] = {L"MSBuild", L"Ninja", L"NinjaBootstrap", L"NinjaIterate"};
 
 /*
  * Resources Initialize and Release
@@ -47,7 +49,8 @@ MainWindow::MainWindow()
     : m_pFactory(nullptr), m_pHwndRenderTarget(nullptr),
       m_pBasicTextBrush(nullptr), m_AreaBorderBrush(nullptr),
       m_pWriteFactory(nullptr), m_pWriteTextFormat(nullptr) {}
-MainWindow::~MainWindow() {
+MainWindow::~MainWindow()
+{
   SafeRelease(&m_pWriteTextFormat);
   SafeRelease(&m_pWriteFactory);
   SafeRelease(&m_pBasicTextBrush);
@@ -56,7 +59,8 @@ MainWindow::~MainWindow() {
   SafeRelease(&m_pFactory);
 }
 
-LRESULT MainWindow::InitializeWindow() {
+LRESULT MainWindow::InitializeWindow()
+{
   HRESULT hr = E_FAIL;
 
   RECT layout = {100, 100, 800, 600};
@@ -66,32 +70,38 @@ LRESULT MainWindow::InitializeWindow() {
 }
 
 ///
-HRESULT MainWindow::CreateDeviceIndependentResources() {
+HRESULT MainWindow::CreateDeviceIndependentResources()
+{
   HRESULT hr = S_OK;
   hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_pFactory);
   return hr;
 }
-HRESULT MainWindow::Initialize() {
+HRESULT MainWindow::Initialize()
+{
   auto hr = CreateDeviceIndependentResources();
   FLOAT dpiX, dpiY;
   m_pFactory->GetDesktopDpi(&dpiX, &dpiY);
   return hr;
 }
-HRESULT MainWindow::CreateDeviceResources() {
+HRESULT MainWindow::CreateDeviceResources()
+{
   HRESULT hr = S_OK;
 
-  if (!m_pHwndRenderTarget) {
+  if (!m_pHwndRenderTarget)
+  {
     RECT rc;
     ::GetClientRect(m_hWnd, &rc);
     D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top);
     hr = m_pFactory->CreateHwndRenderTarget(
         D2D1::RenderTargetProperties(),
         D2D1::HwndRenderTargetProperties(m_hWnd, size), &m_pHwndRenderTarget);
-    if (SUCCEEDED(hr)) {
+    if (SUCCEEDED(hr))
+    {
       hr = m_pHwndRenderTarget->CreateSolidColorBrush(
           D2D1::ColorF(D2D1::ColorF::Black), &m_pBasicTextBrush);
     }
-    if (SUCCEEDED(hr)) {
+    if (SUCCEEDED(hr))
+    {
       hr = m_pHwndRenderTarget->CreateSolidColorBrush(D2D1::ColorF(0xFFC300),
                                                       &m_AreaBorderBrush);
     }
@@ -99,7 +109,8 @@ HRESULT MainWindow::CreateDeviceResources() {
   return hr;
 }
 void MainWindow::DiscardDeviceResources() { SafeRelease(&m_pBasicTextBrush); }
-HRESULT MainWindow::OnRender() {
+HRESULT MainWindow::OnRender()
+{
   auto hr = CreateDeviceResources();
   hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
                            reinterpret_cast<IUnknown **>(&m_pWriteFactory));
@@ -111,7 +122,8 @@ HRESULT MainWindow::OnRender() {
       &m_pWriteTextFormat);
 #pragma warning(disable : 4244)
 #pragma warning(disable : 4267)
-  if (SUCCEEDED(hr)) {
+  if (SUCCEEDED(hr))
+  {
     RECT rect;
     GetClientRect(&rect);
     m_pHwndRenderTarget->BeginDraw();
@@ -126,7 +138,8 @@ HRESULT MainWindow::OnRender() {
                                                    rect.bottom - rect.top - 20),
                                        m_AreaBorderBrush, 1.0);
 
-    for (auto &label : label_) {
+    for (auto &label : label_)
+    {
       if (label.text.empty())
         continue;
       m_pHwndRenderTarget->DrawTextW(
@@ -141,14 +154,16 @@ HRESULT MainWindow::OnRender() {
   }
 #pragma warning(default : 4244)
 #pragma warning(default : 4267)
-  if (hr == D2DERR_RECREATE_TARGET) {
+  if (hr == D2DERR_RECREATE_TARGET)
+  {
     hr = S_OK;
     DiscardDeviceResources();
     ::InvalidateRect(m_hWnd, nullptr, FALSE);
   }
   return hr;
 }
-D2D1_SIZE_U MainWindow::CalculateD2DWindowSize() {
+D2D1_SIZE_U MainWindow::CalculateD2DWindowSize()
+{
   RECT rc;
   ::GetClientRect(m_hWnd, &rc);
 
@@ -159,25 +174,29 @@ D2D1_SIZE_U MainWindow::CalculateD2DWindowSize() {
   return d2dWindowSize;
 }
 
-void MainWindow::OnResize(UINT width, UINT height) {
-  if (m_pHwndRenderTarget) {
+void MainWindow::OnResize(UINT width, UINT height)
+{
+  if (m_pHwndRenderTarget)
+  {
     m_pHwndRenderTarget->Resize(D2D1::SizeU(width, height));
   }
 }
 
-#define WINDOWEXSTYLE                                                          \
+#define WINDOWEXSTYLE \
   WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_NOPARENTNOTIFY
-#define COMBOBOXSTYLE                                                          \
-  WS_CHILDWINDOW | WS_CLIPSIBLINGS | WS_VISIBLE | WS_TABSTOP |                 \
+#define COMBOBOXSTYLE                                          \
+  WS_CHILDWINDOW | WS_CLIPSIBLINGS | WS_VISIBLE | WS_TABSTOP | \
       CBS_DROPDOWNLIST | CBS_HASSTRINGS
 #define CHECKBOXSTYLE                                                          \
   BS_PUSHBUTTON | BS_TEXT | BS_DEFPUSHBUTTON | BS_CHECKBOX | BS_AUTOCHECKBOX | \
       WS_CHILD | WS_OVERLAPPED | WS_VISIBLE
-#define PUSHBUTTONSTYLE                                                        \
+#define PUSHBUTTONSTYLE \
   BS_PUSHBUTTON | BS_TEXT | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE
 
-HRESULT MainWindow::InitializeControl() {
-  if (!VisualStudioSearch(instances_)) {
+HRESULT MainWindow::InitializeControl()
+{
+  if (!VisualStudioSearch(instances_))
+  {
     return S_FALSE;
   }
   assert(hCobVS_);
@@ -192,40 +211,50 @@ HRESULT MainWindow::InitializeControl() {
   assert(hButtonTask_);
   assert(hButtonEnv_);
 
-  for (auto &i : instances_) {
+  for (auto &i : instances_)
+  {
     ::SendMessage(hCobVS_, CB_ADDSTRING, 0, (LPARAM)(i.description.c_str()));
   }
   int index = instances_.empty() ? 0 : (instances_.size() - 1);
-  for (auto iter = instances_.begin(); iter != instances_.end(); iter++) {
-    if (iter->description.find(L"Preview") == iter->description.npos) {
-      if (iter->installversion.size() > 4) {
+  for (auto iter = instances_.begin(); iter != instances_.end(); iter++)
+  {
+    if (iter->description.find(L"Preview") == iter->description.npos)
+    {
+      if (iter->installversion.size() > 4)
+      {
         index = (int)(iter - instances_.begin());
       }
     }
   }
   ::SendMessage(hCobVS_, CB_SETCURSEL, (WPARAM)(index), 0);
 
-  for (auto &a : ArchList) {
+  for (auto &a : ArchList)
+  {
     ::SendMessage(hCobArch_, CB_ADDSTRING, 0, (LPARAM)a);
   }
 #ifdef _M_X64
   ::SendMessage(hCobArch_, CB_SETCURSEL, 1, 0);
 #else
-  if (KrIsWow64Process()) {
+  if (KrIsWow64Process())
+  {
     ::SendMessage(hCobArch_, CB_SETCURSEL, 1, 0);
-  } else {
+  }
+  else
+  {
     ::SendMessage(hCobArch_, CB_SETCURSEL, 0, 0);
   }
 
 #endif
 
-  for (auto &f : FlavorList) {
+  for (auto &f : FlavorList)
+  {
     ::SendMessage(hCobFlavor_, CB_ADDSTRING, 0, (LPARAM)f);
   }
 
   ::SendMessage(hCobFlavor_, CB_SETCURSEL, 0, 0);
 
-  for (auto e : BuildEngineList) {
+  for (auto e : BuildEngineList)
+  {
     ::SendMessage(hBuildEngine, CB_ADDSTRING, 0, (LPARAM)e);
   }
   ::SendMessage(hBuildEngine, CB_SETCURSEL, 0, 0);
@@ -237,9 +266,11 @@ HRESULT MainWindow::InitializeControl() {
  *  Message Action Function
  */
 LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                             BOOL &bHandle) {
+                             BOOL &bHandle)
+{
   auto hr = Initialize();
-  if (hr != S_OK) {
+  if (hr != S_OK)
+  {
     ::MessageBoxW(nullptr, L"Initialize() failed", L"Fatal error",
                   MB_OK | MB_ICONSTOP);
     std::terminate();
@@ -263,7 +294,8 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
     auto hw = CreateWindowExW(WINDOWEXSTYLE, lpClassName, lpWindowName, dwStyle,
                               X, Y, nWidth, nHeight, m_hWnd, hMenu,
                               HINST_THISCOMPONENT, nullptr);
-    if (hw) {
+    if (hw)
+    {
       ::SendMessageW(hw, WM_SETFONT, (WPARAM)hFont, lParam);
     }
     return hw;
@@ -313,30 +345,35 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
       KryceLabel(30, 140, 190, 170, L"Build Engine\t\xD83D\xDEE0:"));
   label_.push_back(KryceLabel(30, 190, 190, 220, L"Build Options\t\x2611:"));
   ///
-  if (FAILED(InitializeControl())) {
+  if (FAILED(InitializeControl()))
+  {
   }
   // DeleteObject(hFont);
   return S_OK;
 }
 LRESULT MainWindow::OnDestroy(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                              BOOL &bHandle) {
+                              BOOL &bHandle)
+{
   PostQuitMessage(0);
   return S_OK;
 }
 LRESULT MainWindow::OnClose(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                            BOOL &bHandle) {
+                            BOOL &bHandle)
+{
   ::DestroyWindow(m_hWnd);
   return S_OK;
 }
 LRESULT MainWindow::OnSize(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                           BOOL &bHandle) {
+                           BOOL &bHandle)
+{
   UINT width = LOWORD(lParam);
   UINT height = HIWORD(lParam);
   OnResize(width, height);
   return S_OK;
 }
 LRESULT MainWindow::OnPaint(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                            BOOL &bHandle) {
+                            BOOL &bHandle)
+{
   LRESULT hr = S_OK;
   PAINTSTRUCT ps;
   BeginPaint(&ps);
@@ -347,12 +384,14 @@ LRESULT MainWindow::OnPaint(UINT nMsg, WPARAM wParam, LPARAM lParam,
 }
 
 LRESULT MainWindow::OnCtlColorStatic(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                                     BOOL &bHandle) {
+                                     BOOL &bHandle)
+{
   return S_OK;
 }
 
 LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
-                                   BOOL &bHandled) {
+                                   BOOL &bHandled)
+{
   MessageWindowEx(m_hWnd, L"About Clangbuilder",
                   L"Prerelease: 2.0.1\nCopyright \xA9 2017, Force Charlie. "
                   L"All Rights Reserved.",
@@ -366,19 +405,23 @@ LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
  * ClangBuilderManager.ps1
  * ClangBuilderBootstrap.ps1
  */
-bool SearchClangbuilderPsEngine(std::wstring &psfile, const wchar_t *name) {
+bool SearchClangbuilderPsEngine(std::wstring &psfile, const wchar_t *name)
+{
   std::wstring engine_(PATHCCH_MAX_CCH, L'\0');
   auto buffer = &engine_[0];
   // std::array<wchar_t, PATHCCH_MAX_CCH> engine_;
   GetModuleFileNameW(HINST_THISCOMPONENT, buffer, PATHCCH_MAX_CCH);
   std::wstring tmpfile;
-  for (int i = 0; i < 5; i++) {
-    if (!PathRemoveFileSpecW(buffer)) {
+  for (int i = 0; i < 5; i++)
+  {
+    if (!PathRemoveFileSpecW(buffer))
+    {
       return false;
     }
     tmpfile.assign(buffer);
     tmpfile.append(L"\\bin\\").append(name);
-    if (PathFileExistsW(tmpfile.c_str())) {
+    if (PathFileExistsW(tmpfile.c_str()))
+    {
       psfile.assign(std::move(tmpfile));
       return true;
     }
@@ -386,9 +429,11 @@ bool SearchClangbuilderPsEngine(std::wstring &psfile, const wchar_t *name) {
   return false;
 }
 
-bool InitializeSearchPowershell(std::wstring &ps) {
+bool InitializeSearchPowershell(std::wstring &ps)
+{
   WCHAR pszPath[MAX_PATH]; /// by default , System Dir Length <260
-  if (SHGetFolderPathW(nullptr, CSIDL_SYSTEM, nullptr, 0, pszPath) != S_OK) {
+  if (SHGetFolderPathW(nullptr, CSIDL_SYSTEM, nullptr, 0, pszPath) != S_OK)
+  {
     return false;
   }
   ps.assign(pszPath);
@@ -397,25 +442,30 @@ bool InitializeSearchPowershell(std::wstring &ps) {
 }
 
 #ifndef _M_X64
-class FsRedirection {
+class FsRedirection
+{
 public:
   typedef BOOL WINAPI fntype_Wow64DisableWow64FsRedirection(PVOID *OldValue);
   typedef BOOL WINAPI fntype_Wow64RevertWow64FsRedirection(PVOID *OldValue);
-  FsRedirection() {
+  FsRedirection()
+  {
     auto hModule = KrModule();
     auto pfnWow64DisableWow64FsRedirection =
         (fntype_Wow64DisableWow64FsRedirection *)GetProcAddress(
             hModule, "Wow64DisableWow64FsRedirection");
-    if (pfnWow64DisableWow64FsRedirection) {
+    if (pfnWow64DisableWow64FsRedirection)
+    {
       pfnWow64DisableWow64FsRedirection(&OldValue);
     }
   }
-  ~FsRedirection() {
+  ~FsRedirection()
+  {
     auto hModule = KrModule();
     auto pfnWow64RevertWow64FsRedirection =
         (fntype_Wow64RevertWow64FsRedirection *)GetProcAddress(
             hModule, "Wow64RevertWow64FsRedirection");
-    if (pfnWow64RevertWow64FsRedirection) {
+    if (pfnWow64RevertWow64FsRedirection)
+    {
       pfnWow64RevertWow64FsRedirection(&OldValue);
     }
   }
@@ -425,7 +475,8 @@ private:
 };
 #endif
 
-bool PsCreateProcess(LPWSTR pszCommand) {
+bool PsCreateProcess(LPWSTR pszCommand)
+{
   PROCESS_INFORMATION pi;
   STARTUPINFO si;
   ZeroMemory(&si, sizeof(si));
@@ -438,7 +489,8 @@ bool PsCreateProcess(LPWSTR pszCommand) {
 #endif
   if (CreateProcessW(nullptr, pszCommand, NULL, NULL, FALSE,
                      CREATE_NEW_CONSOLE | NORMAL_PRIORITY_CLASS, NULL, NULL,
-                     &si, &pi)) {
+                     &si, &pi))
+  {
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
     return true;
@@ -446,43 +498,52 @@ bool PsCreateProcess(LPWSTR pszCommand) {
   return false;
 }
 
-LPWSTR FormatMessageInternal() {
+LPWSTR FormatMessageInternal()
+{
   LPWSTR hlocal;
   if (FormatMessageW(
           FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
               FORMAT_MESSAGE_ALLOCATE_BUFFER,
           NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
-          (LPWSTR)&hlocal, 0, NULL)) {
+          (LPWSTR)&hlocal, 0, NULL))
+  {
     return hlocal;
   }
   return nullptr;
 }
 
 LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
-                               BOOL &bHandled) {
+                               BOOL &bHandled)
+{
   std::wstring Command;
-  if (!InitializeSearchPowershell(Command)) {
+  if (!InitializeSearchPowershell(Command))
+  {
     MessageWindowEx(m_hWnd, L"Search PowerShell Error",
                     L"Please check PowerShell", nullptr, kFatalWindow);
     return S_FALSE;
   }
   std::wstring engine_;
-  if (!SearchClangbuilderPsEngine(engine_, L"ClangbuilderTarget.ps1")) {
+  if (!SearchClangbuilderPsEngine(engine_, L"ClangbuilderTarget.ps1"))
+  {
     MessageWindowEx(m_hWnd, L"Not Found Clangbuilder Engine",
                     L"Not Found ClangbuilderTarget.ps1", nullptr, kFatalWindow);
     return false;
   }
   Command.append(L" -NoLogo -NoExit   -File \"").append(engine_).push_back('"');
   auto vsindex_ = ComboBox_GetCurSel(hCobVS_);
-  if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_) {
+  if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_)
+  {
     return S_FALSE;
   }
   auto archindex_ = ComboBox_GetCurSel(hCobArch_);
-  if (archindex_ < 0 || ARRAYSIZE(ArchList) <= archindex_) {
+  if (archindex_ < 0 || ARRAYSIZE(ArchList) <= archindex_)
+  {
     return S_FALSE;
   }
-  if (instances_[vsindex_].installversion.size() <= 4) {
-    if (archindex_ >= 3) {
+  if (instances_[vsindex_].installversion.size() <= 4)
+  {
+    if (archindex_ >= 3)
+    {
       MessageWindowEx(m_hWnd, L"Not Support Architecture",
                       L"Build ARM64 Require Visual Studio 15 or Later", nullptr,
                       kFatalWindow);
@@ -490,12 +551,14 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     }
   }
   auto flavor_ = ComboBox_GetCurSel(hCobFlavor_);
-  if (flavor_ < 0 || ARRAYSIZE(FlavorList) <= flavor_) {
+  if (flavor_ < 0 || ARRAYSIZE(FlavorList) <= flavor_)
+  {
     return S_FALSE;
   }
 
   auto be = ComboBox_GetCurSel(hBuildEngine);
-  if (be < 0 || ARRAYSIZE(BuildEngineList) <= be) {
+  if (be < 0 || ARRAYSIZE(BuildEngineList) <= be)
+  {
     return S_FALSE;
   }
 
@@ -506,33 +569,41 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   Command.append(L" -Flavor ").append(FlavorList[flavor_]);
   Command.append(L" -Engine ").append(BuildEngineList[be]);
 
-  if (Button_GetCheck(hCheckLatest_) == BST_CHECKED) {
+  if (Button_GetCheck(hCheckLatest_) == BST_CHECKED)
+  {
     Command.append(L" -Latest");
   }
 
-  if (Button_GetCheck(hCheckSdklow_) == BST_CHECKED) {
+  if (Button_GetCheck(hCheckSdklow_) == BST_CHECKED)
+  {
     Command.append(L" -Sdklow");
   }
 
-  if (Button_GetCheck(hCheckPackaged_) == BST_CHECKED) {
+  if (Button_GetCheck(hCheckPackaged_) == BST_CHECKED)
+  {
     Command.append(L" -Package");
   }
 
-  if (Button_GetCheck(hCheckLink_) == BST_CHECKED) {
+  if (Button_GetCheck(hCheckLink_) == BST_CHECKED)
+  {
     Command.append(L" -Static");
   }
 
-  if (Button_GetCheck(hCheckLLDB_) == BST_CHECKED) {
+  if (Button_GetCheck(hCheckLLDB_) == BST_CHECKED)
+  {
     Command.append(L" -LLDB");
   }
 
-  if (Button_GetCheck(hCheckCleanEnv_) == BST_CHECKED) {
+  if (Button_GetCheck(hCheckCleanEnv_) == BST_CHECKED)
+  {
     Command.append(L" -ClearEnv");
   }
-  if (!PsCreateProcess(&Command[0])) {
+  if (!PsCreateProcess(&Command[0]))
+  {
     ////
     auto errmsg = FormatMessageInternal();
-    if (errmsg) {
+    if (errmsg)
+    {
       MessageWindowEx(m_hWnd, L"CreateProcess failed", errmsg, nullptr,
                       kFatalWindow);
       LocalFree(errmsg);
@@ -541,30 +612,37 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   return S_OK;
 }
 LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
-                                 BOOL &bHandled) {
+                                 BOOL &bHandled)
+{
   std::wstring Command;
-  if (!InitializeSearchPowershell(Command)) {
+  if (!InitializeSearchPowershell(Command))
+  {
     MessageWindowEx(m_hWnd, L"Search PowerShell Error",
                     L"Please check PowerShell", nullptr, kFatalWindow);
     return S_FALSE;
   }
   std::wstring engine_;
-  if (!SearchClangbuilderPsEngine(engine_, L"ClangbuilderTarget.ps1")) {
+  if (!SearchClangbuilderPsEngine(engine_, L"ClangbuilderTarget.ps1"))
+  {
     MessageWindowEx(m_hWnd, L"Not Found Clangbuilder Engine",
                     L"Not Found ClangbuilderTarget.ps1", nullptr, kFatalWindow);
     return false;
   }
   Command.append(L" -NoLogo -NoExit   -File \"").append(engine_).push_back('"');
   auto vsindex_ = ComboBox_GetCurSel(hCobVS_);
-  if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_) {
+  if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_)
+  {
     return S_FALSE;
   }
   auto archindex_ = ComboBox_GetCurSel(hCobArch_);
-  if (archindex_ < 0 || sizeof(ArchList) <= archindex_) {
+  if (archindex_ < 0 || sizeof(ArchList) <= archindex_)
+  {
     return S_FALSE;
   }
-  if (instances_[vsindex_].installversion.size() <= 4) {
-    if (archindex_ >= 3) {
+  if (instances_[vsindex_].installversion.size() <= 4)
+  {
+    if (archindex_ >= 3)
+    {
       MessageWindowEx(m_hWnd, L"Not Support Architecture",
                       L"Build ARM64 Require Visual Studio 15 or Later", nullptr,
                       kFatalWindow);
@@ -576,16 +654,20 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   Command.append(L" -InstallationVersion ")
       .append(instances_[vsindex_].installversion);
   Command.append(L" -Arch ").append(ArchList[archindex_]);
-  if (Button_GetCheck(hCheckSdklow_) == BST_CHECKED) {
+  if (Button_GetCheck(hCheckSdklow_) == BST_CHECKED)
+  {
     Command.append(L" -Sdklow");
   }
-  if (Button_GetCheck(hCheckCleanEnv_) == BST_CHECKED) {
+  if (Button_GetCheck(hCheckCleanEnv_) == BST_CHECKED)
+  {
     Command.append(L" -ClearEnv");
   }
 
-  if (!PsCreateProcess(&Command[0])) {
+  if (!PsCreateProcess(&Command[0]))
+  {
     auto errmsg = FormatMessageInternal();
-    if (errmsg) {
+    if (errmsg)
+    {
       MessageWindowEx(m_hWnd, L"CreateProcess failed", errmsg, nullptr,
                       kFatalWindow);
       LocalFree(errmsg);
