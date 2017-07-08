@@ -364,8 +364,10 @@ switch ($Engine) {
 }
 
 if ($MyResult -ne 0) {
-    Write-Error "build llvm is stopped !"
+    Write-Error "Engine: $Engine, Result: $MyResult"
     return ;
+}else{
+    Write-Host "Build LLVM/Clang Success"
 }
 
 
@@ -384,3 +386,5 @@ if ($Libcxx -and ($Engine -ne "NinjaBootstrap")) {
         &cpack -C "$Flavor"
     }
 }
+
+Write-Host "You can run Update-Build"
