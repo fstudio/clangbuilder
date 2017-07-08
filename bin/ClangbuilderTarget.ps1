@@ -230,8 +230,8 @@ Function Invoke-NinjaIterate {
     $ClangMarchArgument = @{
         "x64"   = "-m64";
         "x86"   = "-m32";
-        "ARM"   = "--target=arm-win32 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1";
-        "ARM64" = "--target=arm64-win32 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
+        "ARM"   = "--target=arm-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1";
+        "ARM64" = "--target=arm64-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
     }
     # 
     $PrecompiledLLVM = &Get-PrecompiledLLVM
