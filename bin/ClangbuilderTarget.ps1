@@ -232,7 +232,7 @@ Function Invoke-NinjaBootstrap {
     if ($Global:Installation -eq "14" -or ($Global:Installation -eq "15")) {
         $CMakePrivateArguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=ON"
         $CMakePrivateArguments += " -DLIBCXX_ENABLE_STATIC=ON -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
-        $CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
+        #$CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
     }
     Write-Host $CMakePrivateArguments
     $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
