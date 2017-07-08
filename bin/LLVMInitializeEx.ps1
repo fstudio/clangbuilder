@@ -77,4 +77,5 @@ Update-LLVM -URL "$LLVMRepositoriesRoot/clang-tools-extra.git" -Folder "extra"
 Set-Location "$SourcesDir/projects"
 Update-LLVM -URL "$LLVMRepositoriesRoot/compiler-rt.git" -Folder "compiler-rt"
 Update-LLVM -URL "$LLVMRepositoriesRoot/libcxx.git" -Folder "libcxx"
-Update-LLVM -URL "$LLVMRepositoriesRoot/libcxxabi.git" -Folder "libcxxabi"
+# current build libcxxabi failed when bootstrap
+#Update-LLVM -URL "$LLVMRepositoriesRoot/libcxxabi.git" -Folder "libcxxabi"
