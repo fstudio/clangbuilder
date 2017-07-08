@@ -148,8 +148,8 @@ Function Buildinglibcxx {
     $CMakePrivateArguments = "-GNinja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_SYSTEM_NAME=Windows"
     $CMakePrivateArguments += " -DCMAKE_C_COMPILER=`"$CMDClangcl`" -DCMAKE_CXX_COMPILER=`"$CMDClangcl`""
     $CMakePrivateArguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=19.00`" -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=19.00`""
-    $CMakePrivateArguments += " -DLIBCXX_ENABLE_SHARED=YES -DLIBCXX_ENABLE_STATIC=NO -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=NO"
-    $CMakePrivateArguments += " -DLLVM_PATH=`"${Global:LLVMSource}`""
+    $CMakePrivateArguments += " -DLIBCXX_ENABLE_SHARED=ON -DLIBCXX_ENABLE_STATIC=ON -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
+    $CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON -DLLVM_PATH=`"${Global:LLVMSource}`""
     $CMakePrivateArguments += " ${Global:LLVMSource}\projects\libcxx"
     $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
     if ($pi.ExitCode -ne 0) {
@@ -214,8 +214,8 @@ Function Invoke-NinjaBootstrap {
         "12.0" = "18.00";
         "11.0" = "17.00"
     };
-    $env:CC="$Global:FinalWorkdir\bin\clang-cl.exe"
-    $env:CXX="$Global:FinalWorkdir\bin\clang-cl.exe"
+    $env:CC = "$Global:FinalWorkdir\bin\clang-cl.exe"
+    $env:CXX = "$Global:FinalWorkdir\bin\clang-cl.exe"
     Write-Host "update env:CC env:CXX ${env:CC} ${env:CXX}"
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\bootstrap"
     Set-Workdir $Global:FinalWorkdir
@@ -230,8 +230,9 @@ Function Invoke-NinjaBootstrap {
     $CMakePrivateArguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=${VisualCppVersion}`""
     $CMakePrivateArguments += " -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=${VisualCppVersion}`""
     if ($Global:Installation -eq "14" -or ($Global:Installation -eq "15")) {
-        $CMakePrivateArguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
-        $CMakePrivateArguments += " -DLIBCXX_ENABLE_STATIC=NO -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=NO"
+        $CMakePrivateArguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=ON"
+        $CMakePrivateArguments += " -DLIBCXX_ENABLE_STATIC=ON -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
+        $CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
     }
     Write-Host $CMakePrivateArguments
     $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
