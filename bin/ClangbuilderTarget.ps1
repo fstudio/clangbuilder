@@ -366,7 +366,8 @@ switch ($Engine) {
 if ($MyResult -ne 0) {
     Write-Error "Engine: $Engine, Result: $MyResult"
     return ;
-}else{
+}
+else {
     Write-Host "Build LLVM/Clang Success"
 }
 

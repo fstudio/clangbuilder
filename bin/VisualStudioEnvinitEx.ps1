@@ -71,7 +71,7 @@ else {
 
 $FixedVer = [System.Version]::Parse("15.3.26621.3")
 
-$vsinstalls = vswhere -legacy -format json|ConvertFrom-JSON
+$vsinstalls = vswhere -prerelease -legacy -format json|ConvertFrom-JSON
 
 foreach ($item in $vsinstalls) {
     if ($item.instanceId -eq $InstallId) {
