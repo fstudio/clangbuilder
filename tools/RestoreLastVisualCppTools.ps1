@@ -8,7 +8,7 @@
 
 # See https://blogs.msdn.microsoft.com/vcblog/2016/02/16/try-out-the-latest-c-compiler-toolset-without-waiting-for-the-next-update-of-visual-studio/
 # nuget install VisualCppTools -source http://vcppdogfooding.azurewebsites.net/nuget/ -Prerelease
-
+# https://www.nuget.org/packages/VisualCppTools.Community.D14Layout/
 Push-Location $PWD
 #XML sources: http://vcppdogfooding.azurewebsites.net/nuget/Packages
 #$NuGetUserConfig="$env:AppData\NuGet\NuGet.config"
