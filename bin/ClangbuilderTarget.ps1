@@ -109,7 +109,7 @@ if ($LLDB) {
 $Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor  -DLLVM_APPEND_VC_REV=ON -DLLVM_ENABLE_ASSERTIONS=OFF"
 
 if (!$Latest) {
-    $Global:CMakeArguments +=" -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
+    $Global:CMakeArguments += " -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
 }
 # -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
 $UpFlavor = $Flavor.ToUpper()
