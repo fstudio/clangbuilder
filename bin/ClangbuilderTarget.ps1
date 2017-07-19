@@ -313,8 +313,8 @@ Function Invoke-NinjaBootstrap {
         Write-Error "CMake exit: $($pi.ExitCode)"
         return 1
     }
+    Write-Host "Begin to compile llvm..."
     $PN = & Parallel
-    Write-Host "Now build llvm ..."
     $pi = Start-Process -FilePath "ninja.exe" -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
     return $pi.ExitCode
 }
