@@ -62,20 +62,16 @@ if ($Environment) {
 $Global:LLDB = $LLDB
 if ($Latest) {
     $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1"
-}
-else {
-    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitializeEx.ps1"
-}
-
-if ($Latest) {
     Write-Host "Build llvm latest released version"
     $Global:LLVMSource = "$Global:ClangbuilderRoot\out\release"
 }
 else {
-    Write-Host "Build llvm trunk"
+    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitializeEx.ps1"
+    Write-Host "Build llvm master"
     $Global:LLVMSource = "$Global:ClangbuilderRoot\out\mainline"
     $Global:LLVMInitializeArgs += " -Mainline"
 }
+
 
 if ($Global:LLDB) {
     $Global:LLVMInitializeArgs += " -LLDB"
@@ -111,6 +107,10 @@ if ($LLDB) {
 }
 
 $Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor  -DLLVM_APPEND_VC_REV=ON -DLLVM_ENABLE_ASSERTIONS=OFF"
+
+if (!$Latest) {
+    $Global:CMakeArguments +=" -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
+}
 # -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
 $UpFlavor = $Flavor.ToUpper()
 if ($Flavor -eq "Release" -or $Flavor -eq "MinSizeRel") {
