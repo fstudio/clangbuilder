@@ -11,6 +11,10 @@ fi
 
 function Restore-Repositories(){
     pushd $PWD
+    if [[ ! -d "$1" ]]; then
+      echo "Please check $1 is exists"
+      return
+    fi
     if [ -d "$1/$2/.svn" ]; then
         cd "$1/$2"
         svn cleanup .
@@ -26,15 +30,15 @@ function Restore-Repositories(){
 function Update-LLVM(){
   sourcedir=$1
   suburl=$2
-  Restore-Repositories "$ClangBuilderDir" "$sourcedir" "http://llvm.org/svn/llvm-project/llvm/$suburl"
-  Restore-Repositories "$ClangBuilderDir/$sourcedir/tools" clang "http://llvm.org/svn/llvm-project/cfe/$suburl"
-  Restore-Repositories "$ClangBuilderDir/$sourcedir/tools" lld "http://llvm.org/svn/llvm-project/lld/$suburl"
-  Restore-Repositories "$ClangBuilderDir/$sourcedir/tools" lldb "http://llvm.org/svn/llvm-project/lldb/$suburl"
-  Restore-Repositories "$ClangBuilderDir/$sourcedir/tools/clang/tools" extra "http://llvm.org/svn/llvm-project/clang-tools-extra/$suburl"
-  Restore-Repositories "$ClangBuilderDir/$sourcedir/projects" compiler-rt "http://llvm.org/svn/llvm-project/compiler-rt/$suburl"
-  Restore-Repositories "$ClangBuilderDir/$sourcedir/projects" libcxx "http://llvm.org/svn/llvm-project/libcxx/$suburl"
-  Restore-Repositories "$ClangBuilderDir/$sourcedir/projects" libcxxabi "http://llvm.org/svn/llvm-project/libcxxabi/$suburl"
-  Restore-Repositories "$ClangBuilderDir/$sourcedir/projects" openmp "http://llvm.org/svn/llvm-project/openmp/$suburl"
+  Restore-Repositories "$ClangbuilderDir" "$sourcedir" "http://llvm.org/svn/llvm-project/llvm/$suburl"
+  Restore-Repositories "$ClangbuilderDir/$sourcedir/tools" clang "http://llvm.org/svn/llvm-project/cfe/$suburl"
+  Restore-Repositories "$ClangbuilderDir/$sourcedir/tools" lld "http://llvm.org/svn/llvm-project/lld/$suburl"
+  Restore-Repositories "$ClangbuilderDir/$sourcedir/tools" lldb "http://llvm.org/svn/llvm-project/lldb/$suburl"
+  Restore-Repositories "$ClangbuilderDir/$sourcedir/tools/clang/tools" extra "http://llvm.org/svn/llvm-project/clang-tools-extra/$suburl"
+  Restore-Repositories "$ClangbuilderDir/$sourcedir/projects" compiler-rt "http://llvm.org/svn/llvm-project/compiler-rt/$suburl"
+  Restore-Repositories "$ClangbuilderDir/$sourcedir/projects" libcxx "http://llvm.org/svn/llvm-project/libcxx/$suburl"
+  Restore-Repositories "$ClangbuilderDir/$sourcedir/projects" libcxxabi "http://llvm.org/svn/llvm-project/libcxxabi/$suburl"
+  Restore-Repositories "$ClangbuilderDir/$sourcedir/projects" openmp "http://llvm.org/svn/llvm-project/openmp/$suburl"
 }
 
 function Gen-ProjectFile(){
