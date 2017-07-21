@@ -1,31 +1,96 @@
-#!/bin/bash
-#clang auto builder
+#!/usr/bin/env bash
+#build llvm on unix system
 
-ClangBuilderDir=$(cd `dirname $0`; pwd)
+ClangbuilderDir=$(cd `dirname $0`; pwd)
+if [[ ! -f "$ClangbuilderDir/branch" ]]; then
+  Branch="release_50"
+  Release="RELEASE_401/final"
+else
+  source "$ClangbuilderDir/branch"
+fi
 
-function Build-Release(){
-    "$ClangBuilderDir/released"
+function Restore-Repositories(){
+    pushd $PWD
+    if [ -d "$1/$2/.svn" ]; then
+        cd "$1/$2"
+        svn cleanup .
+        svn up .
+    else
+        cd "$1"
+        svn co $3 $2
+    fi
+    echo "ClangBuilder checkout $2 done."
+    popd
 }
 
+function Update-LLVM(){
+  sourcedir=$1
+  suburl=$2
+  Restore-Repositories "$ClangBuilderDir" "$sourcedir" "http://llvm.org/svn/llvm-project/llvm/$suburl"
+  Restore-Repositories "$ClangBuilderDir/$sourcedir/tools" clang "http://llvm.org/svn/llvm-project/cfe/$suburl"
+  Restore-Repositories "$ClangBuilderDir/$sourcedir/tools" lld "http://llvm.org/svn/llvm-project/lld/$suburl"
+  Restore-Repositories "$ClangBuilderDir/$sourcedir/tools" lldb "http://llvm.org/svn/llvm-project/lldb/$suburl"
+  Restore-Repositories "$ClangBuilderDir/$sourcedir/tools/clang/tools" extra "http://llvm.org/svn/llvm-project/clang-tools-extra/$suburl"
+  Restore-Repositories "$ClangBuilderDir/$sourcedir/projects" compiler-rt "http://llvm.org/svn/llvm-project/compiler-rt/$suburl"
+  Restore-Repositories "$ClangBuilderDir/$sourcedir/projects" libcxx "http://llvm.org/svn/llvm-project/libcxx/$suburl"
+  Restore-Repositories "$ClangBuilderDir/$sourcedir/projects" libcxxabi "http://llvm.org/svn/llvm-project/libcxxabi/$suburl"
+  Restore-Repositories "$ClangBuilderDir/$sourcedir/projects" openmp "http://llvm.org/svn/llvm-project/openmp/$suburl"
+}
+
+function Gen-ProjectFile(){
+  $srcdir=$1
+  #-DLLVM_HOST_TRIPLE="x86_64-fbi-linux-gnu"
+  cmake -DCMAKE_BUILD_TYPE=Release  -DLLVM_ENABLE_ASSERTIONS=OFF -DCMAKE_C_COMPILER="$CC" \
+  -DCMAKE_CXX_COMPILER="$CXX"  -DCLANG_REPOSITORY_STRING="clangbuilder.io" "$srcdir"
+  if [[ -f "Makefile" ]]; then
+    #statements
+    echo "Begin to compile LLVM"
+    make
+  fi
+}
+
+
 function Build-Mainline(){
-    "$ClangBuilderDir/mainline"
+  srcdir="mainline"
+  suburl="trunk"
+  Update-LLVM $srcdir $suburl
+  cd "$ClangbuilderDir/$srcdir"
+  Gen-ProjectFile
+}
+
+function Build-Release(){
+  srcdir="release"
+  suburl="tags/$Release"
+  Update-LLVM $srcdir $suburl
+  cd "$ClangbuilderDir/$srcdir"
+  Gen-ProjectFile
+}
+
+function Build-Stable(){
+  srcdir="$Branch"
+  suburl="branches/$Branch"
+  Update-LLVM $srcdir $suburl
+  cd "$ClangbuilderDir/$srcdir"
+  Gen-ProjectFile
 }
 
 function usage(){
 cat<<EOF
-ClangBuilder helper
+Clangbuilder helper
 usage: clangbuilder [options]
-       release        build llvm last released revision
-       trunk          build llvm trunk revision
-       help           Print ClangBuilder help
+       stable          build llvm stable branch
+       trunk           build llvm trunk revision
+       release         build llvm last released revision
+       help            Print clangbuilder help
 EOF
 exit 0
 }
 
 for arg ;do
 	case "$arg" in
-		help) usage ;;
-        release) Build-Release ;;
-        trunk) Build-Mainline;;
+    help) usage ;;
+    release) Build-Release ;;
+    trunk) Build-Mainline;;
+    stable) Build-Stable
 esac
 done
