@@ -109,7 +109,7 @@ if ($LLDB) {
 $Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor  -DLLVM_APPEND_VC_REV=ON -DLLVM_ENABLE_ASSERTIONS=OFF"
 
 if (!$Latest) {
-    $Global:CMakeArguments +=" -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
+    $Global:CMakeArguments += " -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
 }
 # -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
 $UpFlavor = $Flavor.ToUpper()
@@ -153,13 +153,13 @@ Function Buildinglibcxx {
     $CMakePrivateArguments += " -DLIBCXX_ENABLE_SHARED=YES -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
     $CMakePrivateArguments += " -DLLVM_PATH=`"${Global:LLVMSource}`""
     $CMakePrivateArguments += " ${Global:LLVMSource}\projects\libcxx"
-    $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
+    $pi = Start-Process -FilePath "cmake.exe" -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
     if ($pi.ExitCode -ne 0) {
         Write-Error "CMake exit: $($pi.ExitCode)"
         return 1
     }
     $PN = & Parallel
-    $pi2 = Start-Process ninja -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
+    $pi2 = Start-Process -FilePath "ninja.exe" -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
     #&ninja all -j $PN
     return $pi2.ExitCode
 }
@@ -175,12 +175,12 @@ Function Invoke-MSBuild {
     Write-Host $CMakePrivateArguments
     #$CMakeArgv = $CMakePrivateArguments.Split()
     #&cmake $CMakeArgv|Write-Host
-    $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
+    $pi = Start-Process -FilePath "cmake.exe"-ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
     if ($pi.ExitCode -ne 0) {
         Write-Error "CMake exit: $($pi.ExitCode)"
         return 1
     }
-    $pi2 = Start-Process cmake -ArgumentList "--build . --config $Global:Flavor" -NoNewWindow -Wait -PassThru
+    $pi2 = Start-Process -FilePath "cmake.exe" -ArgumentList "--build . --config $Global:Flavor" -NoNewWindow -Wait -PassThru
     return $pi2.ExitCode
 }
 
@@ -190,13 +190,13 @@ Function Invoke-Ninja {
     Set-Workdir $Global:FinalWorkdir
     $CMakePrivateArguments = "-GNinja -DCMAKE_INSTALL_UCRT_LIBRARIES=ON $Global:CMakeArguments"
     Write-Host $CMakePrivateArguments
-    $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
+    $pi = Start-Process -FilePath "cmake.exe" -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
     if ($pi.ExitCode -ne 0) {
         Write-Error "CMake exit: $($pi.ExitCode)"
         return 1
     }
     $PN = & Parallel
-    $pi2 = Start-Process ninja -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
+    $pi2 = Start-Process -FilePath "ninja.exe" -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
     #&ninja all -j $PN
     return $pi2.ExitCode
     #return $lastexitcode
@@ -263,14 +263,14 @@ Function Invoke-NinjaIterate {
         #$CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
     }
     Write-Host $CMakePrivateArguments
-    $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
+    $pi = Start-Process -FilePath "cmake.exe" -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
     if ($pi.ExitCode -ne 0) {
         Write-Error "CMake exit: $($pi.ExitCode)"
         return 1
     }
     $PN = & Parallel
     Write-Host "Now build llvm ..."
-    $pi = Start-Process ninja -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
+    $pi = Start-Process -FilePath "ninja.exe" -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
     return $pi.ExitCode
 }
 
@@ -308,14 +308,14 @@ Function Invoke-NinjaBootstrap {
         #$CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
     }
     Write-Host $CMakePrivateArguments
-    $pi = Start-Process cmake -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
+    $pi = Start-Process -FilePath "cmake.exe" -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
     if ($pi.ExitCode -ne 0) {
         Write-Error "CMake exit: $($pi.ExitCode)"
         return 1
     }
+    Write-Host "Begin to compile llvm..."
     $PN = & Parallel
-    Write-Host "Now build llvm ..."
-    $pi = Start-Process ninja -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
+    $pi = Start-Process -FilePath "ninja.exe" -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
     return $pi.ExitCode
 }
 
@@ -342,7 +342,7 @@ Function Global:Update-Build {
     $pi = Start-Process cmake -ArgumentList "--build . --config $Global:Flavor" -NoNewWindow -Wait -PassThru
     if ($Global:Install -and $pi.ExitCode -eq 0) {
         FixInstall -TargetDir "./projects/compiler-rt/lib" -Configuration $Global:Flavor
-        Start-Process cpack -ArgumentList "-C $Global:Flavor" -NoNewWindow -Wait -PassThru
+        Start-Process -FilePath "cpack.exe" -ArgumentList "-C $Global:Flavor" -NoNewWindow -Wait -PassThru
     }
 }
 
