@@ -65,6 +65,17 @@ else {
     Update-Title -Title " [Build: $Branch]"
 }
 
+Function HiddenGit {
+    $paths = $env:PATH.split(';')
+    $newpath = ""
+    foreach ($p in $paths) {
+        if (!$p.EndsWith("MinGit\cmd")) {
+            $newpath += ";$p"
+        }
+    }
+    $env:PATH = $newPath
+}
+
 # LLVM get from subversion
 Function ParseLLVMDir {
     $obj = Get-Content -Path "$ClangbuilderRoot/config/revision.json" |ConvertFrom-Json
@@ -133,12 +144,10 @@ if ($Branch -eq "Mainline") {
     $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=ON"
 }
 else {
-    $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=OFF"
+    HiddenGit ### remove git from path
+    $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=OFF -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
 }
 
-if (!$Latest) {
-    $Global:CMakeArguments += " -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
-}
 # -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
 $UpFlavor = $Flavor.ToUpper()
 if ($Flavor -eq "Release" -or $Flavor -eq "MinSizeRel") {
@@ -415,5 +424,9 @@ if ($Libcxx -and ($Engine -ne "NinjaBootstrap")) {
     }
 }
 
-Write-Host "If you need update and rebuild,don't close powershell, 
-call Update-Build and run cmake build"
+if ($Branch -eq "Mainline") {
+    Write-Host "If you need update and rebuild,don't close powershell, call Update-Build and run cmake build"
+}
+else {
+    Write-Host "compile llvm done, you can use it"
+}
