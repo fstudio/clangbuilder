@@ -132,6 +132,9 @@ $Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor  -DLLVM_ENABLE_ASSERTIONS
 if ($Branch -eq "Mainline") {
     $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=ON"
 }
+else {
+    $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=OFF"
+}
 
 if (!$Latest) {
     $Global:CMakeArguments += " -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
