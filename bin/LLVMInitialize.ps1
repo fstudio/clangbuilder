@@ -1,8 +1,9 @@
 #!/usr/bin/env powershell
-# Initialize or update llvm clang sources
+# Initialize or update llvm clang sources from subversion
 param(
     [Switch]$LLDB,
-    [Switch]$Mainline
+    [ValidateSet("Mainline", "Stable", "Release")]
+    [String]$Branch = "Mainline"
 )
 
 Function Update-LLVM {
@@ -54,27 +55,35 @@ Function CheckWorktree {
 }
 
 $ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
-$LatestObj = Get-Content -Path "$ClangbuilderRoot/config/latest.json" |ConvertFrom-Json
 
-$TagName = $LatestObj.Suffix
+$RevisionObj = Get-Content -Path "$ClangbuilderRoot/config/revision.json" |ConvertFrom-Json
+
 $LLVMRepositoriesRoot = "http://llvm.org/svn/llvm-project"
 $OutDir = "$ClangbuilderRoot\out"
 
 
-if ($Mainline) {
-    $UrlSuffix = "trunk"
-    $SourcesDir = "$OutDir\mainline"
-}
-else {
-    $UrlSuffix = "tags/$TagName"
-    $SourcesDir = "$OutDir\release"
-    CheckWorktree -Folder $SourcesDir -Url "$LLVMRepositoriesRoot/llvm/$UrlSuffix"
+
+switch ($Branch) {
+    {$_ -eq "Mainline"} {
+        $UrlSuffix = "trunk"
+        $SourcesDir = "$OutDir\trunk"
+    } {$_ -eq "Stable"} {
+        $StableName = $RevisionObj.Stable
+        $UrlSuffix = "branches/$StableName"
+        $SourcesDir = "$OutDir\$StableName"
+    } {$_ -eq "Release"} {
+        $TagName = $RevisionObj.Release
+        $UrlSuffix = "tags/$TagName"
+        $SourcesDir = "$OutDir\release"
+        # check 
+        CheckWorktree -Folder $SourcesDir -Url "$LLVMRepositoriesRoot/llvm/$UrlSuffix"
+    }
 }
 
 
 Update-LLVM -URL "$LLVMRepositoriesRoot/llvm/$UrlSuffix" -Folder $SourcesDir
 if (!(Test-Path "$SourcesDir\tools")) {
-    Write-Output "Checkout LLVM Failed"
+    Write-Output "Checkout llvm sources failed, exiting..."
     Exit
 }
 
@@ -92,7 +101,7 @@ else {
 }
 
 if (!(Test-Path "$SourcesDir/tools/clang/tools")) {
-    Write-Output "Checkout Clang Failed"
+    Write-Output "Checkout clang sources failed, exiting..."
     Exit
 }
 

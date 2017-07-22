@@ -91,12 +91,13 @@ private:
 		UINT width,
 		UINT height
 		);
-	HWND hCobVS_;
-	HWND hCobArch_;
-	HWND hCobFlavor_;
-	HWND hBuildEngine;
+	HWND hVisualStudioBox;
+	HWND hPlatformBox;
+	HWND hConfigBox;
+	HWND hBranchBox;
+	HWND hBuildBox;
+
 	HWND hCheckSdklow_;
-	HWND hCheckLatest_;
 	HWND hCheckPackaged_;
 	HWND hCheckCleanEnv_;
 	HWND hCheckLink_;

@@ -9,13 +9,16 @@ param (
 
     [ValidateSet("MSBuild", "Ninja", "NinjaBootstrap", "NinjaIterate")]
     [String]$Engine = "MSBuild",
+
+    [ValidateSet("Mainline", "Stable", "Release")]
+    [String]$Branch = "Mainline", #mainline 
+    
     [String]$InstallId, # install id
     [String]$InstallationVersion, # installationVersion
     [Switch]$Environment, # start environment 
     [Switch]$Sdklow, # low sdk support
     [Switch]$LLDB,
     [Switch]$Static,
-    [Switch]$Latest,
     [Switch]$Package,
     [Switch]$Libcxx,
     [Switch]$ClearEnv
@@ -57,19 +60,36 @@ if ($Environment) {
     Update-Title -Title " [Environment]"
     Set-Location $ClangbuilderRoot
     return ;
+}else{
+    Update-Title -Title " [Build: $Branch]"
+}
+
+# LLVM get from subversion
+Function ParseLLVMDir {
+    $obj = Get-Content -Path "$ClangbuilderRoot/config/revision.json" |ConvertFrom-Json
+    switch ($Branch) {
+        {$_ -eq "Mainline"} {
+            $src = "$Global:ClangbuilderRoot\out\trunk"
+        } {$_ -eq "Stable"} {
+            $currentstable = $obj.Stable
+            $src = "$Global:ClangbuilderRoot\out\$currentstable"
+        } {$_ -eq "Release"} {
+            $src = "$Global:ClangbuilderRoot\out\release"
+        }
+    }
+    return $src
 }
 
 $Global:LLDB = $LLDB
-if ($Latest) {
-    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1"
-    Write-Host "Build llvm latest released version"
+if ($Branch -eq "Release") {
+    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1 -Branch $Branch"
+    Write-Host "Build llvm release"
     $Global:LLVMSource = "$Global:ClangbuilderRoot\out\release"
 }
 else {
-    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitializeEx.ps1"
-    Write-Host "Build llvm master"
-    $Global:LLVMSource = "$Global:ClangbuilderRoot\out\mainline"
-    $Global:LLVMInitializeArgs += " -Mainline"
+    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitializeEx.ps1 -Branch $Branch"
+    Write-Host "Build llvm branch $Branch"
+    $Global:LLVMSource = &ParseLLVMDir
 }
 
 

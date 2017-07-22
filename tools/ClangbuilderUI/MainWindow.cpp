@@ -34,12 +34,11 @@ int RectHeight(RECT Rect) { return Rect.bottom - Rect.top; }
 
 int RectWidth(RECT Rect) { return Rect.right - Rect.left; }
 
-const wchar_t *ArchList[] = {L"x86", L"x64", L"ARM", L"ARM64"};
-
-const wchar_t *FlavorList[] = {L"Release", L"MinSizeRel", L"RelWithDebInfo",
-                               L"Debug"};
-
-const wchar_t *BuildEngineList[] = {L"MSBuild", L"Ninja", L"NinjaBootstrap", L"NinjaIterate"};
+const wchar_t *Platforms[] = {L"x86", L"x64", L"ARM", L"ARM64"};
+const wchar_t *Configurations[] = {L"Release", L"MinSizeRel", L"RelWithDebInfo",
+                                   L"Debug"};
+const wchar_t *Rules[] = {L"MSBuild", L"Ninja", L"NinjaBootstrap", L"NinjaIterate"};
+const wchar_t *BranchTable[] = {L"Mainline", L"Stable", L"Release"};
 
 /*
  * Resources Initialize and Release
@@ -63,7 +62,7 @@ LRESULT MainWindow::InitializeWindow()
 {
   HRESULT hr = E_FAIL;
 
-  RECT layout = {100, 100, 800, 600};
+  RECT layout = {100, 100, 800, 640};
   Create(nullptr, layout, L"Clangbuilder Environment Utility",
          WS_NORESIZEWINDOW, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE);
   return S_OK;
@@ -131,9 +130,9 @@ HRESULT MainWindow::OnRender()
     m_pHwndRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
 
     m_pHwndRenderTarget->DrawRectangle(
-        D2D1::RectF(20, 10, rect.right - rect.left - 20, 180),
+        D2D1::RectF(20, 10, rect.right - rect.left - 20, 220),
         m_AreaBorderBrush, 1.0);
-    m_pHwndRenderTarget->DrawRectangle(D2D1::RectF(20, 180,
+    m_pHwndRenderTarget->DrawRectangle(D2D1::RectF(20, 220,
                                                    rect.right - rect.left - 20,
                                                    rect.bottom - rect.top - 20),
                                        m_AreaBorderBrush, 1.0);
@@ -199,11 +198,11 @@ HRESULT MainWindow::InitializeControl()
   {
     return S_FALSE;
   }
-  assert(hCobVS_);
-  assert(hCobArch_);
-  assert(hCobFlavor_);
-  assert(hBuildEngine);
-  assert(hCheckLatest_);
+  assert(hVisualStudioBox);
+  assert(hPlatformBox);
+  assert(hConfigBox);
+  assert(hBuildBox);
+  assert(hBranchBox);
   assert(hCheckPackaged_);
   assert(hCheckCleanEnv_);
   assert(hCheckLink_);
@@ -213,7 +212,7 @@ HRESULT MainWindow::InitializeControl()
 
   for (auto &i : instances_)
   {
-    ::SendMessage(hCobVS_, CB_ADDSTRING, 0, (LPARAM)(i.description.c_str()));
+    ::SendMessage(hVisualStudioBox, CB_ADDSTRING, 0, (LPARAM)(i.description.c_str()));
   }
   int index = instances_.empty() ? 0 : (instances_.size() - 1);
   for (auto iter = instances_.begin(); iter != instances_.end(); iter++)
@@ -226,38 +225,45 @@ HRESULT MainWindow::InitializeControl()
       }
     }
   }
-  ::SendMessage(hCobVS_, CB_SETCURSEL, (WPARAM)(index), 0);
+  ::SendMessage(hVisualStudioBox, CB_SETCURSEL, (WPARAM)(index), 0);
 
-  for (auto &a : ArchList)
+  for (auto &a : Platforms)
   {
-    ::SendMessage(hCobArch_, CB_ADDSTRING, 0, (LPARAM)a);
+    ::SendMessage(hPlatformBox, CB_ADDSTRING, 0, (LPARAM)a);
   }
 #ifdef _M_X64
-  ::SendMessage(hCobArch_, CB_SETCURSEL, 1, 0);
+  ::SendMessage(hPlatformBox, CB_SETCURSEL, 1, 0);
 #else
   if (KrIsWow64Process())
   {
-    ::SendMessage(hCobArch_, CB_SETCURSEL, 1, 0);
+    ::SendMessage(hPlatformBox, CB_SETCURSEL, 1, 0);
   }
   else
   {
-    ::SendMessage(hCobArch_, CB_SETCURSEL, 0, 0);
+    ::SendMessage(hPlatformBox, CB_SETCURSEL, 0, 0);
   }
 
 #endif
 
-  for (auto &f : FlavorList)
+  for (auto &f : Configurations)
   {
-    ::SendMessage(hCobFlavor_, CB_ADDSTRING, 0, (LPARAM)f);
+    ::SendMessage(hConfigBox, CB_ADDSTRING, 0, (LPARAM)f);
   }
 
-  ::SendMessage(hCobFlavor_, CB_SETCURSEL, 0, 0);
+  ::SendMessage(hConfigBox, CB_SETCURSEL, 0, 0);
 
-  for (auto e : BuildEngineList)
+  for (auto e : Rules)
   {
-    ::SendMessage(hBuildEngine, CB_ADDSTRING, 0, (LPARAM)e);
+    ::SendMessage(hBuildBox, CB_ADDSTRING, 0, (LPARAM)e);
   }
-  ::SendMessage(hBuildEngine, CB_SETCURSEL, 0, 0);
+  ::SendMessage(hBuildBox, CB_SETCURSEL, 0, 0);
+
+  for (auto b : BranchTable)
+  {
+    ::SendMessage(hBranchBox, CB_ADDSTRING, 0, (LPARAM)b);
+  }
+  ::SendMessage(hBranchBox, CB_SETCURSEL, 0, 0);
+
   Button_SetCheck(hCheckLink_, 1);
   return S_OK;
 }
@@ -300,37 +306,41 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
     }
     return hw;
   };
-  hCobVS_ = LambdaCreateWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 20, 400,
-                               30, nullptr);
-  hCobArch_ = LambdaCreateWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 60, 400,
-                                 30, nullptr);
-  hCobFlavor_ = LambdaCreateWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 100,
-                                   400, 30, nullptr);
-  hBuildEngine = LambdaCreateWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 140,
-                                    400, 30, nullptr);
+  hVisualStudioBox = LambdaCreateWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 20, 400,
+                                        30, nullptr);
+  hPlatformBox = LambdaCreateWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 60, 400,
+                                    30, nullptr);
+  hConfigBox = LambdaCreateWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 100,
+                                  400, 30, nullptr);
+  hBranchBox = LambdaCreateWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 140,
+                                  400, 30, nullptr);
+  hBuildBox = LambdaCreateWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 180,
+                                 400, 30, nullptr);
+
+  /* hBranchBox = LambdaCreateWindow(WC_BUTTONW, L"Build the latest release",
+  CHECKBOXSTYLE, 200, 220, 360, 27, nullptr);*/
 
   hCheckSdklow_ = LambdaCreateWindow(
       WC_BUTTONW, L"SDK Compatibility (Windows 8.1 SDK) (Env)", CHECKBOXSTYLE,
-      200, 190, 360, 27, nullptr);
-  hCheckLatest_ = LambdaCreateWindow(WC_BUTTONW, L"Build the latest release",
-                                     CHECKBOXSTYLE, 200, 220, 360, 27, nullptr);
+      200, 230, 360, 27, nullptr);
+
   hCheckPackaged_ =
       LambdaCreateWindow(WC_BUTTONW, L"Create Installation Package",
-                         CHECKBOXSTYLE, 200, 250, 360, 27, nullptr);
+                         CHECKBOXSTYLE, 200, 260, 360, 27, nullptr);
   hCheckCleanEnv_ =
       LambdaCreateWindow(WC_BUTTONW, L"Use Clean Environment (Env)",
-                         CHECKBOXSTYLE, 200, 280, 360, 27, nullptr);
+                         CHECKBOXSTYLE, 200, 290, 360, 27, nullptr);
   hCheckLink_ = LambdaCreateWindow(WC_BUTTONW, L"Link Static Runtime Library",
-                                   CHECKBOXSTYLE, 200, 310, 360, 27, nullptr);
+                                   CHECKBOXSTYLE, 200, 320, 360, 27, nullptr);
   hCheckLLDB_ = LambdaCreateWindow(WC_BUTTONW,
                                    L"Build LLDB (Visual Studio 2015 or Later)",
-                                   CHECKBOXSTYLE, 200, 340, 360, 27, nullptr);
+                                   CHECKBOXSTYLE, 200, 350, 360, 27, nullptr);
   // Button_SetElevationRequiredState
   hButtonTask_ =
-      LambdaCreateWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 390,
+      LambdaCreateWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 420,
                          195, 30, (HMENU)IDC_BUTTON_STARTTASK);
   hButtonEnv_ = LambdaCreateWindow(WC_BUTTONW, L"Environment Console",
-                                   PUSHBUTTONSTYLE | BS_ICON, 405, 390, 195, 30,
+                                   PUSHBUTTONSTYLE | BS_ICON, 405, 420, 195, 30,
                                    (HMENU)IDC_BUTTON_STARTENV);
 
   HMENU hSystemMenu = ::GetSystemMenu(m_hWnd, FALSE);
@@ -339,11 +349,13 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
 
   label_.push_back(
       KryceLabel(30, 20, 190, 50, L"Visual Studio\t\xD83C\xDD9A:"));
-  label_.push_back(KryceLabel(30, 60, 190, 90, L"Address Mode\t\xD83D\xDCBB:"));
+  label_.push_back(KryceLabel(30, 60, 190, 90, L"Platform\t\t\xD83D\xDCBB:"));
   label_.push_back(KryceLabel(30, 100, 190, 130, L"Configuration\t\x2699:"));
+  label_.push_back(KryceLabel(30, 140, 190, 170, L"Branches\t\t\x26A1:"));
   label_.push_back(
-      KryceLabel(30, 140, 190, 170, L"Build Engine\t\xD83D\xDEE0:"));
-  label_.push_back(KryceLabel(30, 190, 190, 220, L"Build Options\t\x2611:"));
+      KryceLabel(30, 180, 190, 210, L"Engine\t\t\xD83D\xDEE0:"));
+
+  label_.push_back(KryceLabel(30, 230, 190, 270, L"Build Options\t\x2611:"));
   ///
   if (FAILED(InitializeControl()))
   {
@@ -530,13 +542,13 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return false;
   }
   Command.append(L" -NoLogo -NoExit   -File \"").append(engine_).push_back('"');
-  auto vsindex_ = ComboBox_GetCurSel(hCobVS_);
+  auto vsindex_ = ComboBox_GetCurSel(hVisualStudioBox);
   if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_)
   {
     return S_FALSE;
   }
-  auto archindex_ = ComboBox_GetCurSel(hCobArch_);
-  if (archindex_ < 0 || ARRAYSIZE(ArchList) <= archindex_)
+  auto archindex_ = ComboBox_GetCurSel(hPlatformBox);
+  if (archindex_ < 0 || ARRAYSIZE(Platforms) <= archindex_)
   {
     return S_FALSE;
   }
@@ -550,14 +562,20 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
       return S_FALSE;
     }
   }
-  auto flavor_ = ComboBox_GetCurSel(hCobFlavor_);
-  if (flavor_ < 0 || ARRAYSIZE(FlavorList) <= flavor_)
+  auto flavor_ = ComboBox_GetCurSel(hConfigBox);
+  if (flavor_ < 0 || ARRAYSIZE(Configurations) <= flavor_)
   {
     return S_FALSE;
   }
 
-  auto be = ComboBox_GetCurSel(hBuildEngine);
-  if (be < 0 || ARRAYSIZE(BuildEngineList) <= be)
+  auto be = ComboBox_GetCurSel(hBuildBox);
+  if (be < 0 || ARRAYSIZE(Rules) <= be)
+  {
+    return S_FALSE;
+  }
+
+  auto bs = ComboBox_GetCurSel(hBranchBox);
+  if (bs < 0 || ARRAYSIZE(BranchTable) <= bs)
   {
     return S_FALSE;
   }
@@ -565,14 +583,10 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   Command.append(L" -InstallId ").append(instances_[vsindex_].installid);
   Command.append(L" -InstallationVersion ")
       .append(instances_[vsindex_].installversion);
-  Command.append(L" -Arch ").append(ArchList[archindex_]);
-  Command.append(L" -Flavor ").append(FlavorList[flavor_]);
-  Command.append(L" -Engine ").append(BuildEngineList[be]);
-
-  if (Button_GetCheck(hCheckLatest_) == BST_CHECKED)
-  {
-    Command.append(L" -Latest");
-  }
+  Command.append(L" -Arch ").append(Platforms[archindex_]);
+  Command.append(L" -Flavor ").append(Configurations[flavor_]);
+  Command.append(L" -Engine ").append(Rules[be]);
+  Command.append(L" -Branch ").append(BranchTable[bs]);
 
   if (Button_GetCheck(hCheckSdklow_) == BST_CHECKED)
   {
@@ -629,13 +643,13 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return false;
   }
   Command.append(L" -NoLogo -NoExit   -File \"").append(engine_).push_back('"');
-  auto vsindex_ = ComboBox_GetCurSel(hCobVS_);
+  auto vsindex_ = ComboBox_GetCurSel(hVisualStudioBox);
   if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_)
   {
     return S_FALSE;
   }
-  auto archindex_ = ComboBox_GetCurSel(hCobArch_);
-  if (archindex_ < 0 || sizeof(ArchList) <= archindex_)
+  auto archindex_ = ComboBox_GetCurSel(hPlatformBox);
+  if (archindex_ < 0 || sizeof(Platforms) <= archindex_)
   {
     return S_FALSE;
   }
@@ -653,7 +667,7 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
       .append(instances_[vsindex_].installid);
   Command.append(L" -InstallationVersion ")
       .append(instances_[vsindex_].installversion);
-  Command.append(L" -Arch ").append(ArchList[archindex_]);
+  Command.append(L" -Arch ").append(Platforms[archindex_]);
   if (Button_GetCheck(hCheckSdklow_) == BST_CHECKED)
   {
     Command.append(L" -Sdklow");
