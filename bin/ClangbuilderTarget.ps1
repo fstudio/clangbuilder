@@ -60,7 +60,8 @@ if ($Environment) {
     Update-Title -Title " [Environment]"
     Set-Location $ClangbuilderRoot
     return ;
-}else{
+}
+else {
     Update-Title -Title " [Build: $Branch]"
 }
 
@@ -126,7 +127,11 @@ if ($LLDB) {
     $Global:CMakeArguments += " -DPYTHON_HOME=`"$PythonHome`" -DLLDB_RELOCATABLE_PYTHON=1"
 }
 
-$Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor  -DLLVM_APPEND_VC_REV=ON -DLLVM_ENABLE_ASSERTIONS=OFF"
+$Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor  -DLLVM_ENABLE_ASSERTIONS=OFF"
+
+if ($Branch -eq "Mainline") {
+    $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=ON"
+}
 
 if (!$Latest) {
     $Global:CMakeArguments += " -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
@@ -368,15 +373,14 @@ Function Global:Update-Build {
 
 $MyResult = -1
 
+Write-Host "Use llvm build engine: $Engine"
+
 switch ($Engine) {
     {$_ -eq "MSBuild"} {
-        Write-Host "Build LLVM use MSBuild"
         $MyResult = &Invoke-MSBuild
     } {$_ -eq "Ninja"} {
-        Write-Host "Build LLVM use Ninja"
         $MyResult = &Invoke-Ninja
     } {$_ -eq "NinjaBootstrap"} {
-        Write-Host "Build Bootstrap Ninja"
         $MyResult = &Invoke-NinjaBootstrap
     } {$_ -eq "NinjaIterate"} {
         $MyResult = &Invoke-NinjaIterate
@@ -388,7 +392,7 @@ if ($MyResult -ne 0) {
     return ;
 }
 else {
-    Write-Host "Build LLVM/Clang Success"
+    Write-Host "Build llvm completed, your can run cpack"
 }
 
 
@@ -408,4 +412,5 @@ if ($Libcxx -and ($Engine -ne "NinjaBootstrap")) {
     }
 }
 
-Write-Host "You can run Update-Build"
+Write-Host "If you need update and rebuild,don't close powershell, 
+call Update-Build and run cmake build"
