@@ -125,7 +125,7 @@ $Global:ArchValue = $Arch;
 $Global:Installation = $InstallationVersion.Substring(0, 2)
 $Global:FinalWorkdir = ""
 $Global:Flavor = $Flavor
-$Global:CMakeArguments = " `"$Global:LLVMSource`""
+$Global:CMakeArguments = "`"$Global:LLVMSource`""
 
 if ($LLDB) {
     . "$PSScriptRoot\LLDBInitialize.ps1"
@@ -134,8 +134,8 @@ if ($LLDB) {
         Write-Error "Please Install Python 3.5+ ! "
         Exit 
     }
-    Write-Host -ForegroundColor Yellow "Building LLVM with lldb,msbuild, $VisualStudioTarget"
-    $Global:CMakeArguments += " -DPYTHON_HOME=`"$PythonHome`" -DLLDB_RELOCATABLE_PYTHON=1"
+    Write-Host -ForegroundColor Yellow "Building LLVM with lldb,$Engine, $VisualStudioTarget"
+    $Global:CMakeArguments += " -DPYTHON_HOME='$PythonHome' -DLLDB_RELOCATABLE_PYTHON=1"
 }
 
 $Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor  -DLLVM_ENABLE_ASSERTIONS=OFF"
@@ -225,7 +225,7 @@ Function Invoke-MSBuild {
 Function Invoke-Ninja {
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\ninja"
     Set-Workdir $Global:FinalWorkdir
-    $CMakePrivateArguments = "-GNinja -DCMAKE_INSTALL_UCRT_LIBRARIES=ON $Global:CMakeArguments"
+    $CMakePrivateArguments = "-GNinja $Global:CMakeArguments -DCMAKE_INSTALL_UCRT_LIBRARIES=ON"
     Write-Host $CMakePrivateArguments
     $pi = Start-Process -FilePath "cmake.exe" -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
     if ($pi.ExitCode -ne 0) {
@@ -282,7 +282,7 @@ Function Invoke-NinjaIterate {
     $MarchArgument = $ClangMarchArgument[$Global:ArchValue]
     $env:CC = "$PrecompiledLLVM\bin\clang-cl.exe"
     $env:CXX = "$PrecompiledLLVM\bin\clang-cl.exe"
-    Write-Host "update env:CC env:CXX ${env:CC} ${env:CXX}"
+    Write-Host "update `$env:CC `$env:CXX ${env:CC} ${env:CXX}"
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\precompile"
     Set-Workdir $Global:FinalWorkdir
     $CMakePrivateArguments = "-GNinja $Global:CMakeArguments"
@@ -299,7 +299,7 @@ Function Invoke-NinjaIterate {
         $CMakePrivateArguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
         #$CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
     }
-    Write-Host $CMakePrivateArguments
+    Write-Host "cmake $CMakePrivateArguments"
     $pi = Start-Process -FilePath "cmake.exe" -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
     if ($pi.ExitCode -ne 0) {
         Write-Error "CMake exit: $($pi.ExitCode)"
@@ -330,7 +330,6 @@ Function Invoke-NinjaBootstrap {
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\bootstrap"
     Set-Workdir $Global:FinalWorkdir
     $CMakePrivateArguments = "-GNinja $Global:CMakeArguments"
-    #$CMakePrivateArguments += " -DCMAKE_C_COMPILER=`"$CMDClangcl`" -DCMAKE_CXX_COMPILER=`"$CMDClangcl`""
     if ($VisualCppVersionTable.ContainsKey($InstallationVersion)) {
         $VisualCppVersion = $VisualCppVersionTable[$InstallationVersion]
     }
