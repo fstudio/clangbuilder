@@ -135,7 +135,7 @@ if ($LLDB) {
         Exit 
     }
     Write-Host -ForegroundColor Yellow "Building LLVM with lldb,$Engine, $VisualStudioTarget"
-    $Global:CMakeArguments += " -DPYTHON_HOME='$PythonHome' -DLLDB_RELOCATABLE_PYTHON=1"
+    $Global:CMakeArguments += " -DPYTHON_HOME=$PythonHome -DLLDB_RELOCATABLE_PYTHON=1"
 }
 
 $Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor  -DLLVM_ENABLE_ASSERTIONS=OFF"
