@@ -81,7 +81,7 @@ Function ParseLLVMDir {
     $obj = Get-Content -Path "$ClangbuilderRoot/config/revision.json" |ConvertFrom-Json
     switch ($Branch) {
         {$_ -eq "Mainline"} {
-            $src = "$Global:ClangbuilderRoot\out\trunk"
+            $src = "$Global:ClangbuilderRoot\out\mainline"
         } {$_ -eq "Stable"} {
             $currentstable = $obj.Stable
             $src = "$Global:ClangbuilderRoot\out\$currentstable"
