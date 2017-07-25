@@ -86,4 +86,4 @@ Set-Location "$SourcesDir/projects"
 Update-LLVM -URL "$LLVMRepositoriesRoot/compiler-rt.git" -Folder "compiler-rt" -Branch $BranchName
 Update-LLVM -URL "$LLVMRepositoriesRoot/libcxx.git" -Folder "libcxx" -Branch $BranchName
 # current build libcxxabi failed when bootstrap
-#Update-LLVM -URL "$LLVMRepositoriesRoot/libcxxabi.git" -Folder "libcxxabi"
+# Update-LLVM -URL "$LLVMRepositoriesRoot/libcxxabi.git" -Folder "libcxxabi" -Branch $BranchName
