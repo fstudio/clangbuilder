@@ -135,7 +135,7 @@ if ($LLDB) {
         Exit 
     }
     Write-Host -ForegroundColor Yellow "Building LLVM with lldb,$Engine, $VisualStudioTarget"
-    $Global:CMakeArguments += " -DPYTHON_HOME=$PythonHome"
+    $Global:CMakeArguments += " -DPYTHON_HOME=$PythonHome -DLLDB_RELOCATABLE_PYTHON=1"
 }
 
 $Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor  -DLLVM_ENABLE_ASSERTIONS=OFF"
@@ -204,7 +204,13 @@ Function Buildinglibcxx {
 Function Invoke-MSBuild {
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\msbuild"
     Set-Workdir $Global:FinalWorkdir
-    $CMakePrivateArguments = "-G`"Visual Studio $Global:Installation $Global:ArchName`" "
+    if ($Global:ArchName.Length -eq 0) {
+        $CMakePrivateArguments = "-G`"Visual Studio $Global:Installation`" "
+    }
+    else {
+        $CMakePrivateArguments = "-G`"Visual Studio $Global:Installation $Global:ArchName`" "
+    }
+
     if ([System.Environment]::Is64BitOperatingSystem) {
         $CMakePrivateArguments += "-Thost=x64 ";
     }
