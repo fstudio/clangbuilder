@@ -41,11 +41,20 @@ function Update-LLVM(){
   Restore-Repositories "$ClangbuilderDir/$sourcedir/projects" openmp "http://llvm.org/svn/llvm-project/openmp/$suburl"
 }
 
+
+CC=clang
+CXX=clang++
+
+hash clang 2>/dev/null || {
+  echo "We need use gcc to build llvm and clang."
+  CC=gcc
+  CXX=g++
+}
+
 function Gen-ProjectFile(){
-  $srcdir=$1
-  #-DLLVM_HOST_TRIPLE="x86_64-fbi-linux-gnu"
+  srcdir=$1
   cmake -DCMAKE_BUILD_TYPE=Release  -DLLVM_ENABLE_ASSERTIONS=OFF -DCMAKE_C_COMPILER="$CC" \
-  -DCMAKE_CXX_COMPILER="$CXX"  -DCLANG_REPOSITORY_STRING="clangbuilder.io" "$srcdir"
+  -DCMAKE_CXX_COMPILER="$CXX" -DCLANG_REPOSITORY_STRING="clangbuilder.io" "$srcdir"
   if [[ -f "Makefile" ]]; then
     #statements
     echo "Begin to compile LLVM"
@@ -58,24 +67,36 @@ function Build-Mainline(){
   srcdir="mainline"
   suburl="trunk"
   Update-LLVM $srcdir $suburl
-  cd "$ClangbuilderDir/$srcdir"
-  Gen-ProjectFile
+  if [[ ! -d "$ClangbuilderDir/mainline_out" ]]; then
+    mkdir "$ClangbuilderDir/mainline_out"
+    #statements
+  fi
+    cd "$ClangbuilderDir/mainline_out"
+  Gen-ProjectFile "$ClangbuilderDir/$srcdir"
 }
 
 function Build-Release(){
   srcdir="release"
   suburl="tags/$Release"
   Update-LLVM $srcdir $suburl
-  cd "$ClangbuilderDir/$srcdir"
-  Gen-ProjectFile
+  if [[ ! -d "$ClangbuilderDir/release_out" ]]; then
+    mkdir "$ClangbuilderDir/release_out"
+    #statements
+  fi
+  cd "$ClangbuilderDir/release_out"
+  Gen-ProjectFile "$ClangbuilderDir/$srcdir"
 }
 
 function Build-Stable(){
   srcdir="$Branch"
   suburl="branches/$Branch"
   Update-LLVM $srcdir $suburl
-  cd "$ClangbuilderDir/$srcdir"
-  Gen-ProjectFile
+  if [[ ! -d "$ClangbuilderDir/stable_out" ]]; then
+    mkdir "$ClangbuilderDir/stable_out"
+    #statements
+  fi
+  cd "$ClangbuilderDir/stable_out"
+  Gen-ProjectFile "$ClangbuilderDir/$srcdir"
 }
 
 function usage(){
