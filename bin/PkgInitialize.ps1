@@ -162,12 +162,14 @@ Function Install-ClangbuilderTools {
     }
 
     Switch ($Extension) {
-        {$_ -eq "zip"} {
+        "zip" {
             Expand-Archive -Path $File -DestinationPath $Name
-        } {$_ -eq "msi"} {
+        } 
+        "msi" {
             
             Expand-Msi -Path "$PWD\$File" -DestinationPath "$PWD\$Name"
-        } {$_ -eq "exe"} {
+        } 
+        "exe" {
             if (!(Test-Path $Name)) {
                 mkdir $Name
             }
@@ -175,6 +177,8 @@ Function Install-ClangbuilderTools {
         }
     }
 }
+
+
 
 $LastCurrentDir = Get-Location
 
@@ -221,7 +225,7 @@ foreach ($i in $PkgMetadata.Packages) {
 
     $result = DownloadFile -Uri $pkguri -Name $Name -Extension $i.Extension
     if ($result -ne 0) {
-
+        Write-Host "Download $Name broken !"
     }
 
     if (!(Install-ClangbuilderTools -Name $Name -Extension $i.Extension)) {
