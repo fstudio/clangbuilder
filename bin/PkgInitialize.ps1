@@ -176,6 +176,7 @@ Function Install-ClangbuilderTools {
             Copy-Item -Path $File -Destination $Name -Force
         }
     }
+	return $True
 }
 
 
