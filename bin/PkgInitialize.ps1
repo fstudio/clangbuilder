@@ -6,7 +6,7 @@
 #  Author:Force <forcemz@outlook.com>
 ##############################################################################>
 
-Function Get-ClangbuilderToos {
+Function DownloadFile {
     param(
         [Parameter(Position = 0, Mandatory = $True, HelpMessage = "Package Download URL")]
         [String]$Uri,
@@ -15,9 +15,15 @@ Function Get-ClangbuilderToos {
         [Parameter(Position = 2, Mandatory = $True, HelpMessage = "Package Extension")]
         [String]$Extension
     )
-    Write-Host "Downloading $Uri ..."
-    $Result = Invoke-WebRequest -Uri $Uri -OutFile "$Name.$Extension" -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox -PassThru -UseBasicParsing
-
+    Write-Host "Download $Uri ..."
+    try {
+        Invoke-WebRequest -Uri $Uri -OutFile "$Name.$Extension" -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome -UseBasicParsing
+    }
+    catch {
+        Write-Host -Forceground Red "Download error: $_"
+        return 1
+    }
+    return 0
 }
 
 Function Initialize-ZipArchive {
@@ -30,9 +36,33 @@ Function Initialize-ZipArchive {
         if ($Item_[0].Attributes -ne 'Directory') {
             return true;
         }
+        
         $SubFile = $Item_[0].FullName
         Move-Item -Force -Path "$SubFile/*" -Destination $Name
         Remove-Item -Force -Recurse $SubFile
+    }
+}
+
+Function ParseMsiArchiveFolderEx {
+    param(
+        [String]$Name,
+        [Array]$FilterDirs
+    )
+    foreach ($_ in $FilterDirs) {
+        $xdir = "$Name\$_"
+        if (Test-Path $xdir) {
+            $items = Get-ChildItem -Path $xdir
+            if ($items.Count -eq 1) {
+                if ($items[0] -is [System.IO.DirectoryInfo]) {
+                    $SubFile = $items[0].FullName
+                    Move-Item -Force -Path "$SubFile/*" -Destination $Name
+                    Remove-Item -Force -Recurse $xdir
+                }
+                else {
+                    Move-Item -Path $items[0].FullName -Destination $Name
+                }
+            }
+        }
     }
 }
 
@@ -176,17 +206,24 @@ foreach ($i in $PkgMetadata.Packages) {
     if ((Test-Path $Name)) {
         Rename-Item $Name "$Name.bak"
     }
+    $pkguri = ""
     if ($null -eq $i.URL) {
         if ($IsWindows64) {
-            Get-ClangbuilderToos -Uri $i.X64URL -Name $Name -Extension $i.Extension
+            $pkguri = $i.X64URL
         }
         else {
-            Get-ClangbuilderToos -Uri $i.X86URL -Name $Name -Extension $i.Extension
+            $pkguri = $i.X64URL
         }
     }
     else {
-        Get-ClangbuilderToos -Uri $i.URL -Name $Name -Extension $i.Extension
+        $pkguri = $i.URL
     }
+
+    $result = DownloadFile -Uri $pkguri -Name $Name -Extension $i.Extension
+    if ($result -ne 0) {
+
+    }
+
     if (!(Install-ClangbuilderTools -Name $Name -Extension $i.Extension)) {
         Write-Host "Install $Name broken !"
     }
