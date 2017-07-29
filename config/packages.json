@@ -16,11 +16,11 @@
             "Version": "3.9.0"
         },
         {
-            "Name": "PythonEmbed",
-            "X86URL": "https://www.python.org/ftp/python/3.6.2/python-3.6.2-embed-win32.zip",
-            "X64URL": "https://www.python.org/ftp/python/3.6.2/python-3.6.2-embed-amd64.zip",
-            "Extension": "zip",
-            "Version": "3.6.2"
+            "Name": "Python",
+            "X86URL": "https://www.python.org/ftp/python/2.7.13/python-2.7.13.msi",
+            "X64URL": "https://www.python.org/ftp/python/2.7.13/python-2.7.13.amd64.msi",
+            "Extension": "msi",
+            "Version": "2.7.13"
         },
         {
             "Name": "Subversion",
