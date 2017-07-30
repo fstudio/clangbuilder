@@ -23,6 +23,7 @@ tools/msvc
 tools/Git
 tools/VisualCppTools.lock.json
 .vscode/*.db
+.vscode/settings.json
 .clang_complete
 *.pdb
 *.exe
