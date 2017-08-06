@@ -31,9 +31,9 @@
         },
         {
             "Name": "NSIS",
-            "URL": "http://downloads.sourceforge.net/project/nsis/NSIS%203/3.0/nsis-3.0.zip",
+            "URL": "https://sourceforge.net/projects/nsis/files/NSIS%203/3.02.1/nsis-3.02.1.zip",
             "Extension": "zip",
-            "Version": "3.0"
+            "Version": "3.02.1"
         },
         {
             "Name": "GNUWin",
