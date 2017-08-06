@@ -5,7 +5,7 @@ Function Global:Get-Pyhome {
     param(
         [String]$Arch
     )
-    $PyCurrent = "3.7", "3.6", "3.5"
+    $PyCurrent = "3.5", "3.6", "3.7"
     $IsWin64 = [System.Environment]::Is64BitOperatingSystem
     foreach ($s in $PyCurrent) {
         if ($IsWin64 -and ($Arch -eq "x86")) {
