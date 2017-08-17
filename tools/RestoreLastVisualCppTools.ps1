@@ -14,7 +14,7 @@ Push-Location $PWD
 $ViusalCppAtomURL = "http://vcppdogfooding.azurewebsites.net/nuget/"
 $VisualCppToolsInstallDir = "$PSScriptRoot\msvc"
 $ClangbuilderDir = Split-Path $PSScriptRoot
-$NuGetDir = "$ClangbuilderDir\Packages\Nuget"
+$NuGetDir = "$ClangbuilderDir\pkgs\Nuget"
 
 $env:PATH = "$NuGetDir;${env:PATH}"
 
@@ -83,7 +83,7 @@ Write-Output "NuGet Install $VisualCppPackageName $VisualCppToolsVersion ......"
 if ((Test-Path "$PSScriptRoot/msvc/$VisualCppPackageName.$VisualCppToolsVersion")) {
     $InstalledMap = @{}
     $InstalledMap["VisualCppTools"] = $VisualCppToolsVersion
-    ConvertTo-Json $InstalledMap |Out-File -Force -FilePath "$PSScriptRoot\VisualCppTools.lock.json"
+    ConvertTo-Json $InstalledMap |Out-File -Encoding utf8 -Force -FilePath "$PSScriptRoot\VisualCppTools.lock.json"
 }
 
 Pop-Location 

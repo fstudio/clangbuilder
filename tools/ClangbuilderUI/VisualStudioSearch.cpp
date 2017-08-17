@@ -56,6 +56,10 @@ bool VisualStudioExists(const std::wstring &id) {
   return true;
 }
 
+bool VisualCppToolsSearch(std::wstring &version) {
+	return true;
+}
+
 bool VisualStudioSearch(std::vector<VisualStudioInstance> &instances) {
   instances.clear();
   std::vector<VisualStudioInstance> vss = {
