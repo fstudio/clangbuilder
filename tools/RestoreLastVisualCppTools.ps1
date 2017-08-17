@@ -78,7 +78,7 @@ if ((Test-Path "$PSScriptRoot/VisualCppTools.lock.json")) {
 
 Write-Output "NuGet Install $VisualCppPackageName $VisualCppToolsVersion ......"
 
-&nuget install $VisualCppPackageName -Source $NuGetAddSource -Prerelease
+&nuget install $VisualCppPackageName -Source $ViusalCppAtomURL -Prerelease
 
 if ((Test-Path "$PSScriptRoot/msvc/$VisualCppPackageName.$VisualCppToolsVersion")) {
     $InstalledMap = @{}
