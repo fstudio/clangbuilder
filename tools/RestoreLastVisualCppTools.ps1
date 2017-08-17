@@ -6,56 +6,25 @@
 ###########################################################################################>
 
 
-# See https://blogs.msdn.microsoft.com/vcblog/2016/02/16/try-out-the-latest-c-compiler-toolset-without-waiting-for-the-next-update-of-visual-studio/
-# nuget install VisualCppTools -source http://vcppdogfooding.azurewebsites.net/nuget/ -Prerelease
-# https://www.nuget.org/packages/VisualCppTools.Community.D14Layout/
+# See https://blogs.msdn.microsoft.com/vcblog/2016/02/16/\
+#try-out-the-latest-c-compiler-toolset-without-waiting-for-the-next-update-of-visual-studio/
+
 Push-Location $PWD
-#XML sources: http://vcppdogfooding.azurewebsites.net/nuget/Packages
-#$NuGetUserConfig="$env:AppData\NuGet\NuGet.config"
-$NuGetAddSource="http://vcppdogfooding.azurewebsites.net/nuget/"
-$VisualCppToolsInstallDir="$PSScriptRoot\msvc"
-$NugetToolsDir="$PSScriptRoot\Nuget"
-$NuGetURL="https://dist.nuget.org/win-x86-commandline/v4.1.0/nuget.exe"
 
-Function Get-NuGetFile{
-    if(!(Test-Path "$PSScriptRoot\NuGet\nuget.exe")){
-        Write-Output "Download NuGet now ....."
-        Invoke-WebRequest $NuGetURL -UseBasicParsing -OutFile "$PSScriptRoot\NuGet\nuget.exe"
-    }
-}
+$ViusalCppAtomURL = "http://vcppdogfooding.azurewebsites.net/nuget/"
+$VisualCppToolsInstallDir = "$PSScriptRoot\msvc"
+$ClangbuilderDir = Split-Path $PSScriptRoot
+$NuGetDir = "$ClangbuilderDir\Packages\Nuget"
 
-Function Test-ExecuteFile
-{
-    param(
-        [Parameter(Position=0,Mandatory=$True,HelpMessage="Enter Execute Name")]
-        [ValidateNotNullorEmpty()]
-        [String]$ExeName
-    )
-    $myErr=@()
-     Get-command -CommandType Application $ExeName -ErrorAction SilentlyContinue -ErrorVariable +myErr
-     if($myErr.count -eq 0)
-     {
-         return $True
-     }
-     return $False
-}
+$env:PATH = "$NuGetDir;${env:PATH}"
 
-if(!(Test-ExecuteFile "nuget")){
-    $env:PATH=$env:PATH+";"+$NugetToolsDir
-}
-
-if(!(Test-ExecuteFile "nuget")){
-    Get-NuGetFile
-}
-
-
-if(!(Test-Path $VisualCppToolsInstallDir)){
+if (!(Test-Path $VisualCppToolsInstallDir)) {
     mkdir -Force $VisualCppToolsInstallDir
 }
 
 Set-Location $VisualCppToolsInstallDir
 
-Function CompareVersion(){
+Function CompareVersion() {
     param(
         [String]$Pre,
         [String]$Next
@@ -63,44 +32,57 @@ Function CompareVersion(){
 
 }
 
-
-
-$NugetXml=Invoke-WebRequest -UseBasicParsing -Uri "$NuGetAddSource/Packages"
-
-$PackageMetadata=[xml]$NugetXml.Content
-
-
-
-$VisualCppToolsVersionRaw=$PackageMetadata.feed.entry.properties.Version
-
-if($VisualCppToolsVersionRaw.GetType().IsArray){
-    Write-Host "VisualCppTools: $VisualCppToolsVersionRaw"
-    $VisualCppToolsVersion=$VisualCppToolsVersionRaw[$VisualCppToolsVersionRaw.Count-1]
-	$VisualCppToolsURL=$PackageMetadata.feed.entry.content.src[$VisualCppToolsVersionRaw.Count-1]
-}else{
-    $VisualCppToolsVersion=$VisualCppToolsVersionRaw
-	$VisualCppToolsURL=$PackageMetadata.feed.entry.content.src
+$xmlfeed = $null
+try {
+    $xmlfeed = [xml](Invoke-WebRequest -UseBasicParsing -Uri "$ViusalCppAtomURL/Packages").Content
+}
+catch {
+    Write-Host -Forceground Red "Checking VisualCpp Feed $_"
+    exit 1
 }
 
-if((Test-Path "$PSScriptRoot/VisualCppTools.lock.json")){
-    $Pkglock=Get-Content "$PSScriptRoot/VisualCppTools.lock.json" |ConvertFrom-Json
-    if($Pkglock.VisualCppTools -eq $VisualCppToolsVersion){
+
+$VisualCppPackageName = $null
+$VisualCppToolsVersion = $null
+
+if ($xmlfeed.feed.entry.GetType().IsArray) {
+    [int]$index = 0;
+    [int]$mindex = 0;
+    [int]$build = 1;
+    foreach ($_ in $xmlfeed.feed.entry) {
+        $version = $_.properties.Version.Split("-")[0]; # 14.11.25615-Pre
+        $ver = [System.Version]::Parse($version)
+        if ($ver.build -gt $build) {
+            $build = $ver.build
+            $mindex = $index
+        }
+        $index++
+    }
+    $VisualCppPackageName = $xmlfeed.feed.entry[$mindex].title.'#text'
+    $VisualCppToolsVersion = $xmlfeed.feed.entry[$mindex].properties.Version
+}
+else {
+    $VisualCppPackageName = $xmlfeed.feed.entry.title.'#text'
+    $VisualCppToolsVersion = $xmlfeed.feed.entry.properties.Version
+}
+
+Write-Output "Latest $VisualCppPackageName version is $VisualCppToolsVersion"
+if ((Test-Path "$PSScriptRoot/VisualCppTools.lock.json")) {
+    $Pkglock = Get-Content "$PSScriptRoot/VisualCppTools.lock.json" |ConvertFrom-Json
+    if ($Pkglock.VisualCppTools -eq $VisualCppToolsVersion) {
         Write-Host "VisualCppTools is up to date, Version: $VisualCppToolsVersion"
         return ;
     }
 }
 
 
-Write-Output "NuGet Install VisualCppTools ......"
-Write-Output "VisualCppTools Download URL:`n$VisualCppToolsURL $VisualCppToolsVersion"
-#&nuget  install VisualCppTools -Source $NuGetAddSource -Version $VisualCppToolsPreRevision -Prerelease
-#&nuget  install VisualCppTools -Source $NuGetAddSource -Prerelease
-&nuget install VisualCppTools.Community.Daily.VS2017Layout -Source $NuGetAddSource -Prerelease
-#&nuget install VisualCppTools.Community.Daily.D14Layout -Source $NuGetAddSource -Prerelease
+Write-Output "NuGet Install $VisualCppPackageName $VisualCppToolsVersion ......"
 
-if((Test-Path "$PSScriptRoot/msvc/VisualCppTools.Community.Daily.VS2017Layout.$VisualCppToolsVersion")){
-    $InstalledMap=@{}
-    $InstalledMap["VisualCppTools"]=$VisualCppToolsVersion
+&nuget install $VisualCppPackageName -Source $NuGetAddSource -Prerelease
+
+if ((Test-Path "$PSScriptRoot/msvc/$VisualCppPackageName.$VisualCppToolsVersion")) {
+    $InstalledMap = @{}
+    $InstalledMap["VisualCppTools"] = $VisualCppToolsVersion
     ConvertTo-Json $InstalledMap |Out-File -Force -FilePath "$PSScriptRoot\VisualCppTools.lock.json"
 }
 
