@@ -1,5 +1,6 @@
 {
     "Title": "The LLVM Compiler Infrastructure",
     "Stable": "release_50",
+    "Releases": "4.0.1",
     "Release": "RELEASE_401/final"
 }
