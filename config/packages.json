@@ -30,6 +30,13 @@
             "Version": "1.9.4"
         },
         {
+            "Name": "7z",
+            "X86URL": "https://sourceforge.net/projects/sevenzip/files/7-Zip/17.00/7z1700.msi/download",
+            "X64URL": "https://sourceforge.net/projects/sevenzip/files/7-Zip/17.00/7z1700-x64.msi/download",
+            "Extension": "msi",
+            "Version": "17.00"
+        },
+        {
             "Name": "NSIS",
             "URL": "https://sourceforge.net/projects/nsis/files/NSIS%203/3.02.1/nsis-3.02.1.zip",
             "Extension": "zip",
