@@ -2,6 +2,5 @@
     "Title": "Clangbuilder",
     "Welcome": "Clangbuilder Utilities Environment\nCopyright \u00A9 2017. Force Charlie. All Rights Reserved.\n",
     "PATH": [
-        "@tools\\nuget"
     ]
 }
