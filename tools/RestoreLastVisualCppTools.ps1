@@ -82,7 +82,9 @@ Write-Output "NuGet Install $VisualCppPackageName $VisualCppToolsVersion ......"
 
 if ((Test-Path "$PSScriptRoot/msvc/$VisualCppPackageName.$VisualCppToolsVersion")) {
     $InstalledMap = @{}
-    $InstalledMap["VisualCppTools"] = $VisualCppToolsVersion
+    $InstalledMap["Name"] = $VisualCppPackageName
+    $InstalledMap["Version"] = $VisualCppToolsVersion
+    $InstalledMap["Path"]="$VisualCppPackageName.$VisualCppToolsVersion"
     ConvertTo-Json $InstalledMap |Out-File -Encoding utf8 -Force -FilePath "$PSScriptRoot\VisualCppTools.lock.json"
 }
 
