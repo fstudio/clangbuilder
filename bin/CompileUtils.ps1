@@ -17,16 +17,19 @@ else {
 
 $env:PATH = "$ClangbuilderDir/pkgs/vswhere;$env:PATH"
 
+$vsinstalls=$null
 try {
     $vsinstalls = vswhere -prerelease -legacy -format json|ConvertFrom-JSON
 }
 catch {
     Write-Error "$_"
+    Pop-Location
     exit 1
 }
 
+$InstanceId=$vsinstalls[0].instanceId
 
-Invoke-Expression "$PSScriptRoot\VisualStudioEnvinitEx.ps1 -Arch $Arch -InstallId ${$vsinstalls[0].instanceId}"
+Invoke-Expression "$PSScriptRoot\VisualStudioEnvinitEx.ps1 -Arch $Arch -InstanceId $InstanceId"
 
 Set-Location "$ClangbuilderDir\tools\ClangbuilderUI"
 Write-Host "Building ClangbuilderUI ..."
@@ -34,6 +37,7 @@ Write-Host "Building ClangbuilderUI ..."
 
 if (!(Test-Path "ClangbuilderUI.exe")) {
     Write-Error "Build ClangbuilderUI.exe failed"
+    Pop-Location
     return 1
 }
 

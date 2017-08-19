@@ -1,7 +1,7 @@
 param (
     [ValidateSet("x86", "x64", "ARM", "ARM64")]
     [String]$Arch = "x64",
-    [String]$InstallId,
+    [String]$InstanceId,
     [Switch]$Sdklow = $false
 )
 
@@ -27,7 +27,7 @@ Function Invoke-Vcvarsall {
 $IsWindows64 = [System.Environment]::Is64BitOperatingSystem
 
 
-if ($InstallId.Contains("11.0") -or $InstallId.Contains("10.0")) {
+if ($InstanceId.Contains("11.0") -or $InstanceId.Contains("10.0")) {
     $ArchListX86 = @{
         "x86"   = "x86";
         "x64"   = "x86_amd64";
@@ -69,38 +69,43 @@ else {
 }
 
 
-$FixedVer = [System.Version]::Parse("15.3.26621.3")
 
-$vsinstalls = vswhere -prerelease -legacy -format json|ConvertFrom-JSON
 
-foreach ($item in $vsinstalls) {
-    if ($item.instanceId -eq $InstallId) {
-        $vsinstall = $item.installationPath
-        $vsversion = $item.installationVersion
-        $ver = [System.Version]::Parse($vsversion)
-        $result = $ver.CompareTo($FixedVer)
-        if (($Arch -eq "ARM64") -and ($result -lt 0)) {
-            Write-Host "Use Enterprise WDK support ARM64"
-            Invoke-Expression "$PSScriptRoot\EnterpriseWDK.ps1"
-            return ;
-        }
-        Write-Host "Use: Visual Studio $vsversion"
-        Write-Host "Initialize from: $vsinstall"
-        if ($InstallId.StartsWith("VisualStudio")) {
-            $vcvarsall = "$vsinstall\VC\vcvarsall.bat"
-            if ($InstallId -eq "VisualStudio.14.0" -and $Sdklow) {
-                Write-Host "Attention Please: Use Windows 8.1 SDK"
-                $ArgumentList += " 8.1"
-            }
-        }
-        else {
-            $vcvarsall = "$vsinstall\VC\Auxiliary\Build\vcvarsall.bat"
-            if ($Sdklow) {
-                Write-Host "Attention Please: Use Windows 8.1 SDK"
-                $ArgumentList += " 8.1"
-            }
-        }
+## Always JSON Array
+
+$vsinstances = vswhere -prerelease -legacy -format json|ConvertFrom-JSON
+$vsinstance = $vsinstances|Where-Object {$_.instanceId -eq $InstanceId}
+
+Write-Host "Use Visual Studio $($vsinstance.installationVersion)"
+
+if ($vsinstance.instanceId.StartsWith("VisualStudio")) {
+    $vcvarsall = "$($vsinstance.installationPath)\VC\vcvarsall.bat"
+    if ($InstallId -eq "VisualStudio.14.0" -and $Sdklow) {
+        Write-Host "Attention Please: Use Windows 8.1 SDK"
+        $ArgumentList += " 8.1"
     }
+    if (!(Test-Path $vcvarsall)) {
+        Write-Host "$vcvarsall not found"
+        return 1;
+    }
+    Invoke-Vcvarsall -Path $vcvarsall -ArgumentList $ArgumentList
+    return 
+}
+
+
+
+$FixedVer = [System.Version]::Parse("15.3.26730.8")
+$ver = [System.Version]::Parse($vsinstance.installationVersion)
+$vercmp = $ver.CompareTo($FixedVer)
+if ($Arch -eq "ARM64" -and $vercmp -le 0) {
+    Write-Host "Use Enterprise WDK support ARM64"
+    Invoke-Expression "$PSScriptRoot\EnterpriseWDK.ps1"
+    return ;
+}
+$vcvarsall = "$($vsinstance.installationPath)\VC\Auxiliary\Build\vcvarsall.bat"
+if ($Sdklow) {
+    Write-Host "Attention Please: Use Windows 8.1 SDK"
+    $ArgumentList += " 8.1"
 }
 
 if (!(Test-Path $vcvarsall)) {

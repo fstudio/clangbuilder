@@ -13,7 +13,7 @@ param (
     [ValidateSet("Mainline", "Stable", "Release")]
     [String]$Branch = "Mainline", #mainline 
     
-    [String]$InstallId, # install id
+    [String]$InstanceId, # install id
     [String]$InstallationVersion, # installationVersion
     [Switch]$Environment, # start environment 
     [Switch]$Sdklow, # low sdk support
@@ -46,7 +46,7 @@ $Global:ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
 . "$PSScriptRoot/Initialize.ps1"
 . "$PSScriptRoot/PathLoader.ps1"
 
-$VisualStudioArgs = "$PSScriptRoot/VisualStudioEnvinitEx.ps1 -Arch $Arch -InstallId $InstallId"
+$VisualStudioArgs = "$PSScriptRoot/VisualStudioEnvinitEx.ps1 -Arch $Arch -InstanceId $InstanceId"
 
 if ($Sdklow) {
     $VisualStudioArgs += " -Sdklow"

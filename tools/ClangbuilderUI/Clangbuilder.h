@@ -15,10 +15,10 @@
 struct VisualStudioInstance {
   VisualStudioInstance(const std::wstring &des, const std::wstring &ver,
                        const std::wstring &id)
-      : description(des), installversion(ver), installid(id) {}
+      : description(des), installversion(ver), instanceId(id) {}
   std::wstring description;
   std::wstring installversion;
-  std::wstring installid;
+  std::wstring instanceId;
 };
 
 bool VisualStudioSearch(std::vector<VisualStudioInstance> &instances);

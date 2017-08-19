@@ -580,7 +580,7 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return S_FALSE;
   }
 
-  Command.append(L" -InstallId ").append(instances_[vsindex_].installid);
+  Command.append(L" -instanceId ").append(instances_[vsindex_].instanceId);
   Command.append(L" -InstallationVersion ")
       .append(instances_[vsindex_].installversion);
   Command.append(L" -Arch ").append(Platforms[archindex_]);
@@ -663,8 +663,8 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
       return S_FALSE;
     }
   }
-  Command.append(L" -Environment -InstallId ")
-      .append(instances_[vsindex_].installid);
+  Command.append(L" -Environment -InstanceId ")
+      .append(instances_[vsindex_].instanceId);
   Command.append(L" -InstallationVersion ")
       .append(instances_[vsindex_].installversion);
   Command.append(L" -Arch ").append(Platforms[archindex_]);

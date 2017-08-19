@@ -1,25 +1,20 @@
-<##########################################################################################
-# Install VisualCppTools Prerelease
-# Author: Force Charlie
-# Date: 2016.02
-# Copyright (C) 2016 Force Charlie. All Rights Reserved.
-###########################################################################################>
-
 
 # See https://blogs.msdn.microsoft.com/vcblog/2016/02/16/\
 #try-out-the-latest-c-compiler-toolset-without-waiting-for-the-next-update-of-visual-studio/
 
-Push-Location $PWD
 
-$ViusalCppAtomURL = "http://vcppdogfooding.azurewebsites.net/nuget/"
-$VisualCppToolsInstallDir = "$PSScriptRoot\msvc"
 $ClangbuilderDir = Split-Path $PSScriptRoot
+$ViusalCppAtomURL = "http://vcppdogfooding.azurewebsites.net/nuget/"
+$VisualCppToolsInstallDir = "$ClangbuilderDir\utils\msvc"
+
 $NuGetDir = "$ClangbuilderDir\pkgs\Nuget"
 
 $env:PATH = "$NuGetDir;${env:PATH}"
 
+Push-Location $PWD
+
 if (!(Test-Path $VisualCppToolsInstallDir)) {
-    mkdir -Force $VisualCppToolsInstallDir
+    New-Item -Force -ItemType Directory $VisualCppToolsInstallDir 
 }
 
 Set-Location $VisualCppToolsInstallDir
@@ -67,9 +62,9 @@ else {
 }
 
 Write-Output "Latest $VisualCppPackageName version is $VisualCppToolsVersion"
-if ((Test-Path "$PSScriptRoot/VisualCppTools.lock.json")) {
-    $Pkglock = Get-Content "$PSScriptRoot/VisualCppTools.lock.json" |ConvertFrom-Json
-    if ($Pkglock.VisualCppTools -eq $VisualCppToolsVersion) {
+if ((Test-Path "$VisualCppToolsInstallDir/VisualCppTools.lock.json")) {
+    $Pkglock = Get-Content "$VisualCppToolsInstallDir/VisualCppTools.lock.json" |ConvertFrom-Json
+    if ($Pkglock.Version -eq $VisualCppToolsVersion) {
         Write-Host "VisualCppTools is up to date, Version: $VisualCppToolsVersion"
         return ;
     }
@@ -80,12 +75,12 @@ Write-Output "NuGet Install $VisualCppPackageName $VisualCppToolsVersion ......"
 
 &nuget install $VisualCppPackageName -Source $ViusalCppAtomURL -Prerelease
 
-if ((Test-Path "$PSScriptRoot/msvc/$VisualCppPackageName.$VisualCppToolsVersion")) {
-    $InstalledMap = @{}
-    $InstalledMap["Name"] = $VisualCppPackageName
-    $InstalledMap["Version"] = $VisualCppToolsVersion
-    $InstalledMap["Path"]="$VisualCppPackageName.$VisualCppToolsVersion"
-    ConvertTo-Json $InstalledMap |Out-File -Encoding utf8 -Force -FilePath "$PSScriptRoot\VisualCppTools.lock.json"
+if ((Test-Path "$VisualCppToolsInstallDir\$VisualCppPackageName.$VisualCppToolsVersion")) {
+    $vccache = @{}
+    $vccache["Name"] = $VisualCppPackageName
+    $vccache["Version"] = $VisualCppToolsVersion
+    $vccache["Path"]="$VisualCppPackageName.$VisualCppToolsVersion"
+    ConvertTo-Json $vccache |Out-File -Encoding utf8 -Force -FilePath "$VisualCppToolsInstallDir\VisualCppTools.lock.json"
 }
 
 Pop-Location 
