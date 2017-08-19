@@ -79,8 +79,10 @@ if ((Test-Path "$VisualCppToolsInstallDir\$VisualCppPackageName.$VisualCppToolsV
     $vccache = @{}
     $vccache["Name"] = $VisualCppPackageName
     $vccache["Version"] = $VisualCppToolsVersion
-    $vccache["Path"]="$VisualCppPackageName.$VisualCppToolsVersion"
+    $vccache["Path"] = "$VisualCppPackageName.$VisualCppToolsVersion"
     ConvertTo-Json $vccache |Out-File -Encoding utf8 -Force -FilePath "$VisualCppToolsInstallDir\VisualCppTools.lock.json"
+    ### clangbuilderui use it !
+    "Visual C++ Tools $VisualCppToolsVersion"|Out-File -Encoding unicode -Force -Path "$VisualCppToolsInstallDir\VisualCppTools.lock.txt"
 }
 
 Pop-Location 

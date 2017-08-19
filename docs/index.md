@@ -58,12 +58,16 @@ pacman -S clang
 
 Your can click ClangbuilderUI, select your Visual Studio Version and Arch, and configuration
 
-![clangbuilder](./docs/images/cbui.png)
+![clangbuilder](./images/cbui.png)
+
+**Update 2017-08-19** Clangbuilder support **VisualCppTools.Community.Daily**:
+
+![visualcpptools](./images/visualcpptools.png)
 
 ## Commandline
 
 ```cmd
-./bin/clangbuilder
+.\bin\clangbuilder
 ```
 
 ## Suggest

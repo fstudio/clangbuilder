@@ -91,6 +91,7 @@ private:
 		UINT width,
 		UINT height
 		);
+	bool InitializeClangbuilderTarget();
 	HWND hVisualStudioBox;
 	HWND hPlatformBox;
 	HWND hConfigBox;
@@ -106,5 +107,7 @@ private:
 	HWND hButtonEnv_;
 	std::vector<KryceLabel> label_;
 	std::vector<VisualStudioInstance> instances_;
+	std::wstring targetFile;
+	std::wstring root;
 };
 #endif

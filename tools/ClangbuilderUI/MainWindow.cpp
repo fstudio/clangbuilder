@@ -194,7 +194,13 @@ void MainWindow::OnResize(UINT width, UINT height)
 
 HRESULT MainWindow::InitializeControl()
 {
-  if (!VisualStudioSearch(instances_))
+  if (!InitializeClangbuilderTarget())
+  {
+    MessageBoxW(L"Initialize Clangbuilder Environemnt Error", L"Clangbuilder Error", MB_OK | MB_ICONERROR);
+    return S_FALSE;
+  }
+
+  if (!VisualStudioSearch(root, instances_))
   {
     return S_FALSE;
   }
@@ -412,12 +418,12 @@ LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                   kAboutWindow);
   return S_OK;
 }
+
 /*
- * ClangBuilderEnvironment.ps1
- * ClangBuilderManager.ps1
- * ClangBuilderBootstrap.ps1
- */
-bool SearchClangbuilderPsEngine(std::wstring &psfile, const wchar_t *name)
+* ClangbuilderTarget.ps1
+*/
+
+bool MainWindow::InitializeClangbuilderTarget()
 {
   std::wstring engine_(PATHCCH_MAX_CCH, L'\0');
   auto buffer = &engine_[0];
@@ -431,10 +437,11 @@ bool SearchClangbuilderPsEngine(std::wstring &psfile, const wchar_t *name)
       return false;
     }
     tmpfile.assign(buffer);
-    tmpfile.append(L"\\bin\\").append(name);
+    tmpfile.append(L"\\bin\\").append(L"ClangbuilderTarget.ps1");
     if (PathFileExistsW(tmpfile.c_str()))
     {
-      psfile.assign(std::move(tmpfile));
+      root.assign(buffer);
+      targetFile.assign(std::move(tmpfile));
       return true;
     }
   }
@@ -534,14 +541,8 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                     L"Please check PowerShell", nullptr, kFatalWindow);
     return S_FALSE;
   }
-  std::wstring engine_;
-  if (!SearchClangbuilderPsEngine(engine_, L"ClangbuilderTarget.ps1"))
-  {
-    MessageWindowEx(m_hWnd, L"Not Found Clangbuilder Engine",
-                    L"Not Found ClangbuilderTarget.ps1", nullptr, kFatalWindow);
-    return false;
-  }
-  Command.append(L" -NoLogo -NoExit   -File \"").append(engine_).push_back('"');
+
+  Command.append(L" -NoLogo -NoExit   -File \"").append(targetFile).push_back('"');
   auto vsindex_ = ComboBox_GetCurSel(hVisualStudioBox);
   if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_)
   {
@@ -635,14 +636,8 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                     L"Please check PowerShell", nullptr, kFatalWindow);
     return S_FALSE;
   }
-  std::wstring engine_;
-  if (!SearchClangbuilderPsEngine(engine_, L"ClangbuilderTarget.ps1"))
-  {
-    MessageWindowEx(m_hWnd, L"Not Found Clangbuilder Engine",
-                    L"Not Found ClangbuilderTarget.ps1", nullptr, kFatalWindow);
-    return false;
-  }
-  Command.append(L" -NoLogo -NoExit   -File \"").append(engine_).push_back('"');
+
+  Command.append(L" -NoLogo -NoExit   -File \"").append(targetFile).push_back('"');
   auto vsindex_ = ComboBox_GetCurSel(hVisualStudioBox);
   if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_)
   {

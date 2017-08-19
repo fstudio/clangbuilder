@@ -60,6 +60,10 @@ Your can click ClangbuilderUI, select your Visual Studio Version and Arch, and c
 
 ![clangbuilder](./docs/images/cbui.png)
 
+**Update 2017-08-19** Clangbuilder support **VisualCppTools.Community.Daily**:
+
+![visualcpptools](./docs/images/visualcpptools.png)
+
 ## Commandline
 
 ```cmd
