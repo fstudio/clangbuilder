@@ -63,7 +63,7 @@ Your can click ClangbuilderUI, select your Visual Studio Version and Arch, and c
 ## Commandline
 
 ```cmd
-./bin/clangbuilder
+.\bin\clangbuilder
 ```
 
 ## Suggest

@@ -405,7 +405,7 @@ LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                    BOOL &bHandled)
 {
   MessageWindowEx(m_hWnd, L"About Clangbuilder",
-                  L"Prerelease: 2.0.1\nCopyright \xA9 2017, Force Charlie. "
+                  L"Prerelease: 3.0.1\nCopyright \xA9 2017, Force Charlie. "
                   L"All Rights Reserved.",
                   L"For more information about this tool.\nVisit: <a "
                   L"href=\"http://forcemz.net/\">forcemz.net</a>",
@@ -580,7 +580,7 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return S_FALSE;
   }
 
-  Command.append(L" -instanceId ").append(instances_[vsindex_].instanceId);
+  Command.append(L" -InstanceId ").append(instances_[vsindex_].instanceId);
   Command.append(L" -InstallationVersion ")
       .append(instances_[vsindex_].installversion);
   Command.append(L" -Arch ").append(Platforms[archindex_]);

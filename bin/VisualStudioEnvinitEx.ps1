@@ -59,16 +59,12 @@ else {
 }
 
 
-
-
 if ($IsWindows64) {
     $ArgumentList = $ArchListX64[$Arch]
 }
 else {
     $ArgumentList = $ArchListX86[$Arch]
 }
-
-
 
 
 ## Always JSON Array

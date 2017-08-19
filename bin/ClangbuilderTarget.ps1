@@ -46,7 +46,19 @@ $Global:ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
 . "$PSScriptRoot/Initialize.ps1"
 . "$PSScriptRoot/PathLoader.ps1"
 
-$VisualStudioArgs = "$PSScriptRoot/VisualStudioEnvinitEx.ps1 -Arch $Arch -InstanceId $InstanceId"
+$VisualStudioArgs = $null
+if ($InstanceId -eq "VisualCppTools") {
+    if ($Engine -eq "MSbuild") {
+        Write-Host -ForegroundColor Red "VisualCppTools Not support msbuild !"
+        exit 1
+    }
+    $VisualStudioArgs = "$PSScriptRoot/VisualCppToolsEnv.ps1 -Arch $Arch -InstanceId $InstanceId"
+}
+else {
+    $VisualStudioArgs = "$PSScriptRoot/VisualStudioEnvinitEx.ps1 -Arch $Arch -InstanceId $InstanceId"
+}
+
+
 
 if ($Sdklow) {
     $VisualStudioArgs += " -Sdklow"
