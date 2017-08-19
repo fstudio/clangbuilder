@@ -31,28 +31,22 @@ Clone clangbuilder on Github
 git clone https://github.com/fstudio/clangbuilder.git clangbuilder
 ```
 
-Click the *script/InitializeEnv.bat*
+Click the `script/InitializeEnv.bat`
 
 The installation script will compile ClangbuilderUI and create a shortcut, download required packages.
 
 If your need install `VisualCppTools for Daily` ,click `script/VisualCppToolsFetch.bat`
 
 
-## Clang on Windows
+## Build Clang on Windows
 
 Clangbuilder Now Only support use Visual C++ build Clang LLVM LLDB. 
 
 Best Visual Studio Version:
 
->VisualStudio 2015
+>VisualStudio 2017
 
-Additional, Your can use MSYS2, use pacman install Clang.
-
-```shell
-pacman -S clang
-```
-
-
+You can run ClangbuilderUI, select Arch, Configuration and other options. after click `Building Now`
 
 ## ClangbuilderUI
 
