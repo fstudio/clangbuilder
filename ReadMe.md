@@ -67,9 +67,9 @@ You can run ClangbuilderUI, select Arch, Configuration and other options. after 
 +   MSbuild use msbuild build llvm
 +   Ninja use ninja build llvm
 +   NinjaBootstrap use ninja build and bootstrap llvm
-+   NinjaIterate use ninja build llvm, but compile is prebuild clang (config by `config\precompiled.json`)
++   NinjaIterate use ninja build llvm, but compile is prebuilt clang (config by `config\prebuilt.json`)
 
-precompiled.json:
+prebuilt.json:
 ```json
 {
     "LLVM": {

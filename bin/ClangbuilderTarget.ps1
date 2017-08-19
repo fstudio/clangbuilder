@@ -258,13 +258,13 @@ Function Invoke-Ninja {
 }
 
 
-Function Get-PrecompiledLLVM {
+Function Get-PrebuiltLLVM {
     # get 
-    $PrecompiledJSON = "$Global:ClangbuilderRoot\config\precompiled.json"
-    if (!(Test-Path $PrecompiledJSON)) {
+    $PrebuiltJSON = "$Global:ClangbuilderRoot\config\prebuilt.json"
+    if (!(Test-Path $PrebuiltJSON)) {
         return ""
     }
-    $LLVMJSON = Get-Content -Path $PrecompiledJSON |ConvertFrom-Json
+    $LLVMJSON = Get-Content -Path $PrebuiltJSON |ConvertFrom-Json
     if ($null -eq $LLVMJSON.LLVM) {
         return ""
     }
@@ -289,19 +289,19 @@ Function Invoke-NinjaIterate {
         "ARM64" = "--target=arm64-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
     }
     # 
-    $PrecompiledLLVM = &Get-PrecompiledLLVM
-    if ($PrecompiledLLVM -eq "") {
+    $PrebuiltLLVM = &Get-PrebuiltLLVM
+    if ($PrebuiltLLVM -eq "") {
         return 1
     }
-    if (!(Test-Path $PrecompiledLLVM)) {
-        Write-Host "$PrecompiledLLVM not exists"
+    if (!(Test-Path $PrebuiltLLVM)) {
+        Write-Host "$PrebuiltLLVM not exists"
         return 1
     }
     $MarchArgument = $ClangMarchArgument[$Global:ArchValue]
-    $env:CC = "$PrecompiledLLVM\bin\clang-cl.exe"
-    $env:CXX = "$PrecompiledLLVM\bin\clang-cl.exe"
+    $env:CC = "$PrebuiltLLVM\bin\clang-cl.exe"
+    $env:CXX = "$PrebuiltLLVM\bin\clang-cl.exe"
     Write-Host "update `$env:CC `$env:CXX ${env:CC} ${env:CXX}"
-    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\precompile"
+    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\prebuild"
     Set-Workdir $Global:FinalWorkdir
     $CMakePrivateArguments = "-GNinja $Global:CMakeArguments"
     if ($VisualCppVersionTable.ContainsKey($InstallationVersion)) {

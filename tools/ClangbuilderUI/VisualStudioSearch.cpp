@@ -147,6 +147,7 @@ bool VisualCppToolsSearch(const std::wstring &cbroot, std::wstring &version)
 	{
 		version.resize(n);
 	}
+	CloseHandle(hFile);
 	return true;
 }
 
