@@ -48,9 +48,7 @@ Best Visual Studio Version:
 
 You can run ClangbuilderUI, select Arch, Configuration and other options. after click `Building`
 
-## ClangbuilderUI
-
-Your can click ClangbuilderUI, select your Visual Studio Version and Arch, and configuration
+**ClangbuilderUI Snapshot**
 
 ![clangbuilder](./docs/images/cbui.png)
 
