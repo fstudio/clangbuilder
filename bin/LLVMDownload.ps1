@@ -52,12 +52,15 @@ Set-Location "$ClangbuilderRoot/out/rel"
 $revobj = Get-Content -Path "$ClangbuilderRoot/config/revision.json" |ConvertFrom-Json
 $releases = $revobj.Releases
 
-$freeze = Get-Content -Path "$PWD/releases.lock.json" |ConvertFrom-Json
-if ($freeze.Version -eq $releases) {
-    Write-Host "Not need download file"
-    Pop-Location
-    return 0;
+if (Test-Path "$PWD/releases.lock.json"  ) {
+    $freeze = Get-Content -Path "$PWD/releases.lock.json" |ConvertFrom-Json
+    if ($freeze.Version -eq $releases) {
+        Write-Host "Not need download file"
+        Pop-Location
+        return ;
+    }
 }
+
 
 Write-Host "LLVM Releases: $releases"
 
@@ -87,7 +90,7 @@ if ($LLDB) {
 
 $vercache = @{}
 $vercache["Version"] = $releases
-$vercache["LLDB"] = $LLDB
+$vercache["LLDB"] = $LLDB.IsPresent
 ConvertTo-Json -InputObject $vercache|Out-File -Encoding utf8 -FilePath "$PWD\releases.lock.json"
 
 Pop-Location

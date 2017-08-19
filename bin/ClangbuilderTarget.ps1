@@ -48,7 +48,7 @@ $Global:ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
 
 $VisualStudioArgs = $null
 if ($InstanceId -eq "VisualCppTools") {
-    if ($Engine -eq "MSbuild") {
+    if ($Engine -eq "MSbuild" -and $Environment -eq $false) {
         Write-Host -ForegroundColor Red "VisualCppTools Not support msbuild !"
         exit 1
     }
@@ -98,7 +98,7 @@ Function ParseLLVMDir {
             $currentstable = $obj.Stable
             $src = "$Global:ClangbuilderRoot\out\$currentstable"
         } {$_ -eq "Release"} {
-            $src = "$Global:ClangbuilderRoot\out\release"
+            $src = "$Global:ClangbuilderRoot\out\rel\llvm"
         }
     }
     return $src
@@ -106,9 +106,9 @@ Function ParseLLVMDir {
 
 $Global:LLDB = $LLDB
 if ($Branch -eq "Release") {
-    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitialize.ps1 -Branch $Branch"
+    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMDownload.ps1"
     Write-Host "Build llvm release"
-    $Global:LLVMSource = "$Global:ClangbuilderRoot\out\release"
+    $Global:LLVMSource = "$Global:ClangbuilderRoot\out\rel\llvm"
 }
 else {
     $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitializeEx.ps1 -Branch $Branch"
