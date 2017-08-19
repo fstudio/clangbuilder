@@ -46,7 +46,7 @@ Best Visual Studio Version:
 
 >VisualStudio 2017
 
-You can run ClangbuilderUI, select Arch, Configuration and other options. after click `Building Now`
+You can run ClangbuilderUI, select Arch, Configuration and other options. after click `Building`
 
 ## ClangbuilderUI
 
