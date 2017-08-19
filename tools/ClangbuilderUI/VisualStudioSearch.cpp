@@ -173,9 +173,9 @@ bool VisualStudioSearch(const std::wstring &cbroot, std::vector<VisualStudioInst
 		VisualStudioInstance vs;
 		vs.description.assign(version);
 		vs.instanceId.assign(L"VisualCppTools");
-		if (version.size() > sizeof("Visual C++ Tools ") - 1)
+		if (version.size() > sizeof("VisualCppTools.Community.Daily ") - 1)
 		{
-			vs.installversion.assign(version.substr(sizeof("Visual C++ Tools ") - 1));
+			vs.installversion.assign(version.substr(sizeof("VisualCppTools.Community.Daily ") - 1));
 		}
 		else
 		{

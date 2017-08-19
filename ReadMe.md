@@ -35,7 +35,7 @@ Click the `script/InitializeEnv.bat`
 
 The installation script will compile ClangbuilderUI and create a shortcut, download required packages.
 
-If your need install `VisualCppTools for Daily` ,click `script/VisualCppToolsFetch.bat`
+If your need install `VisualCppTools.Community.Daily` ,click `script/VisualCppToolsFetch.bat`
 
 
 ## Build Clang on Windows
