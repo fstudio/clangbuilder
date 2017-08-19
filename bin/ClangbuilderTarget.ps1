@@ -301,7 +301,7 @@ Function Invoke-NinjaIterate {
     $env:CC = "$PrebuiltLLVM\bin\clang-cl.exe"
     $env:CXX = "$PrebuiltLLVM\bin\clang-cl.exe"
     Write-Host "update `$env:CC `$env:CXX ${env:CC} ${env:CXX}"
-    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\prebuild"
+    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\prebuilt"
     Set-Workdir $Global:FinalWorkdir
     $CMakePrivateArguments = "-GNinja $Global:CMakeArguments"
     if ($VisualCppVersionTable.ContainsKey($InstallationVersion)) {

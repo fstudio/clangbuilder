@@ -56,6 +56,8 @@ You can run ClangbuilderUI, select Arch, Configuration and other options. after 
 
 ![visualcpptools](./images/visualcpptools.png)
 
+**VisualCppTools.Community.Daily** current not support msbuild (becasue cmake ...)
+
 **Branch**
 
 +  Mainline, master/trunk branch , git fetch from https://github.com/llvm-mirror/
