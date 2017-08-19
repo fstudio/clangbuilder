@@ -31,16 +31,11 @@ Clone clangbuilder on Github
 git clone https://github.com/fstudio/clangbuilder.git clangbuilder
 ```
 
-Click the *Install.bat* in the clangbuilder directory, this will run PowerShell startup  *bin/Installer.ps1* 
+Click the *script/InitializeEnv.bat*
 
 The installation script will compile ClangbuilderUI and create a shortcut, download required packages.
 
-Directory layout is as follows:
-
-![images-1](./images/treelayout.png)
-
-
-
+If your need install `VisualCppTools for Daily` ,click `script/VisualCppToolsFetch.bat`
 
 
 ## Clang on Windows
@@ -63,7 +58,7 @@ pacman -S clang
 
 Your can click ClangbuilderUI, select your Visual Studio Version and Arch, and configuration
 
-![clangbuilder](./images/cbui.png)
+![clangbuilder](./docs/images/cbui.png)
 
 ## Commandline
 
@@ -87,7 +82,15 @@ You can modify `config/packages.json`,
 and then double-click install.bat to the software you need as part of the Clangbuilder is added to the environment
 
 
+## Add Extranl Libs
 
+You can add extranl lib, such as [z3](https://github.com/Z3Prover/z3) , more info to view ExternalLibs.md
+
+## Bootstrap
+
+**If your memory is small, use ninja to build LLVM, and in the process of linking, the build process is slow due to memory contention. And the computer may even lose its response.**
+
+Link clang requre 1.5GB memory，other require 0.8GB，and Ninja create N+ (processor default 6) link process, requre (0.8xN+0.7)GB or great memory  
 
 ## Copyright
 

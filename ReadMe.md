@@ -31,16 +31,11 @@ Clone clangbuilder on Github
 git clone https://github.com/fstudio/clangbuilder.git clangbuilder
 ```
 
-Click the *Install.bat* in the clangbuilder directory, this will run PowerShell startup  *bin/Installer.ps1* 
+Click the *script/InitializeEnv.bat*
 
 The installation script will compile ClangbuilderUI and create a shortcut, download required packages.
 
-Directory layout is as follows:
-
-![images-1](./docs/images/treelayout.png)
-
-
-
+If your need install `VisualCppTools for Daily` ,click `script/VisualCppToolsFetch.bat`
 
 
 ## Clang on Windows
