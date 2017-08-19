@@ -111,7 +111,7 @@ if ($Branch -eq "Release") {
     $Global:LLVMSource = "$Global:ClangbuilderRoot\out\rel\llvm"
 }
 else {
-    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMInitializeEx.ps1 -Branch $Branch"
+    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMRemoteFetch.ps1 -Branch $Branch"
     Write-Host "Build llvm branch $Branch"
     $Global:LLVMSource = &ParseLLVMDir
 }

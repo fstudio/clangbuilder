@@ -23,13 +23,6 @@
             "Version": "2.7.13"
         },
         {
-            "Name": "Subversion",
-            "X86URL": "http://downloads.sourceforge.net/projects/tortoisesvn/files/1.9.4/Application/TortoiseSVN-1.9.4.27285-win32-svn-1.9.4.msi",
-            "X64URL": "http://downloads.sourceforge.net/projects/tortoisesvn/files/1.9.4/Application/TortoiseSVN-1.9.4.27285-x64-svn-1.9.4.msi",
-            "Extension": "msi",
-            "Version": "1.9.4"
-        },
-        {
             "Name": "7z",
             "X86URL": "https://sourceforge.net/projects/sevenzip/files/7-Zip/17.00/7z1700.msi/download",
             "X64URL": "https://sourceforge.net/projects/sevenzip/files/7-Zip/17.00/7z1700-x64.msi/download",

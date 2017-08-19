@@ -50,47 +50,48 @@ if (!("$ClangbuilderRoot/out/rel")) {
 Set-Location "$ClangbuilderRoot/out/rel"
 
 $revobj = Get-Content -Path "$ClangbuilderRoot/config/revision.json" |ConvertFrom-Json
-$releases = $revobj.Releases
+$release = $revobj.Release
 
-if (Test-Path "$PWD/releases.lock.json"  ) {
-    $freeze = Get-Content -Path "$PWD/releases.lock.json" |ConvertFrom-Json
-    if ($freeze.Version -eq $releases) {
-        Write-Host "Not need download file"
+if (Test-Path "$PWD/release.lock.json"  ) {
+    $freeze = Get-Content -Path "$PWD/release.lock.json" |ConvertFrom-Json
+    if ($freeze.Version -eq $release) {
+        Write-Host "Use llvm download cache"
         Pop-Location
         return ;
     }
 }
 
-
-Write-Host "LLVM Releases: $releases"
-
-
-
-DownloadFile -Version $releases -Name "llvm"
-DownloadFile -Version $releases -Name "cfe"
-DownloadFile -Version $releases -Name "lld"
-DownloadFile -Version $releases -Name "compiler-rt"
-DownloadFile -Version $releases -Name "libcxx"
-DownloadFile -Version $releases -Name "clang-tools-extra"
-
-if ($LLDB) {
-    DownloadFile -Version $releases -Name "lldb"
+if (Tesr-Path "$PWD\llvm") {
+    Remove-Item -Force -Recurse "$PWD\llvm"
 }
 
-UnpackFile -File "$PWD\llvm.tar.xz" -Path "." -OldName "llvm-$releases.src" -Name "llvm"
-UnpackFile -File "$PWD\cfe.tar.xz" -Path "llvm\tools" -OldName "cfe-$releases.src" -Name "clang"
-UnpackFile -File "$PWD\clang-tools-extra.tar.xz" -Path "llvm\tools\clang\tools" -OldName "clang-tools-extra-$releases.src" -Name "extra"
-UnpackFile -File "$PWD\lld.tar.xz" -Path "llvm\tools" -OldName "lld-$releases.src" -Name "lld"
-UnpackFile -File "$PWD\compiler-rt.tar.xz" -Path "llvm\projects" -OldName "compiler-rt-$releases.src" -Name "compiler-rt"
-UnpackFile -File "$PWD\libcxx.tar.xz" -Path "llvm\projects" -OldName "libcxx-$releases.src" -Name "libcxx"
+Write-Host "LLVM release: $release"
+
+DownloadFile -Version $release -Name "llvm"
+DownloadFile -Version $release -Name "cfe"
+DownloadFile -Version $release -Name "lld"
+DownloadFile -Version $release -Name "compiler-rt"
+DownloadFile -Version $release -Name "libcxx"
+DownloadFile -Version $release -Name "clang-tools-extra"
 
 if ($LLDB) {
-    UnpackFile -File "$PWD\lldb.tar.xz" -Path "llvm\tools" -OldName "lldb-$releases.src" -Name "lldb"
+    DownloadFile -Version $release -Name "lldb"
+}
+
+UnpackFile -File "$PWD\llvm.tar.xz" -Path "." -OldName "llvm-$release.src" -Name "llvm"
+UnpackFile -File "$PWD\cfe.tar.xz" -Path "llvm\tools" -OldName "cfe-$release.src" -Name "clang"
+UnpackFile -File "$PWD\clang-tools-extra.tar.xz" -Path "llvm\tools\clang\tools" -OldName "clang-tools-extra-$release.src" -Name "extra"
+UnpackFile -File "$PWD\lld.tar.xz" -Path "llvm\tools" -OldName "lld-$release.src" -Name "lld"
+UnpackFile -File "$PWD\compiler-rt.tar.xz" -Path "llvm\projects" -OldName "compiler-rt-$release.src" -Name "compiler-rt"
+UnpackFile -File "$PWD\libcxx.tar.xz" -Path "llvm\projects" -OldName "libcxx-$release.src" -Name "libcxx"
+
+if ($LLDB) {
+    UnpackFile -File "$PWD\lldb.tar.xz" -Path "llvm\tools" -OldName "lldb-$release.src" -Name "lldb"
 }
 
 $vercache = @{}
-$vercache["Version"] = $releases
+$vercache["Version"] = $release
 $vercache["LLDB"] = $LLDB.IsPresent
-ConvertTo-Json -InputObject $vercache|Out-File -Encoding utf8 -FilePath "$PWD\releases.lock.json"
+ConvertTo-Json -InputObject $vercache|Out-File -Encoding utf8 -FilePath "$PWD\release.lock.json"
 
 Pop-Location
