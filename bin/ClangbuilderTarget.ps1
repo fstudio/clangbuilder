@@ -35,7 +35,6 @@ Function ProcessExec {
     else {
         $ProcessInfo.WorkingDirectory = $WorkingDirectory
     }
-    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
     $ProcessInfo.Arguments = $Arguments
     $ProcessInfo.UseShellExecute = $false ## use createprocess not shellexecute
     $Process = New-Object System.Diagnostics.Process 
@@ -209,10 +208,7 @@ Function Invoke-MSBuild {
     if ([System.Environment]::Is64BitOperatingSystem) {
         $CMakePrivateArguments += "-Thost=x64 ";
     }
-
     $CMakePrivateArguments += $Global:CMakeArguments
-    Write-Host $CMakePrivateArguments
-
     $exitcode = ProcessExec  -FilePath "cmake" -Arguments $CMakePrivateArguments 
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
@@ -226,13 +222,16 @@ Function Invoke-Ninja {
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\ninja"
     Set-Workdir $Global:FinalWorkdir
     $CMakePrivateArguments = "-GNinja $Global:CMakeArguments -DCMAKE_INSTALL_UCRT_LIBRARIES=ON"
-    Write-Host $CMakePrivateArguments
+    ### change oe
+    $oe=[Console]::OutputEncoding
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
     $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $CMakePrivateArguments 
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1
     }
     $PN = & Parallel
+    [Console]::OutputEncoding=$oe
     $exitcode = ProcessExec  -FilePath "ninja.exe" -Arguments "all -j $PN"
     return $exitcode
 }
@@ -295,14 +294,17 @@ Function Invoke-NinjaIterate {
         $CMakePrivateArguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
         #$CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
     }
-    Write-Host "cmake $CMakePrivateArguments"
+
+    $oe=[Console]::OutputEncoding
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
     $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $CMakePrivateArguments 
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1
     }
     $PN = & Parallel
-    Write-Host "Now build llvm ..."
+    Write-Host "Build llvm, $Engine $Arch $Branch"
+    [Console]::OutputEncoding=$oe
     $exitcode = ProcessExec -FilePath "ninja.exe" -Arguments "all -j $PN"
     return $exitcode
 }
@@ -338,13 +340,16 @@ Function Invoke-NinjaBootstrap {
         $CMakePrivateArguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
         #$CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
     }
-    Write-Host $CMakePrivateArguments
+
+    $oe=[Console]::OutputEncoding
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
     $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $CMakePrivateArguments 
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1
     }
-    Write-Host "Begin to compile llvm..."
+    Write-Host "Build llvm, $Engine $Arch $Branch"
+    [Console]::OutputEncoding=$oe
     $PN = & Parallel
     $exitcode = ProcessExec -FilePath "ninja.exe" -Arguments "all -j $PN"
     return $exitcode
