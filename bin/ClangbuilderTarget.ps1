@@ -50,7 +50,8 @@ Function Parallel() {
     $MemSize = (Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory
     $ProcessorCount = $env:NUMBER_OF_PROCESSORS
     $MemParallelRaw = $MemSize / 1610612736 #1.5GB
-    [int]$MemParallel = [Math]::Floor($MemParallelRaw)
+    #[int]$MemParallel = [Math]::Floor($MemParallelRaw)
+    [int]$MemParallel=[Math]::Ceiling($MemParallelRaw)
     if ($MemParallel -eq 0) {
         # when memory less 1.5GB, parallel use 1
         $MemParallel = 1
@@ -150,39 +151,6 @@ $Global:FinalWorkdir = ""
 $Global:Flavor = $Flavor
 $Global:CMakeArguments = "`"$Global:LLVMSource`""
 
-Function Get-ClangArgument{
-    $VisualCppVersionTable = @{
-        "15" = "19.10";
-        "14" = "19.00";
-        "12" = "18.00";
-        "11" = "17.00"
-    };
-    $ClangMarchArgument = @{
-        "x64"   = "-m64";
-        "x86"   = "-m32";
-        "ARM"   = "--target=arm-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1";
-        "ARM64" = "--target=arm64-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
-    }
-    if ($VisualCppVersionTable.ContainsKey($Global:Installation)) {
-        $msvc= $VisualCppVersionTable[$Global:Installation]
-    }
-    else {
-        $msvc = "19.10"
-    }
-    $Arguments="-GNinja $Global:CMakeArguments"
-    $ClangArgs=$ClangMarchArgument[$Global:ArchValue]
-    $Arguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=$msvc $ClangArgs`""
-    $Arguments += " -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=$msvc $ClangArgs`""
-    if ($Global:Installation -eq "14" -or ($Global:Installation -eq "15")) {
-        $Arguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
-        $Arguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
-        #$CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
-    }
-    return $Arguments
-}
-
-
-
 
 if ($LLDB) {
     . "$PSScriptRoot\LLDBInitialize.ps1"
@@ -227,22 +195,92 @@ Function Set-Workdir {
     Set-Location $Path
 }
 
+Function Get-ClangArgument{
+    $VisualCppVersionTable = @{
+        "15" = "19.10";
+        "14" = "19.00";
+        "12" = "18.00";
+        "11" = "17.00"
+    };
+    $ClangMarchArgument = @{
+        "x64"   = "-m64";
+        "x86"   = "-m32";
+        "ARM"   = "--target=arm-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1";
+        "ARM64" = "--target=arm64-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
+    }
+    if ($VisualCppVersionTable.ContainsKey($Global:Installation)) {
+        $msvc= $VisualCppVersionTable[$Global:Installation]
+    }
+    else {
+        $msvc = "19.10"
+    }
+    $Arguments="-GNinja $Global:CMakeArguments"
+    $ClangArgs=$ClangMarchArgument[$Global:ArchValue]
+    $Arguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=$msvc $ClangArgs`""
+    $Arguments += " -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=$msvc $ClangArgs`""
+    if ($Global:Installation -eq "14" -or ($Global:Installation -eq "15")) {
+        $Arguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
+        $Arguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
+        #$Arguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
+    }
+    return $Arguments
+}
+
+Function ClangNinjaGenerator{
+    param(
+        [String]$ClangExe,
+        [String]$BuildDir
+    )
+    $env:CC=$ClangExe
+    $env:CXX=$ClangExe
+    Write-Host "Build llvm, Use: CC=$env:CC CXX=$env:CXX"
+    Set-Workdir $BuildDir
+    $Arguments=Get-ClangArgument
+    $oe=[Console]::OutputEncoding
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
+    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments
+    if ($exitcode -ne 0) {
+        Write-Error "CMake exit: $exitcode"
+        return 1
+    }
+    [Console]::OutputEncoding=$oe
+    $PN = & Parallel
+    $exitcode = ProcessExec -FilePath "ninja.exe" -Arguments "all -j $PN"
+    return $exitcode
+}
+
+Function CMakeInstallationFix {
+    param(
+        [String]$TargetDir,
+        [String]$Configuration
+    )
+    $filelist = Get-ChildItem "$TargetDir"  -Recurse *.cmake | Foreach-Object {$_.FullName}
+    foreach ($file in $filelist) {
+        $content = Get-Content $file
+        Clear-Content $file
+        foreach ($line in $content) {
+            $lr = $line.Replace("`$(Configuration)", "$Configuration")
+            Add-Content $file -Value $lr
+        }
+    }
+}
+
 # Please see: http://libcxx.llvm.org/docs/BuildingLibcxx.html#experimental-support-for-windows
 
 Function Invoke-MSBuild {
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\msbuild"
     Set-Workdir $Global:FinalWorkdir
     if ($Global:ArchName.Length -eq 0) {
-        $CMakePrivateArguments = "-G`"Visual Studio $Global:Installation`" "
+        $Arguments = "-G`"Visual Studio $Global:Installation`" "
     }
     else {
-        $CMakePrivateArguments = "-G`"Visual Studio $Global:Installation $Global:ArchName`" "
+        $Arguments = "-G`"Visual Studio $Global:Installation $Global:ArchName`" "
     }
     if ([System.Environment]::Is64BitOperatingSystem) {
-        $CMakePrivateArguments += "-Thost=x64 ";
+        $Arguments += "-Thost=x64 ";
     }
-    $CMakePrivateArguments += $Global:CMakeArguments
-    $exitcode = ProcessExec  -FilePath "cmake" -Arguments $CMakePrivateArguments 
+    $Arguments += $Global:CMakeArguments
+    $exitcode = ProcessExec  -FilePath "cmake" -Arguments $Arguments 
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1
@@ -254,11 +292,11 @@ Function Invoke-MSBuild {
 Function Invoke-Ninja {
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\ninja"
     Set-Workdir $Global:FinalWorkdir
-    $CMakePrivateArguments = "-GNinja $Global:CMakeArguments -DCMAKE_INSTALL_UCRT_LIBRARIES=ON"
+    $Arguments = "-GNinja $Global:CMakeArguments -DCMAKE_INSTALL_UCRT_LIBRARIES=ON"
     ### change oe
     $oe=[Console]::OutputEncoding
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
-    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $CMakePrivateArguments 
+    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments 
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1
@@ -294,25 +332,7 @@ Function Invoke-NinjaIterate {
         Write-Host "$PrebuiltLLVM not exists"
         return 1
     }
-    $env:CC = "$PrebuiltLLVM\bin\clang-cl.exe"
-    $env:CXX = "$PrebuiltLLVM\bin\clang-cl.exe"
-    Write-Host "update `$env:CC `$env:CXX ${env:CC} ${env:CXX}"
-    $Arguments=Get-ClangArgument
-
-    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\prebuilt"
-    Set-Workdir $Global:FinalWorkdir
-
-    $oe=[Console]::OutputEncoding
-    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
-    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments 
-    if ($exitcode -ne 0) {
-        Write-Error "CMake exit: $exitcode"
-        return 1
-    }
-    $PN = & Parallel
-    Write-Host "Build llvm, $Engine $Arch $Branch"
-    [Console]::OutputEncoding=$oe
-    $exitcode = ProcessExec -FilePath "ninja.exe" -Arguments "all -j $PN"
+    $exitcode=ClangNinjaGenerator -ClangExe "$PrebuiltLLVM\bin\clang-cl.exe" -BuildDir "$Global:ClangbuilderRoot\out\prebuilt"
     return $exitcode
 }
 
@@ -322,40 +342,8 @@ Function Invoke-NinjaBootstrap {
         Write-Error "Prebuild llvm due to error terminated !"
         return $result
     }
-    $env:CC = "$Global:FinalWorkdir\bin\clang-cl.exe"
-    $env:CXX = "$Global:FinalWorkdir\bin\clang-cl.exe"
-    Write-Host "update env:CC env:CXX ${env:CC} ${env:CXX}"
-    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\bootstrap"
-    Set-Workdir $Global:FinalWorkdir
-    $Arguments=Get-ClangArgument
-    $oe=[Console]::OutputEncoding
-    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
-    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments
-    if ($exitcode -ne 0) {
-        Write-Error "CMake exit: $exitcode"
-        return 1
-    }
-    Write-Host "Build llvm, $Engine $Arch $Branch"
-    [Console]::OutputEncoding=$oe
-    $PN = & Parallel
-    $exitcode = ProcessExec -FilePath "ninja.exe" -Arguments "all -j $PN"
+    $exitcode=ClangNinjaGenerator -ClangExe "$Global:FinalWorkdir\bin\clang-cl.exe" -BuildDir  "$Global:ClangbuilderRoot\out\bootstrap"
     return $exitcode
-}
-
-Function Global:FixInstall {
-    param(
-        [String]$TargetDir,
-        [String]$Configuration
-    )
-    $filelist = Get-ChildItem "$TargetDir"  -Recurse *.cmake | Foreach-Object {$_.FullName}
-    foreach ($file in $filelist) {
-        $content = Get-Content $file
-        Clear-Content $file
-        foreach ($line in $content) {
-            $lr = $line.Replace("`$(Configuration)", "$Configuration")
-            Add-Content $file -Value $lr
-        }
-    }
 }
 
 Write-Host "Use llvm build engine: $Engine"
@@ -371,7 +359,8 @@ switch ($Engine) {
     }
     "NinjaBootstrap" {
         $MyResult = Invoke-NinjaBootstrap
-    }"NinjaIterate" {
+    }
+    "NinjaIterate" {
         $MyResult = Invoke-NinjaIterate
     }
 }
@@ -387,7 +376,7 @@ else {
 
 if ($Package) {
     if (Test-Path "$PWD/LLVM.sln") {
-        FixInstall -TargetDir "./projects/compiler-rt/lib" -Configuration $Flavor
+        CMakeInstallationFix -TargetDir "./projects/compiler-rt/lib" -Configuration $Flavor
     }
     &cpack -C "$Flavor"
 }
