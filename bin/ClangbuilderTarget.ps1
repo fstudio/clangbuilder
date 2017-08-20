@@ -150,6 +150,40 @@ $Global:FinalWorkdir = ""
 $Global:Flavor = $Flavor
 $Global:CMakeArguments = "`"$Global:LLVMSource`""
 
+Function Get-ClangArgument{
+    $VisualCppVersionTable = @{
+        "15" = "19.10";
+        "14" = "19.00";
+        "12" = "18.00";
+        "11" = "17.00"
+    };
+    $ClangMarchArgument = @{
+        "x64"   = "-m64";
+        "x86"   = "-m32";
+        "ARM"   = "--target=arm-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1";
+        "ARM64" = "--target=arm64-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
+    }
+    if ($VisualCppVersionTable.ContainsKey($Global:Installation)) {
+        $msvc= $VisualCppVersionTable[$Global:Installation]
+    }
+    else {
+        $msvc = "19.10"
+    }
+    $Arguments="-GNinja $Global:CMakeArguments"
+    $ClangArgs=$ClangMarchArgument[$Global:ArchValue]
+    $Arguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=$msvc $ClangArgs`""
+    $Arguments += " -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=$msvc $ClangArgs`""
+    if ($Global:Installation -eq "14" -or ($Global:Installation -eq "15")) {
+        $Arguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
+        $Arguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
+        #$CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
+    }
+    return $Arguments
+}
+
+
+
+
 if ($LLDB) {
     . "$PSScriptRoot\LLDBInitialize.ps1"
     $PythonHome = Get-Pyhome -Arch $Arch
@@ -204,7 +238,6 @@ Function Invoke-MSBuild {
     else {
         $CMakePrivateArguments = "-G`"Visual Studio $Global:Installation $Global:ArchName`" "
     }
-
     if ([System.Environment]::Is64BitOperatingSystem) {
         $CMakePrivateArguments += "-Thost=x64 ";
     }
@@ -253,19 +286,6 @@ Function Get-PrebuiltLLVM {
 }
 
 Function Invoke-NinjaIterate {
-    $VisualCppVersionTable = @{
-        "15.0" = "19.10";
-        "14.0" = "19.00";
-        "12.0" = "18.00";
-        "11.0" = "17.00"
-    };
-    $ClangMarchArgument = @{
-        "x64"   = "-m64";
-        "x86"   = "-m32";
-        "ARM"   = "--target=arm-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1";
-        "ARM64" = "--target=arm64-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
-    }
-    # 
     $PrebuiltLLVM = &Get-PrebuiltLLVM
     if ($PrebuiltLLVM -eq "") {
         return 1
@@ -274,30 +294,17 @@ Function Invoke-NinjaIterate {
         Write-Host "$PrebuiltLLVM not exists"
         return 1
     }
-    $MarchArgument = $ClangMarchArgument[$Global:ArchValue]
     $env:CC = "$PrebuiltLLVM\bin\clang-cl.exe"
     $env:CXX = "$PrebuiltLLVM\bin\clang-cl.exe"
     Write-Host "update `$env:CC `$env:CXX ${env:CC} ${env:CXX}"
+    $Arguments=Get-ClangArgument
+
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\prebuilt"
     Set-Workdir $Global:FinalWorkdir
-    $CMakePrivateArguments = "-GNinja $Global:CMakeArguments"
-    if ($VisualCppVersionTable.ContainsKey($InstallationVersion)) {
-        $VisualCppVersion = $VisualCppVersionTable[$InstallationVersion]
-    }
-    else {
-        $VisualCppVersion = "19.10"
-    }
-    $CMakePrivateArguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=${VisualCppVersion} $MarchArgument`""
-    $CMakePrivateArguments += " -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=${VisualCppVersion} $MarchArgument`""
-    if ($Global:Installation -eq "14" -or ($Global:Installation -eq "15")) {
-        $CMakePrivateArguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
-        $CMakePrivateArguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
-        #$CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
-    }
 
     $oe=[Console]::OutputEncoding
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
-    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $CMakePrivateArguments 
+    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments 
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1
@@ -315,35 +322,15 @@ Function Invoke-NinjaBootstrap {
         Write-Error "Prebuild llvm due to error terminated !"
         return $result
     }
-    $VisualCppVersionTable = @{
-        "15.0" = "19.10";
-        "14.0" = "19.00";
-        "12.0" = "18.00";
-        "11.0" = "17.00"
-    };
     $env:CC = "$Global:FinalWorkdir\bin\clang-cl.exe"
     $env:CXX = "$Global:FinalWorkdir\bin\clang-cl.exe"
     Write-Host "update env:CC env:CXX ${env:CC} ${env:CXX}"
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\bootstrap"
     Set-Workdir $Global:FinalWorkdir
-    $CMakePrivateArguments = "-GNinja $Global:CMakeArguments"
-    if ($VisualCppVersionTable.ContainsKey($InstallationVersion)) {
-        $VisualCppVersion = $VisualCppVersionTable[$InstallationVersion]
-    }
-    else {
-        $VisualCppVersion = "19.10"
-    }
-    $CMakePrivateArguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=${VisualCppVersion}`""
-    $CMakePrivateArguments += " -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=${VisualCppVersion}`""
-    if ($Global:Installation -eq "14" -or ($Global:Installation -eq "15")) {
-        $CMakePrivateArguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
-        $CMakePrivateArguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
-        #$CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
-    }
-
+    $Arguments=Get-ClangArgument
     $oe=[Console]::OutputEncoding
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
-    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $CMakePrivateArguments 
+    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1
