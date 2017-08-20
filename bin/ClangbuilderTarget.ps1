@@ -1,18 +1,13 @@
 #!/usr/bin/env powershell
-
 param (
     [ValidateSet("x86", "x64", "ARM", "ARM64")]
     [String]$Arch = "x64",
-
     [ValidateSet("Release", "Debug", "MinSizeRel", "RelWithDebug")]
     [String]$Flavor = "Release",
-
     [ValidateSet("MSBuild", "Ninja", "NinjaBootstrap", "NinjaIterate")]
     [String]$Engine = "MSBuild",
-
     [ValidateSet("Mainline", "Stable", "Release")]
     [String]$Branch = "Mainline", #mainline 
-    
     [String]$InstanceId, # install id
     [String]$InstallationVersion, # installationVersion
     [Switch]$Environment, # start environment 
@@ -20,9 +15,37 @@ param (
     [Switch]$LLDB,
     [Switch]$Static,
     [Switch]$Package,
-    [Switch]$Libcxx,
     [Switch]$ClearEnv
 )
+
+# On Windows, Start-Process -Wait will wait job process, obObject.WaitOne(_waithandle);
+# Don't use it
+Function ProcessExec {
+    param(
+        [string]$FilePath,
+        [string]$Arguments,
+        [string]$WorkingDirectory
+    )
+    $ProcessInfo = New-Object System.Diagnostics.ProcessStartInfo 
+    $ProcessInfo.FileName = $FilePath
+    Write-Host "$FilePath $Arguments $PWD"
+    if ($WorkingDirectory.Length -eq 0) {
+        $ProcessInfo.WorkingDirectory = $PWD
+    }
+    else {
+        $ProcessInfo.WorkingDirectory = $WorkingDirectory
+    }
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
+    $ProcessInfo.Arguments = $Arguments
+    $ProcessInfo.UseShellExecute = $false ## use createprocess not shellexecute
+    $Process = New-Object System.Diagnostics.Process 
+    $Process.StartInfo = $ProcessInfo 
+    if ($Process.Start() -eq $false) {
+        return -1
+    }
+    $Process.WaitForExit()
+    return $Process.ExitCode
+}
 
 Function Parallel() {
     $MemSize = (Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory
@@ -75,17 +98,6 @@ if ($Environment) {
 }
 else {
     Update-Title -Title " [Build: $Branch]"
-}
-
-Function HiddenGit {
-    $paths = $env:PATH.split(';')
-    $newpath = ""
-    foreach ($p in $paths) {
-        if (!$p.EndsWith("MinGit\cmd")) {
-            $newpath += ";$p"
-        }
-    }
-    $env:PATH = $newPath
 }
 
 # LLVM get from subversion
@@ -156,7 +168,6 @@ if ($Branch -eq "Mainline") {
     $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=ON"
 }
 else {
-    HiddenGit ### remove git from path
     $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=OFF -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
 }
 
@@ -177,41 +188,13 @@ Function Set-Workdir {
         [String]$Path
     )
     if (Test-Path $Path) {
-        Remove-Item -Force -Recurse "$Path/*"
+        Remove-Item -Force -Recurse "$Path"
     }
-    else {
-        mkdir $Path
-    }
+    New-Item -ItemType Directory $Path |Out-Null
     Set-Location $Path
 }
 
 # Please see: http://libcxx.llvm.org/docs/BuildingLibcxx.html#experimental-support-for-windows
-Function Buildinglibcxx {
-    $CMDClangcl = "$Global:FinalWorkdir\bin\clang-cl.exe"
-    if (!(Test-Path $CMDClangcl)) {
-        $CMDClangcl = "$Global:FinalWorkdir\bin\${Global:Flavor}\clang-cl.exe"
-        if (!(Test-Path $CMDClangcl)) {
-            return 1
-        }
-    }
-    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\libcxxtarget"
-    Set-Workdir $Global:FinalWorkdir
-    $CMakePrivateArguments = "-GNinja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_SYSTEM_NAME=Windows"
-    $CMakePrivateArguments += " -DCMAKE_C_COMPILER=`"$CMDClangcl`" -DCMAKE_CXX_COMPILER=`"$CMDClangcl`""
-    $CMakePrivateArguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=19.00`" -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=19.00`""
-    $CMakePrivateArguments += " -DLIBCXX_ENABLE_SHARED=YES -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
-    $CMakePrivateArguments += " -DLLVM_PATH=`"${Global:LLVMSource}`""
-    $CMakePrivateArguments += " ${Global:LLVMSource}\projects\libcxx"
-    $pi = Start-Process -FilePath "cmake.exe" -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
-    if ($pi.ExitCode -ne 0) {
-        Write-Error "CMake exit: $($pi.ExitCode)"
-        return 1
-    }
-    $PN = & Parallel
-    $pi2 = Start-Process -FilePath "ninja.exe" -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
-    #&ninja all -j $PN
-    return $pi2.ExitCode
-}
 
 Function Invoke-MSBuild {
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\msbuild"
@@ -226,40 +209,35 @@ Function Invoke-MSBuild {
     if ([System.Environment]::Is64BitOperatingSystem) {
         $CMakePrivateArguments += "-Thost=x64 ";
     }
+
     $CMakePrivateArguments += $Global:CMakeArguments
     Write-Host $CMakePrivateArguments
-    #$CMakeArgv = $CMakePrivateArguments.Split()
-    #&cmake $CMakeArgv|Write-Host
-    $pi = Start-Process -FilePath "cmake.exe"-ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
-    if ($pi.ExitCode -ne 0) {
-        Write-Error "CMake exit: $($pi.ExitCode)"
+
+    $exitcode = ProcessExec  -FilePath "cmake" -Arguments $CMakePrivateArguments 
+    if ($exitcode -ne 0) {
+        Write-Error "CMake exit: $exitcode"
         return 1
     }
-    $pi2 = Start-Process -FilePath "cmake.exe" -ArgumentList "--build . --config $Global:Flavor" -NoNewWindow -Wait -PassThru
-    return $pi2.ExitCode
+    $exitcode = ProcessExec -FilePath "cmake" -Arguments "--build . --config $Global:Flavor" 
+    return $exitcode
 }
-
 
 Function Invoke-Ninja {
     $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\ninja"
     Set-Workdir $Global:FinalWorkdir
     $CMakePrivateArguments = "-GNinja $Global:CMakeArguments -DCMAKE_INSTALL_UCRT_LIBRARIES=ON"
     Write-Host $CMakePrivateArguments
-    $pi = Start-Process -FilePath "cmake.exe" -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
-    if ($pi.ExitCode -ne 0) {
-        Write-Error "CMake exit: $($pi.ExitCode)"
+    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $CMakePrivateArguments 
+    if ($exitcode -ne 0) {
+        Write-Error "CMake exit: $exitcode"
         return 1
     }
     $PN = & Parallel
-    $pi2 = Start-Process -FilePath "ninja.exe" -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
-    #&ninja all -j $PN
-    return $pi2.ExitCode
-    #return $lastexitcode
+    $exitcode = ProcessExec  -FilePath "ninja.exe" -Arguments "all -j $PN"
+    return $exitcode
 }
 
-
 Function Get-PrebuiltLLVM {
-    # get 
     $PrebuiltJSON = "$Global:ClangbuilderRoot\config\prebuilt.json"
     if (!(Test-Path $PrebuiltJSON)) {
         return ""
@@ -318,24 +296,23 @@ Function Invoke-NinjaIterate {
         #$CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
     }
     Write-Host "cmake $CMakePrivateArguments"
-    $pi = Start-Process -FilePath "cmake.exe" -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
-    if ($pi.ExitCode -ne 0) {
-        Write-Error "CMake exit: $($pi.ExitCode)"
+    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $CMakePrivateArguments 
+    if ($exitcode -ne 0) {
+        Write-Error "CMake exit: $exitcode"
         return 1
     }
     $PN = & Parallel
     Write-Host "Now build llvm ..."
-    $pi = Start-Process -FilePath "ninja.exe" -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
-    return $pi.ExitCode
+    $exitcode = ProcessExec -FilePath "ninja.exe" -Arguments "all -j $PN"
+    return $exitcode
 }
 
 Function Invoke-NinjaBootstrap {
     $result = &Invoke-Ninja
     if ($result -ne 0) {
-        Write-Error "Prebuild due to error terminated !"
+        Write-Error "Prebuild llvm due to error terminated !"
         return $result
     }
-    #$CMDClangcl = "$Global:FinalWorkdir\bin\clang-cl.exe"
     $VisualCppVersionTable = @{
         "15.0" = "19.10";
         "14.0" = "19.00";
@@ -362,17 +339,16 @@ Function Invoke-NinjaBootstrap {
         #$CMakePrivateArguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
     }
     Write-Host $CMakePrivateArguments
-    $pi = Start-Process -FilePath "cmake.exe" -ArgumentList $CMakePrivateArguments -NoNewWindow -Wait -PassThru
-    if ($pi.ExitCode -ne 0) {
-        Write-Error "CMake exit: $($pi.ExitCode)"
+    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $CMakePrivateArguments 
+    if ($exitcode -ne 0) {
+        Write-Error "CMake exit: $exitcode"
         return 1
     }
     Write-Host "Begin to compile llvm..."
     $PN = & Parallel
-    $pi = Start-Process -FilePath "ninja.exe" -ArgumentList "all -j $PN" -NoNewWindow -Wait -PassThru
-    return $pi.ExitCode
+    $exitcode = ProcessExec -FilePath "ninja.exe" -Arguments "all -j $PN"
+    return $exitcode
 }
-
 
 Function Global:FixInstall {
     param(
@@ -390,60 +366,40 @@ Function Global:FixInstall {
     }
 }
 
-Function Global:Update-Build {
-    Invoke-Expression -Command $Global:LLVMInitializeArgs
-    Set-Location "$Global:ClangbuilderRoot/out/workdir"
-    $pi = Start-Process cmake -ArgumentList "--build . --config $Global:Flavor" -NoNewWindow -Wait -PassThru
-    if ($Global:Install -and $pi.ExitCode -eq 0) {
-        FixInstall -TargetDir "./projects/compiler-rt/lib" -Configuration $Global:Flavor
-        Start-Process -FilePath "cpack.exe" -ArgumentList "-C $Global:Flavor" -NoNewWindow -Wait -PassThru
-    }
-}
-
+Write-Host "Use llvm build engine: $Engine"
 $MyResult = -1
 
-Write-Host "Use llvm build engine: $Engine"
 
 switch ($Engine) {
-    {$_ -eq "MSBuild"} {
-        $MyResult = &Invoke-MSBuild
-    } {$_ -eq "Ninja"} {
-        $MyResult = &Invoke-Ninja
-    } {$_ -eq "NinjaBootstrap"} {
-        $MyResult = &Invoke-NinjaBootstrap
-    } {$_ -eq "NinjaIterate"} {
-        $MyResult = &Invoke-NinjaIterate
+    "MSBuild" {
+        $MyResult = Invoke-MSBuild
+    }
+    "Ninja" {
+        $MyResult = Invoke-Ninja
+    }
+    "NinjaBootstrap" {
+        $MyResult = Invoke-NinjaBootstrap
+    }"NinjaIterate" {
+        $MyResult = Invoke-NinjaIterate
     }
 }
 
+
 if ($MyResult -ne 0) {
-    Write-Error "Engine: $Engine, Result: $MyResult"
+    Write-Host -ForegroundColor Red "Engine: $Engine, Result: $MyResult"
     return ;
 }
 else {
     Write-Host "Build llvm completed, your can run cpack"
 }
 
-
-
 if ($Package) {
     if (Test-Path "$PWD/LLVM.sln") {
-        #$(Configuration)
         FixInstall -TargetDir "./projects/compiler-rt/lib" -Configuration $Flavor
     }
     &cpack -C "$Flavor"
 }
 
-if ($Libcxx -and ($Engine -ne "NinjaBootstrap")) {
-    $MylibcxxResult = &Buildinglibcxx
-    if ($MylibcxxResult -eq 0) {
-        &cpack -C "$Flavor"
-    }
-}
 
-if ($Branch -eq "Mainline") {
-    Write-Host "If you need update and rebuild,don't close powershell, call Update-Build and run cmake build"
-}
-else {
-    Write-Host "compile llvm done, you can use it"
-}
+Write-Host "compile llvm done, you can use it"
+
