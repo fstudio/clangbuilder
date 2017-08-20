@@ -285,7 +285,7 @@ Function Invoke-NinjaIterate {
         $VisualCppVersion = $VisualCppVersionTable[$InstallationVersion]
     }
     else {
-        $VisualCppVersion = "19.00"
+        $VisualCppVersion = "19.10"
     }
     $CMakePrivateArguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=${VisualCppVersion} $MarchArgument`""
     $CMakePrivateArguments += " -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=${VisualCppVersion} $MarchArgument`""
@@ -331,7 +331,7 @@ Function Invoke-NinjaBootstrap {
         $VisualCppVersion = $VisualCppVersionTable[$InstallationVersion]
     }
     else {
-        $VisualCppVersion = "19.00"
+        $VisualCppVersion = "19.10"
     }
     $CMakePrivateArguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=${VisualCppVersion}`""
     $CMakePrivateArguments += " -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=${VisualCppVersion}`""
