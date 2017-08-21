@@ -1,2 +1,2 @@
 @Echo off
-PowerShell -NoProfile -NoLogo -ExecutionPolicy unrestricted -Command "[System.Threading.Thread]::CurrentThread.CurrentCulture = '';& '%~dp0ClangbuilderTarget.ps1' %*"
+PowerShell -NoProfile -NoLogo -ExecutionPolicy unrestricted -File "%~dp0ClangbuilderTarget.ps1" %*
