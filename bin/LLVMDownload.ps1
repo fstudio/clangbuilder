@@ -43,7 +43,7 @@ $ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
 
 Push-Location $PWD
 
-if (!("$ClangbuilderRoot/out/rel")) {
+if (!(Test-Path "$ClangbuilderRoot/out/rel")) {
     New-Item -ItemType Directory -Force -Path "$ClangbuilderRoot/out/rel"
 }
 
