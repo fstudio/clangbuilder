@@ -67,7 +67,7 @@ if (Test-Path "$PWD/release.lock.json"  ) {
     }
 }
 
-if (Tesr-Path "$PWD\llvm") {
+if (Test-Path "$PWD\llvm") {
     Remove-Item -Force -Recurse "$PWD\llvm"
 }
 
