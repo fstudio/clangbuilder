@@ -2,17 +2,23 @@ param(
     [Switch]$LLDB
 )
 
+# SSL 
+if ($PSEdition -eq "Desktop") {
+    $AllProtocols = [System.Net.SecurityProtocolType]'Ssl3,Tls,Tls11,Tls12'
+    [System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
+}
+
 #$MainURL="https://releases.llvm.org/4.0.1/llvm-4.0.1.src.tar.xz"
-$AllProtocols = [System.Net.SecurityProtocolType]'Ssl3,Tls,Tls11,Tls12'
-[System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
+
 Function DownloadFile {
     param(
         [String]$Version,
         [String]$Name
     )
+    $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome 
     Write-Host "Download $Name-$Version"
     try {
-        Invoke-WebRequest -Uri "https://releases.llvm.org/$Version/$Name-$Version.src.tar.xz" -OutFile "$Name.tar.xz" -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome -UseBasicParsing
+        Invoke-WebRequest -Uri "https://releases.llvm.org/$Version/$Name-$Version.src.tar.xz" -OutFile "$Name.tar.xz" -UserAgent $UserAgent -UseBasicParsing
     }
     catch {
         Write-Host -ForegroundColor Red "$_"
