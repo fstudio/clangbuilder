@@ -145,3 +145,5 @@ if ($instlock.Name.Contains("VS2017Layout")) {
 else {
     InitializeVS14Layout -Path $tooldir -Arch $Arch
 }
+
+Write-Host "Use $($instlock.Name) $($instlock.Version)"
