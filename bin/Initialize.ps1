@@ -20,6 +20,22 @@ Function Global:Test-AddPathEx {
     }
 }
 
+#$result=Update-Language -Lang 65001 # initialize language
+Function Global:Update-Language {
+    param(
+        [int]$Lang=65001
+    )
+    $code = @'
+[DllImport("Kernel32.dll")]
+public static extern bool SetConsoleCP(int wCodePageID);
+[DllImport("Kernel32.dll")]
+public static extern bool SetConsoleOutputCP(int wCodePageID);
+
+'@
+    $wconsole = Add-Type -MemberDefinition $code -Name "WinConsole" -PassThru
+    $result=$wconsole::SetConsoleCP($Lang)
+    $result=$wconsole::SetConsoleOutputCP($Lang)
+}
 
 Function Global:Update-Title {
     param(
