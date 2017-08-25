@@ -89,8 +89,8 @@ if ($vsinstance.instanceId.StartsWith("VisualStudio")) {
 }
 
 
-
-$FixedVer = [System.Version]::Parse("15.3.26730.8")
+## Now 15.4.26823.1 support Visual C++ for ARM64
+$FixedVer = [System.Version]::Parse("15.4.26823.0")
 $ver = [System.Version]::Parse($vsinstance.installationVersion)
 $vercmp = $ver.CompareTo($FixedVer)
 if ($Arch -eq "ARM64" -and $vercmp -le 0) {
