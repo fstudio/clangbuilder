@@ -24,10 +24,10 @@
         },
         {
             "Name": "7z",
-            "X86URL": "https://sourceforge.net/projects/sevenzip/files/7-Zip/17.00/7z1700.msi/download",
-            "X64URL": "https://sourceforge.net/projects/sevenzip/files/7-Zip/17.00/7z1700-x64.msi/download",
+            "X86URL": "https://sourceforge.net/projects/sevenzip/files/7-Zip/17.01/7z1701.msi/download",
+            "X64URL": "https://sourceforge.net/projects/sevenzip/files/7-Zip/17.01/7z1701-x64.msi/download",
             "Extension": "msi",
-            "Version": "17.00"
+            "Version": "17.01"
         },
         {
             "Name": "NSIS",
