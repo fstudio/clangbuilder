@@ -3,11 +3,11 @@
 #try-out-the-latest-c-compiler-toolset-without-waiting-for-the-next-update-of-visual-studio/
 
 
-$ClangbuilderDir = Split-Path $PSScriptRoot
+$ClangbuilderRoot = Split-Path $PSScriptRoot
 $ViusalCppAtomURL = "http://vcppdogfooding.azurewebsites.net/nuget/"
-$VisualCppToolsInstallDir = "$ClangbuilderDir\utils\msvc"
+$VisualCppToolsInstallDir = "$ClangbuilderRoot\utils\msvc"
 
-$NuGetDir = "$ClangbuilderDir\pkgs\Nuget"
+$NuGetDir = "$ClangbuilderRoot\pkgs\Nuget"
 
 $env:PATH = "$NuGetDir;${env:PATH}"
 
