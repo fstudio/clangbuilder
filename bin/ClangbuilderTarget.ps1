@@ -18,52 +18,13 @@ param (
     [Switch]$ClearEnv
 )
 
-# On Windows, Start-Process -Wait will wait job process, obObject.WaitOne(_waithandle);
-# Don't use it
-Function ProcessExec {
-    param(
-        [string]$FilePath,
-        [string]$Arguments,
-        [string]$WorkingDirectory
-    )
-    $ProcessInfo = New-Object System.Diagnostics.ProcessStartInfo 
-    $ProcessInfo.FileName = $FilePath
-    Write-Host "$FilePath $Arguments $PWD"
-    if ($WorkingDirectory.Length -eq 0) {
-        $ProcessInfo.WorkingDirectory = $PWD
-    }
-    else {
-        $ProcessInfo.WorkingDirectory = $WorkingDirectory
-    }
-    $ProcessInfo.Arguments = $Arguments
-    $ProcessInfo.UseShellExecute = $false ## use createprocess not shellexecute
-    $Process = New-Object System.Diagnostics.Process 
-    $Process.StartInfo = $ProcessInfo 
-    if ($Process.Start() -eq $false) {
-        return -1
-    }
-    $Process.WaitForExit()
-    return $Process.ExitCode
-}
-
-Function Parallel() {
-    $MemSize = (Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory
-    $ProcessorCount = $env:NUMBER_OF_PROCESSORS
-    $MemParallelRaw = $MemSize / 1610612736 #1.5GB
-    #[int]$MemParallel = [Math]::Floor($MemParallelRaw)
-    [int]$MemParallel=[Math]::Ceiling($MemParallelRaw)
-    if ($MemParallel -eq 0) {
-        # when memory less 1.5GB, parallel use 1
-        $MemParallel = 1
-    }
-    return [Math]::Min($ProcessorCount, $MemParallel)
-}
+$Global:ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
+Import-Module -Name "$Global:ClangbuilderRoot/modules/Utils"
 
 if ($ClearEnv) {
-    $env:Path = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
+    # ReinitializePath
+    ReinitializePath
 }
-
-$Global:ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
 
 ## initialize
 . "$PSScriptRoot/Initialize.ps1"
@@ -153,14 +114,13 @@ $Global:CMakeArguments = "`"$Global:LLVMSource`""
 
 
 if ($LLDB) {
-    . "$PSScriptRoot\LLDBInitialize.ps1"
-    $PythonHome = Get-Pyhome -Arch $Arch
+    $PythonHome = Get-PythonHOME -Arch $Arch
     if ($null -eq $PythonHome) {
         Write-Error "Please Install Python 3.5+ ! "
         Exit 
     }
     Write-Host -ForegroundColor Yellow "Building LLVM with lldb,$Engine, $VisualStudioTarget"
-    $Global:CMakeArguments += " -DPYTHON_HOME=$PythonHome -DLLDB_RELOCATABLE_PYTHON=1"
+    $Global:CMakeArguments += " -DLLDB_DISABLE_PYTHON=ON -DPYTHON_HOME=$PythonHome -DLLDB_RELOCATABLE_PYTHON=1"
 }
 
 $Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor  -DLLVM_ENABLE_ASSERTIONS=OFF"
@@ -171,6 +131,7 @@ if ($Branch -eq "Mainline") {
 else {
     $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=OFF -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
 }
+
 
 # -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
 $UpFlavor = $Flavor.ToUpper()
@@ -195,7 +156,7 @@ Function Set-Workdir {
     Set-Location $Path
 }
 
-Function Get-ClangArgument{
+Function Get-ClangArgument {
     $VisualCppVersionTable = @{
         "15" = "19.10";
         "14" = "19.00";
@@ -209,13 +170,13 @@ Function Get-ClangArgument{
         "ARM64" = "--target=arm64-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
     }
     if ($VisualCppVersionTable.ContainsKey($Global:Installation)) {
-        $msvc= $VisualCppVersionTable[$Global:Installation]
+        $msvc = $VisualCppVersionTable[$Global:Installation]
     }
     else {
         $msvc = "19.10"
     }
-    $Arguments="-GNinja $Global:CMakeArguments"
-    $ClangArgs=$ClangMarchArgument[$Global:ArchValue]
+    $Arguments = "-GNinja $Global:CMakeArguments"
+    $ClangArgs = $ClangMarchArgument[$Global:ArchValue]
     $Arguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=$msvc $ClangArgs`""
     $Arguments += " -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=$msvc $ClangArgs`""
     if ($Global:Installation -eq "14" -or ($Global:Installation -eq "15")) {
@@ -226,24 +187,24 @@ Function Get-ClangArgument{
     return $Arguments
 }
 
-Function ClangNinjaGenerator{
+Function ClangNinjaGenerator {
     param(
         [String]$ClangExe,
         [String]$BuildDir
     )
-    $env:CC=$ClangExe
-    $env:CXX=$ClangExe
+    $env:CC = $ClangExe
+    $env:CXX = $ClangExe
     Write-Host "Build llvm, Use: CC=$env:CC CXX=$env:CXX"
     Set-Workdir $BuildDir
-    $Arguments=Get-ClangArgument
-    $oe=[Console]::OutputEncoding
+    $Arguments = Get-ClangArgument
+    $oe = [Console]::OutputEncoding
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
     $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1
     }
-    [Console]::OutputEncoding=$oe
+    [Console]::OutputEncoding = $oe
     $PN = & Parallel
     $exitcode = ProcessExec -FilePath "ninja.exe" -Arguments "all -j $PN"
     return $exitcode
@@ -294,7 +255,7 @@ Function Invoke-Ninja {
     Set-Workdir $Global:FinalWorkdir
     $Arguments = "-GNinja $Global:CMakeArguments -DCMAKE_INSTALL_UCRT_LIBRARIES=ON"
     ### change oe
-    $oe=[Console]::OutputEncoding
+    $oe = [Console]::OutputEncoding
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
     $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments 
     if ($exitcode -ne 0) {
@@ -302,7 +263,7 @@ Function Invoke-Ninja {
         return 1
     }
     $PN = & Parallel
-    [Console]::OutputEncoding=$oe
+    [Console]::OutputEncoding = $oe
     $exitcode = ProcessExec  -FilePath "ninja.exe" -Arguments "all -j $PN"
     return $exitcode
 }
@@ -332,7 +293,7 @@ Function Invoke-NinjaIterate {
         Write-Host "$PrebuiltLLVM not exists"
         return 1
     }
-    $exitcode=ClangNinjaGenerator -ClangExe "$PrebuiltLLVM\bin\clang-cl.exe" -BuildDir "$Global:ClangbuilderRoot\out\prebuilt"
+    $exitcode = ClangNinjaGenerator -ClangExe "$PrebuiltLLVM\bin\clang-cl.exe" -BuildDir "$Global:ClangbuilderRoot\out\prebuilt"
     return $exitcode
 }
 
@@ -342,7 +303,7 @@ Function Invoke-NinjaBootstrap {
         Write-Error "Prebuild llvm due to error terminated !"
         return $result
     }
-    $exitcode=ClangNinjaGenerator -ClangExe "$Global:FinalWorkdir\bin\clang-cl.exe" -BuildDir  "$Global:ClangbuilderRoot\out\bootstrap"
+    $exitcode = ClangNinjaGenerator -ClangExe "$Global:FinalWorkdir\bin\clang-cl.exe" -BuildDir  "$Global:ClangbuilderRoot\out\bootstrap"
     return $exitcode
 }
 

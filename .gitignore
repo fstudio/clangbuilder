@@ -1,8 +1,8 @@
-out/
-pkgs/
-libs/
+/out/
+/pkgs/
+/libs/
 .vscode/
-utils/
+/utils/
 *.pdb
 *.exe
 *.obj
