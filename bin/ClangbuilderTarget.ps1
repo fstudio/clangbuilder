@@ -22,6 +22,7 @@ $Global:ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
 Import-Module -Name "$Global:ClangbuilderRoot/modules/Utils"
 Import-Module -Name "$Global:ClangbuilderRoot/modules/CMake"
 Import-Module -Name "$Global:ClangbuilderRoot/modules/VisualStudio"
+Import-Module -Name "$Global:ClangbuilderRoot/modules/PM" # Package Manager
 
 if ($ClearEnv) {
     # ReinitializePath
@@ -30,8 +31,8 @@ if ($ClearEnv) {
 
 ## initialize
 . "$PSScriptRoot/Initialize.ps1"
-. "$PSScriptRoot/PathLoader.ps1"
 
+InitializePackageEnv -ClangbuilderRoot $ClangbuilderRoot
 InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow
 
 Invoke-Expression -Command "$PSScriptRoot\Extranllibs.ps1 -Arch $Arch"
