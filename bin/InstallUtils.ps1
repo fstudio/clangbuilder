@@ -53,6 +53,6 @@ foreach ($i in $pkgs) {
     }
 }
 
-ConvertTo-Json $pkgcaches |Out-File -Force -FilePath "$InstallDir/packages.lock.json"
+ConvertTo-Json $pkgcaches |Out-File -Force -FilePath "$Pkgdir\packages.lock.json"
 
 Write-Host "Update package completed."
