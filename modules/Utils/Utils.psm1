@@ -46,8 +46,12 @@ Function Update-Title {
     param(
         [String]$Title
     )
-    $MyTitle = $Host.UI.RawUI.WindowTitle + $Title
-    $Host.UI.RawUI.WindowTitle = $MyTitle
+    if($null -eq $Global:WindowTitleBase){
+        $Global:WindowTitleBase=$Host.UI.RawUI.WindowTitle
+        $Host.UI.RawUI.WindowTitle=$Host.UI.RawUI.WindowTitle+$Title
+    }else{
+        $Host.UI.RawUI.WindowTitle=$Global:WindowTitleBase+$Title
+    }
 }
 
 Function ReinitializePath {

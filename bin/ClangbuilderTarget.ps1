@@ -20,6 +20,8 @@ param (
 
 $Global:ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
 Import-Module -Name "$Global:ClangbuilderRoot/modules/Utils"
+Import-Module -Name "$Global:ClangbuilderRoot/modules/CMake"
+Import-Module -Name "$Global:ClangbuilderRoot/modules/VisualStudio"
 
 if ($ClearEnv) {
     # ReinitializePath
@@ -30,27 +32,9 @@ if ($ClearEnv) {
 . "$PSScriptRoot/Initialize.ps1"
 . "$PSScriptRoot/PathLoader.ps1"
 
-$VisualStudioArgs = $null
-if ($InstanceId -eq "VisualCppTools") {
-    if ($Engine -eq "MSbuild" -and $Environment -eq $false) {
-        Write-Host -ForegroundColor Red "VisualCppTools Not support msbuild !"
-        exit 1
-    }
-    $VisualStudioArgs = "$PSScriptRoot/VisualCppToolsEnv.ps1 -Arch $Arch -InstanceId $InstanceId"
-}
-else {
-    $VisualStudioArgs = "$PSScriptRoot/VisualStudioEnvinitEx.ps1 -Arch $Arch -InstanceId $InstanceId"
-}
+InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow
 
-
-
-if ($Sdklow) {
-    $VisualStudioArgs += " -Sdklow"
-}
-
-Invoke-Expression -Command $VisualStudioArgs
-Invoke-Expression -Command "$PSScriptRoot/Extranllibs.ps1 -Arch $Arch"
-
+Invoke-Expression -Command "$PSScriptRoot\Extranllibs.ps1 -Arch $Arch"
 
 if ($Environment) {
     Update-Title -Title " [Environment]"
@@ -63,15 +47,15 @@ else {
 
 # LLVM get from subversion
 Function ParseLLVMDir {
-    $obj = Get-Content -Path "$ClangbuilderRoot/config/revision.json" |ConvertFrom-Json
+    $obj = Get-Content -Path "$ClangbuilderRoot\config\revision.json" |ConvertFrom-Json
     switch ($Branch) {
         {$_ -eq "Mainline"} {
-            $src = "$Global:ClangbuilderRoot\out\mainline"
+            $src = "$ClangbuilderRoot\out\mainline"
         } {$_ -eq "Stable"} {
             $currentstable = $obj.Stable
-            $src = "$Global:ClangbuilderRoot\out\$currentstable"
+            $src = "$ClangbuilderRoot\out\$currentstable"
         } {$_ -eq "Release"} {
-            $src = "$Global:ClangbuilderRoot\out\rel\llvm"
+            $src = "$ClangbuilderRoot\out\rel\llvm"
         }
     }
     return $src
@@ -79,20 +63,16 @@ Function ParseLLVMDir {
 
 $Global:LLDB = $LLDB
 if ($Branch -eq "Release") {
-    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMDownload.ps1"
+    $Global:LLVMInitializeArgs = "$ClangbuilderRoot\bin\LLVMDownload.ps1 -LLDB:$LLDB"
     Write-Host "Build llvm release"
-    $Global:LLVMSource = "$Global:ClangbuilderRoot\out\rel\llvm"
+    $Global:LLVMSource = "$ClangbuilderRoot\out\rel\llvm"
 }
 else {
-    $Global:LLVMInitializeArgs = "$Global:ClangbuilderRoot\bin\LLVMRemoteFetch.ps1 -Branch $Branch"
+    $Global:LLVMInitializeArgs = "$ClangbuilderRoot\bin\LLVMRemoteFetch.ps1 -Branch $Branch  -LLDB:$LLDB"
     Write-Host "Build llvm branch $Branch"
     $Global:LLVMSource = &ParseLLVMDir
 }
 
-
-if ($Global:LLDB) {
-    $Global:LLVMInitializeArgs += " -LLDB"
-}
 
 # Update LLVM sources
 Invoke-Expression -Command $Global:LLVMInitializeArgs
@@ -210,21 +190,6 @@ Function ClangNinjaGenerator {
     return $exitcode
 }
 
-Function CMakeInstallationFix {
-    param(
-        [String]$TargetDir,
-        [String]$Configuration
-    )
-    $filelist = Get-ChildItem "$TargetDir"  -Recurse *.cmake | Foreach-Object {$_.FullName}
-    foreach ($file in $filelist) {
-        $content = Get-Content $file
-        Clear-Content $file
-        foreach ($line in $content) {
-            $lr = $line.Replace("`$(Configuration)", "$Configuration")
-            Add-Content $file -Value $lr
-        }
-    }
-}
 
 # Please see: http://libcxx.llvm.org/docs/BuildingLibcxx.html#experimental-support-for-windows
 
