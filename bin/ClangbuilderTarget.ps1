@@ -39,7 +39,6 @@ InitializePackageEnv -ClangbuilderRoot $ClangbuilderRoot
 InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow
 InitializeExtranl -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
 
-Invoke-Expression -Command "$PSScriptRoot\Extranllibs.ps1 -Arch $Arch"
 
 if ($Environment) {
     Update-Title -Title " [Environment]"
