@@ -27,7 +27,7 @@ Import-Module -Name "$Global:ClangbuilderRoot\modules\VisualStudio"
 Import-Module -Name "$Global:ClangbuilderRoot\modules\PM" # Package Manager
 
 
-#
+# Cleanup $env:PATH, because, some tools modify Disrupt PATH
 
 if ($ClearEnv) {
     # ReinitializePath
@@ -65,20 +65,20 @@ Function ParseLLVMDir {
     return $src
 }
 
+$LLVMScript = "$ClangbuilderRoot\bin\LLVMRemoteFetch.ps1"
 if ($Branch -eq "Release") {
-    $Global:LLVMInitializeArgs = "$ClangbuilderRoot\bin\LLVMDownload.ps1 -LLDB:$LLDB"
+    $LLVMScript = "$ClangbuilderRoot\bin\LLVMDownload.ps1"
     Write-Host "Build llvm release"
     $Global:LLVMSource = "$ClangbuilderRoot\out\rel\llvm"
 }
 else {
-    $Global:LLVMInitializeArgs = "$ClangbuilderRoot\bin\LLVMRemoteFetch.ps1 -Branch $Branch  -LLDB:$LLDB"
     Write-Host "Build llvm branch $Branch"
     $Global:LLVMSource = &ParseLLVMDir
 }
 
 
 # Update LLVM sources
-Invoke-Expression -Command $Global:LLVMInitializeArgs
+Invoke-Expression "$LLVMScript -Branch `$Branch -LLDB:`$LLDB"
 
 $ArchTable = @{
     "x86"   = "";
