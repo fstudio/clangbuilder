@@ -78,7 +78,7 @@ else {
 
 
 # Update LLVM sources
-Invoke-Expression "$LLVMScript -Branch `$Branch -LLDB:`$LLDB"
+Invoke-Expression "$LLVMScript -Branch $Branch -LLDB:`$LLDB"
 
 $ArchTable = @{
     "x86"   = "";
