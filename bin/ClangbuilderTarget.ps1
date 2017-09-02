@@ -19,21 +19,25 @@ param (
 )
 
 $Global:ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
-Import-Module -Name "$Global:ClangbuilderRoot/modules/Utils"
-Import-Module -Name "$Global:ClangbuilderRoot/modules/CMake"
-Import-Module -Name "$Global:ClangbuilderRoot/modules/VisualStudio"
-Import-Module -Name "$Global:ClangbuilderRoot/modules/PM" # Package Manager
+
+Import-Module -Name "$Global:ClangbuilderRoot\modules\Initialize"
+Import-Module -Name "$Global:ClangbuilderRoot\modules\Utils"
+Import-Module -Name "$Global:ClangbuilderRoot\modules\CMake"
+Import-Module -Name "$Global:ClangbuilderRoot\modules\VisualStudio"
+Import-Module -Name "$Global:ClangbuilderRoot\modules\PM" # Package Manager
+
+
+#
 
 if ($ClearEnv) {
     # ReinitializePath
     ReinitializePath
 }
 
-## initialize
-. "$PSScriptRoot/Initialize.ps1"
-
+InitializeEnv -ClangbuilderRoot $ClangbuilderRoot
 InitializePackageEnv -ClangbuilderRoot $ClangbuilderRoot
 InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow
+InitializeExtranl -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
 
 Invoke-Expression -Command "$PSScriptRoot\Extranllibs.ps1 -Arch $Arch"
 
