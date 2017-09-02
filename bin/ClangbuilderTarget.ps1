@@ -65,15 +65,14 @@ Function ParseLLVMDir {
     return $src
 }
 
+
+$Global:LLVMSource = &ParseLLVMDir
+
+Write-Host "Now build llvm $Branch, sources dir: $Global:LLVMSource"
+
 $LLVMScript = "$ClangbuilderRoot\bin\LLVMRemoteFetch.ps1"
 if ($Branch -eq "Release") {
     $LLVMScript = "$ClangbuilderRoot\bin\LLVMDownload.ps1"
-    Write-Host "Build llvm release"
-    $Global:LLVMSource = "$ClangbuilderRoot\out\rel\llvm"
-}
-else {
-    Write-Host "Build llvm branch $Branch"
-    $Global:LLVMSource = &ParseLLVMDir
 }
 
 
