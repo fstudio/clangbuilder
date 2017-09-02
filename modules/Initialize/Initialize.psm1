@@ -81,6 +81,4 @@ Function InitializeExtranl{
         $env:LIB = "$env:LIB;$Extranllibs\$Arch\libs"
     }
     
-    
-    
 }

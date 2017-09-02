@@ -65,7 +65,6 @@ Function ParseLLVMDir {
     return $src
 }
 
-$Global:LLDB = $LLDB
 if ($Branch -eq "Release") {
     $Global:LLVMInitializeArgs = "$ClangbuilderRoot\bin\LLVMDownload.ps1 -LLDB:$LLDB"
     Write-Host "Build llvm release"
