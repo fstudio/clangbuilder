@@ -51,8 +51,7 @@ Function Update-Title {
 }
 
 Function ReinitializePath {
-    $env:Path = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
-    Write-Debug "Update: $env:PATH"
+    $env:PATH = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
 }
 
 
