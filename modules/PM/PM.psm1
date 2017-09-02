@@ -162,11 +162,11 @@ Function Initialize-MsiArchive {
     if ( ParseMsiArchiveFolder  -Path $Path -Subdir "ProgramFiles64") {
         return 
     }
-    ParseMsiArchiveFolder  -Path $Path -Subdir "Files"
+    ParseMsiArchiveFolder  -Path $Path -Subdir "Files"|Out-Null
 }
 
 
-Function Install-Package{
+Function Install-Package {
     param(
         [String]$ClangbuilderRoot,
         [String]$Name,
@@ -174,10 +174,10 @@ Function Install-Package{
         [ValidateSet("zip", "msi", "exe")]
         [String]$Extension
     )
-    $MyPackage= "$ClangbuilderRoot\pkgs\$Name.$Extension"
-    $NewDir="$ClangbuilderRoot\pkgs\$Name"
-    $ret=PMDownload -Uri $Uri -Path "$MyPackage"
-    if($ret -eq $false){
+    $MyPackage = "$ClangbuilderRoot\pkgs\$Name.$Extension"
+    $NewDir = "$ClangbuilderRoot\pkgs\$Name"
+    $ret = PMDownload -Uri $Uri -Path "$MyPackage"
+    if ($ret -eq $false) {
         return ;
     }
     Switch ($Extension) {
@@ -186,8 +186,10 @@ Function Install-Package{
             Initialize-ZipArchive -Path $NewDir
         } 
         "msi" {
-            Expand-Msi -Path $MyPackage -DestinationPath  $NewDir
-            Initialize-MsiArchive -Path $NewDir
+            $ret = Expand-Msi -Path $MyPackage -DestinationPath  $NewDir
+            if ($ret -eq 0) {
+                Initialize-MsiArchive -Path $NewDir
+            }
         } 
         "exe" {
             if (!(Test-Path $NewDir)) {
