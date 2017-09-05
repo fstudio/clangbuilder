@@ -46,7 +46,7 @@ Best Visual Studio Version:
 
 >VisualStudio 2017
 
-You can run ClangbuilderUI, select Arch, Configuration and other options. after click `Building`
+You can run ClangbuilderUI, Modify Arch, Configuration and other options. after click `Building`
 
 **ClangbuilderUI Snapshot**
 
@@ -87,7 +87,7 @@ Only NinjaBootstrap and NinjaIterate will compile libc++ ,Because Visual C++ not
 
 **ARM64**
 
-Build LLVM for ARM64 is broken, You can download **Enterprise WDK (EWDK) Insider Preview** from https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewWDK ,When you config `config/ewdk.json`, ClangbuilderUI able to start `ARM64 Environment Console`
+Build LLVM for ARM64 is broken, But You can download **Enterprise WDK (EWDK) Insider Preview** from https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewWDK ,When you config `config/ewdk.json`, ClangbuilderUI able to start `ARM64 Environment Console`
 
 ewdk.json:
 ```json
@@ -96,6 +96,10 @@ ewdk.json:
 	"Version":"10.0.16257.0"
 }
 ```
+
+*Update*: Visual Studio 15.4 Preview 1 can install `Visual C++ compilers and libraries for ARM64` CMake 3.10 will support ARM64. 
+
+See: [VS15: Adds ARM64 architecture support.](https://gitlab.kitware.com/cmake/cmake/merge_requests/1215)
 
 ## Commandline
 
@@ -130,9 +134,22 @@ You can add extranl lib, such as [z3](https://github.com/Z3Prover/z3) , more inf
 
 ## About Ninja Task
 
-**If your memory is small, use ninja to build LLVM, and in the process of linking, the build process is slow due to memory contention. And the computer may even lose its response.**
+**Ninja Task Parallel:**
 
-Link clang requre 1.5GB memory，other require 0.8GB，and Ninja create N+ (processor default 6) link process, requre (0.8xN+0.7)GB or great memory  
+```powershell
+Function Parallel() {
+    $MemSize = (Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory
+    $ProcessorCount = $env:NUMBER_OF_PROCESSORS
+    $MemParallelRaw = $MemSize / 1610612736 #1.5GB
+    #[int]$MemParallel = [Math]::Floor($MemParallelRaw)
+    [int]$MemParallel = [Math]::Ceiling($MemParallelRaw)
+    if ($MemParallel -eq 0) {
+        # when memory less 1.5GB, parallel use 1
+        $MemParallel = 1
+    }
+    return [Math]::Min($ProcessorCount, $MemParallel)
+}
+```
 
 ## Copyright
 
