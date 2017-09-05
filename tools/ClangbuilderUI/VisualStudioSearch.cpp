@@ -153,7 +153,7 @@ bool VisualCppToolsSearch(const std::wstring &cbroot, std::wstring &version)
 
 bool VisualStudioSearch(const std::wstring &cbroot, std::vector<VisualStudioInstance> &instances)
 {
-	instances.clear();
+	//instances.clear();
 	std::vector<VisualStudioInstance> vss = {
 			{L"Visual Studio 2010", L"10.0", L"VisualStudio.10.0"},
 			{L"Visual Studio 2012", L"11.0", L"VisualStudio.11.0"},

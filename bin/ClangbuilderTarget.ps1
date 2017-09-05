@@ -222,6 +222,11 @@ Function Invoke-Ninja {
     Set-Workdir $Global:FinalWorkdir
     $Arguments = "-GNinja $Global:CMakeArguments -DCMAKE_INSTALL_UCRT_LIBRARIES=ON"
     ### change oe
+    ## ARM64 can build Desktop App, but ARM not
+    if($Global:ArchValue -eq "ARM"){
+        $Arguments += " -DCMAKE_C_FLAGS=`"-D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
+        $Arguments += " -DCMAKE_CXX_FLAGS=`"-D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
+    }
     $oe = [Console]::OutputEncoding
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
     $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments 
