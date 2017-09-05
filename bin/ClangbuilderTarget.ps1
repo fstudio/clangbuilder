@@ -223,7 +223,8 @@ Function Invoke-Ninja {
     $Arguments = "-GNinja $Global:CMakeArguments -DCMAKE_INSTALL_UCRT_LIBRARIES=ON"
     ### change oe
     ## ARM64 can build Desktop App, but ARM not
-    if($Global:ArchValue -eq "ARM"){
+    if ($Global:ArchValue -eq "ARM") {
+        Write-Host -ForegroundColor Yellow "Warning: Build LLVM Maybe failed."
         $Arguments += " -DCMAKE_C_FLAGS=`"-D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
         $Arguments += " -DCMAKE_CXX_FLAGS=`"-D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
     }
