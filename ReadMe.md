@@ -142,11 +142,7 @@ Function Parallel() {
     $ProcessorCount = $env:NUMBER_OF_PROCESSORS
     $MemParallelRaw = $MemSize / 1610612736 #1.5GB
     #[int]$MemParallel = [Math]::Floor($MemParallelRaw)
-    [int]$MemParallel = [Math]::Ceiling($MemParallelRaw)
-    if ($MemParallel -eq 0) {
-        # when memory less 1.5GB, parallel use 1
-        $MemParallel = 1
-    }
+    [int]$MemParallel = [Math]::Ceiling($MemParallelRaw) ## less 1
     return [Math]::Min($ProcessorCount, $MemParallel)
 }
 ```
