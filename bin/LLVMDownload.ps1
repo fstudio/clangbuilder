@@ -65,6 +65,9 @@ if (Test-Path "$PWD/release.lock.json"  ) {
         Pop-Location
         return ;
     }
+    else {
+        Remove-Item -Force "*.tar.gz"|Out-Null
+    }
 }
 
 if (Test-Path "$PWD\llvm") {
