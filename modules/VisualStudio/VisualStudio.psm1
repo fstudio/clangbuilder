@@ -118,14 +118,15 @@ Function EnterpriseWDK {
 Function InitializeVS2017Layout {
     param(
         [String]$Path,
-        [String]$Arch
+        [String]$Arch,
+        [String]$HostEnv="x64"
     )
     $env:INCLUDE = "$env:INCLUDE;$Path\include;$Path\atlmfc\include;"
-    if ($Global:HostEnv -eq $Arch) {
+    if ($HostEnv -eq $Arch) {
         $env:PATH = "$env:PATH;$Path\bin\Host$Arch\$Arch"
     }
     else {
-        $env:PATH = "$env:PATH;$Path\bin\Host$Global:HostEnv\$Arch;$Path\bin\Host$Global:HostEnv\$Global:HostEnv"
+        $env:PATH = "$env:PATH;$Path\bin\Host$HostEnv\$Arch;$Path\bin\Host$HostEnv\$HostEnv"
     }
     $env:LIB = "$env:LIB;$Path\lib\$Arch"
 }
@@ -133,13 +134,14 @@ Function InitializeVS2017Layout {
 Function InitializeVS14Layout {
     param(
         [String]$Path,
-        [String]$Arch
+        [String]$Arch,
+        [String]$HostEnv
     )
     $env:INCLUDE = "$env:INCLUDE;$Path\include;$Path\atlmfc\include;"
     switch ($Arch) {
         "x64" {
             $env:LIB = "$env:LIB;$Path\lib\amd64"
-            if ($Global:HostEnv -eq "x64") {
+            if ($HostEnv -eq "x64") {
                 $env:PATH = "$env:PATH;$Path\bin\amd64"
             }
             else {
@@ -148,7 +150,7 @@ Function InitializeVS14Layout {
         }
         "x86" {
             $env:LIB = "$env:LIB;$Path\lib"
-            if ($Global:HostEnv -eq "x64") {
+            if ($HostEnv -eq "x64") {
                 $env:PATH = "$env:PATH;$Path\bin\amd64_x86;$Path\bin\amd64"
             }
             else {
@@ -156,7 +158,7 @@ Function InitializeVS14Layout {
             }
         }
         "arm" {
-            if ($Global:HostEnv -eq "x64") {
+            if ($HostEnv -eq "x64") {
                 $env:PATH = "$env:PATH;$Path\bin\amd64_arm;$Path\bin\amd64"
             }
             else {
@@ -165,7 +167,7 @@ Function InitializeVS14Layout {
             $env:LIB = "$env:LIB;$Path\lib\arm"
         }
         "arm64" {
-            if ($Global:HostEnv -eq "x64") {
+            if ($HostEnv -eq "x64") {
                 $env:PATH = "$env:PATH;$Path\bin\amd64_arm64;$Path\bin\amd64"
             }
             else {
@@ -178,11 +180,11 @@ Function InitializeVS14Layout {
 
 }
 
-
 #\Microsoft\Microsoft SDKs\Windows\v10.0
 Function InitializeWinSdk10 {
     param(
-        [String]$Arch
+        [String]$Arch,
+        [String]$HostEnv="x64"
     )
     # Windows Kits\Installed Roots\ 
     $sdk10 = "HKLM:SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0"
@@ -197,12 +199,29 @@ Function InitializeWinSdk10 {
     $env:INCLUDE += "${installdir}include\$version\ucrt;"
     $env:INCLUDE += "${installdir}include\$version\um;"
     $env:INCLUDE += "${installdir}include\$version\winrt"
-    $env:PATH = "$env:PATH;${installdir}bin\$version\$Global:HostEnv"
+    $env:PATH = "$env:PATH;${installdir}bin\$version\$HostEnv"
+}
+
+Function InitializeUCRT{
+    param(
+        [String]$Arch,
+        [String]$HostEnv="x64"
+    )
+    $sdk10 = "HKLM:SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0"
+    if (!(Test-Path $sdk10)) {
+        $sdk10 = "HKLM:SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0"
+    }
+    $pt = Get-ItemProperty -Path $sdk10
+    $version = "$($pt.ProductVersion).0"
+    $installdir = $pt.InstallationFolder
+    $env:INCLUDE += ";${installdir}include\$version\ucrt"
+    $env:LIB = "$env:LIB;${installdir}lib\$version\ucrt\$Arch"
 }
 
 Function InitailizeWinSdk81 {
     param(
-        [String]$Arch
+        [String]$Arch,
+        [String]$HostEnv
     )
     $sdk81 = "HKLM:SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v8.1"
     if (!(Test-Path $sdk81)) {
@@ -214,7 +233,8 @@ Function InitailizeWinSdk81 {
     $env:INCLUDE += ";${installdir}include\shared;"
     $env:INCLUDE += "${installdir}include\um;"
     $env:INCLUDE += "${installdir}include\winrt"
-    $env:PATH = "$env:PATH;${installdir}bin\$Global:HostEnv"
+    $env:PATH = "$env:PATH;${installdir}bin\$HostEnv"
+    InitializeUCRT -Arch $Arch -HostEnv $HostEnv
 }
 
 Function InitializeVisualCppTools{
@@ -236,21 +256,24 @@ Function InitializeVisualCppTools{
     
     
     $instlock = Get-Content -Path $LockFile |ConvertFrom-Json
-    
+    $HostEnv="x86"
+    if([System.Environment]::Is64BitOperatingSystem){
+        $HostEnv="x64"
+    }
     if ($Sdklow) {
-        InitailizeWinSdk81 -Arch $Arch
+        InitailizeWinSdk81 -Arch $Arch -HostEnv $HostEnv
     }
     else {
-        InitializeWinSdk10  -Arch $Arch
+        InitializeWinSdk10  -Arch $Arch -HostEnv $HostEnv
     }
     
     $tooldir = "$ClangbuilderRoot\utils\msvc\$($instlock.Path)\lib\native"
     
     if ($instlock.Name.Contains("VS2017Layout")) {
-        InitializeVS2017Layout -Path $tooldir -Arch $Arch
+        InitializeVS2017Layout -Path $tooldir -Arch $Arch -HostEnv $HostEnv
     }
     else {
-        InitializeVS14Layout -Path $tooldir -Arch $Arch
+        InitializeVS14Layout -Path $tooldir -Arch $Arch -HostEnv $HostEnv
     }
     
     Write-Host "Use $($instlock.Name) $($instlock.Version)"
