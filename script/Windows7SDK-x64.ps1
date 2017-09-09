@@ -16,8 +16,8 @@ Function InitializeVisualCppTools {
     $xml = [xml](Get-Content -Path "$VSDir\VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.props")
     $Version = $xml.Project.PropertyGroup.VCToolsVersion.'#text'
     $MSVCDir = "$VSDir\VC\Tools\MSVC\$Version"
-    $env:PATH = "$env:PATH ;$MSVCDir\bin\Hostx64\x64"
-    $env:LIB = "$env:LIB ;$MSVCDir\lib\x64;$MSVCDir\atlmfc\lib\x64"
+    $env:PATH = "$env:PATH;$MSVCDir\bin\Hostx64\x64"
+    $env:LIB = "$env:LIB;$MSVCDir\lib\x64;$MSVCDir\atlmfc\lib\x64"
     $env:INCLUDE = "$env:INCLUDE;$MSVCDir\include;$MSVCDir\atlmfc\include"
 }
 
@@ -37,7 +37,8 @@ Function InitializeUCRT {
     $env:LIB = "$env:LIB;${installdir}lib\$version\ucrt\x64"
 }
 
-Write-Host "Initialize Windows 7 SDK Environment`n"
+Write-Host "Initialize Windows 7 SDK Environment
+Please use -D_USING_V110_SDK71_=1 /Zc:threadSafeInit-`n"
 $ClangbuilderRoot = Split-Path $PSScriptRoot
 Import-Module "$ClangbuilderRoot\modules\PM"
 
@@ -53,6 +54,6 @@ catch {
 }
 
 InitializePackageEnv -ClangbuilderRoot "$ClangbuilderRoot"
-InitializeVisualCppTools -VSDir $vsinstalls[0].installationPath
 InitializeWindows7SDK
+InitializeVisualCppTools -VSDir $vsinstalls[0].installationPath
 InitializeUCRT
