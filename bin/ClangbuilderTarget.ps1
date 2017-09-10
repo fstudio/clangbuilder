@@ -90,7 +90,7 @@ $Global:ArchName = $ArchTable[$Arch];
 $Global:ArchValue = $Arch;
 # Builder CMake Arguments
 $Global:Installation = $InstallationVersion.Substring(0, 2)
-$Global:FinalWorkdir = ""
+$Global:LatestBuildDir = ""
 $Global:Flavor = $Flavor
 $Global:CMakeArguments = "`"$Global:LLVMSource`""
 
@@ -105,7 +105,8 @@ if ($LLDB) {
     $Global:CMakeArguments += " -DLLDB_DISABLE_PYTHON=ON -DPYTHON_HOME=$PythonHome -DLLDB_RELOCATABLE_PYTHON=1"
 }
 
-$Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor  -DLLVM_ENABLE_ASSERTIONS=OFF"
+$Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor   -DLLVM_ENABLE_ASSERTIONS=OFF"
+$Global:CMakeArguments += " -DCMAKE_INSTALL_UCRT_LIBRARIES=ON "
 
 if ($Branch -eq "Mainline") {
     $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=ON"
@@ -139,6 +140,9 @@ Function Set-Workdir {
 }
 
 Function Get-ClangArgument {
+    param(
+        [Switch]$SetMsvc
+    )
     $VisualCppVersionTable = @{
         "15" = "19.11";
         "14" = "19.00";
@@ -151,16 +155,20 @@ Function Get-ClangArgument {
         "ARM"   = "--target=arm-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1";
         "ARM64" = "--target=arm64-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
     }
-    if ($VisualCppVersionTable.ContainsKey($Global:Installation)) {
-        $msvc = $VisualCppVersionTable[$Global:Installation]
-    }
-    else {
-        $msvc = "19.10"
-    }
     $Arguments = "-GNinja $Global:CMakeArguments"
+    $CompilerFlags = $ClangArgs
+    if ($SetMsvc) {
+        if ($VisualCppVersionTable.ContainsKey($Global:Installation)) {
+            $msvc = $VisualCppVersionTable[$Global:Installation]
+        }
+        else {
+            $msvc = "19.00"
+        }
+        $CompilerFlags = "-fms-compatibility-version=$msvc $ClangArgs"
+    }
     $ClangArgs = $ClangMarchArgument[$Global:ArchValue]
-    $Arguments += " -DCMAKE_C_FLAGS=`"-fms-compatibility-version=$msvc $ClangArgs`""
-    $Arguments += " -DCMAKE_CXX_FLAGS=`"-fms-compatibility-version=$msvc $ClangArgs`""
+    $Arguments += " -DCMAKE_C_FLAGS=`"$CompilerFlags`""
+    $Arguments += " -DCMAKE_CXX_FLAGS=`"$CompilerFlags`""
     if ($Global:Installation -eq "14" -or ($Global:Installation -eq "15")) {
         $Arguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
         $Arguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
@@ -172,13 +180,15 @@ Function Get-ClangArgument {
 Function ClangNinjaGenerator {
     param(
         [String]$ClangExe,
-        [String]$BuildDir
+        [String]$BuildDir,
+        [Switch]$SetMsvc
     )
     $env:CC = $ClangExe
     $env:CXX = $ClangExe
     Write-Host "Build llvm, Use: CC=$env:CC CXX=$env:CXX"
-    Set-Workdir $BuildDir
-    $Arguments = Get-ClangArgument
+    $Global:LatestBuildDir=$BuildDir
+    Set-Workdir $Global:LatestBuildDir
+    $Arguments = Get-ClangArgument -SetMsvc:$SetMsvc
     $oe = [Console]::OutputEncoding
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
     $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments
@@ -196,8 +206,8 @@ Function ClangNinjaGenerator {
 # Please see: http://libcxx.llvm.org/docs/BuildingLibcxx.html#experimental-support-for-windows
 
 Function Invoke-MSBuild {
-    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\msbuild"
-    Set-Workdir $Global:FinalWorkdir
+    $Global:LatestBuildDir = "$Global:ClangbuilderRoot\out\msbuild"
+    Set-Workdir $Global:LatestBuildDir
     if ($Global:ArchName.Length -eq 0) {
         $Arguments = "-G`"Visual Studio $Global:Installation`" "
     }
@@ -218,9 +228,9 @@ Function Invoke-MSBuild {
 }
 
 Function Invoke-Ninja {
-    $Global:FinalWorkdir = "$Global:ClangbuilderRoot\out\ninja"
-    Set-Workdir $Global:FinalWorkdir
-    $Arguments = "-GNinja $Global:CMakeArguments -DCMAKE_INSTALL_UCRT_LIBRARIES=ON"
+    $Global:LatestBuildDir = "$Global:ClangbuilderRoot\out\ninja"
+    Set-Workdir $Global:LatestBuildDir
+    $Arguments = "-GNinja $Global:CMakeArguments"
     ### change oe
     ## ARM64 can build Desktop App, but ARM not
     if ($Global:ArchValue -eq "ARM") {
@@ -257,6 +267,7 @@ Function Get-PrebuiltLLVM {
     return $LLVMObj.Path
 }
 
+# Need Set MSVC flags -fms-compatibility-version=xx.xx
 Function Invoke-NinjaIterate {
     $PrebuiltLLVM = &Get-PrebuiltLLVM
     if ($PrebuiltLLVM -eq "") {
@@ -266,7 +277,7 @@ Function Invoke-NinjaIterate {
         Write-Host "$PrebuiltLLVM not exists"
         return 1
     }
-    $exitcode = ClangNinjaGenerator -ClangExe "$PrebuiltLLVM\bin\clang-cl.exe" -BuildDir "$Global:ClangbuilderRoot\out\prebuilt"
+    $exitcode = ClangNinjaGenerator -ClangExe "$PrebuiltLLVM\bin\clang-cl.exe" -BuildDir "$Global:ClangbuilderRoot\out\prebuilt" -SetMsvc
     return $exitcode
 }
 
@@ -276,7 +287,8 @@ Function Invoke-NinjaBootstrap {
         Write-Error "Prebuild llvm due to error terminated !"
         return $result
     }
-    $exitcode = ClangNinjaGenerator -ClangExe "$Global:FinalWorkdir\bin\clang-cl.exe" -BuildDir  "$Global:ClangbuilderRoot\out\bootstrap"
+    $exitcode = ClangNinjaGenerator -ClangExe "$Global:LatestBuildDir\bin\clang-cl.exe" -BuildDir  "$Global:ClangbuilderRoot\out\bootstrap"
+
     return $exitcode
 }
 
@@ -306,6 +318,13 @@ if ($MyResult -ne 0) {
 }
 else {
     Write-Host "Build llvm completed, your can run cpack"
+}
+
+$Libcxxbin = "$Global:LatestBuildDir\lib\c++.dll"
+$CMakeInstallFile = "$Global:LatestBuildDir\cmake_install.cmake"
+if (Test-Path $Libcxxbin) {
+    $Libcxxbin = $Libcxxbin.Replace('\', '/')
+    "file(INSTALL DESTINATION `"`${CMAKE_INSTALL_PREFIX}/bin`" TYPE SHARED_LIBRARY OPTIONAL FILES `"$Libcxxbin`")"|Out-File -FilePath $CMakeInstallFile -Append -Encoding utf8
 }
 
 if ($Package) {
