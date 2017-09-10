@@ -140,7 +140,7 @@ Function Set-Workdir {
 
 Function Get-ClangArgument {
     $VisualCppVersionTable = @{
-        "15" = "19.10";
+        "15" = "19.11";
         "14" = "19.00";
         "12" = "18.00";
         "11" = "17.00"
