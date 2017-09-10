@@ -3,6 +3,10 @@
 #include <clocale>
 #include <Windows.h>
 
+#ifndef SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE
+#define SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE 0x02
+#endif
+
 // class LanguageHelper
 // {
 //   public:
