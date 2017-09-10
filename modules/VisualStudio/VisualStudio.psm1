@@ -119,7 +119,7 @@ Function InitializeVS2017Layout {
     param(
         [String]$Path,
         [String]$Arch,
-        [String]$HostEnv="x64"
+        [String]$HostEnv = "x64"
     )
     $env:INCLUDE = "$env:INCLUDE;$Path\include;$Path\atlmfc\include;"
     if ($HostEnv -eq $Arch) {
@@ -184,7 +184,7 @@ Function InitializeVS14Layout {
 Function InitializeWinSdk10 {
     param(
         [String]$Arch,
-        [String]$HostEnv="x64"
+        [String]$HostEnv = "x64"
     )
     # Windows Kits\Installed Roots\ 
     $sdk10 = "HKLM:SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0"
@@ -202,10 +202,10 @@ Function InitializeWinSdk10 {
     $env:PATH = "$env:PATH;${installdir}bin\$version\$HostEnv"
 }
 
-Function InitializeUCRT{
+Function InitializeUCRT {
     param(
         [String]$Arch,
-        [String]$HostEnv="x64"
+        [String]$HostEnv = "x64"
     )
     $sdk10 = "HKLM:SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0"
     if (!(Test-Path $sdk10)) {
@@ -237,7 +237,7 @@ Function InitailizeWinSdk81 {
     InitializeUCRT -Arch $Arch -HostEnv $HostEnv
 }
 
-Function InitializeVisualCppTools{
+Function InitializeVisualCppTools {
     param(
         [String]$ClangbuilderRoot,
         [ValidateSet("x86", "x64", "ARM", "ARM64")]
@@ -256,9 +256,9 @@ Function InitializeVisualCppTools{
     
     
     $instlock = Get-Content -Path $LockFile |ConvertFrom-Json
-    $HostEnv="x86"
-    if([System.Environment]::Is64BitOperatingSystem){
-        $HostEnv="x64"
+    $HostEnv = "x86"
+    if ([System.Environment]::Is64BitOperatingSystem) {
+        $HostEnv = "x64"
     }
     if ($Sdklow) {
         InitailizeWinSdk81 -Arch $Arch -HostEnv $HostEnv
@@ -288,12 +288,12 @@ Function InitializeVisualStudio {
         [String]$InstanceId,
         [Switch]$Sdklow
     )
-    if($InstanceId -eq "VisualCppTools"){
+    if ($InstanceId -eq "VisualCppTools") {
         return InitializeVisualCppTools -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -Sdklow:$Sdklow
     }
     $vsinstances = vswhere -prerelease -legacy -format json|ConvertFrom-JSON
     $vsinstance = $vsinstances|Where-Object {$_.instanceId -eq $InstanceId}
-    Write-Host "Use Visual Studio $($vsinstance.installationVersion)"
+    Write-Host "Use Visual Studio $($vsinstance.installationVersion) $Arch"
     $ArgumentList = Get-ArchBatchString -InstanceId $InstanceId -Arch $Arch
     if ($vsinstance.instanceId.StartsWith("VisualStudio")) {
         $vcvarsall = "$($vsinstance.installationPath)\VC\vcvarsall.bat"
@@ -306,6 +306,7 @@ Function InitializeVisualStudio {
             return 1
         }
         Invoke-BatchFile -Path $vcvarsall -ArgumentList $ArgumentList
+        return
     }
     
     
@@ -342,7 +343,7 @@ Function DefaultVisualStudio {
         [String]$ClangbuilderRoot
     )
     $env:PATH = "$ClangbuilderRoot/pkgs/vswhere;$env:PATH"
-    $vsinstalls=$null
+    $vsinstalls = $null
     try {
         $vsinstalls = vswhere -prerelease -legacy -format json|ConvertFrom-JSON
     }
