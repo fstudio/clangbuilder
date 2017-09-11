@@ -195,7 +195,7 @@ Function Install-Package {
             if (!(Test-Path $NewDir)) {
                 mkdir $NewDir
             }
-            Copy-Item -Path $File -Destination $NewDir -Force
+            Copy-Item -Path $MyPackage -Destination $NewDir -Force
         }
     }
     Remove-Item $MyPackage

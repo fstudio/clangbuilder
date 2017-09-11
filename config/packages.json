@@ -36,8 +36,8 @@
             "Version": "3.02.1"
         },
         {
-            "Name": "GNUWin",
-            "URL": "http://downloads.sourceforge.net/projects/clangonwin/files/Install/Packages/ClangSetup-Package-GnuWin-win32.zip",
+            "Name": "Gnuutils",
+            "URL": "https://sourceforge.net/projects/clangonwin/files/Install/Packages/ClangSetup-Package-GnuWin-win32.zip/download",
             "Extension": "zip",
             "Version": "1.0"
         },
