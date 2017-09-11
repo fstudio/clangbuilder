@@ -88,9 +88,9 @@ Function EnterpriseWDK {
     $BuildTools = "$EWDKPath\Program Files\Microsoft Visual Studio\2017\BuildTools"
     $SDKKIT = "$EWDKPath\Program Files\Windows Kits\10"
     $VCToolsVersion = (Get-Content "$BuildTools\VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.txt").Trim()
-    
-    Write-Host "Visual C++ Version: $VCToolsVersion"
-    
+    $env:VS150COMNTOOLS = "$BuildTools\Common7\Tools\"
+    Write-Host "Visual C++ Version: $VCToolsVersion`nUpdate `$env:VS150COMNTOOLS to: $env:VS150COMNTOOLS"
+
     # Configuration Include Path
     $env:INCLUDE = "$BuildTools\VC\Tools\MSVC\$VCToolsVersion\include;$BuildTools\VC\Tools\MSVC\$VCToolsVersion\atlmfc\include;"
     $includedirs = Get-ChildItem -Path "$SDKKIT\include\$EWDKVersion" | Foreach-Object {$_.FullName}
@@ -214,7 +214,7 @@ Function InitializeUCRT {
     $pt = Get-ItemProperty -Path $sdk10
     $version = "$($pt.ProductVersion).0"
     $installdir = $pt.InstallationFolder
-    $env:INCLUDE += ";${installdir}include\$version\ucrt"
+    $env:INCLUDE = "$env:INCLUDE;${installdir}include\$version\ucrt"
     $env:LIB = "$env:LIB;${installdir}lib\$version\ucrt\$Arch"
 }
 
@@ -279,6 +279,40 @@ Function InitializeVisualCppTools {
     Write-Host "Use $($instlock.Name) $($instlock.Version)"
 }
 
+Function Test-ExeCommnad {
+    param(
+        [Parameter(Position = 0, Mandatory = $True, HelpMessage = "Enter Execute Name")]
+        [ValidateNotNullorEmpty()]
+        [String]$ExeName
+    )
+    $myErr = @()
+    Get-command -CommandType Application $ExeName -ErrorAction SilentlyContinue -ErrorVariable +myErr
+    if ($myErr.count -eq 0) {
+        return $True
+    }
+    return $False
+}
+
+Function FixVisualStudioSdkPath{
+    if(Test-ExeCommnad "rc"){
+        return ;
+    }
+    $sdk10 = "HKLM:SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0"
+    if (!(Test-Path $sdk10)) {
+        $sdk10 = "HKLM:SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0"
+    }
+    $HostEnv = "x86"
+    if ([System.Environment]::Is64BitOperatingSystem) {
+        $HostEnv = "x64"
+    }
+    $sdkinfo = Get-ItemProperty -Path $sdk10
+    $version = $sdkinfo.ProductVersion+".0"
+    $installdir = $sdkinfo.InstallationFolder
+    $SDKPath="${installdir}bin\$version\$HostEnv"
+    Write-Host "Need use New SDK Path: $SDKPath"
+    $env:PATH = "$env:PATH;$SDKPath"
+}
+
 # Initialize Visual Studio Environment
 Function InitializeVisualStudio {
     param(
@@ -297,7 +331,7 @@ Function InitializeVisualStudio {
     $ArgumentList = Get-ArchBatchString -InstanceId $InstanceId -Arch $Arch
     if ($vsinstance.instanceId.StartsWith("VisualStudio")) {
         $vcvarsall = "$($vsinstance.installationPath)\VC\vcvarsall.bat"
-        if ($InstallId -eq "VisualStudio.14.0" -and $Sdklow) {
+        if ($InstanceId -eq "VisualStudio.14.0" -and $Sdklow) {
             Write-Host "Attention Please: Use Windows 8.1 SDK"
             $ArgumentList += " 8.1"
         }
@@ -306,6 +340,9 @@ Function InitializeVisualStudio {
             return 1
         }
         Invoke-BatchFile -Path $vcvarsall -ArgumentList $ArgumentList
+        if($InstanceId -eq "VisualStudio.14.0"){
+            FixVisualStudioSdkPath
+        }
         return
     }
     
