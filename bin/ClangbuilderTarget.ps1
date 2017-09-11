@@ -96,14 +96,16 @@ $Global:CMakeArguments = "`"$Global:LLVMSource`""
 
 
 if ($LLDB) {
-    # $PythonHome = Get-PythonHOME -Arch $Arch
-    # if ($null -eq $PythonHome) {
-    #     Write-Error "Please Install Python 3.5+ ! "
-    #     Exit 
-    # }
-    Write-Host -ForegroundColor Yellow "Building LLVM with lldb,$Engine, $VisualStudioTarget"
-    $Global:CMakeArguments += " -DLLDB_DISABLE_PYTHON=ON"
-    #$Global:CMakeArguments += " -DLLDB_DISABLE_PYTHON=ON -DPYTHON_HOME=$PythonHome -DLLDB_RELOCATABLE_PYTHON=1"
+    $PythonHome = Get-PythonHOME -Arch $Arch
+    Write-Host -ForegroundColor Yellow "Building LLVM with lldb,$Engine"
+    if ($null -eq $PythonHome) {
+        $Global:CMakeArguments += " -DLLDB_DISABLE_PYTHON=1"
+        Write-Host -ForegroundColor Yellow "Not Found Python 3 installed,Disable LLDB Python Support"
+    }
+    else {
+        $Global:CMakeArguments += " -DPYTHON_HOME=$PythonHome -DLLDB_RELOCATABLE_PYTHON=1"
+        Write-Host -ForegroundColor Green "Python 3: $PythonHome"
+    }
 }
 
 $Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor   -DLLVM_ENABLE_ASSERTIONS=OFF"
@@ -187,7 +189,7 @@ Function ClangNinjaGenerator {
     $env:CC = $ClangExe
     $env:CXX = $ClangExe
     Write-Host "Build llvm, Use: CC=$env:CC CXX=$env:CXX"
-    $Global:LatestBuildDir=$BuildDir
+    $Global:LatestBuildDir = $BuildDir
     Set-Workdir $Global:LatestBuildDir
     $Arguments = Get-ClangArgument -SetMsvc:$SetMsvc
     $oe = [Console]::OutputEncoding

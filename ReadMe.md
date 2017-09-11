@@ -81,6 +81,12 @@ prebuilt.json:
 }
 ```
 
+**LLDB**
+
+When you select build LLDB, If not found Python 3 installed. Clangbuilder add flag `-DLLDB_DISABLE_PYTHON=1`.
+
+LLDB maybe not work.
+
 **Libc++**
 
 Only NinjaBootstrap and NinjaIterate will compile libc++ ,Because Visual C++ not support `include_next` now.
