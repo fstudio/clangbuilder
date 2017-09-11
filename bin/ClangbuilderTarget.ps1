@@ -96,13 +96,14 @@ $Global:CMakeArguments = "`"$Global:LLVMSource`""
 
 
 if ($LLDB) {
-    $PythonHome = Get-PythonHOME -Arch $Arch
-    if ($null -eq $PythonHome) {
-        Write-Error "Please Install Python 3.5+ ! "
-        Exit 
-    }
+    # $PythonHome = Get-PythonHOME -Arch $Arch
+    # if ($null -eq $PythonHome) {
+    #     Write-Error "Please Install Python 3.5+ ! "
+    #     Exit 
+    # }
     Write-Host -ForegroundColor Yellow "Building LLVM with lldb,$Engine, $VisualStudioTarget"
-    $Global:CMakeArguments += " -DLLDB_DISABLE_PYTHON=ON -DPYTHON_HOME=$PythonHome -DLLDB_RELOCATABLE_PYTHON=1"
+    $Global:CMakeArguments += " -DLLDB_DISABLE_PYTHON=ON"
+    #$Global:CMakeArguments += " -DLLDB_DISABLE_PYTHON=ON -DPYTHON_HOME=$PythonHome -DLLDB_RELOCATABLE_PYTHON=1"
 }
 
 $Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor   -DLLVM_ENABLE_ASSERTIONS=OFF"

@@ -323,6 +323,7 @@ Function InitializeVisualStudio {
     $vcvarsall = "$($vsinstance.installationPath)\VC\Auxiliary\Build\vcvarsall.bat"
     
     $env:VS150COMNTOOLS = "$($vsinstance.installationPath)\Common7\Tools\"
+    Write-Host "Update `$env:VS150COMNTOOLS to: $env:VS150COMNTOOLS"
     
     if ($Sdklow) {
         Write-Host "Attention Please: Use Windows 8.1 SDK"
