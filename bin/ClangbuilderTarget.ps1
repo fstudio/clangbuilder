@@ -192,14 +192,14 @@ Function ClangNinjaGenerator {
     $Global:LatestBuildDir = $BuildDir
     Set-Workdir $Global:LatestBuildDir
     $Arguments = Get-ClangArgument -SetMsvc:$SetMsvc
-    $oe = [Console]::OutputEncoding
-    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
+    #$oe = [Console]::OutputEncoding
+    #[Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
     $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1
     }
-    [Console]::OutputEncoding = $oe
+    #[Console]::OutputEncoding = $oe
     $PN = & Parallel
     $exitcode = ProcessExec -FilePath "ninja.exe" -Arguments "all -j $PN"
     return $exitcode
@@ -241,15 +241,15 @@ Function Invoke-Ninja {
         $Arguments += " -DCMAKE_C_FLAGS=`"-D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
         $Arguments += " -DCMAKE_CXX_FLAGS=`"-D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
     }
-    $oe = [Console]::OutputEncoding
-    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
+    #$oe = [Console]::OutputEncoding
+    #[Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
     $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments 
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1
     }
     $PN = & Parallel
-    [Console]::OutputEncoding = $oe
+    #[Console]::OutputEncoding = $oe
     $exitcode = ProcessExec  -FilePath "ninja.exe" -Arguments "all -j $PN"
     return $exitcode
 }
