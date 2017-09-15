@@ -9,6 +9,6 @@ Function CMakeInstallationFix {
     Get-ChildItem -Path $TargetDir  -Recurse *.cmake | Foreach-Object {
         $content = Get-Content $_.FullName
         $content = $content.Replace("`$(Configuration)", "$Configuration")
-        $content|Out-File $_.FullName -Encoding utf8
+        $content|Out-File -FilePath $_.FullName -Encoding utf8
     }
 }
