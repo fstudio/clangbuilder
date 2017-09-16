@@ -103,7 +103,7 @@ if ($LLDB) {
         Write-Host -ForegroundColor Yellow "Not Found Python 3 installed,Disable LLDB Python Support"
     }
     else {
-        $Global:CMakeArguments += " -DPYTHON_HOME=$PythonHome -DLLDB_RELOCATABLE_PYTHON=1"
+        $Global:CMakeArguments += " -DPYTHON_HOME=$PythonHome"
         Write-Host -ForegroundColor Green "Python 3: $PythonHome"
     }
 }
