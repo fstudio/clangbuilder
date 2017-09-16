@@ -49,9 +49,9 @@
         },
         {
             "Name": "swigwin",
-            "URL": "https://downloads.sourceforge.net/project/swig/swigwin/swigwin-3.0.11/swigwin-3.0.11.zip",
+            "URL": "https://downloads.sourceforge.net/project/swig/swigwin/swigwin-3.0.12/swigwin-3.0.12.zip",
             "Extension": "zip",
-            "Version": "3.0.11"
+            "Version": "3.0.12"
         },
         {
             "Name": "vswhere",
