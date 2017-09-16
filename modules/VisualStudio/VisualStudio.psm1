@@ -128,7 +128,7 @@ Function InitializeVS2017Layout {
     else {
         $env:PATH = "$env:PATH;$Path\bin\Host$HostEnv\$Arch;$Path\bin\Host$HostEnv\$HostEnv"
     }
-    $env:LIB = "$env:LIB;$Path\lib\$Arch"
+    $env:LIB = "$env:LIB;$Path\lib\$Arch;$Path\atlmfc\lib\$Arch"
 }
 
 Function InitializeVS14Layout {
