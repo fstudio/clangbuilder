@@ -267,7 +267,10 @@ Function InitializeVisualCppTools {
         InitializeWinSdk10  -Arch $Arch -HostEnv $HostEnv
     }
     
-    $tooldir = "$ClangbuilderRoot\utils\msvc\$($instlock.Path)\lib\native"
+    $env:VisualCppToolsPath = $ClangbuilderRoot + "\utils\msvc\" + $instlock.Path
+    $tooldir = $env:VisualCppToolsPath + "\lib\native"
+    $env:VSPropsFile = $env:VisualCppToolsPath + "\build\native\" + $instlock.Name + ".props"
+    Write-Host "MSBuild can import $env:VSPropsFile"
     
     if ($instlock.Name.Contains("VS2017Layout")) {
         InitializeVS2017Layout -Path $tooldir -Arch $Arch -HostEnv $HostEnv
@@ -293,8 +296,8 @@ Function Test-ExeCommnad {
     return $False
 }
 
-Function FixVisualStudioSdkPath{
-    if(Test-ExeCommnad "rc"){
+Function FixVisualStudioSdkPath {
+    if (Test-ExeCommnad "rc") {
         return ;
     }
     $sdk10 = "HKLM:SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0"
@@ -306,9 +309,9 @@ Function FixVisualStudioSdkPath{
         $HostEnv = "x64"
     }
     $sdkinfo = Get-ItemProperty -Path $sdk10
-    $version = $sdkinfo.ProductVersion+".0"
+    $version = $sdkinfo.ProductVersion + ".0"
     $installdir = $sdkinfo.InstallationFolder
-    $SDKPath="${installdir}bin\$version\$HostEnv"
+    $SDKPath = "${installdir}bin\$version\$HostEnv"
     Write-Host "Need use New SDK Path: $SDKPath"
     $env:PATH = "$env:PATH;$SDKPath"
 }
@@ -340,7 +343,7 @@ Function InitializeVisualStudio {
             return 1
         }
         Invoke-BatchFile -Path $vcvarsall -ArgumentList $ArgumentList
-        if($InstanceId -eq "VisualStudio.14.0"){
+        if ($InstanceId -eq "VisualStudio.14.0") {
             FixVisualStudioSdkPath
         }
         return
