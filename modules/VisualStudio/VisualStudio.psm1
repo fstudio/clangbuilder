@@ -64,14 +64,14 @@ Function Get-ArchBatchString {
     }
 }
 
-
-Function EnterpriseWDK {
+Function InitializeEnterpriseWDK {
     param(
+        [String]$Arch = "ARM64",
         [String]$ClangbuilderRoot
     )
     $EWDKFile = "$ClangbuilderRoot\config\ewdk.json"
     if (!(Test-Path $EWDKFile)) {
-        Write-Error "Not Enterprise WDK config file"
+        Write-Host -ForegroundColor Red "Not Enterprise WDK config file`nDownload URL: https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewWDK"
         return 1
     }
     $EWDKObj = Get-Content -Path "$EWDKFile" |ConvertFrom-Json
@@ -81,39 +81,46 @@ Function EnterpriseWDK {
         Write-Error "Not Enterprise WDK directory !"
         return 1
     }
-    
-    Write-Host "Initialize Windows 10 Enterprise WDK ARM Environment ..."
+    Write-Host "Initialize Windows 10 Enterprise WDK $Arch  Environment ..."
     Write-Host "Enterprise WDK Version: $EWDKVersion"
     
     $BuildTools = "$EWDKPath\Program Files\Microsoft Visual Studio\2017\BuildTools"
-    $SDKKIT = "$EWDKPath\Program Files\Windows Kits\10"
-    $VCToolsVersion = (Get-Content "$BuildTools\VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.txt").Trim()
+    $SdkBaseDir = "$EWDKPath\Program Files\Windows Kits\10"
+    $xml = [xml](Get-Content -Path "$BuildTools\VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.props")
+    $VCToolsVersion = $xml.Project.PropertyGroup.VCToolsVersion.'#text'
     $env:VS150COMNTOOLS = "$BuildTools\Common7\Tools\"
     Write-Host "Visual C++ Version: $VCToolsVersion`nUpdate `$env:VS150COMNTOOLS to: $env:VS150COMNTOOLS"
 
+    $VisualCppPath = "$BuildTools\VC\Tools\MSVC\$VCToolsVersion"
     # Configuration Include Path
-    $env:INCLUDE = "$BuildTools\VC\Tools\MSVC\$VCToolsVersion\include;$BuildTools\VC\Tools\MSVC\$VCToolsVersion\atlmfc\include;"
-    $includedirs = Get-ChildItem -Path "$SDKKIT\include\$EWDKVersion" | Foreach-Object {$_.FullName}
+    $env:INCLUDE = "$VisualCppPath\include;$VisualCppPath\atlmfc\include"
+    $includedirs = Get-ChildItem -Path "$SdkBaseDir\include\$EWDKVersion" | Foreach-Object {$_.FullName}
     foreach ($_i in $includedirs) {
         $env:INCLUDE = "$env:INCLUDE;$_i"
     }
-    
     if ([System.Environment]::Is64BitOperatingSystem) {
         $HostEnv = "x64"
     }
     else {
         $HostEnv = "x86"
     }
-    
-    $env:PATH += "$SDKKIT\bin\$EWDKVersion\$HostEnv;$BuildTools\VC\Tools\MSVC\$VCToolsVersion\bin\Host$HostEnv\arm64\;"
-    $env:PATH += "$BuildTools\VC\Tools\MSVC\$VCToolsVersion\onecore\$HostEnv\Microsoft.VC150.CRT\;$SDKKIT\Redist\ucrt\DLLs\$HostEnv"
+    $Archlowpper = $Arch.ToLower()
+    $SDKLIB = "$SdkBaseDir\lib\$EWDKVersion"
+    ### FIX EWDK of Non ARM Arch
+    if (!$Arch.StartsWith("ARM") -and $Arch -ne $HostEnv) {
+        $env:PATH += ";$VisualCppPath\bin\Host$HostEnv\$Archlowpper;$VisualCppPath\bin\Host$HostEnv\$HostEnv"
+    }
+    else {
+        $env:PATH += ";$VisualCppPath\bin\Host$HostEnv\$Archlowpper"
+    }
+    $env:PATH += ";$SdkBaseDir\bin\$EWDKVersion\$HostEnv;"
+    $env:PATH += "$VisualCppPath\onecore\$HostEnv\Microsoft.VC150.CRT\;$SdkBaseDir\Redist\ucrt\DLLs\$HostEnv;"
     $env:PATH += "$EWDKFile\Program Files\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.1 Tools;$BuildTools\MSBuild\15.0\Bin"
-    $env:LIB = "$BuildTools\VC\Tools\MSVC\$VCToolsVersion\lib\arm64;$BuildTools\VC\Tools\MSVC\$VCToolsVersion\atlmfc\lib\arm64;"
-    $env:LIB += "$SDKKIT\lib\$EWDKVersion\km\arm64;$SDKKIT\lib\$EWDKVersion\um\arm64;$SDKKIT\lib\$EWDKVersion\ucrt\arm64;"
-    $env:LIBPATH = "$BuildTools\VC\Tools\MSVC\$VCToolsVersion\lib\arm64;$BuildTools\VC\Tools\MSVC\$VCToolsVersion\atlmfc\lib\arm64;"
-    $env:LIBPATH = "$SDKKIT\UnionMetadata\$EWDKVersion\;$SDKKIT\References\$EWDKVersion\;"
+    $env:LIB = "$VisualCppPath\lib\$Archlowpper;$VisualCppPath\atlmfc\lib\$Archlowpper;"
+    $env:LIB += "$SDKLIB\km\$Archlowpper;$SDKLIB\um\$Archlowpper;$SDKLIB\ucrt\$Archlowpper"
+    $env:LIBPATH = "$VisualCppPath\lib\$Archlowpper;$VisualCppPath\atlmfc\lib\$Archlowpper;"
+    $env:LIBPATH = "$SdkBaseDir\UnionMetadata\$EWDKVersion\;$SdkBaseDir\References\$EWDKVersion\;"
 }
-
 
 Function InitializeVS2017Layout {
     param(
@@ -137,47 +144,32 @@ Function InitializeVS14Layout {
         [String]$Arch,
         [String]$HostEnv
     )
-    $env:INCLUDE = "$env:INCLUDE;$Path\include;$Path\atlmfc\include;"
-    switch ($Arch) {
-        "x64" {
-            $env:LIB = "$env:LIB;$Path\lib\amd64"
-            if ($HostEnv -eq "x64") {
-                $env:PATH = "$env:PATH;$Path\bin\amd64"
-            }
-            else {
-                $env:PATH = "$env:PATH;$Path\bin\x86_amd64;$Path\bin"
-            }
-        }
-        "x86" {
-            $env:LIB = "$env:LIB;$Path\lib"
-            if ($HostEnv -eq "x64") {
-                $env:PATH = "$env:PATH;$Path\bin\amd64_x86;$Path\bin\amd64"
-            }
-            else {
-                $env:PATH = "$env:PATH;$Path\bin"
-            }
-        }
-        "arm" {
-            if ($HostEnv -eq "x64") {
-                $env:PATH = "$env:PATH;$Path\bin\amd64_arm;$Path\bin\amd64"
-            }
-            else {
-                $env:PATH = "$env:PATH;$Path\bin;$Path\bin\x86_arm"
-            }
-            $env:LIB = "$env:LIB;$Path\lib\arm"
-        }
-        "arm64" {
-            if ($HostEnv -eq "x64") {
-                $env:PATH = "$env:PATH;$Path\bin\amd64_arm64;$Path\bin\amd64"
-            }
-            else {
-                $env:PATH = "$env:PATH;$Path\bin;$Path\bin\x86_arm64"
-            }
-            $env:LIB = "$env:LIB;$Path\lib\arm64"
-        }
-        Default {}
+    if ($HostEnv -eq "x64") {
+        $HostEnv = "amd64" #
     }
-
+    ### FIX x86 Host Env
+    if ($Arch -eq "x64") {
+        $Arch = "amd64"
+    }
+    $Archlowpper = $Arch.ToLower()
+    Write-Host "Visual Studio 14 Layout Arch: $Arch Host: $HostEnv"
+    $env:INCLUDE = "$env:INCLUDE;$Path\include;$Path\atlmfc\include;"
+    if ($Archlowpper -eq "x86") {
+        $env:LIB = "$env:LIB;$Path\lib"
+    }
+    else {
+        $env:LIB = "$env:LIB;$Path\lib\$Archlowpper"
+    }
+    if ($HostEnv -eq "x86") {
+        $env:PATH = "$Path\bin;$env:PATH"
+    }
+    else {
+        $env:PATH = "$Path\bin\amd64;$env:PATH"
+    }
+    if ($HostEnv -ne $Archlowpper) {
+        Write-Host "xxx $Path\bin\${HostEnv}_$Archlowpper"
+        $env:PATH = "$Path\bin\${HostEnv}_$Archlowpper;$env:PATH"
+    }
 }
 
 #\Microsoft\Microsoft SDKs\Windows\v10.0
@@ -328,6 +320,9 @@ Function InitializeVisualStudio {
     if ($InstanceId -eq "VisualCppTools") {
         return InitializeVisualCppTools -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -Sdklow:$Sdklow
     }
+    if ($InstanceId -eq "VisualStudio.EWDK") {
+        return InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
+    }
     $vsinstances = vswhere -prerelease -legacy -format json|ConvertFrom-JSON
     $vsinstance = $vsinstances|Where-Object {$_.instanceId -eq $InstanceId}
     Write-Host "Use Visual Studio $($vsinstance.installationVersion) $Arch"
@@ -356,8 +351,7 @@ Function InitializeVisualStudio {
     $vercmp = $ver.CompareTo($FixedVer)
     if ($Arch -eq "ARM64" -and $vercmp -le 0) {
         Write-Host "Use Enterprise WDK support ARM64"
-        #Invoke-Expression "$PSScriptRoot\EnterpriseWDK.ps1"
-        EnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot
+        InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch "ARM64"
         return
     }
     $vcvarsall = "$($vsinstance.installationPath)\VC\Auxiliary\Build\vcvarsall.bat"
