@@ -127,7 +127,7 @@ else {
     $MTStaticLINK = "MTd"
 }
 if ($Static) {
-    $Global:CMakeArguments += " -DLLVM_USE_CRT_$UpFlavor=$MTStaticLINK"
+    $CMakeArguments += " -DLLVM_USE_CRT_$UpFlavor=$MTStaticLINK"
 }
 
 Function Set-Workdir {
