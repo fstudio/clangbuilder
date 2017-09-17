@@ -18,13 +18,13 @@ param (
     [Switch]$ClearEnv
 )
 
-$Global:ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
+$ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
 
-Import-Module -Name "$Global:ClangbuilderRoot\modules\Initialize"
-Import-Module -Name "$Global:ClangbuilderRoot\modules\Utils"
-Import-Module -Name "$Global:ClangbuilderRoot\modules\CMake"
-Import-Module -Name "$Global:ClangbuilderRoot\modules\VisualStudio"
-Import-Module -Name "$Global:ClangbuilderRoot\modules\PM" # Package Manager
+Import-Module -Name "$ClangbuilderRoot\modules\Initialize"
+Import-Module -Name "$ClangbuilderRoot\modules\Utils"
+Import-Module -Name "$ClangbuilderRoot\modules\CMake"
+Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
+Import-Module -Name "$ClangbuilderRoot\modules\PM" # Package Manager
 
 
 # Cleanup $env:PATH, because, some tools modify Disrupt PATH
@@ -66,9 +66,9 @@ Function ParseLLVMDir {
 }
 
 
-$Global:LLVMSource = &ParseLLVMDir
+$LLVMSource = &ParseLLVMDir
 
-Write-Host "Now build llvm $Branch, sources dir: $Global:LLVMSource"
+Write-Host "Select LLVM $Branch, sources dir: $LLVMSource"
 
 $LLVMScript = "$ClangbuilderRoot\bin\LLVMRemoteFetch.ps1"
 if ($Branch -eq "Release") {
@@ -86,65 +86,36 @@ $ArchTable = @{
     "ARM64" = "ARM64"
 }
 
-$Global:ArchName = $ArchTable[$Arch];
-$Global:ArchValue = $Arch;
+$ArchName = $ArchTable[$Arch];
 # Builder CMake Arguments
-$Global:Installation = $InstallationVersion.Substring(0, 2)
+$Installation = $InstallationVersion.Substring(0, 2)
 $Global:LatestBuildDir = ""
-$Global:Flavor = $Flavor
-$Global:CMakeArguments = "`"$Global:LLVMSource`""
-
+$CMakeArguments = "`"$LLVMSource`""
 
 if ($LLDB) {
     $PythonHome = Get-PythonHOME -Arch $Arch
     Write-Host -ForegroundColor Yellow "Building LLVM with lldb,$Engine"
     if ($null -eq $PythonHome) {
-        $Global:CMakeArguments += " -DLLDB_DISABLE_PYTHON=1"
+        $CMakeArguments += " -DLLDB_DISABLE_PYTHON=1"
         Write-Host -ForegroundColor Yellow "Not Found Python 3 installed,Disable LLDB Python Support"
     }
     else {
-        $Global:CMakeArguments += " -DPYTHON_HOME=$PythonHome"
+        $CMakeArguments += " -DPYTHON_HOME=$PythonHome"
         Write-Host -ForegroundColor Green "Python 3: $PythonHome"
     }
 }
 
-$Global:CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor   -DLLVM_ENABLE_ASSERTIONS=OFF"
-$Global:CMakeArguments += " -DCMAKE_INSTALL_UCRT_LIBRARIES=ON "
+$CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor   -DLLVM_ENABLE_ASSERTIONS=OFF"
+$CMakeArguments += " -DCMAKE_INSTALL_UCRT_LIBRARIES=ON "
 
 if ($Branch -eq "Mainline") {
-    $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=ON"
+    $CMakeArguments += " -DLLVM_APPEND_VC_REV=ON"
 }
 else {
-    $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=OFF -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
+    $CMakeArguments += " -DLLVM_APPEND_VC_REV=OFF -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
 }
 
-if (Test-Path "$ClangbuilderRoot\out\cmakeflags.$Branch.json") {
-    try {
-        $cmakeflags = Get-Content -Path "$ClangbuilderRoot\out\cmakeflags.$Branch.json"|ConvertFrom-JSON
-        Write-Host "Use cmake flags file '$ClangbuilderRoot\out\cmakeflags.$Branch.json'"
-        foreach ($flag in $cmakeflags.CMake) {
-            Write-Host "Add flag: $flag"
-            $Global:CMakeArguments += " $flag"
-        }
-    }
-    catch {
-        Write-Host -ForegroundColor Red "$_"
-    }
-}
-
-if (Test-Path "$ClangbuilderRoot\out\cmakeflags.json") {
-    try {
-        $cmakeflags = Get-Content -Path "$ClangbuilderRoot\out\cmakeflags.json"|ConvertFrom-JSON
-        Write-Host "Use cmake flags file '$ClangbuilderRoot\out\cmakeflags.json'"
-        foreach ($flag in $cmakeflags.CMake) {
-            Write-Host "Add flag: $flag"
-            $Global:CMakeArguments += " $flag"
-        }
-    }
-    catch {
-        Write-Host -ForegroundColor Red "$_"
-    }
-}
+$CMakeArguments += CMakeCustomflags -ClangbuilderRoot $ClangbuilderRoot -Branch $Branch
 
 
 # -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
@@ -190,17 +161,17 @@ Function Get-ClangArgument {
     $CompilerFlags = $ClangArgs
     if ($SetMsvc) {
         if ($VisualCppVersionTable.ContainsKey($Global:Installation)) {
-            $msvc = $VisualCppVersionTable[$Global:Installation]
+            $msvc = $VisualCppVersionTable[$Installation]
         }
         else {
             $msvc = "19.00"
         }
         $CompilerFlags = "-fms-compatibility-version=$msvc $ClangArgs"
     }
-    $ClangArgs = $ClangMarchArgument[$Global:ArchValue]
+    $ClangArgs = $ClangMarchArgument[$Arch]
     $Arguments += " -DCMAKE_C_FLAGS=`"$CompilerFlags`""
     $Arguments += " -DCMAKE_CXX_FLAGS=`"$CompilerFlags`""
-    if ($Global:Installation -eq "14" -or ($Global:Installation -eq "15")) {
+    if ($Installation -eq "14" -or ($Installation -eq "15")) {
         $Arguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
         $Arguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
         #$Arguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
@@ -220,14 +191,11 @@ Function ClangNinjaGenerator {
     $Global:LatestBuildDir = $BuildDir
     Set-Workdir $Global:LatestBuildDir
     $Arguments = Get-ClangArgument -SetMsvc:$SetMsvc
-    #$oe = [Console]::OutputEncoding
-    #[Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
     $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1
     }
-    #[Console]::OutputEncoding = $oe
     $PN = & Parallel
     $exitcode = ProcessExec -FilePath "ninja.exe" -Arguments "all -j $PN"
     return $exitcode
@@ -237,34 +205,34 @@ Function ClangNinjaGenerator {
 # Please see: http://libcxx.llvm.org/docs/BuildingLibcxx.html#experimental-support-for-windows
 
 Function Invoke-MSBuild {
-    $Global:LatestBuildDir = "$Global:ClangbuilderRoot\out\msbuild"
+    $Global:LatestBuildDir = "$ClangbuilderRoot\out\msbuild"
     Set-Workdir $Global:LatestBuildDir
-    if ($Global:ArchName.Length -eq 0) {
-        $Arguments = "-G`"Visual Studio $Global:Installation`" "
+    if ($ArchName.Length -eq 0) {
+        $Arguments = "-G`"Visual Studio $Installation`" "
     }
     else {
-        $Arguments = "-G`"Visual Studio $Global:Installation $Global:ArchName`" "
+        $Arguments = "-G`"Visual Studio $Installation $ArchName`" "
     }
     if ([System.Environment]::Is64BitOperatingSystem) {
         $Arguments += "-Thost=x64 ";
     }
-    $Arguments += $Global:CMakeArguments
+    $Arguments += $CMakeArguments
     $exitcode = ProcessExec  -FilePath "cmake" -Arguments $Arguments 
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1
     }
-    $exitcode = ProcessExec -FilePath "cmake" -Arguments "--build . --config $Global:Flavor" 
+    $exitcode = ProcessExec -FilePath "cmake" -Arguments "--build . --config $Flavor" 
     return $exitcode
 }
 
 Function Invoke-Ninja {
-    $Global:LatestBuildDir = "$Global:ClangbuilderRoot\out\ninja"
+    $Global:LatestBuildDir = "$ClangbuilderRoot\out\ninja"
     Set-Workdir $Global:LatestBuildDir
-    $Arguments = "-GNinja $Global:CMakeArguments"
+    $Arguments = "-GNinja $CMakeArguments"
     ### change oe
     ## ARM64 can build Desktop App, but ARM not
-    if ($Global:ArchValue -eq "ARM") {
+    if ($Arch -eq "ARM") {
         Write-Host -ForegroundColor Yellow "Warning: Build LLVM Maybe failed."
         $Arguments += " -DCMAKE_C_FLAGS=`"-D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
         $Arguments += " -DCMAKE_CXX_FLAGS=`"-D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
@@ -283,7 +251,7 @@ Function Invoke-Ninja {
 }
 
 Function Get-PrebuiltLLVM {
-    $PrebuiltJSON = "$Global:ClangbuilderRoot\config\prebuilt.json"
+    $PrebuiltJSON = "$ClangbuilderRoot\config\prebuilt.json"
     if (!(Test-Path $PrebuiltJSON)) {
         return ""
     }
@@ -308,7 +276,7 @@ Function Invoke-NinjaIterate {
         Write-Host "$PrebuiltLLVM not exists"
         return 1
     }
-    $exitcode = ClangNinjaGenerator -ClangExe "$PrebuiltLLVM\bin\clang-cl.exe" -BuildDir "$Global:ClangbuilderRoot\out\prebuilt" -SetMsvc
+    $exitcode = ClangNinjaGenerator -ClangExe "$PrebuiltLLVM\bin\clang-cl.exe" -BuildDir "$ClangbuilderRoot\out\prebuilt" -SetMsvc
     return $exitcode
 }
 
@@ -318,7 +286,7 @@ Function Invoke-NinjaBootstrap {
         Write-Error "Prebuild llvm due to error terminated !"
         return $result
     }
-    $exitcode = ClangNinjaGenerator -ClangExe "$Global:LatestBuildDir\bin\clang-cl.exe" -BuildDir  "$Global:ClangbuilderRoot\out\bootstrap"
+    $exitcode = ClangNinjaGenerator -ClangExe "$Global:LatestBuildDir\bin\clang-cl.exe" -BuildDir  "$ClangbuilderRoot\out\bootstrap"
 
     return $exitcode
 }
