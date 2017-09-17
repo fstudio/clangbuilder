@@ -118,6 +118,34 @@ else {
     $Global:CMakeArguments += " -DLLVM_APPEND_VC_REV=OFF -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
 }
 
+if (Test-Path "$ClangbuilderRoot\out\cmakeflags.$Branch.json") {
+    try {
+        $cmakeflags = Get-Content -Path "$ClangbuilderRoot\out\cmakeflags.$Branch.json"|ConvertFrom-JSON
+        Write-Host "Use cmake flags file '$ClangbuilderRoot\out\cmakeflags.$Branch.json'"
+        foreach ($flag in $cmakeflags.CMake) {
+            Write-Host "Add flag: $flag"
+            $Global:CMakeArguments += " $flag"
+        }
+    }
+    catch {
+        Write-Host -ForegroundColor Red "$_"
+    }
+}
+
+if (Test-Path "$ClangbuilderRoot\out\cmakeflags.json") {
+    try {
+        $cmakeflags = Get-Content -Path "$ClangbuilderRoot\out\cmakeflags.json"|ConvertFrom-JSON
+        Write-Host "Use cmake flags file '$ClangbuilderRoot\out\cmakeflags.json'"
+        foreach ($flag in $cmakeflags.CMake) {
+            Write-Host "Add flag: $flag"
+            $Global:CMakeArguments += " $flag"
+        }
+    }
+    catch {
+        Write-Host -ForegroundColor Red "$_"
+    }
+}
+
 
 # -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
 $UpFlavor = $Flavor.ToUpper()

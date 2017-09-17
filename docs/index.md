@@ -68,6 +68,32 @@ You can run ClangbuilderUI, select Arch, Configuration and other options. after 
 +  Stable, llvm stable branch, like release_50, git fetch from https://github.com/llvm-mirror/
 +  Release, llvm release tag, download for https://releases.llvm.org/
 
+**CMake Custom flags**
+
+You can custom cmake build flags Now !!!
+
+Clangbuilder will check `$ClangbuilderRoot\out\cmakeflags.$Branch.json` and `$ClangbuilderRoot\out\cmakeflags.json` is exists, if exists parse cmake flags.
+
+The corresponding branch takes effect:
+
+```txt
+cmakeflags.mainline.json
+cmakeflags.stable.json
+cmakeflags.release.json
+```
+
+Set `cmakeflags.json` will take effect in all branches (Mainline, Stable, Release)
+
+Flags configuration format is json:
+
+```json
+{
+    "CMake":[
+        "-DCMAKE_INSTALL_PREFIX=\"D:/LLVM\""
+    ]
+}
+```
+
 **Engine**
 
 +   MSbuild use msbuild build llvm
