@@ -58,6 +58,10 @@ You can run ClangbuilderUI, Modify Arch, Configuration and other options. after 
 
 **VisualCppTools.Community.Daily** current not support msbuild (becasue cmake ...)
 
+**Update 2017-09-17** ClangbuilderUI Support EWDK
+
+![ewdk](./docs/images/ewdk.png)
+
 **Branch**
 
 +  Mainline, master/trunk branch , git fetch from https://github.com/llvm-mirror/
