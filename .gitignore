@@ -4,6 +4,7 @@
 .vscode/
 /utils/
 /config/ewdk.json
+/config/prebuilt.json
 *.pdb
 *.exe
 *.obj
