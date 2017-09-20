@@ -255,7 +255,7 @@ Function Get-PrebuiltLLVM {
     if (!(Test-Path $PrebuiltJSON)) {
         Write-Host "$PrebuiltJSON dose not exists, use prebuilt.template.json"
         $PrebuiltJSON = "$ClangbuilderRoot\config\prebuilt.template.json"
-        if(!(Test-Path $PrebuiltJSON)) {
+        if (!(Test-Path $PrebuiltJSON)) {
             return ""
         }
     }

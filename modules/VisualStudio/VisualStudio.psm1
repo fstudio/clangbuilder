@@ -70,7 +70,7 @@ Function InitializeEnterpriseWDK {
         [String]$ClangbuilderRoot
     )
     $EWDKFile = "$ClangbuilderRoot\config\ewdk.json"
-    if(!(Test-Path $EWDKFile)){
+    if (!(Test-Path $EWDKFile)) {
         $EWDKFile = "$ClangbuilderRoot\config\ewdk.template.json"
     }
     Write-Host "Use $EWDKFile"
