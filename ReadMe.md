@@ -103,7 +103,7 @@ Flags configuration format is json:
 +   NinjaBootstrap use ninja build and bootstrap llvm
 +   NinjaIterate use ninja build llvm, but compile is prebuilt clang (config by `config\prebuilt.json`)
 
-prebuilt.json:
+[prebuilt.json template](./config/prebuilt.template.json):
 ```json
 {
     "LLVM": {
@@ -127,7 +127,7 @@ Only NinjaBootstrap and NinjaIterate will compile libc++ ,Because Visual C++ not
 
 Build LLVM for ARM64 is broken, But You can download **Enterprise WDK (EWDK) Insider Preview** from https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewWDK ,When you config `config/ewdk.json`, ClangbuilderUI able to start `ARM64 Environment Console`
 
-ewdk.json:
+[ewdk.json template](./config/ewdk.template.json):
 ```json
 {
 	"Path":"D:\\EWDK",
