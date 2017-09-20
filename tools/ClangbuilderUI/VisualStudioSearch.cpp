@@ -158,6 +158,9 @@ bool EnterpriseWDKSensor(const std::wstring &cbroot, VisualStudioInstance &inst)
 	try
 	{
 		std::wstring file = cbroot + L"\\config\\ewdk.json";
+		if(!PathFileExistsW(file.c_str())){
+			file=cbroot+L"\\config\\ewdk.template.json";
+		}
 		std::ifstream fs;
 		fs.open(file, std::ios::binary);
 		auto j = nlohmann::json::parse(fs);

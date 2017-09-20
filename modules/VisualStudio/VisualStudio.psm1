@@ -69,7 +69,11 @@ Function InitializeEnterpriseWDK {
         [String]$Arch = "ARM64",
         [String]$ClangbuilderRoot
     )
-    $EWDKFile = "$ClangbuilderRoot\config\ewdk.json"
+    $EWDKFile="$ClangbuilderRoot\config\ewdk.json"
+    if(!(Test-Path $EWDKFile)){
+        $EWDKFile = "$ClangbuilderRoot\config\ewdk.template.json"
+    }
+    Write-Host "Use $EWDKFile"
     if (!(Test-Path $EWDKFile)) {
         Write-Host -ForegroundColor Red "Not Enterprise WDK config file`nDownload URL: https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewWDK"
         return 1
