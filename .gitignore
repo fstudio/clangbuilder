@@ -3,6 +3,7 @@
 /libs/
 .vscode/
 /utils/
+/config/ewdk.json
 *.pdb
 *.exe
 *.obj
