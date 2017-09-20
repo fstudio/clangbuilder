@@ -253,7 +253,10 @@ Function Invoke-Ninja {
 Function Get-PrebuiltLLVM {
     $PrebuiltJSON = "$ClangbuilderRoot\config\prebuilt.json"
     if (!(Test-Path $PrebuiltJSON)) {
-        return ""
+        $PrebuiltJSON = "$ClangbuilderRoot\config\prebuilt.template.json"
+        if(!(Test-Path $PrebuiltJSON)){
+            return ""
+        }
     }
     $LLVMJSON = Get-Content -Path $PrebuiltJSON |ConvertFrom-Json
     if ($null -eq $LLVMJSON.LLVM) {
