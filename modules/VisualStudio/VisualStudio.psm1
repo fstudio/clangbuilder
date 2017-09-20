@@ -69,7 +69,7 @@ Function InitializeEnterpriseWDK {
         [String]$Arch = "ARM64",
         [String]$ClangbuilderRoot
     )
-    $EWDKFile="$ClangbuilderRoot\config\ewdk.json"
+    $EWDKFile = "$ClangbuilderRoot\config\ewdk.json"
     if(!(Test-Path $EWDKFile)){
         $EWDKFile = "$ClangbuilderRoot\config\ewdk.template.json"
     }
