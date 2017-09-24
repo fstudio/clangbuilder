@@ -9,10 +9,10 @@ param (
     [ValidateSet("Release", "Debug", "MinSizeRel", "RelWithDebug")]
     [String]$Flavor = "Release",
     [ValidateSet("MSBuild", "Ninja", "NinjaBootstrap", "NinjaIterate")]
-    [Alias("e")]
     [String]$Engine = "MSBuild",
     [ValidateSet("Mainline", "Stable", "Release")]
     [String]$Branch = "Mainline", #mainline 
+    [Alias("e")]
     [Switch]$Environment, # start environment 
     [Switch]$Sdklow, # low sdk support
     [Switch]$LLDB,
