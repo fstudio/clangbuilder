@@ -1,15 +1,18 @@
 #!/usr/bin/env powershell
 param (
+    [Parameter(Position = 0)]
+    [Alias("id")]
+    [String]$InstanceId, # install id
+    [String]$InstallationVersion, # installationVersion
     [ValidateSet("x86", "x64", "ARM", "ARM64")]
     [String]$Arch = "x64",
     [ValidateSet("Release", "Debug", "MinSizeRel", "RelWithDebug")]
     [String]$Flavor = "Release",
     [ValidateSet("MSBuild", "Ninja", "NinjaBootstrap", "NinjaIterate")]
+    [Alias("e")]
     [String]$Engine = "MSBuild",
     [ValidateSet("Mainline", "Stable", "Release")]
     [String]$Branch = "Mainline", #mainline 
-    [String]$InstanceId, # install id
-    [String]$InstallationVersion, # installationVersion
     [Switch]$Environment, # start environment 
     [Switch]$Sdklow, # low sdk support
     [Switch]$LLDB,
@@ -36,7 +39,12 @@ if ($ClearEnv) {
 
 InitializeEnv -ClangbuilderRoot $ClangbuilderRoot
 InitializePackageEnv -ClangbuilderRoot $ClangbuilderRoot
-InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow
+if($InstanceId.Length -eq 0){
+    DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
+}else{
+    InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow
+}
+
 InitializeExtranl -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
 
 

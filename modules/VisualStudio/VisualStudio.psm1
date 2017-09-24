@@ -379,8 +379,16 @@ Function InitializeVisualStudio {
 # Default Visual Studio Initialize Environemnt
 Function DefaultVisualStudio {
     param(
-        [String]$ClangbuilderRoot
+        [String]$ClangbuilderRoot,
+        [String]$Arch
     )
+    if($Arch.Length -eq 0){
+        if([System.Environment]::Is64BitOperatingSystem){
+            $Arch="x64"
+        }else{
+            $Arch="x86"
+        }
+    }
     $env:PATH = "$ClangbuilderRoot/pkgs/vswhere;$env:PATH"
     $vsinstalls = $null
     try {
@@ -391,10 +399,5 @@ Function DefaultVisualStudio {
         Pop-Location
         exit 1
     }
-    if ([System.Environment]::Is64BitOperatingSystem) {
-        return (InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch "x64" -InstanceId $vsinstalls[0].instanceId)
-    }
-    else {
-        return (InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch "x86" -InstanceId $vsinstalls[0].instanceId)
-    }
+    return (InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $vsinstalls[0].instanceId)
 }
