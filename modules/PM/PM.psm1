@@ -94,7 +94,7 @@ Function PMDownload {
         Invoke-WebRequest -Uri $Uri -OutFile $Path -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome -UseBasicParsing
     }
     catch {
-        Write-Host -Forceground Red "Download error: $_"
+        Write-Host -ForegroundColor Red "Download error: $_"
         return $false
     }
     return $true
