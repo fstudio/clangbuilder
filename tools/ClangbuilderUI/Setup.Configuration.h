@@ -141,6 +141,11 @@ typedef struct ISetupFailedPackageReference ISetupFailedPackageReference;
 typedef struct ISetupFailedPackageReference2 ISetupFailedPackageReference2;
 #endif
 
+#ifndef __ISetupFailedPackageReference3_FWD_DEFINED__
+#define __ISetupFailedPackageReference3_FWD_DEFINED__
+typedef struct ISetupFailedPackageReference3 ISetupFailedPackageReference3;
+#endif
+
 #ifndef __ISetupPropertyStore_FWD_DEFINED__
 #define __ISetupPropertyStore_FWD_DEFINED__
 typedef struct ISetupPropertyStore ISetupPropertyStore;
@@ -763,6 +768,35 @@ struct DECLSPEC_UUID("0FAD873E-E874-42E3-B268-4FE2F096B9CA") DECLSPEC_NOVTABLE I
     /// <returns>Standard HRESULT indicating success or failure.</returns>
     STDMETHOD(GetAffectedPackages)(
         _Out_ LPSAFEARRAY* ppsaAffectedPackages
+        ) = 0;
+};
+
+#endif
+
+EXTERN_C const IID IID_ISetupFailedPackageReference3;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+/// <summary>
+/// A reference to a failed package.
+/// </summary>
+struct DECLSPEC_UUID("EBC3AE68-AD15-44E8-8377-39DBF0316F6C") DECLSPEC_NOVTABLE ISetupFailedPackageReference3 : public ISetupFailedPackageReference2
+{
+    /// <summary>
+    /// Gets the action attempted when the package failed.
+    /// </summary>
+    /// <param name="pbstrAction">The action, eg: Install, Download, etc.</param>
+    /// <returns>Standard HRESULT indicating success or failure.</returns>
+    STDMETHOD(GetAction)(
+        _Outptr_result_maybenull_ BSTR* pbstrAction
+        ) = 0;
+
+    /// <summary>
+    /// Gets the return code of the failure.
+    /// </summary>
+    /// <param name="pbstrReturnCode">The return code.</param>
+    /// <returns>Standard HRESULT indicating success or failure.</returns>
+    STDMETHOD(GetReturnCode)(
+        _Outptr_result_maybenull_ BSTR* pbstrReturnCode
         ) = 0;
 };
 
