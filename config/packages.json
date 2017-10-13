@@ -55,9 +55,9 @@
         },
         {
             "Name": "vswhere",
-            "URL": "https://github.com/Microsoft/vswhere/releases/download/2.1.3/vswhere.exe",
+            "URL": "https://github.com/Microsoft/vswhere/releases/download/2.2.7/vswhere.exe",
             "Extension": "exe",
-            "Version": "2.1.3"
+            "Version": "2.2.7"
         },
         {
             "Name": "NuGet",
