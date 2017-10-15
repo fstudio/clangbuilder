@@ -173,6 +173,7 @@ bool PowershellSelect(std::wstring &psfile) {
 
 int wmain(int argc, wchar_t **argv) {
   std::wstring psfile;
+  SetConsoleTitle(L"Clangbuilder Powershell loader");
   if (!PowershellSelect(psfile)) {
     MessageBoxW(nullptr, L"Please install Powershell", L"Powershell Not Found",
                 MB_OK | MB_ICONERROR);
