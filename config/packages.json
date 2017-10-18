@@ -2,11 +2,11 @@
     "Packages": [
         {
             "Name": "MinGit",
-            "X86URL": "https://github.com/git-for-windows/git/releases/download/v2.14.2.windows.2/MinGit-2.14.2.2-busybox-32-bit.zip",
-            "X64URL": "https://github.com/git-for-windows/git/releases/download/v2.14.2.windows.2/MinGit-2.14.2.2-busybox-64-bit.zip",
+            "X86URL": "https://github.com/git-for-windows/git/releases/download/v2.14.2.windows.3/MinGit-2.14.2.3-busybox-32-bit.zip",
+            "X64URL": "https://github.com/git-for-windows/git/releases/download/v2.14.2.windows.3/MinGit-2.14.2.3-busybox-64-bit.zip",
             "Extension": "zip",
             "Mount": "/cmd",
-            "Version": "2.14.2.2"
+            "Version": "2.14.2.3"
         },
         {
             "Name": "CMake",
@@ -61,9 +61,9 @@
         },
         {
             "Name": "NuGet",
-            "URL": "https://dist.nuget.org/win-x86-commandline/v4.3.0/nuget.exe",
+            "URL": "https://dist.nuget.org/win-x86-commandline/v4.4.0/nuget.exe",
             "Extension": "exe",
-            "Version": "4.3.0"
+            "Version": "4.4.0"
         }
     ]
 }
