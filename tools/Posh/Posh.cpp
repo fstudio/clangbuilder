@@ -136,7 +136,7 @@ bool PowershellCore(std::wstring &pscore) {
       pscore.assign(psdir)
           .append(L"\\")
           .append(wfd.cFileName)
-          .append(L"\\powershell.exe");
+          .append(L"\\pwsh.exe");
       if (PathFileExistsW(pscore.c_str())) {
         success = true;
         break;
