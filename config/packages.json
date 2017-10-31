@@ -2,11 +2,11 @@
     "Packages": [
         {
             "Name": "MinGit",
-            "X86URL": "https://github.com/git-for-windows/git/releases/download/v2.14.3.windows.3/MinGit-2.14.3-busybox-32-bit.zip",
-            "X64URL": "https://github.com/git-for-windows/git/releases/download/v2.14.3.windows.1/MinGit-2.14.3-busybox-64-bit.zip",
+            "X86URL": "https://github.com/git-for-windows/git/releases/download/v2.15.0.windows.1/MinGit-2.15.0-busybox-32-bit.zip",
+            "X64URL": "https://github.com/git-for-windows/git/releases/download/v2.15.0.windows.1/MinGit-2.15.0-busybox-64-bit.zip",
             "Extension": "zip",
             "Mount": "/cmd",
-            "Version": "2.14.3"
+            "Version": "2.15.0"
         },
         {
             "Name": "CMake",
