@@ -327,7 +327,7 @@ Function InitializeVisualStudio {
     if ($InstanceId -eq "VisualStudio.EWDK") {
         return InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
     }
-    $vsinstances = vswhere -prerelease -legacy -format json|ConvertFrom-JSON
+    $vsinstances = vswhere -products * -prerelease -legacy -format json|ConvertFrom-JSON
     $vsinstance = $vsinstances|Where-Object {$_.instanceId -eq $InstanceId}
     Write-Host "Use Visual Studio $($vsinstance.installationVersion) $Arch"
     $ArgumentList = Get-ArchBatchString -InstanceId $InstanceId -Arch $Arch
@@ -339,7 +339,8 @@ Function InitializeVisualStudio {
         }
         if (!(Test-Path $vcvarsall)) {
             Write-Host "$vcvarsall not found"
-            return 1
+            $LastErrorCode = 1
+            return 
         }
         Invoke-BatchFile -Path $vcvarsall -ArgumentList $ArgumentList
         if ($InstanceId -eq "VisualStudio.14.0") {
@@ -370,7 +371,8 @@ Function InitializeVisualStudio {
     
     if (!(Test-Path $vcvarsall)) {
         Write-Host "$vcvarsall not found"
-        return 1;
+        $LastErrorCode = 1
+        return 
     }
     
     Invoke-BatchFile -Path $vcvarsall -ArgumentList $ArgumentList
