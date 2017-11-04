@@ -384,17 +384,18 @@ Function DefaultVisualStudio {
         [String]$ClangbuilderRoot,
         [String]$Arch
     )
-    if($Arch.Length -eq 0){
-        if([System.Environment]::Is64BitOperatingSystem){
-            $Arch="x64"
-        }else{
-            $Arch="x86"
+    if ($Arch.Length -eq 0) {
+        if ([System.Environment]::Is64BitOperatingSystem) {
+            $Arch = "x64"
+        }
+        else {
+            $Arch = "x86"
         }
     }
     $env:PATH = "$ClangbuilderRoot/pkgs/vswhere;$env:PATH"
     $vsinstalls = $null
     try {
-        $vsinstalls = vswhere -prerelease -legacy -format json|ConvertFrom-JSON
+        $vsinstalls = vswhere -products * -prerelease -legacy -format json|ConvertFrom-JSON
     }
     catch {
         Write-Error "$_"
