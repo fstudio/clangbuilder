@@ -156,9 +156,9 @@ bool PowershellDesktop(std::wstring &psdesktop) {
   return true;
 }
 
-bool PowershellSelect(std::wstring &psfile) {
+bool PowershellSelect(std::wstring &psfile, bool selectcore = false) {
   if (GetEnvironmentVariableW(L"ENABLE_POWERSHELLCORE", nullptr, 0) <= 0 &&
-      GetLastError() == ERROR_ENVVAR_NOT_FOUND) {
+      GetLastError() == ERROR_ENVVAR_NOT_FOUND && !selectcore) {
     if (PowershellDesktop(psfile)) {
       return true;
     }
@@ -171,10 +171,16 @@ bool PowershellSelect(std::wstring &psfile) {
 
 /// %SystemRoot%/System32/WindowsPowerShell/v1.0/powershell.exe
 
+bool EndsCaseWith(const wchar_t *s1, const wchar_t *s2) {
+  auto l = wcslen(s1);
+  auto l2 = wcslen(s2);
+  return (l >= l2 ? (_wcsnicmp(s1 + (l - l2), s2, l2) == 0) : false);
+}
+
 int wmain(int argc, wchar_t **argv) {
   std::wstring psfile;
   SetConsoleTitle(L"Clangbuilder Powershell loader");
-  if (!PowershellSelect(psfile)) {
+  if (!PowershellSelect(psfile, EndsCaseWith(argv[0], L"pwsh.exe"))) {
     MessageBoxW(nullptr, L"Please install Powershell", L"Powershell Not Found",
                 MB_OK | MB_ICONERROR);
     return 1;
