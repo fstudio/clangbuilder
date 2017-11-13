@@ -53,11 +53,11 @@ if ($xmlfeed.feed.entry.GetType().IsArray) {
         }
         $index++
     }
-    $VisualCppPackageName = $xmlfeed.feed.entry[$mindex].title.'#text'
+    $VisualCppPackageName = $xmlfeed.feed.entry[$mindex].properties.Id
     $VisualCppToolsVersion = $xmlfeed.feed.entry[$mindex].properties.Version
 }
 else {
-    $VisualCppPackageName = $xmlfeed.feed.entry.title.'#text'
+    $VisualCppPackageName = $xmlfeed.feed.entry.properties.Id
     $VisualCppToolsVersion = $xmlfeed.feed.entry.properties.Version
 }
 
