@@ -4,7 +4,7 @@
 
 
 $ClangbuilderRoot = Split-Path $PSScriptRoot
-$ViusalCppAtomURL = "http://vcppdogfooding.azurewebsites.net/nuget/"
+$ViusalCppAtomURL = "https://visualcpp.myget.org/F/dailymsvc/api/v2"
 $VisualCppToolsInstallDir = "$ClangbuilderRoot\utils\msvc"
 
 $NuGetDir = "$ClangbuilderRoot\pkgs\Nuget"
