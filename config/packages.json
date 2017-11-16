@@ -61,9 +61,9 @@
         },
         {
             "Name": "NuGet",
-            "URL": "https://dist.nuget.org/win-x86-commandline/v4.4.0/nuget.exe",
+            "URL": "https://dist.nuget.org/win-x86-commandline/v4.4.1/nuget.exe",
             "Extension": "exe",
-            "Version": "4.4.0"
+            "Version": "4.4.1"
         }
     ]
 }
