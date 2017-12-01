@@ -6,7 +6,11 @@
             "X64URL": "https://github.com/git-for-windows/git/releases/download/v2.15.1.windows.2/MinGit-2.15.1.2-busybox-64-bit.zip",
             "Extension": "zip",
             "Mount": "/cmd",
-            "Version": "2.15.1.2"
+            "Version": "2.15.1.2",
+            "CN": {
+                "X86URL": "https://npm.taobao.org/mirrors/git-for-windows/v2.15.1.windows.2/MinGit-2.15.1.2-busybox-32-bit.zip",
+                "X64URL": "https://npm.taobao.org/mirrors/git-for-windows/v2.15.1.windows.2/MinGit-2.15.1.2-busybox-64-bit.zip"
+            }
         },
         {
             "Name": "CMake",

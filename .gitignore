@@ -5,6 +5,7 @@
 /utils/
 /config/ewdk.json
 /config/prebuilt.json
+/config/pkinit.json
 *.pdb
 *.exe
 *.obj

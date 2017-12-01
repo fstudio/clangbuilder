@@ -14,6 +14,13 @@ if (!(Test-Path "$Pkgdir\packages.lock.json")) {
 
 $packages = Get-Content -Path "$ClangbuilderRoot\config\packages.json" |ConvertFrom-Json
 $ipkgs = Get-Content -Path "$Pkgdir\packages.lock.json" |ConvertFrom-Json
+$pklocation = ""
+
+if (Test-Path "$ClangbuilderRoot\config\pkinit.json") {
+    $pkinfo = Get-Content -Path "$ClangbuilderRoot\config\pkinit.json" |ConvertFrom-Json
+    $pklocation = $pkinfo.Location
+    Write-Host "Your location is $pklocation, we can use mirror"
+}
 $pkgcaches = @{}
 
 $pkgs = $packages.Packages
@@ -29,15 +36,30 @@ foreach ($i in $pkgs) {
         Rename-Item "$Pkgdir\$Name" "$Pkgdir\$Name.bak"
     }
     $myurl = $null
-    if ($null -ne $i.URL) {
-        $myurl = $i.URL
+    if ($pklocation -ne "" -and $null -ne $i.$pklocation) {
+        Write-Host "$Name use mirror"
+        if ($null -ne $i.$pklocation.URL) {
+            $myurl = $i.$pklocation.URL
+        }
+        elseif ([System.Environment]::Is64BitOperatingSystem) {
+            $myurl = $i.$pklocation.X64URL
+        }
+        else {
+            $myurl = $i.$pklocation.X86URL
+        }
     }
-    elseif ([System.Environment]::Is64BitOperatingSystem) {
-        $myurl = $i.X64URL
+    if ($myurl -eq $null) {
+        if ($null -ne $i.URL) {
+            $myurl = $i.URL
+        }
+        elseif ([System.Environment]::Is64BitOperatingSystem) {
+            $myurl = $i.X64URL
+        }
+        else {
+            $myurl = $i.X86URL
+        }
     }
-    else {
-        $myurl = $i.X86URL
-    }
+
     Install-Package -ClangbuilderRoot $ClangbuilderRoot -Name $Name -Uri $myurl -Extension $i.Extension
     if (!(Test-Path "$Pkgdir\$Name")) {
         $pkgcaches[$Name] = $ipkgs.$Name
