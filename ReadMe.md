@@ -187,6 +187,7 @@ Function Parallel() {
 
 ## Copyright
 
+License: MIT  
 Author: Force.Charlie  
-Copyright © 2017 ForceStudio. All Rights Reserved.
+Copyright © 2018 Force Charlie. All Rights Reserved.
 
