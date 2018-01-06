@@ -183,6 +183,7 @@ Function Get-ClangArgument {
         $Arguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
         $Arguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
         #$Arguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
+        $Arguments += " -DLIBCXX_HAS_WIN32_THREAD_API=ON"
     }
     return $Arguments
 }
