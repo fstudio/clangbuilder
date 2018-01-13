@@ -90,8 +90,13 @@ Function PMDownload {
         [String]$Path ### save to path
     )
     Write-Host "Download $Uri ..."
+    $InternalUA= [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
+    if($Uri.Contains("sourceforge.net")){
+        $InternalUA="Clangbuilder/4.0"
+    }
+    Write-Host "UserAgent: $InternalUA"
     try {
-        Invoke-WebRequest -Uri $Uri -OutFile $Path -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome -UseBasicParsing
+        Invoke-WebRequest -Uri $Uri -OutFile $Path -UserAgent $InternalUA -UseBasicParsing
     }
     catch {
         Write-Host -ForegroundColor Red "Download error: $_"

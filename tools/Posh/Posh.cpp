@@ -10,7 +10,7 @@ typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS2)(HANDLE, PUSHORT, PUSHORT);
 HMODULE KrModule() {
   static HMODULE hModule = GetModuleHandleW(L"kernel32.dll");
   if (hModule == nullptr) {
-    OutputDebugStringW(L"GetModuleHandleA failed");
+    OutputDebugStringW(L"GetModuleHandleW failed");
   }
   return hModule;
 }
