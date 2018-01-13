@@ -92,7 +92,7 @@ Function PMDownload {
     Write-Host "Download $Uri ..."
     $InternalUA= [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
     if($Uri.Contains("sourceforge.net")){
-        $InternalUA="Clangbuilder/4.0"
+        $InternalUA="Clangbuilder/5.0"
     }
     Write-Host "UserAgent: $InternalUA"
     try {
