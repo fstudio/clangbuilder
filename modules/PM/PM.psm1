@@ -94,7 +94,7 @@ Function PMDownload {
     if($Uri.Contains("sourceforge.net")){
         $InternalUA="Clangbuilder/5.0"
     }
-    Write-Host "UserAgent: $InternalUA"
+	
     try {
         Invoke-WebRequest -Uri $Uri -OutFile $Path -UserAgent $InternalUA -UseBasicParsing
     }
