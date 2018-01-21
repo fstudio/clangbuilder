@@ -1,5 +1,5 @@
 # Author: Force Charlie
-# Copyright (C) 2016. Force Charlie. All Rights Reserved.
+# Copyright (C) 2018. Force Charlie. All Rights Reserved.
 cmake_minimum_required(VERSION 3.2)
 project(ClangbuilderUI)
 
