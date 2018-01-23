@@ -157,7 +157,7 @@ See: [VS15: Adds ARM64 architecture support.](https://gitlab.kitware.com/cmake/c
 
 ## Custom PATH
 
-You can modify [config/initialize.json](./config/initialize.json) , add some directories to PATH. Note that directories have **higher priority** in PATH.
+You can modify [config/initialize.json](./config/initialize.json) , add some directories to PATH. Note that directories have **higher priority** in PATH. (Insert Front)
  
 
 ## Suggest
