@@ -155,6 +155,11 @@ See: [VS15: Adds ARM64 architecture support.](https://gitlab.kitware.com/cmake/c
 .\bin\clangbuilder
 ```
 
+## Custom PATH
+
+You can modify [config/initialize.json](./config/initialize.json) , add some directories to PATH. Note that directories have **higher priority** in PATH.
+ 
+
 ## Suggest
 
 +   Best Platform is Windows 10 x64 
