@@ -37,7 +37,6 @@ if ($ClearEnv) {
     ReinitializePath
 }
 
-InitializeEnv -ClangbuilderRoot $ClangbuilderRoot
 InitializePackageEnv -ClangbuilderRoot $ClangbuilderRoot
 if($InstanceId.Length -eq 0){
     DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
@@ -46,7 +45,7 @@ if($InstanceId.Length -eq 0){
 }
 
 InitializeExtranl -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
-
+InitializeEnv -ClangbuilderRoot $ClangbuilderRoot
 
 if ($Environment) {
     Update-Title -Title " [Environment]"
