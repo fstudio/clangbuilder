@@ -42,16 +42,22 @@ Function Update-Title {
     param(
         [String]$Title
     )
-    if($null -eq $Global:WindowTitleBase){
-        $Global:WindowTitleBase=$Host.UI.RawUI.WindowTitle
-        $Host.UI.RawUI.WindowTitle=$Host.UI.RawUI.WindowTitle+$Title
-    }else{
-        $Host.UI.RawUI.WindowTitle=$Global:WindowTitleBase+$Title
+    if ($null -eq $Global:WindowTitleBase) {
+        $Global:WindowTitleBase = $Host.UI.RawUI.WindowTitle
+        $Host.UI.RawUI.WindowTitle = $Host.UI.RawUI.WindowTitle + $Title
+    }
+    else {
+        $Host.UI.RawUI.WindowTitle = $Global:WindowTitleBase + $Title
     }
 }
 
 Function ReinitializePath {
-    $env:PATH = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
+    if ($PSEdition -eq "Desktop" -or $IsWindows) {
+        $env:PATH += "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
+    }
+    else {
+        $env:PATH = "/usr/local/bin:/usr/bin:/bin"
+    }
 }
 
 
@@ -79,7 +85,7 @@ Function Get-PythonHOME {
 #$result=Update-Language -Lang 65001 # initialize language
 Function Update-Language {
     param(
-        [int]$Lang=65001
+        [int]$Lang = 65001
     )
     $code = @'
 [DllImport("Kernel32.dll")]
@@ -89,6 +95,6 @@ public static extern bool SetConsoleOutputCP(int wCodePageID);
 
 '@
     $wconsole = Add-Type -MemberDefinition $code -Name "WinConsole" -PassThru
-    $result=$wconsole::SetConsoleCP($Lang)
-    $result=$wconsole::SetConsoleOutputCP($Lang)
+    $result = $wconsole::SetConsoleCP($Lang)
+    $result = $wconsole::SetConsoleOutputCP($Lang)
 }

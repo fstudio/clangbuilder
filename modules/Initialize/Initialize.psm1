@@ -5,7 +5,7 @@ Function Test-AddPathEx {
         [String]$Path
     )
     if (Test-Path $Path) {
-        $env:Path = "$Path;${env:Path}"
+        $env:PATH = $Path + [System.IO.Path]::PathSeparator + $env:PATH
     }
 }
 
@@ -28,7 +28,7 @@ Function Add-AbstractPath {
 }
 
 
-Function InitializeEnv{
+Function InitializeEnv {
     param(
         [String]$ClangbuilderRoot
     )
@@ -57,7 +57,7 @@ Function InitializeEnv{
     }    
 }
 
-Function InitializeExtranl{
+Function InitializeExtranl {
     param(
         [ValidateSet("x86", "x64", "ARM", "ARM64")]
         [String]$Arch = "x64",
@@ -68,17 +68,17 @@ Function InitializeExtranl{
     $ExtranllibsDir = "$ClangbuilderRoot\libs"
     
     if (Test-Path "$ExtranllibsDir\$Arch\include") {
-        $env:INCLUDE = "$env:INCLUDE;$ExtranllibsDir\$Arch\include"
+        $env:INCLUDE = $env:INCLUDE + [System.IO.Path]::PathSeparator + "$ExtranllibsDir\$Arch\include"
     }
     if (Test-Path "$ExtranllibsDir\$Arch\lib") {
-        $env:LIB = "$env:LIB;$ExtranllibsDir\$Arch\lib"
+        $env:LIB = $env:LIB + [System.IO.Path]::PathSeparator + "$ExtranllibsDir\$Arch\lib"
     }
     if (Test-Path "$ExtranllibsDir\$Arch\bin") {
-        $env:PATH = "$env:PATH;$ExtranllibsDir\$Arch\bin"
+        $env:PATH = $env:PATH + [System.IO.Path]::PathSeparator + "$ExtranllibsDir\$Arch\bin"
     }
     
     if (Test-Path "$Extranllibs\$Arch\libs") {
-        $env:LIB = "$env:LIB;$Extranllibs\$Arch\libs"
+        $env:LIB = $env:LIB + [System.IO.Path]::PathSeparator + "$ExtranllibsDir\$Arch\libs"
     }
     
 }

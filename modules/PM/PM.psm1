@@ -26,7 +26,7 @@ Function Test-AddPath {
         [String]$Path
     )
     if (Test-Path $Path) {
-        $env:Path = "$Path;${env:Path}"
+        $env:PATH = $Path + [System.IO.Path]::PathSeparator + $env:PATH
     }
 }
 
@@ -74,11 +74,11 @@ Function InitializePackageEnv {
         $gitkey2 = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
         if (Test-Path $gitkey) {
             $gitinstall = Get-RegistryValueEx $gitkey "InstallLocation"
-            Test-AddPath "${gitinstall}\bin"
+            Test-AddPath "$gitinstall\bin"
         }
         elseif (Test-Path $gitkey2) {
             $gitinstall = Get-RegistryValueEx $gitkey2 "InstallLocation"
-            Test-AddPath "${gitinstall}\bin"
+            Test-AddPath "$gitinstall\bin"
         }
     }
 }
@@ -90,9 +90,9 @@ Function PMDownload {
         [String]$Path ### save to path
     )
     Write-Host "Download $Uri ..."
-    $InternalUA= [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
-    if($Uri.Contains("sourceforge.net")){
-        $InternalUA="Clangbuilder/5.0"
+    $InternalUA = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
+    if ($Uri.Contains("sourceforge.net")) {
+        $InternalUA = "Clangbuilder/5.0"
     }
 	
     try {

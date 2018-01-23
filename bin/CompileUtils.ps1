@@ -9,7 +9,8 @@ Push-Location $PWD
 Set-Location $PSScriptRoot
 
 DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot # initialize default visual studio
-
+## Add environment
+InitializeEnv -ClangbuilderRoot $ClangbuilderRoot
 Set-Location "$ClangbuilderRoot\tools\ClangbuilderUI"
 Write-Host "Building ClangbuilderUI ..."
 &nmake
