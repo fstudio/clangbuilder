@@ -44,29 +44,30 @@ Clangbuilder Now Only support use Visual C++ build Clang LLVM LLDB.
 
 Best Visual Studio Version:
 
->VisualStudio 2017
+>Visual Studio 2017 15.5 or later
 
-You can run ClangbuilderUI, select Arch, Configuration and other options. after click `Building`
+You can run ClangbuilderUI, Modify Arch, Configuration and other options. after click `Building`
 
 **ClangbuilderUI Snapshot**
 
-![clangbuilder](./images/cbui.png)
+![clangbuilder](https://github.com/fstudio/clangbuilder/blob/master/docs/images/cbui.png)
 
 **Update 2017-08-19** Clangbuilder support **VisualCppTools.Community.Daily**:
 
-![visualcpptools](./images/visualcpptools.png)
+![visualcpptools](https://github.com/fstudio/clangbuilder/blob/master/docs/images/visualcpptools.png)
 
 **VisualCppTools.Community.Daily** current not support msbuild (becasue cmake ...)
 
 **Update 2017-09-17** ClangbuilderUI Support EWDK
 
-![ewdk](./images/ewdk.png)
+![ewdk](https://github.com/fstudio/clangbuilder/blob/master/docs/images/ewdk.png)
 
 **Branch**
 
 +  Mainline, master/trunk branch , git fetch from https://github.com/llvm-mirror/
 +  Stable, llvm stable branch, like release_50, git fetch from https://github.com/llvm-mirror/
 +  Release, llvm release tag, download for https://releases.llvm.org/
+
 
 **CMake Custom flags**
 
@@ -94,6 +95,7 @@ Flags configuration format is json:
 }
 ```
 
+
 **Engine**
 
 +   MSbuild use msbuild build llvm
@@ -101,7 +103,7 @@ Flags configuration format is json:
 +   NinjaBootstrap use ninja build and bootstrap llvm
 +   NinjaIterate use ninja build llvm, but compile is prebuilt clang (config by `config\prebuilt.json`)
 
-prebuilt.json:
+[prebuilt.json template](https://github.com/fstudio/clangbuilder/blob/master/config/prebuilt.template.json):
 ```json
 {
     "LLVM": {
@@ -111,15 +113,31 @@ prebuilt.json:
 }
 ```
 
+**LLDB**
+
+When you select build LLDB, If not found Python 3 installed. Clangbuilder add flag `-DLLDB_DISABLE_PYTHON=1`.
+
+LLDB maybe not work.
+
 **Libc++**
 
 Only NinjaBootstrap and NinjaIterate will compile libc++ ,Because Visual C++ not support `include_next` now.
 
+```powershell
+clang-cl -std:c++14  -Iinclude\c++\v1 hello.cc c++.lib
+```
+
+copy `c++.dll` to your path(or exe self directory). Clang 6.0 or Clang trunk mybe no Warning.
+
+When need support C++17 with `-std:c++17`,Please modify `new:+165`, Fix redefinition of 'align_val_t'.
+See: [patch/libcxx-msvc-cxx17.patch](https://github.com/fstudio/clangbuilder/blob/master/patch/libcxx-msvc-cxx17.patch)
+
+
 **ARM64**
 
-Build LLVM for ARM64 is broken, You can download **Enterprise WDK (EWDK) Insider Preview** from https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewWDK ,When you config `config/ewdk.json`, ClangbuilderUI able to start `ARM64 Environment Console`
+Build LLVM for ARM64 is broken, But You can download **Enterprise WDK (EWDK) Insider Preview** from https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewWDK ,When you config `config/ewdk.json`, ClangbuilderUI able to start `ARM64 Environment Console`
 
-ewdk.json:
+[ewdk.json template](https://github.com/fstudio/clangbuilder/blob/master/config/ewdk.template.json):
 ```json
 {
 	"Path":"D:\\EWDK",
@@ -127,11 +145,20 @@ ewdk.json:
 }
 ```
 
+*Update*: Visual Studio 15.4 can install `Visual C++ compilers and libraries for ARM64`， CMake 3.10 will support ARM64. 
+
+See: [VS15: Adds ARM64 architecture support.](https://gitlab.kitware.com/cmake/cmake/merge_requests/1215)
+
 ## Commandline
 
 ```cmd
 .\bin\clangbuilder
 ```
+
+## Custom PATH
+
+You can modify [config/initialize.json](https://github.com/fstudio/clangbuilder/blob/master/config/initialize.json) , add some directories to PATH. Note that directories have **higher priority** in PATH. (Insert Front)
+ 
 
 ## Suggest
 
@@ -160,12 +187,22 @@ You can add extranl lib, such as [z3](https://github.com/Z3Prover/z3) , more inf
 
 ## About Ninja Task
 
-**If your memory is small, use ninja to build LLVM, and in the process of linking, the build process is slow due to memory contention. And the computer may even lose its response.**
+**Ninja Task Parallel:**
 
-Link clang requre 1.5GB memory，other require 0.8GB，and Ninja create N+ (processor default 6) link process, requre (0.8xN+0.7)GB or great memory  
+```powershell
+Function Parallel() {
+    $MemSize = (Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory
+    $ProcessorCount = $env:NUMBER_OF_PROCESSORS
+    $MemParallelRaw = $MemSize / 1610612736 #1.5GB
+    #[int]$MemParallel = [Math]::Floor($MemParallelRaw)
+    [int]$MemParallel = [Math]::Ceiling($MemParallelRaw) ## less 1
+    return [Math]::Min($ProcessorCount, $MemParallel)
+}
+```
 
 ## Copyright
 
+License: MIT  
 Author: Force.Charlie  
-Copyright © 2017 ForceStudio. All Rights Reserved.
+Copyright © 2018 Force Charlie. All Rights Reserved.
 
