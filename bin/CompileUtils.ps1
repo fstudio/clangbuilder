@@ -1,7 +1,9 @@
 #!/usr/bin/env powershell
 # Clangbuilder compile clangbuilderui ...
 $ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
-Import-Module -Name "$Global:ClangbuilderRoot/modules/VisualStudio"
+
+Import-Module -Name "$ClangbuilderRoot\modules\Initialize"
+Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
 
 Push-Location $PWD
 Set-Location $PSScriptRoot
