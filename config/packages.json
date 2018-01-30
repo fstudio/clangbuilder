@@ -28,10 +28,10 @@
         },
         {
             "Name": "7z",
-            "X86URL": "https://sourceforge.net/projects/sevenzip/files/7-Zip/18.00/7z1800.msi/download",
-            "X64URL": "https://sourceforge.net/projects/sevenzip/files/7-Zip/18.00/7z1800-x64.msi/download",
+            "X86URL": "https://sourceforge.net/projects/sevenzip/files/7-Zip/18.01/7z1801.msi/download",
+            "X64URL": "https://sourceforge.net/projects/sevenzip/files/7-Zip/18.01/7z1801-x64.msi/download",
             "Extension": "msi",
-            "Version": "18.00"
+            "Version": "18.01"
         },
         {
             "Name": "NSIS",
