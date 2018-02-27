@@ -35,7 +35,7 @@
         },
         {
             "Name": "NSIS",
-            "URL": "https://sourceforge.net/projects/nsis/files/NSIS%203/3.03/nsis-3.03.zip",
+            "URL": "https://sourceforge.net/projects/nsis/files/NSIS%203/3.03/nsis-3.03.zip/download",
             "Extension": "zip",
             "Version": "3.03"
         },

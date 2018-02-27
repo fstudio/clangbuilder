@@ -179,6 +179,8 @@ Function Install-Package {
         [ValidateSet("zip", "msi", "exe")]
         [String]$Extension
     )
+    ## https://githubengineering.com/crypto-removal-notice/
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     $MyPackage = "$ClangbuilderRoot\pkgs\$Name.$Extension"
     $NewDir = "$ClangbuilderRoot\pkgs\$Name"
     $ret = PMDownload -Uri $Uri -Path "$MyPackage"
