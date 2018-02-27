@@ -35,9 +35,9 @@
         },
         {
             "Name": "NSIS",
-            "URL": "https://sourceforge.net/projects/nsis/files/NSIS%203/3.02.1/nsis-3.02.1.zip",
+            "URL": "https://sourceforge.net/projects/nsis/files/NSIS%203/3.03/nsis-3.03.zip",
             "Extension": "zip",
-            "Version": "3.02.1"
+            "Version": "3.03"
         },
         {
             "Name": "Gnuutils",
