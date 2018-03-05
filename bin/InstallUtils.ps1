@@ -3,6 +3,9 @@
 $ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
 $Pkgdir = "$ClangbuilderRoot/pkgs"
 
+Import-Module -Name "$ClangbuilderRoot\modules\NetTLS"
+InitializeTLS
+
 Import-Module -Name "$Global:ClangbuilderRoot\modules\PM" # Package Manager
 
 if (!(Test-Path "$Pkgdir")) {

@@ -6,6 +6,10 @@ param(
     [String]$Branch = "Mainline"
 )
 
+Import-Module -Name "$ClangbuilderRoot\modules\NetTLS"
+
+InitializeTLS
+
 Function Update-LLVM {
     param(
         [Parameter(Position = 0, Mandatory = $True, HelpMessage = "Checkout URL")]

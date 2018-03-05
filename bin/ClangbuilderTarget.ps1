@@ -22,6 +22,9 @@ param (
 )
 
 $ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
+Import-Module -Name "$ClangbuilderRoot\modules\NetTLS"
+
+InitializeTLS
 
 Import-Module -Name "$ClangbuilderRoot\modules\Initialize"
 Import-Module -Name "$ClangbuilderRoot\modules\Utils"

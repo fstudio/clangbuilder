@@ -2,11 +2,9 @@ param(
     [Switch]$LLDB
 )
 
-# SSL 
-if ($PSEdition -eq "Desktop") {
-    $AllProtocols = [System.Net.SecurityProtocolType]'Ssl3,Tls,Tls11,Tls12'
-    [System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
-}
+Import-Module -Name "$ClangbuilderRoot\modules\NetTLS"
+
+InitializeTLS
 
 #$MainURL="https://releases.llvm.org/4.0.1/llvm-4.0.1.src.tar.xz"
 
