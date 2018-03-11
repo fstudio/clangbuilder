@@ -116,9 +116,19 @@ typedef struct ISetupConfiguration2 ISetupConfiguration2;
 typedef struct ISetupPackageReference ISetupPackageReference;
 #endif
 
+#ifndef __ISetupProductReference_FWD_DEFINED__
+#define __ISetupProductReference_FWD_DEFINED__
+typedef struct ISetupProductReference ISetupProductReference;
+#endif
+
 #ifndef __ISetupHelper_FWD_DEFINED__
 #define __ISetupHelper_FWD_DEFINED__
 typedef struct ISetupHelper ISetupHelper;
+#endif
+
+#ifndef __ISetupErrorInfo_FWD_DEFINED__
+#define __ISetupErrorInfo_FWD_DEFINED__
+typedef struct ISetupErrorInfo ISetupErrorInfo;
 #endif
 
 #ifndef __ISetupErrorState_FWD_DEFINED__
@@ -129,6 +139,11 @@ typedef struct ISetupErrorState ISetupErrorState;
 #ifndef __ISetupErrorState2_FWD_DEFINED__
 #define __ISetupErrorState2_FWD_DEFINED__
 typedef struct ISetupErrorState2 ISetupErrorState2;
+#endif
+
+#ifndef __ISetupErrorState3_FWD_DEFINED__
+#define __ISetupErrorState3_FWD_DEFINED__
+typedef struct ISetupErrorState3 ISetupErrorState3;
 #endif
 
 #ifndef __ISetupFailedPackageReference_FWD_DEFINED__
@@ -612,6 +627,25 @@ struct DECLSPEC_UUID("da8d8a16-b2b6-4487-a2f1-594ccccd6bf5") DECLSPEC_NOVTABLE I
 };
 #endif
 
+EXTERN_C const IID IID_ISetupProductReference;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+/// <summary>
+/// A reference to a product package.
+/// </summary>
+struct DECLSPEC_UUID("a170b5ef-223d-492b-b2d4-945032980685") DECLSPEC_NOVTABLE ISetupProductReference : public ISetupPackageReference
+{
+    /// <summary>
+    /// Gets a value indicating whether the product package is installed.
+    /// </summary>
+    /// <param name="pfIsInstalled">A value indicating whether the product package is installed.</param>
+    /// <returns>Standard HRESULT indicating success or failure, including E_NOTSUPPORTED if the reference is not to a product, or E_UNEXPECTED if the Installed property is the wrong type.</returns>
+    STDMETHOD(GetIsInstalled)(
+        _Out_ VARIANT_BOOL* pfIsInstalled
+        ) = 0;
+};
+#endif
+
 EXTERN_C const IID IID_ISetupHelper;
 
 #if defined(__cplusplus) && !defined(CINTERFACE)
@@ -646,6 +680,46 @@ struct DECLSPEC_UUID("42b21b78-6192-463e-87bf-d577838f1d5c") DECLSPEC_NOVTABLE I
         _Out_ PULONGLONG pullMinVersion,
         _Out_ PULONGLONG pullMaxVersion
         ) = 0;
+};
+#endif
+
+EXTERN_C const IID IID_ISetupErrorInfo;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+/// <summary>
+/// Information about errors that occured during install of an instance.
+/// </summary>
+/// <remarks>
+/// Objects may also implement <see cref="IErrorInfo"/> and <see cref="ISetupPropertyStore"/>.
+/// </remarks>
+struct DECLSPEC_UUID("2A2F3292-958E-4905-B36E-013BE84E27AB") DECLSPEC_NOVTABLE ISetupErrorInfo : public IUnknown
+{
+    /// <summary>
+    /// Gets the HRESULT of the error.
+    /// </summary>
+    /// <param name="plHResult">The HRESULT of the error.</param>
+    /// <returns>Standard HRESULT indicating success or failure.</returns>
+    STDMETHOD(GetErrorHResult)(
+        _Out_ HRESULT* plHResult
+    ) = 0;
+
+    /// <summary>
+    /// Gets the class name of the error (exception).
+    /// </summary>
+    /// <param name="pbstrClassName">The class name of the error (exception).</param>
+    /// <returns>Standard HRESULT indicating success or failure.</returns>
+    STDMETHOD(GetErrorClassName)(
+        _Outptr_result_maybenull_ BSTR* pbstrClassName
+    ) = 0;
+
+    /// <summary>
+    /// Gets the error message.
+    /// </summary>
+    /// <param name="pbstrMessage">The error message.</param>
+    /// <returns>Standard HRESULT indicating success or failure.</returns>
+    STDMETHOD(GetErrorMessage)(
+        _Outptr_result_maybenull_ BSTR* pbstrMessage
+    ) = 0;
 };
 #endif
 
@@ -701,6 +775,25 @@ struct DECLSPEC_UUID("9871385B-CA69-48F2-BC1F-7A37CBF0B1EF") DECLSPEC_NOVTABLE I
     /// <returns>Standard HRESULT indicating success or failure.</returns>
     STDMETHOD(GetLogFilePath)(
         _Outptr_result_maybenull_ BSTR* pbstrLogFilePath
+        ) = 0;
+};
+#endif
+
+EXTERN_C const IID IID_ISetupErrorState3;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+/// <summary>
+/// Information about the error state of an instance.
+/// </summary>
+struct DECLSPEC_UUID("290019AD-28E2-46D5-9DE5-DA4B6BCF8057") DECLSPEC_NOVTABLE ISetupErrorState3 : public ISetupErrorState2
+{
+    /// <summary>
+    /// Gets the runtime error that occured during install of an instance.
+    /// </summary>
+    /// <param name="pbstrChip">The runtime error that occured during install of an instance.</param>
+    /// <returns>Standard HRESULT indicating success or failure.</returns>
+    STDMETHOD(GetRuntimeError)(
+        _Outptr_result_maybenull_ ISetupErrorInfo** ppErrorInfo
         ) = 0;
 };
 #endif

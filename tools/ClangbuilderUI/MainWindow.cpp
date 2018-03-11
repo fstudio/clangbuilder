@@ -354,7 +354,7 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
               L"About ClangbuilderUI\tAlt+F1");
 
   label_.push_back(
-      KryceLabel(30, 20, 190, 50, L"Visual Studio\t\xD83C\xDD9A:"));
+      KryceLabel(30, 20, 190, 50, L"ToolChian\t\xD83C\xDD9A:"));
   label_.push_back(KryceLabel(30, 60, 190, 90, L"Platform\t\t\xD83D\xDCBB:"));
   label_.push_back(KryceLabel(30, 100, 190, 130, L"Configuration\t\x2699:"));
   label_.push_back(KryceLabel(30, 140, 190, 170, L"Branches\t\t\x26A1:"));
@@ -553,15 +553,14 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   {
     return S_FALSE;
   }
-  if (instances_[vsindex_].installversion.size() <= 4)
-  {
-    if (archindex_ >= 3)
-    {
-      MessageWindowEx(m_hWnd, L"Not Support Architecture",
-                      L"Build ARM64 Require Visual Studio 15 or Later", nullptr,
-                      kFatalWindow);
-      return S_FALSE;
-    }
+  int xver = 0;
+  wchar_t *mm = nullptr;
+  xver = wcstoul(instances_[vsindex_].installversion.c_str(), &mm, 10);
+  if (xver < 15 && archindex_ >= 3) {
+	  MessageWindowEx(m_hWnd, L"This toolchain does not support ARM64",
+		  L"Please use Visual Studio 15.4 or Later (CppDailyTools 14.13.26310 or Later)", nullptr,
+		  kFatalWindow);
+	  return S_FALSE;
   }
   auto flavor_ = ComboBox_GetCurSel(hConfigBox);
   if (flavor_ < 0 || ARRAYSIZE(Configurations) <= flavor_)
@@ -648,15 +647,14 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   {
     return S_FALSE;
   }
-  if (instances_[vsindex_].installversion.size() <= 4)
-  {
-    if (archindex_ >= 3)
-    {
-      MessageWindowEx(m_hWnd, L"Not Support Architecture",
-                      L"Build ARM64 Require Visual Studio 15 or Later", nullptr,
-                      kFatalWindow);
-      return S_FALSE;
-    }
+  int xver = 0;
+  wchar_t *mm = nullptr;
+  xver = wcstoul(instances_[vsindex_].installversion.c_str(), &mm, 10);
+  if (xver < 15 && archindex_ >= 3) {
+	  MessageWindowEx(m_hWnd, L"This toolchain does not support ARM64",
+		  L"Please use Visual Studio 15.4 or Later (CppDailyTools 14.13.26310 or Later)", nullptr,
+		  kFatalWindow);
+	  return S_FALSE;
   }
   Command.append(L" -Environment -InstanceId ")
       .append(instances_[vsindex_].instanceId);
