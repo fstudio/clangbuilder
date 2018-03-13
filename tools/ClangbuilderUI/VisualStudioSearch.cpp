@@ -107,7 +107,7 @@ bool EnterpriseWDKSensor(const std::wstring &cbroot,
     }
     auto wversion = utf8towide(version.c_str(), (DWORD)version.size());
     inst.description.assign(L"Enterprise WDK ").append(wversion);
-    inst.installversion.assign(wversion);
+    inst.installversion.assign(L"15.0");
     inst.instanceId.assign(L"VisualStudio.EWDK");
   } catch (const std::exception &e) {
     fprintf(stderr, "%s\n", e.what());
