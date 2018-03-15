@@ -65,6 +65,7 @@ add_definitions(
 target_link_libraries(ClangbuilderUI
   d2d1
   dwrite
+  Pathcch
   shcore
   Winmm
   comctl32

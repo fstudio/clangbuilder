@@ -43,59 +43,52 @@ const CLSID CLSID_SetupConfiguration = {
 /* clang-format on */
 #endif
 
-const WCHAR* VCToolsetComponent =
-  L"Microsoft.VisualStudio.Component.VC.Tools.x86.x64";
-const WCHAR* Win10SDKComponent =
-  L"Microsoft.VisualStudio.Component.Windows10SDK";
-const WCHAR* Win81SDKComponent =
-  L"Microsoft.VisualStudio.Component.Windows81SDK";
-const WCHAR* ComponentType = L"Component";
+const WCHAR *VCToolsetComponent =
+    L"Microsoft.VisualStudio.Component.VC.Tools.x86.x64";
+const WCHAR *Win10SDKComponent =
+    L"Microsoft.VisualStudio.Component.Windows10SDK";
+const WCHAR *Win81SDKComponent =
+    L"Microsoft.VisualStudio.Component.Windows81SDK";
+const WCHAR *ComponentType = L"Component";
 
 cmVSSetupAPIHelper::cmVSSetupAPIHelper()
-  : setupConfig(NULL)
-  , setupConfig2(NULL)
-  , setupHelper(NULL)
-  , initializationFailure(false)
-{
-  Initialize();/// ClangbuilderUI Initialize COM done, not require call it
-  //comInitialized = CoInitializeEx(NULL, 0);
-  //if (SUCCEEDED(comInitialized)) {
-  //  
+    : setupConfig(NULL), setupConfig2(NULL), setupHelper(NULL),
+      initializationFailure(false), comInitialized(S_OK) {
+  /// ClangbuilderUI Initialize COM done, not require call it
+  // comInitialized = CoInitializeEx(NULL, 0);
+  // if (SUCCEEDED(comInitialized)) {
+  //
   //} else {
   //  initializationFailure = true;
   //}
+  Initialize();
 }
 
-cmVSSetupAPIHelper::~cmVSSetupAPIHelper()
-{
+cmVSSetupAPIHelper::~cmVSSetupAPIHelper() {
   setupHelper = NULL;
   setupConfig2 = NULL;
   setupConfig = NULL;
-  //if (SUCCEEDED(comInitialized))
-    //CoUninitialize();
+  // if (SUCCEEDED(comInitialized))
+  // CoUninitialize();
 }
 
-bool cmVSSetupAPIHelper::IsVS2017Installed()
-{
+bool cmVSSetupAPIHelper::IsVS2017Installed() {
   return this->EnumerateAndChooseVSInstance();
 }
 
-bool cmVSSetupAPIHelper::IsWin10SDKInstalled()
-{
+bool cmVSSetupAPIHelper::IsWin10SDKInstalled() {
   return (this->EnumerateAndChooseVSInstance() &&
           chosenInstanceInfo.IsWin10SDKInstalled);
 }
 
-bool cmVSSetupAPIHelper::IsWin81SDKInstalled()
-{
+bool cmVSSetupAPIHelper::IsWin81SDKInstalled() {
   return (this->EnumerateAndChooseVSInstance() &&
           chosenInstanceInfo.IsWin81SDKInstalled);
 }
 
 bool cmVSSetupAPIHelper::CheckInstalledComponent(
-  SmartCOMPtr<ISetupPackageReference> package, bool& bVCToolset,
-  bool& bWin10SDK, bool& bWin81SDK)
-{
+    SmartCOMPtr<ISetupPackageReference> package, bool &bVCToolset,
+    bool &bWin10SDK, bool &bWin81SDK) {
   bool ret = false;
   bVCToolset = bWin10SDK = bWin81SDK = false;
   SmartBSTR bstrId;
@@ -110,8 +103,7 @@ bool cmVSSetupAPIHelper::CheckInstalledComponent(
 
   std::wstring id = std::wstring(bstrId);
   std::wstring type = std::wstring(bstrType);
-  if (id.compare(VCToolsetComponent) == 0 &&
-      type.compare(ComponentType) == 0) {
+  if (id.compare(VCToolsetComponent) == 0 && type.compare(ComponentType) == 0) {
     bVCToolset = true;
     ret = true;
   }
@@ -136,8 +128,7 @@ bool cmVSSetupAPIHelper::CheckInstalledComponent(
 // Gather additional info such as if VCToolset, WinSDKs are installed, location
 // of VS and version information.
 bool cmVSSetupAPIHelper::GetVSInstanceInfo(
-  SmartCOMPtr<ISetupInstance2> pInstance, VSInstanceInfo& vsInstanceInfo)
-{
+    SmartCOMPtr<ISetupInstance2> pInstance, VSInstanceInfo &vsInstanceInfo) {
   bool isVCToolSetInstalled = false;
   if (pInstance == NULL)
     return false;
@@ -177,34 +168,31 @@ bool cmVSSetupAPIHelper::GetVSInstanceInfo(
     }
   }
 
-  
   SmartBSTR bstrInstallationName;
   std::wstring InstallationName;
   if (SUCCEEDED(pInstance->GetInstallationName(&bstrInstallationName))) {
-	  InstallationName = std::wstring(bstrInstallationName);
+    InstallationName = std::wstring(bstrInstallationName);
   }
-
 
   SmartBSTR bstrDisplayName;
-  if (SUCCEEDED(pInstance->GetDisplayName(GetUserDefaultLCID(),&bstrDisplayName))) {
-	  vsInstanceInfo.DisplayName = std::wstring(bstrDisplayName);
+  if (SUCCEEDED(
+          pInstance->GetDisplayName(GetUserDefaultLCID(), &bstrDisplayName))) {
+    vsInstanceInfo.DisplayName = std::wstring(bstrDisplayName);
   }
 
-  if (vsInstanceInfo.DisplayName.empty()){
-	  if (InstallationName.empty()) {
-		  vsInstanceInfo.DisplayName = vsInstanceInfo.Version;
-	  }
-	  else {
-		  vsInstanceInfo.DisplayName = InstallationName;
-	  }
-  }
-  else {
-	  if (InstallationName.compare(0, sizeof("VisualStudioPreview") - 1, L"VisualStudioPreview") == 0) {
-		  vsInstanceInfo.DisplayName.append(L" (Preview)");
-	  }
-	  else {
-		  vsInstanceInfo.DisplayName.append(L" (Release)");
-	  }
+  if (vsInstanceInfo.DisplayName.empty()) {
+    if (InstallationName.empty()) {
+      vsInstanceInfo.DisplayName = vsInstanceInfo.Version;
+    } else {
+      vsInstanceInfo.DisplayName = InstallationName;
+    }
+  } else {
+    if (InstallationName.compare(0, sizeof("VisualStudioPreview") - 1,
+                                 L"VisualStudioPreview") == 0) {
+      vsInstanceInfo.DisplayName.append(L" (Preview)");
+    } else {
+      vsInstanceInfo.DisplayName.append(L" (Release)");
+    }
   }
 
   // Reboot may have been required before the product package was registered
@@ -216,19 +204,18 @@ bool cmVSSetupAPIHelper::GetVSInstanceInfo(
     }
 
     LPSAFEARRAY lpsaPackages;
-    if (FAILED(pInstance->GetPackages(&lpsaPackages)) ||
-        lpsaPackages == NULL) {
+    if (FAILED(pInstance->GetPackages(&lpsaPackages)) || lpsaPackages == NULL) {
       return false;
     }
 
     int lower = lpsaPackages->rgsabound[0].lLbound;
     int upper = lpsaPackages->rgsabound[0].cElements + lower;
 
-    IUnknown** ppData = (IUnknown**)lpsaPackages->pvData;
+    IUnknown **ppData = (IUnknown **)lpsaPackages->pvData;
     for (int i = lower; i < upper; i++) {
       SmartCOMPtr<ISetupPackageReference> package = NULL;
       if (FAILED(ppData[i]->QueryInterface(IID_ISetupPackageReference,
-                                           (void**)&package)) ||
+                                           (void **)&package)) ||
           package == NULL)
         continue;
 
@@ -249,8 +236,7 @@ bool cmVSSetupAPIHelper::GetVSInstanceInfo(
   return isVCToolSetInstalled;
 }
 
-bool cmVSSetupAPIHelper::GetVSInstanceInfo(std::string& vsInstallLocation)
-{
+bool cmVSSetupAPIHelper::GetVSInstanceInfo(std::string &vsInstallLocation) {
   vsInstallLocation = "";
   bool isInstalled = this->EnumerateAndChooseVSInstance();
 
@@ -264,45 +250,50 @@ bool cmVSSetupAPIHelper::GetVSInstanceInfo(std::string& vsInstallLocation)
 }
 
 ///
-inline bool VSInstanceInfoCompare(const VSInstanceInfo &first, const VSInstanceInfo &second) {
-	return first.ullVersion < second.ullVersion;
+inline bool VSInstanceInfoCompare(const VSInstanceInfo &first,
+                                  const VSInstanceInfo &second) {
+  return first.ullVersion < second.ullVersion;
 }
 
-bool cmVSSetupAPIHelper::GetVSInstanceInfo(std::vector<VSInstanceInfo>& vecVSInstances) {
-	vecVSInstances.clear();
-	if (initializationFailure || setupConfig == nullptr || setupConfig2 == nullptr || setupHelper == nullptr)
-		return false;
-	SmartCOMPtr<IEnumSetupInstances> enumInstances = NULL;
-	if (FAILED(
-		setupConfig2->EnumInstances((IEnumSetupInstances**)&enumInstances)) ||
-		!enumInstances) {
-		return false;
-	}
+bool cmVSSetupAPIHelper::GetVSInstanceInfo(
+    std::vector<VSInstanceInfo> &vecVSInstances) {
+  vecVSInstances.clear();
+  if (initializationFailure || setupConfig == nullptr ||
+      setupConfig2 == nullptr || setupHelper == nullptr) {
+    MessageBoxW(nullptr, L"Failed", L"Initialize failed", MB_OK);
+    return false;
+  }
 
-	SmartCOMPtr<ISetupInstance> instance;
-	while (SUCCEEDED(enumInstances->Next(1, &instance, NULL)) && instance) {
-		SmartCOMPtr<ISetupInstance2> instance2 = NULL;
-		if (FAILED(
-			instance->QueryInterface(IID_ISetupInstance2, (void**)&instance2)) ||
-			!instance2) {
-			instance = NULL;
-			continue;
-		}
+  SmartCOMPtr<IEnumSetupInstances> enumInstances = NULL;
+  if (FAILED(setupConfig2->EnumInstances(
+          (IEnumSetupInstances **)&enumInstances)) ||
+      !enumInstances) {
+    return false;
+  }
 
-		VSInstanceInfo instanceInfo;
-		bool isInstalled = GetVSInstanceInfo(instance2, instanceInfo);
-		instance = instance2 = NULL;
+  SmartCOMPtr<ISetupInstance> instance;
+  while (SUCCEEDED(enumInstances->Next(1, &instance, NULL)) && instance) {
+    SmartCOMPtr<ISetupInstance2> instance2 = NULL;
+    if (FAILED(instance->QueryInterface(IID_ISetupInstance2,
+                                        (void **)&instance2)) ||
+        !instance2) {
+      instance = NULL;
+      continue;
+    }
 
-		if (isInstalled) {
-			vecVSInstances.push_back(instanceInfo);
-		}
-	}
+    VSInstanceInfo instanceInfo;
+    bool isInstalled = GetVSInstanceInfo(instance2, instanceInfo);
+    instance = instance2 = NULL;
 
-	return true;
+    if (isInstalled) {
+      vecVSInstances.push_back(instanceInfo);
+    }
+  }
+
+  return true;
 }
 
-bool cmVSSetupAPIHelper::EnumerateAndChooseVSInstance()
-{
+bool cmVSSetupAPIHelper::EnumerateAndChooseVSInstance() {
   bool isVSInstanceExists = false;
   if (chosenInstanceInfo.VSInstallLocation.compare(L"") != 0) {
     return true;
@@ -314,8 +305,8 @@ bool cmVSSetupAPIHelper::EnumerateAndChooseVSInstance()
 
   std::vector<VSInstanceInfo> vecVSInstances;
   SmartCOMPtr<IEnumSetupInstances> enumInstances = NULL;
-  if (FAILED(
-        setupConfig2->EnumInstances((IEnumSetupInstances**)&enumInstances)) ||
+  if (FAILED(setupConfig2->EnumInstances(
+          (IEnumSetupInstances **)&enumInstances)) ||
       !enumInstances) {
     return false;
   }
@@ -323,8 +314,8 @@ bool cmVSSetupAPIHelper::EnumerateAndChooseVSInstance()
   SmartCOMPtr<ISetupInstance> instance;
   while (SUCCEEDED(enumInstances->Next(1, &instance, NULL)) && instance) {
     SmartCOMPtr<ISetupInstance2> instance2 = NULL;
-    if (FAILED(
-          instance->QueryInterface(IID_ISetupInstance2, (void**)&instance2)) ||
+    if (FAILED(instance->QueryInterface(IID_ISetupInstance2,
+                                        (void **)&instance2)) ||
         !instance2) {
       instance = NULL;
       continue;
@@ -349,8 +340,7 @@ bool cmVSSetupAPIHelper::EnumerateAndChooseVSInstance()
 }
 
 int cmVSSetupAPIHelper::ChooseVSInstance(
-  const std::vector<VSInstanceInfo>& vecVSInstances)
-{
+    const std::vector<VSInstanceInfo> &vecVSInstances) {
   if (vecVSInstances.size() == 0)
     return -1;
 
@@ -401,8 +391,7 @@ int cmVSSetupAPIHelper::ChooseVSInstance(
   return chosenIndex;
 }
 
-bool cmVSSetupAPIHelper::Initialize()
-{
+bool cmVSSetupAPIHelper::Initialize() {
   if (initializationFailure)
     return false;
 
@@ -420,14 +409,14 @@ bool cmVSSetupAPIHelper::Initialize()
   }
 
   if (FAILED(setupConfig.QueryInterface(IID_ISetupConfiguration2,
-                                        (void**)&setupConfig2)) ||
+                                        (void **)&setupConfig2)) ||
       setupConfig2 == NULL) {
     initializationFailure = true;
     return false;
   }
 
-  if (FAILED(
-        setupConfig.QueryInterface(IID_ISetupHelper, (void**)&setupHelper)) ||
+  if (FAILED(setupConfig.QueryInterface(IID_ISetupHelper,
+                                        (void **)&setupHelper)) ||
       setupHelper == NULL) {
     initializationFailure = true;
     return false;
