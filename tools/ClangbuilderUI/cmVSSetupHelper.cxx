@@ -186,7 +186,7 @@ bool cmVSSetupAPIHelper::GetVSInstanceInfo(
   if (SUCCEEDED(hr)) {
     hr = catalog->IsPrerelease(&vt.boolVal);
     if (SUCCEEDED(hr)) {
-      vsInstanceInfo.IsPrereleased = (vt.boolVal != 0);
+      vsInstanceInfo.IsPrereleased = vt;
     }
   }
   if (vsInstanceInfo.DisplayName.empty()) {

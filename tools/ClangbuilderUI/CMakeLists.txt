@@ -69,6 +69,8 @@ target_link_libraries(ClangbuilderUI
   shcore
   Winmm
   comctl32
+  ole32.lib
+  comsupp.lib
 )
 
 install(TARGETS "ClangbuilderUI"
