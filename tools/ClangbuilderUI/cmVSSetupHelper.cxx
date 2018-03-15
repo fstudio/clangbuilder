@@ -2,6 +2,7 @@
    file Copyright.txt or https://cmake.org/licensing for details.  */
 #include "stdafx.h"
 #include "cmVSSetupHelper.h"
+#include <comutil.h>
 #include <algorithm>
 #include <list>
 
@@ -179,21 +180,24 @@ bool cmVSSetupAPIHelper::GetVSInstanceInfo(
           pInstance->GetDisplayName(GetUserDefaultLCID(), &bstrDisplayName))) {
     vsInstanceInfo.DisplayName = std::wstring(bstrDisplayName);
   }
-
+  SmartCOMPtr<ISetupInstanceCatalog> catalog = nullptr;
+  variant_t vt;
+  auto hr = pInstance->QueryInterface(&catalog);
+  if (SUCCEEDED(hr)) {
+    hr = catalog->IsPrerelease(&vt.boolVal);
+    if (SUCCEEDED(hr)) {
+      vsInstanceInfo.IsPrereleased = (vt.boolVal != 0);
+    }
+  }
   if (vsInstanceInfo.DisplayName.empty()) {
     if (InstallationName.empty()) {
       vsInstanceInfo.DisplayName = vsInstanceInfo.Version;
     } else {
       vsInstanceInfo.DisplayName = InstallationName;
     }
-  } else {
-    if (InstallationName.compare(0, sizeof("VisualStudioPreview") - 1,
-                                 L"VisualStudioPreview") == 0) {
-      vsInstanceInfo.DisplayName.append(L" (Preview)");
-    } else {
-      vsInstanceInfo.DisplayName.append(L" (Release)");
-    }
   }
+  vsInstanceInfo.DisplayName.append(
+      vsInstanceInfo.IsPrereleased ? L" (Preview)" : L" (Release)");
 
   // Reboot may have been required before the product package was registered
   // (last).
@@ -256,7 +260,7 @@ inline bool VSInstanceInfoCompare(const VSInstanceInfo &first,
 }
 
 bool cmVSSetupAPIHelper::GetVSInstanceInfo(
-    std::vector<VSInstanceInfo> &vecVSInstances) {
+    std::list<VSInstanceInfo> &vecVSInstances) {
   vecVSInstances.clear();
   if (initializationFailure || setupConfig == nullptr ||
       setupConfig2 == nullptr || setupHelper == nullptr) {
@@ -286,7 +290,11 @@ bool cmVSSetupAPIHelper::GetVSInstanceInfo(
     instance = instance2 = NULL;
 
     if (isInstalled) {
-      vecVSInstances.push_back(instanceInfo);
+      if (instanceInfo.IsPrereleased) {
+        vecVSInstances.push_front(std::move(instanceInfo));
+      } else {
+        vecVSInstances.push_back(std::move(instanceInfo));
+      }
     }
   }
 

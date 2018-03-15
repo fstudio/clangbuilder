@@ -12,8 +12,7 @@
 //};
 // flexible
 
-struct VisualStudioInstance
-{
+struct VisualStudioInstance {
   VisualStudioInstance() = default;
   VisualStudioInstance(const std::wstring &des, const std::wstring &ver,
                        const std::wstring &id)
@@ -23,5 +22,6 @@ struct VisualStudioInstance
   std::wstring instanceId;
 };
 
-bool VisualStudioSearch(const std::wstring &cbroot,std::vector<VisualStudioInstance> &instances);
+bool VisualStudioSearch(const std::wstring &cbroot,
+                        std::vector<VisualStudioInstance> &instances);
 #endif

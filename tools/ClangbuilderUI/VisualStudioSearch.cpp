@@ -144,7 +144,7 @@ bool VisualStudioSearch(const std::wstring &cbroot,
     instances.push_back(std::move(vs));
   }
   cmVSSetupAPIHelper helper;
-  std::vector<VSInstanceInfo> vsInstances;
+  std::list<VSInstanceInfo> vsInstances;
   if (helper.GetVSInstanceInfo(vsInstances)) {
     for (auto &vs : vsInstances) {
       instances.emplace_back(vs.DisplayName, vs.Version, vs.InstanceId);
