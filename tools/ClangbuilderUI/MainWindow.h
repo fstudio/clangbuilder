@@ -81,7 +81,8 @@ private:
   ID2D1SolidColorBrush *m_AreaBorderBrush;
   IDWriteTextFormat *m_pWriteTextFormat;
   IDWriteFactory *m_pWriteFactory;
-
+  FLOAT dpiX;
+  FLOAT dpiY;
   HRESULT CreateDeviceIndependentResources();
   HRESULT Initialize();
   HRESULT InitializeControl();
@@ -91,6 +92,8 @@ private:
   D2D1_SIZE_U CalculateD2DWindowSize();
   void OnResize(UINT width, UINT height);
   bool InitializeClangbuilderTarget();
+  /// member
+  HFONT hFont{nullptr};
   HWND hVisualStudioBox;
   HWND hPlatformBox;
   HWND hConfigBox;
@@ -100,7 +103,6 @@ private:
   HWND hCheckSdklow_;
   HWND hCheckPackaged_;
   HWND hCheckCleanEnv_;
-  HWND hCheckLink_;
   HWND hCheckLLDB_;
   HWND hButtonTask_;
   HWND hButtonEnv_;

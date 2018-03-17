@@ -21,6 +21,8 @@ int WindowMessageRunLoop() {
                                ICC_TREEVIEW_CLASSES | ICC_COOL_CLASSES |
                                    ICC_LISTVIEW_CLASSES};
   InitCommonControlsEx(&info);
+  /// DPI
+  SetProcessDPIAware();
   MainWindow window;
   MSG msg;
   window.InitializeWindow();

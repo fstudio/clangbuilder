@@ -46,7 +46,9 @@ const wchar_t *BranchTable[] = {L"Mainline", L"Stable", L"Release"};
 MainWindow::MainWindow()
     : m_pFactory(nullptr), m_pHwndRenderTarget(nullptr),
       m_pBasicTextBrush(nullptr), m_AreaBorderBrush(nullptr),
-      m_pWriteFactory(nullptr), m_pWriteTextFormat(nullptr) {}
+      m_pWriteFactory(nullptr), m_pWriteTextFormat(nullptr) {
+  ///
+}
 MainWindow::~MainWindow() {
   SafeRelease(&m_pWriteTextFormat);
   SafeRelease(&m_pWriteFactory);
@@ -54,6 +56,15 @@ MainWindow::~MainWindow() {
   SafeRelease(&m_AreaBorderBrush);
   SafeRelease(&m_pHwndRenderTarget);
   SafeRelease(&m_pFactory);
+  if (hFont != nullptr) {
+    DeleteFont(hFont);
+  }
+}
+
+HRESULT MainWindow::Initialize() {
+  auto hr = CreateDeviceIndependentResources();
+  m_pFactory->GetDesktopDpi(&dpiX, &dpiY);
+  return hr;
 }
 
 LRESULT MainWindow::InitializeWindow() {
@@ -71,12 +82,7 @@ HRESULT MainWindow::CreateDeviceIndependentResources() {
   hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_pFactory);
   return hr;
 }
-HRESULT MainWindow::Initialize() {
-  auto hr = CreateDeviceIndependentResources();
-  FLOAT dpiX, dpiY;
-  m_pFactory->GetDesktopDpi(&dpiX, &dpiY);
-  return hr;
-}
+
 HRESULT MainWindow::CreateDeviceResources() {
   HRESULT hr = S_OK;
 
@@ -193,7 +199,6 @@ HRESULT MainWindow::InitializeControl() {
   assert(hBranchBox);
   assert(hCheckPackaged_);
   assert(hCheckCleanEnv_);
-  assert(hCheckLink_);
   assert(hCheckLLDB_);
   assert(hButtonTask_);
   assert(hButtonEnv_);
@@ -235,7 +240,7 @@ HRESULT MainWindow::InitializeControl() {
   }
   ::SendMessage(hBranchBox, CB_SETCURSEL, 0, 0);
 
-  Button_SetCheck(hCheckLink_, 1);
+  // Button_SetCheck(hCheckLink_, 1);
   return S_OK;
 }
 
@@ -254,12 +259,12 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   HICON hIcon = LoadIconW(GetModuleHandleW(nullptr),
                           MAKEINTRESOURCEW(IDI_CLANGBUILDERUI));
   SetIcon(hIcon, TRUE);
-  HFONT hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+  hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
   LOGFONTW logFont = {0};
   GetObjectW(hFont, sizeof(logFont), &logFont);
   DeleteObject(hFont);
-  hFont = NULL;
-  logFont.lfHeight = 19;
+  hFont = nullptr;
+  logFont.lfHeight = -MulDiv(14, dpiY, 96);
   logFont.lfWeight = FW_NORMAL;
   wcscpy_s(logFont.lfFaceName, L"Segoe UI");
   hFont = CreateFontIndirectW(&logFont);
@@ -298,11 +303,9 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   hCheckCleanEnv_ =
       LambdaCreateWindow(WC_BUTTONW, L"Use Clean Environment (Env)",
                          CHECKBOXSTYLE, 200, 290, 360, 27, nullptr);
-  hCheckLink_ = LambdaCreateWindow(WC_BUTTONW, L"Link Static Runtime Library",
-                                   CHECKBOXSTYLE, 200, 320, 360, 27, nullptr);
   hCheckLLDB_ = LambdaCreateWindow(WC_BUTTONW,
                                    L"Build LLDB (Visual Studio 2015 or Later)",
-                                   CHECKBOXSTYLE, 200, 350, 360, 27, nullptr);
+                                   CHECKBOXSTYLE, 200, 320, 360, 27, nullptr);
   // Button_SetElevationRequiredState
   hButtonTask_ =
       LambdaCreateWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 420,
@@ -528,10 +531,6 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 
   if (Button_GetCheck(hCheckPackaged_) == BST_CHECKED) {
     Command.append(L" -Package");
-  }
-
-  if (Button_GetCheck(hCheckLink_) == BST_CHECKED) {
-    Command.append(L" -Static");
   }
 
   if (Button_GetCheck(hCheckLLDB_) == BST_CHECKED) {

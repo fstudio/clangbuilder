@@ -16,7 +16,6 @@ param (
     [Switch]$Environment, # start environment 
     [Switch]$Sdklow, # low sdk support
     [Switch]$LLDB,
-    [Switch]$Static,
     [Switch]$Package,
     [Switch]$ClearEnv
 )
@@ -103,16 +102,17 @@ $Global:LatestBuildDir = ""
 $CMakeArguments = "`"$LLVMSource`""
 
 if ($LLDB) {
-    $PythonHome = Get-PythonHOME -Arch $Arch
-    Write-Host -ForegroundColor Yellow "Building LLVM with lldb,$Engine"
-    if ($null -eq $PythonHome) {
-        $CMakeArguments += " -DLLDB_DISABLE_PYTHON=1"
-        Write-Host -ForegroundColor Yellow "Not Found Python 3 installed,Disable LLDB Python Support"
-    }
-    else {
-        $CMakeArguments += " -DPYTHON_HOME=$PythonHome"
-        Write-Host -ForegroundColor Green "Python 3: $PythonHome"
-    }
+    $CMakeArguments += " -DLLDB_RELOCATABLE_PYTHON=1 -DLLDB_DISABLE_PYTHON=1"
+    # $PythonHome = Get-PythonHOME -Arch $Arch
+    # Write-Host -ForegroundColor Yellow "Building LLVM with lldb,$Engine"
+    # if ($null -eq $PythonHome) {
+    #     $CMakeArguments += " -DLLDB_DISABLE_PYTHON=1"
+    #     Write-Host -ForegroundColor Yellow "Not Found Python 3 installed,Disable LLDB Python Support"
+    # }
+    # else {
+    #     $CMakeArguments += " -DPYTHON_HOME=$PythonHome"
+    #     Write-Host -ForegroundColor Green "Python 3: $PythonHome"
+    # }
 }
 
 $CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor   -DLLVM_ENABLE_ASSERTIONS=OFF"
@@ -129,16 +129,6 @@ $CMakeArguments += CMakeCustomflags -ClangbuilderRoot $ClangbuilderRoot -Branch 
 
 
 # -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
-$UpFlavor = $Flavor.ToUpper()
-if ($Flavor -eq "Release" -or $Flavor -eq "MinSizeRel") {
-    $MTStaticLINK = "MT"
-}
-else {
-    $MTStaticLINK = "MTd"
-}
-if ($Static) {
-    $CMakeArguments += " -DLLVM_USE_CRT_$UpFlavor=$MTStaticLINK"
-}
 
 Function Set-Workdir {
     param(
