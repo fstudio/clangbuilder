@@ -395,7 +395,7 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
   UpdateWindowPos(hCheckLLDB_);
   UpdateWindowPos(hButtonTask_);
   UpdateWindowPos(hButtonEnv_);
-  return LRESULT();
+  return S_OK;
 }
 LRESULT MainWindow::OnPaint(UINT nMsg, WPARAM wParam, LPARAM lParam,
                             BOOL &bHandle) {
