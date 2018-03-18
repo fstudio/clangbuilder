@@ -55,6 +55,7 @@ public:
   MESSAGE_HANDLER(WM_CLOSE, OnClose)
   MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
   MESSAGE_HANDLER(WM_SIZE, OnSize)
+  MESSAGE_HANDLER(WM_DPICHANGED,OnDpiChanged)
   MESSAGE_HANDLER(WM_PAINT, OnPaint)
   MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColorStatic)
   SYSCOMMAND_ID_HANDLER(IDM_CLANGBUILDER_ABOUT, OnSysMemuAbout)
@@ -65,6 +66,7 @@ public:
   LRESULT OnDestroy(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle);
   LRESULT OnClose(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle);
   LRESULT OnSize(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle);
+  LRESULT OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle);
   LRESULT OnPaint(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle);
   LRESULT OnCtlColorStatic(UINT nMsg, WPARAM wParam, LPARAM lParam,
                            BOOL &bHandle);
@@ -81,8 +83,8 @@ private:
   ID2D1SolidColorBrush *m_AreaBorderBrush;
   IDWriteTextFormat *m_pWriteTextFormat;
   IDWriteFactory *m_pWriteFactory;
-  FLOAT dpiX;
-  FLOAT dpiY;
+  int dpiX;
+  int dpiY;
   HRESULT CreateDeviceIndependentResources();
   HRESULT Initialize();
   HRESULT InitializeControl();

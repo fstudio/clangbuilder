@@ -63,7 +63,10 @@ MainWindow::~MainWindow() {
 
 HRESULT MainWindow::Initialize() {
   auto hr = CreateDeviceIndependentResources();
-  m_pFactory->GetDesktopDpi(&dpiX, &dpiY);
+  FLOAT dpiX_, dpiY_;
+  m_pFactory->GetDesktopDpi(&dpiX_, &dpiY_);
+  dpiX = static_cast<int>(dpiX_);
+  dpiY = static_cast<int>(dpiY_);
   return hr;
 }
 
@@ -104,7 +107,10 @@ HRESULT MainWindow::CreateDeviceResources() {
   }
   return hr;
 }
-void MainWindow::DiscardDeviceResources() { SafeRelease(&m_pBasicTextBrush); }
+void MainWindow::DiscardDeviceResources() {
+  ///
+  SafeRelease(&m_pBasicTextBrush);
+}
 HRESULT MainWindow::OnRender() {
   auto hr = CreateDeviceResources();
   hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
@@ -118,19 +124,18 @@ HRESULT MainWindow::OnRender() {
 #pragma warning(disable : 4244)
 #pragma warning(disable : 4267)
   if (SUCCEEDED(hr)) {
-    RECT rect;
-    GetClientRect(&rect);
+
+    auto dsz = m_pHwndRenderTarget->GetSize();
     m_pHwndRenderTarget->BeginDraw();
     m_pHwndRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
     m_pHwndRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
 
     m_pHwndRenderTarget->DrawRectangle(
-        D2D1::RectF(20, 10, rect.right - rect.left - 20, 220),
+        D2D1::RectF(20, 10, dsz.width - 20, dsz.height - 20), m_AreaBorderBrush,
+        1.0);
+    m_pHwndRenderTarget->DrawRectangle(
+        D2D1::RectF(20, 220, dsz.width - 20, dsz.height - 20),
         m_AreaBorderBrush, 1.0);
-    m_pHwndRenderTarget->DrawRectangle(D2D1::RectF(20, 220,
-                                                   rect.right - rect.left - 20,
-                                                   rect.bottom - rect.top - 20),
-                                       m_AreaBorderBrush, 1.0);
 
     for (auto &label : label_) {
       if (label.text.empty())
@@ -259,6 +264,8 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   HICON hIcon = LoadIconW(GetModuleHandleW(nullptr),
                           MAKEINTRESOURCEW(IDI_CLANGBUILDERUI));
   SetIcon(hIcon, TRUE);
+  this->MoveWindow(MulDiv(100, dpiX, 96), MulDiv(100, dpiY, 96),
+                   MulDiv(700, dpiX, 96), MulDiv(540, dpiY, 96));
   hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
   LOGFONTW logFont = {0};
   GetObjectW(hFont, sizeof(logFont), &logFont);
@@ -271,9 +278,10 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   auto LambdaCreateWindow = [&](LPCWSTR lpClassName, LPCWSTR lpWindowName,
                                 DWORD dwStyle, int X, int Y, int nWidth,
                                 int nHeight, HMENU hMenu) -> HWND {
-    auto hw = CreateWindowExW(WINDOWEXSTYLE, lpClassName, lpWindowName, dwStyle,
-                              X, Y, nWidth, nHeight, m_hWnd, hMenu,
-                              HINST_THISCOMPONENT, nullptr);
+    auto hw = CreateWindowExW(
+        WINDOWEXSTYLE, lpClassName, lpWindowName, dwStyle, MulDiv(X, dpiX, 96),
+        MulDiv(Y, dpiY, 96), MulDiv(nWidth, dpiX, 96),
+        MulDiv(nHeight, dpiY, 96), m_hWnd, hMenu, HINST_THISCOMPONENT, nullptr);
     if (hw) {
       ::SendMessageW(hw, WM_SETFONT, (WPARAM)hFont, lParam);
     }
@@ -318,8 +326,8 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   InsertMenuW(hSystemMenu, SC_CLOSE, MF_ENABLED, IDM_CLANGBUILDER_ABOUT,
               L"About ClangbuilderUI\tAlt+F1");
 
-  label_.push_back(KryceLabel(30, 20, 190, 50, L"ToolChian\t\xD83C\xDD9A:"));
-  label_.push_back(KryceLabel(30, 60, 190, 90, L"Platform\t\t\xD83D\xDCBB:"));
+  label_.push_back(KryceLabel(30, 20, 190, 50, L"Distribution\t\xD83C\xDD9A:"));
+  label_.push_back(KryceLabel(30, 60, 190, 90, L"Architecture\t\xD83D\xDCBB:"));
   label_.push_back(KryceLabel(30, 100, 190, 130, L"Configuration\t\x2699:"));
   label_.push_back(KryceLabel(30, 140, 190, 170, L"Branches\t\t\x26A1:"));
   label_.push_back(KryceLabel(30, 180, 190, 210, L"Engine\t\t\xD83D\xDEE0:"));
@@ -347,6 +355,49 @@ LRESULT MainWindow::OnSize(UINT nMsg, WPARAM wParam, LPARAM lParam,
   UINT height = HIWORD(lParam);
   OnResize(width, height);
   return S_OK;
+}
+LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
+                                 BOOL &bHandle) {
+  /// GET new dpi
+  FLOAT dpiX_, dpiY_;
+  m_pFactory->GetDesktopDpi(&dpiX_, &dpiY_);
+  dpiX = static_cast<int>(dpiX_);
+  dpiY = static_cast<int>(dpiY_);
+  RECT *const prcNewWindow = (RECT *)lParam;
+  ::SetWindowPos(m_hWnd, NULL, prcNewWindow->left, prcNewWindow->top,
+                 MulDiv(prcNewWindow->right - prcNewWindow->left, dpiX, 96),
+                 MulDiv(prcNewWindow->bottom - prcNewWindow->top, dpiY, 96),
+                 SWP_NOZORDER | SWP_NOACTIVATE);
+  LOGFONTW logFont = {0};
+  GetObjectW(hFont, sizeof(logFont), &logFont);
+  DeleteObject(hFont);
+  hFont = nullptr;
+  logFont.lfHeight = -MulDiv(14, dpiY, 96);
+  logFont.lfWeight = FW_NORMAL;
+  wcscpy_s(logFont.lfFaceName, L"Segoe UI");
+  hFont = CreateFontIndirectW(&logFont);
+  auto UpdateWindowPos = [&](HWND hWnd) {
+    RECT rect;
+    ::GetClientRect(hWnd, &rect);
+    ::SetWindowPos(hWnd, NULL, MulDiv(rect.left, dpiX, 96),
+                   MulDiv(rect.top, dpiY, 96),
+                   MulDiv(rect.right - rect.left, dpiX, 96),
+                   MulDiv(rect.bottom - rect.top, dpiY, 96),
+                   SWP_NOZORDER | SWP_NOACTIVATE);
+    ::SendMessageW(hWnd, WM_SETFONT, (WPARAM)hFont, lParam);
+  };
+  UpdateWindowPos(hVisualStudioBox);
+  UpdateWindowPos(hPlatformBox);
+  UpdateWindowPos(hConfigBox);
+  UpdateWindowPos(hBranchBox);
+  UpdateWindowPos(hBuildBox);
+  UpdateWindowPos(hCheckSdklow_);
+  UpdateWindowPos(hCheckPackaged_);
+  UpdateWindowPos(hCheckCleanEnv_);
+  UpdateWindowPos(hCheckLLDB_);
+  UpdateWindowPos(hButtonTask_);
+  UpdateWindowPos(hButtonEnv_);
+  return LRESULT();
 }
 LRESULT MainWindow::OnPaint(UINT nMsg, WPARAM wParam, LPARAM lParam,
                             BOOL &bHandle) {
