@@ -133,9 +133,9 @@ HRESULT MainWindow::OnRender() {
     m_pHwndRenderTarget->DrawRectangle(
         D2D1::RectF(20, 10, dsz.width - 20, dsz.height - 20), m_AreaBorderBrush,
         1.0);
-    m_pHwndRenderTarget->DrawRectangle(
-        D2D1::RectF(20, 220, dsz.width - 20, dsz.height - 20),
-        m_AreaBorderBrush, 1.0);
+    m_pHwndRenderTarget->DrawLine(D2D1::Point2F(20, 220),
+                                  D2D1::Point2F(dsz.width - 20, 220),
+                                  m_AreaBorderBrush, 1.0);
 
     for (auto &label : label_) {
       if (label.text.empty())
@@ -265,7 +265,7 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
                           MAKEINTRESOURCEW(IDI_CLANGBUILDERUI));
   SetIcon(hIcon, TRUE);
   this->MoveWindow(MulDiv(100, dpiX, 96), MulDiv(100, dpiY, 96),
-                   MulDiv(700, dpiX, 96), MulDiv(540, dpiY, 96));
+                   MulDiv(700, dpiX, 96), MulDiv(500, dpiY, 96));
   hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
   LOGFONTW logFont = {0};
   GetObjectW(hFont, sizeof(logFont), &logFont);
@@ -316,10 +316,10 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
                                    CHECKBOXSTYLE, 200, 320, 360, 27, nullptr);
   // Button_SetElevationRequiredState
   hButtonTask_ =
-      LambdaCreateWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 420,
+      LambdaCreateWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 380,
                          195, 30, (HMENU)IDC_BUTTON_STARTTASK);
   hButtonEnv_ = LambdaCreateWindow(WC_BUTTONW, L"Environment Console",
-                                   PUSHBUTTONSTYLE | BS_ICON, 405, 420, 195, 30,
+                                   PUSHBUTTONSTYLE | BS_ICON, 405, 380, 195, 30,
                                    (HMENU)IDC_BUTTON_STARTENV);
 
   HMENU hSystemMenu = ::GetSystemMenu(m_hWnd, FALSE);
@@ -331,12 +331,10 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   label_.push_back(KryceLabel(30, 100, 190, 130, L"Configuration\t\x2699:"));
   label_.push_back(KryceLabel(30, 140, 190, 170, L"Branches\t\t\x26A1:"));
   label_.push_back(KryceLabel(30, 180, 190, 210, L"Engine\t\t\xD83D\xDEE0:"));
-
   label_.push_back(KryceLabel(30, 230, 190, 270, L"Build Options\t\x2611:"));
   ///
   if (FAILED(InitializeControl())) {
   }
-  // DeleteObject(hFont);
   return S_OK;
 }
 LRESULT MainWindow::OnDestroy(UINT nMsg, WPARAM wParam, LPARAM lParam,
