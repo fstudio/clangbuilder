@@ -83,6 +83,18 @@ LRESULT MainWindow::InitializeWindow() {
 HRESULT MainWindow::CreateDeviceIndependentResources() {
   HRESULT hr = S_OK;
   hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_pFactory);
+  if (hr != S_OK) {
+    return hr;
+  }
+  hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
+                           reinterpret_cast<IUnknown **>(&m_pWriteFactory));
+  if (hr != S_OK) {
+    return hr;
+  }
+  hr = m_pWriteFactory->CreateTextFormat(
+      L"Segoe UI", NULL, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL,
+      DWRITE_FONT_STRETCH_NORMAL, 12.0f * 96.0f / 72.0f, L"zh-CN",
+      &m_pWriteTextFormat);
   return hr;
 }
 
@@ -109,18 +121,15 @@ HRESULT MainWindow::CreateDeviceResources() {
 }
 void MainWindow::DiscardDeviceResources() {
   ///
+  SafeRelease(&m_pHwndRenderTarget);
   SafeRelease(&m_pBasicTextBrush);
+  SafeRelease(&m_AreaBorderBrush);
 }
 HRESULT MainWindow::OnRender() {
   auto hr = CreateDeviceResources();
-  hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
-                           reinterpret_cast<IUnknown **>(&m_pWriteFactory));
+
   if (hr != S_OK)
     return hr;
-  hr = m_pWriteFactory->CreateTextFormat(
-      L"Segoe UI", NULL, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL,
-      DWRITE_FONT_STRETCH_NORMAL, 12.0f * 96.0f / 72.0f, L"zh-CN",
-      &m_pWriteTextFormat);
 #pragma warning(disable : 4244)
 #pragma warning(disable : 4267)
   if (SUCCEEDED(hr)) {

@@ -44,6 +44,53 @@ struct KryceLabel {
   std::wstring text;
 };
 
+template <class T> class COMPtr {
+public:
+  COMPtr() { ptr = NULL; }
+  COMPtr(T *p) {
+    ptr = p;
+    if (ptr != NULL)
+      ptr->AddRef();
+  }
+  COMPtr(const COMPtr<T> &sptr) {
+    ptr = sptr.ptr;
+    if (ptr != NULL)
+      ptr->AddRef();
+  }
+  T **operator&() { return &ptr; }
+  T *operator->() { return ptr; }
+  T *operator=(T *p) {
+    if (*this != p) {
+      ptr = p;
+      if (ptr != NULL)
+        ptr->AddRef();
+    }
+    return *this;
+  }
+  operator T *() const { return ptr; }
+  template <class I> HRESULT QueryInterface(REFCLSID rclsid, I **pp) {
+    if (pp != NULL) {
+      return ptr->QueryInterface(rclsid, (void **)pp);
+    } else {
+      return E_FAIL;
+    }
+  }
+  HRESULT CoCreateInstance(REFCLSID clsid, IUnknown *pUnknown,
+                           REFIID interfaceId,
+                           DWORD dwClsContext = CLSCTX_ALL) {
+    HRESULT hr = ::CoCreateInstance(clsid, pUnknown, dwClsContext, interfaceId,
+                                    (void **)&ptr);
+    return hr;
+  }
+  ~COMPtr() {
+    if (ptr != NULL)
+      ptr->Release();
+  }
+
+private:
+  T *ptr;
+};
+
 class MainWindow : public CWindowImpl<MainWindow, CWindow, CMetroWindowTraits> {
 public:
   MainWindow();
@@ -78,11 +125,13 @@ public:
   ////
 private:
   ID2D1Factory *m_pFactory;
+  IDWriteTextFormat *m_pWriteTextFormat;
+  IDWriteFactory *m_pWriteFactory;
+  //
   ID2D1HwndRenderTarget *m_pHwndRenderTarget;
   ID2D1SolidColorBrush *m_pBasicTextBrush;
   ID2D1SolidColorBrush *m_AreaBorderBrush;
-  IDWriteTextFormat *m_pWriteTextFormat;
-  IDWriteFactory *m_pWriteFactory;
+
   int dpiX;
   int dpiY;
   HRESULT CreateDeviceIndependentResources();
