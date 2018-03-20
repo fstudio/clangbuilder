@@ -135,7 +135,6 @@ private:
   int dpiX;
   int dpiY;
   HRESULT CreateDeviceIndependentResources();
-  HRESULT Initialize();
   HRESULT InitializeControl();
   HRESULT CreateDeviceResources();
   void DiscardDeviceResources();

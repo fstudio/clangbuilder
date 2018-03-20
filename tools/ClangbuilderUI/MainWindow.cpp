@@ -61,19 +61,19 @@ MainWindow::~MainWindow() {
   }
 }
 
-HRESULT MainWindow::Initialize() {
+LRESULT MainWindow::InitializeWindow() {
   auto hr = CreateDeviceIndependentResources();
+  if (hr != S_OK) {
+    return hr;
+  }
   FLOAT dpiX_, dpiY_;
   m_pFactory->GetDesktopDpi(&dpiX_, &dpiY_);
   dpiX = static_cast<int>(dpiX_);
   dpiY = static_cast<int>(dpiY_);
-  return hr;
-}
 
-LRESULT MainWindow::InitializeWindow() {
-  HRESULT hr = E_FAIL;
-
-  RECT layout = {100, 100, 800, 640};
+  RECT layout = {CW_USEDEFAULT, CW_USEDEFAULT,
+                 CW_USEDEFAULT + MulDiv(700, dpiX, 96),
+                 CW_USEDEFAULT + MulDiv(500, dpiY, 96)};
   Create(nullptr, layout, L"Clangbuilder Environment Utility",
          WS_NORESIZEWINDOW, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE);
   return S_OK;
@@ -263,18 +263,9 @@ HRESULT MainWindow::InitializeControl() {
  */
 LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
                              BOOL &bHandle) {
-  auto hr = Initialize();
-  if (hr != S_OK) {
-    ::MessageBoxW(nullptr, L"Initialize() failed", L"Fatal error",
-                  MB_OK | MB_ICONSTOP);
-    std::terminate();
-    return S_FALSE;
-  }
   HICON hIcon = LoadIconW(GetModuleHandleW(nullptr),
                           MAKEINTRESOURCEW(IDI_CLANGBUILDERUI));
   SetIcon(hIcon, TRUE);
-  this->MoveWindow(MulDiv(100, dpiX, 96), MulDiv(100, dpiY, 96),
-                   MulDiv(700, dpiX, 96), MulDiv(500, dpiY, 96));
   hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
   LOGFONTW logFont = {0};
   GetObjectW(hFont, sizeof(logFont), &logFont);
@@ -367,6 +358,7 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
                                  BOOL &bHandle) {
   /// GET new dpi
   FLOAT dpiX_, dpiY_;
+  // m_pFactory->ReloadSystemMetrics();
   m_pFactory->GetDesktopDpi(&dpiX_, &dpiY_);
   dpiX = static_cast<int>(dpiX_);
   dpiY = static_cast<int>(dpiY_);
