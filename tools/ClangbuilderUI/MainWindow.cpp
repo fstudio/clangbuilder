@@ -28,10 +28,6 @@ inline void SafeRelease(Interface **ppInterfaceToRelease) {
   }
 }
 
-int RectHeight(RECT Rect) { return Rect.bottom - Rect.top; }
-
-int RectWidth(RECT Rect) { return Rect.right - Rect.left; }
-
 const wchar_t *Platforms[] = {L"x86", L"x64", L"ARM", L"ARM64"};
 const wchar_t *Configurations[] = {L"Release", L"MinSizeRel", L"RelWithDebInfo",
                                    L"Debug"};
@@ -358,7 +354,8 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
                                  BOOL &bHandle) {
   /// GET new dpi
   FLOAT dpiX_, dpiY_;
-  // m_pFactory->ReloadSystemMetrics();
+  // SEE: https://msdn.microsoft.com/en-us/library/windows/desktop/dd371319(v=vs.85).aspx
+  m_pFactory->ReloadSystemMetrics(); 
   m_pFactory->GetDesktopDpi(&dpiX_, &dpiY_);
   dpiX = static_cast<int>(dpiX_);
   dpiY = static_cast<int>(dpiY_);
