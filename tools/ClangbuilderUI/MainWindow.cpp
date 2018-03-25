@@ -31,8 +31,20 @@ inline void SafeRelease(Interface **ppInterfaceToRelease) {
 const wchar_t *Platforms[] = {L"x86", L"x64", L"ARM", L"ARM64"};
 const wchar_t *Configurations[] = {L"Release", L"MinSizeRel", L"RelWithDebInfo",
                                    L"Debug"};
-const wchar_t *Rules[] = {L"MSBuild", L"Ninja", L"NinjaBootstrap",
-                          L"NinjaIterate"};
+
+struct EngineItem {
+  const wchar_t *desc;
+  const wchar_t *id;
+};
+
+const EngineItem eitems[] = {
+    {L"Ninja - MSVC", L"Ninja"},
+    {L"Ninja - Clang", L"NinjaIterate"},
+    {L"MSBuild - MSVC", L"MSBuild"},
+    {L"Ninja - Bootstrap", L"NinjaBootstrap"}
+    /// all engine
+};
+
 const wchar_t *BranchTable[] = {L"Mainline", L"Stable", L"Release"};
 
 /*
@@ -240,8 +252,8 @@ HRESULT MainWindow::InitializeControl() {
 
   ::SendMessage(hConfigBox, CB_SETCURSEL, 0, 0);
 
-  for (auto e : Rules) {
-    ::SendMessage(hBuildBox, CB_ADDSTRING, 0, (LPARAM)e);
+  for (auto e : eitems) {
+    ::SendMessage(hBuildBox, CB_ADDSTRING, 0, (LPARAM)e.desc);
   }
   ::SendMessage(hBuildBox, CB_SETCURSEL, 0, 0);
 
@@ -354,8 +366,9 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
                                  BOOL &bHandle) {
   /// GET new dpi
   FLOAT dpiX_, dpiY_;
-  // SEE: https://msdn.microsoft.com/en-us/library/windows/desktop/dd371319(v=vs.85).aspx
-  m_pFactory->ReloadSystemMetrics(); 
+  // SEE:
+  // https://msdn.microsoft.com/en-us/library/windows/desktop/dd371319(v=vs.85).aspx
+  m_pFactory->ReloadSystemMetrics();
   m_pFactory->GetDesktopDpi(&dpiX_, &dpiY_);
   dpiX = static_cast<int>(dpiX_);
   dpiY = static_cast<int>(dpiY_);
@@ -555,7 +568,7 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   }
 
   auto be = ComboBox_GetCurSel(hBuildBox);
-  if (be < 0 || ARRAYSIZE(Rules) <= be) {
+  if (be < 0 || ARRAYSIZE(eitems) <= be) {
     return S_FALSE;
   }
 
@@ -569,7 +582,7 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
       .append(instances_[vsindex_].installversion);
   Command.append(L" -Arch ").append(Platforms[archindex_]);
   Command.append(L" -Flavor ").append(Configurations[flavor_]);
-  Command.append(L" -Engine ").append(Rules[be]);
+  Command.append(L" -Engine ").append(eitems[be].id);
   Command.append(L" -Branch ").append(BranchTable[bs]);
 
   if (Button_GetCheck(hCheckSdklow_) == BST_CHECKED) {
