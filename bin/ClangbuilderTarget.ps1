@@ -35,18 +35,27 @@ if ($ClearEnv) {
     ReinitializePath
 }
 
-$ret=DevinitializeEnv -Devlockfile $Devlockfile
-if($ret -ne 0){
+$ret = DevinitializeEnv -Devlockfile $Devlockfile
+if ($ret -ne 0) {
     exit 1
 }
 if ($InstanceId.Length -eq 0) {
+    $InstallationVersion = "15.0"
     $ret = DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
 }
 else {
     $ret = InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow
 }
-if ($ret -ne 0) {
-    Write-Host -ForegroundColor Red "Not found valid installed visual studio."
+if ($InstallationVersion.Length -eq 0) {
+    if ($InstanceId.StartsWith("VisualStudio.")) {
+        $InstallationVersion = $InstanceId.Split("VisualStudio.".Length)
+    }
+    else {
+        $InstallationVersion = "15.0"
+    }
+}
+if ($ret -ne 0 -or $InstallationVersion.Length -lt 3) {
+    Write-Host -ForegroundColor Red "Not found valid installed visual studio. $InstallationVersion"
     exit 1
 }
 
@@ -100,7 +109,10 @@ $ArchTable = @{
 }
 
 $ArchName = $ArchTable[$Arch];
+
+
 # Builder CMake Arguments
+
 $Installation = $InstallationVersion.Substring(0, 2)
 $Global:LatestBuildDir = ""
 $CMakeArguments = "`"$LLVMSource`""
