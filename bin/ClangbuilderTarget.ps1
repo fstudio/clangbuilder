@@ -40,10 +40,15 @@ if ($ClearEnv) {
 }
 
 InitializePackageEnv -ClangbuilderRoot $ClangbuilderRoot
+$ret=0
 if($InstanceId.Length -eq 0){
-    DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
+    $ret=DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
 }else{
-    InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow
+    $ret=InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow
+}
+if($ret -ne 0){
+    Write-Host -ForegroundColor Red "Not found valid installed visual studio."
+    exit 1
 }
 
 InitializeExtranl -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch

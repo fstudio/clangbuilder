@@ -8,7 +8,11 @@ Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
 Push-Location $PWD
 Set-Location $PSScriptRoot
 
-DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot # initialize default visual studio
+$ret = DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot # initialize default visual studio
+if ($ret -ne 0) {
+    Write-Host -ForegroundColor Red "Not found valid installed visual studio."
+    return 1
+}
 ## Add environment
 InitializeEnv -ClangbuilderRoot $ClangbuilderRoot
 Set-Location "$ClangbuilderRoot\tools\ClangbuilderUI"

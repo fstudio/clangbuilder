@@ -124,6 +124,7 @@ Function InitializeEnterpriseWDK {
     $env:LIB += "$SDKLIB\km\$Archlowpper;$SDKLIB\um\$Archlowpper;$SDKLIB\ucrt\$Archlowpper"
     $env:LIBPATH = "$VisualCppPath\lib\$Archlowpper;$VisualCppPath\atlmfc\lib\$Archlowpper;"
     $env:LIBPATH = "$SdkBaseDir\UnionMetadata\$EWDKVersion\;$SdkBaseDir\References\$EWDKVersion\;"
+    return 0
 }
 
 Function InitializeVS2017Layout {
@@ -276,6 +277,7 @@ Function InitializeVisualCppTools {
     }
     
     Write-Host "Use $($instlock.Name) $($instlock.Version)"
+    return 0
 }
 
 Function Test-ExeCommnad {
@@ -322,10 +324,10 @@ Function InitializeVisualStudio {
         [Switch]$Sdklow
     )
     if ($InstanceId -eq "VisualCppTools") {
-        return InitializeVisualCppTools -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -Sdklow:$Sdklow
+        return (InitializeVisualCppTools -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -Sdklow:$Sdklow)
     }
     if ($InstanceId -eq "VisualStudio.EWDK") {
-        return InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
+        return (InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch)
     }
     $vsinstances = $null
     if ($InstanceId.StartsWith("VisualStudio")) {
@@ -347,14 +349,13 @@ Function InitializeVisualStudio {
         }
         if (!(Test-Path $vcvarsall)) {
             Write-Host "$vcvarsall not found"
-            $LastErrorCode = 1
-            return 
+            return 1
         }
         Invoke-BatchFile -Path $vcvarsall -ArgumentList $ArgumentList
         if ($InstanceId -eq "VisualStudio.14.0") {
             FixVisualStudioSdkPath
         }
-        return
+        return 0
     }
     
     
@@ -364,8 +365,7 @@ Function InitializeVisualStudio {
     $vercmp = $ver.CompareTo($FixedVer)
     if ($Arch -eq "ARM64" -and $vercmp -le 0) {
         Write-Host "Use Enterprise WDK support ARM64"
-        InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch "ARM64"
-        return
+        return (InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch "ARM64")
     }
     $vcvarsall = "$($vsinstance.installationPath)\VC\Auxiliary\Build\vcvarsall.bat"
     
@@ -379,11 +379,11 @@ Function InitializeVisualStudio {
     
     if (!(Test-Path $vcvarsall)) {
         Write-Host "$vcvarsall not found"
-        $LastErrorCode = 1
-        return 
+        return 1
     }
     
     Invoke-BatchFile -Path $vcvarsall -ArgumentList $ArgumentList
+    return 0
 }
 
 # Default Visual Studio Initialize Environemnt
@@ -405,7 +405,6 @@ Function DefaultVisualStudio {
     try {
         $vsinstalls = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -requires Microsoft.VisualStudio.Component.Windows10SDK  -format json|ConvertFrom-JSON
         if ($vsinstalls.Count -eq 0) {
-            Write-Host -ForegroundColor Yellow "Not found support WindowsSDK 10, Visual C++ component, use fallback rule."
             ### use fallback fules
             $vsinstalls = vswhere -products * -prerelease -legacy -format json|ConvertFrom-JSON
         }
@@ -413,11 +412,10 @@ Function DefaultVisualStudio {
     catch {
         Write-Error "$_"
         Pop-Location
-        exit 1
+        return 1
     }
     if ($vsinstalls -eq $null -or $vsinstalls.Count -eq 0) {
-        Write-Host -ForegroundColor Red "Not found valid installed visual studio."
-        exit 1
+        return 1
     }
     return (InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $vsinstalls[0].instanceId)
 }
