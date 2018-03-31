@@ -71,7 +71,7 @@ std::wstring utf8towide(const char *str, DWORD len) {
 
 bool VisualCppToolsSearch(const std::wstring &cbroot, std::wstring &version) {
   try {
-    std::wstring file = cbroot + L"\\utils\\msvc\\VisualCppTools.lock.json";
+    std::wstring file = cbroot + L"\\bin\\utils\\msvc\\VisualCppTools.lock.json";
     std::ifstream fs;
     fs.open(file, std::ios::binary);
     auto j = nlohmann::json::parse(fs);
