@@ -1,8 +1,9 @@
 /out/
 /pkgs/
-/libs/
 .vscode/
 /utils/
+/bin/pkgs/
+/bin/utils/
 /config/ewdk.json
 /config/prebuilt.json
 /config/pkinit.json

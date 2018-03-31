@@ -2,6 +2,9 @@
 
 Automated tools help developers on Windows platforms building LLVM and clang.
  
+## Notice
+
+Current master has occurred breaking compatibility. If you want to use maintain compatibility, use the clangbuilder-5.0 
 
 ## Installation
 

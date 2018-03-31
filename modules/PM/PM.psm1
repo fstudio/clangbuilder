@@ -62,9 +62,9 @@ Function InitializePackageEnv {
     param(
         [String]$ClangbuilderRoot
     )
-    $obj = Get-Content -Path "$ClangbuilderRoot\pkgs\packages.lock.json" |ConvertFrom-Json
+    $obj = Get-Content -Path "$ClangbuilderRoot\bin\pkgs\packages.lock.json" |ConvertFrom-Json
     Get-Member -InputObject $obj -MemberType NoteProperty|ForEach-Object {
-        $xpath = Find-ExecutablePath -Path "$ClangbuilderRoot\pkgs\$($_.Name)"
+        $xpath = Find-ExecutablePath -Path "$ClangbuilderRoot\bin\pkgs\$($_.Name)"
         if ($null -ne $xpath) {
             Test-AddPath -Path $xpath
         }
@@ -180,8 +180,8 @@ Function Install-Package {
         [String]$Extension
     )
 
-    $MyPackage = "$ClangbuilderRoot\pkgs\$Name.$Extension"
-    $NewDir = "$ClangbuilderRoot\pkgs\$Name"
+    $MyPackage = "$ClangbuilderRoot\bin\pkgs\$Name.$Extension"
+    $NewDir = "$ClangbuilderRoot\bin\pkgs\$Name"
     $ret = PMDownload -Uri $Uri -Path "$MyPackage"
     if ($ret -eq $false) {
         return ;

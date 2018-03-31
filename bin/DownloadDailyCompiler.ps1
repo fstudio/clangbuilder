@@ -9,9 +9,9 @@ Import-Module -Name "$ClangbuilderRoot\modules\NetTLS"
 InitializeTLS
 
 $ViusalCppAtomURL = "https://visualcpp.myget.org/F/dailymsvc/api/v2"
-$VisualCppToolsInstallDir = "$ClangbuilderRoot\utils\msvc"
+$VisualCppToolsInstallDir = "$ClangbuilderRoot\bin\utils\msvc"
 
-$NuGetDir = "$ClangbuilderRoot\pkgs\Nuget"
+$NuGetDir = "$ClangbuilderRoot\bin\pkgs\Nuget"
 
 $env:PATH = "$NuGetDir;${env:PATH}"
 

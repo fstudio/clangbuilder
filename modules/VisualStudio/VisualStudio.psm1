@@ -8,7 +8,8 @@ Function Invoke-BatchFile {
     )
     Set-StrictMode -Version Latest
     $tempFile = [IO.Path]::GetTempFileName()
-    cmd /c " `"$Path`" $argumentList && set > `"$tempFile`" "
+
+    cmd /c " `"$Path`" $argumentList && set > `"$tempFile`" "|Out-Host
     ## Go through the environment variables in the temp file.
     ## For each of them, set the variable in our local environment.
     Get-Content $tempFile | Foreach-Object {
@@ -333,7 +334,7 @@ Function InitializeVisualStudio {
         return (InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch)
     }
     $vsinstances = $null
-    if ($InstanceId.StartsWith("VisualStudio")) {
+    if ($InstanceId.StartsWith("VisualStudio.")) {
         $vsinstances = vswhere -products * -prerelease -legacy -format json|ConvertFrom-JSON
     }
     else {
@@ -342,6 +343,9 @@ Function InitializeVisualStudio {
     #Microsoft.VisualStudio.Component.VC.Tools.x86.x64
 
     $vsinstance = $vsinstances|Where-Object {$_.instanceId -eq $InstanceId}
+    if ($vsinstances -eq $null) {
+        return 1
+    }
     Write-Host "Use Visual Studio $($vsinstance.installationVersion) $Arch"
     $ArgumentList = Get-ArchBatchString -InstanceId $InstanceId -Arch $Arch
     if ($vsinstance.instanceId.StartsWith("VisualStudio")) {
@@ -386,6 +390,7 @@ Function InitializeVisualStudio {
     }
     
     Invoke-BatchFile -Path $vcvarsall -ArgumentList $ArgumentList
+    #Write-Host "call $vcvarsall"
     return 0
 }
 
@@ -403,7 +408,6 @@ Function DefaultVisualStudio {
             $Arch = "x86"
         }
     }
-    $env:PATH = "$ClangbuilderRoot/pkgs/vswhere;$env:PATH"
     $vsinstalls = $null
     try {
         $vsinstalls = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -requires Microsoft.VisualStudio.Component.Windows10SDK  -format json|ConvertFrom-JSON

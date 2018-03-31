@@ -4,6 +4,9 @@ $ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
 
 Import-Module -Name "$ClangbuilderRoot\modules\Initialize"
 Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
+Import-Module -Name "$ClangbuilderRoot\modules\PM" # Package Manager
+
+InitializePackageEnv -ClangbuilderRoot $ClangbuilderRoot
 
 Push-Location $PWD
 Set-Location $PSScriptRoot
@@ -11,7 +14,7 @@ Set-Location $PSScriptRoot
 $ret = DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot # initialize default visual studio
 if ($ret -ne 0) {
     Write-Host -ForegroundColor Red "Not found valid installed visual studio."
-    return 1
+    exit 1
 }
 ## Add environment
 InitializeEnv -ClangbuilderRoot $ClangbuilderRoot
@@ -25,24 +28,24 @@ if (!(Test-Path "ClangbuilderUI.exe")) {
     return 1
 }
 
-if (!(Test-Path "$ClangbuilderRoot\utils")) {
-    mkdir -Force "$ClangbuilderRoot\utils"
+if (!(Test-Path "$ClangbuilderRoot\bin\utils")) {
+    mkdir -Force "$ClangbuilderRoot\bin\utils"
 }
 
-Copy-Item -Path "ClangbuilderUI.exe" -Destination "$ClangbuilderRoot\utils"
+Copy-Item -Path "ClangbuilderUI.exe" -Destination "$ClangbuilderRoot\bin\utils"
 &nmake clean
 Set-Location $PSScriptRoot
 
 
-if (Test-Path "$ClangbuilderRoot\utils\ClangbuilderUI.exe") {
+if (Test-Path "$ClangbuilderRoot\bin\utils\ClangbuilderUI.exe") {
     if (!(Test-Path "$ClangbuilderRoot\ClangbuilderUI.lnk")) {
         $cswshell = New-Object -ComObject WScript.Shell
         $clangbuilderlnk = $cswshell.CreateShortcut("$ClangbuilderRoot\ClangbuilderUI.lnk")
-        $clangbuilderlnk.TargetPath = "$ClangbuilderRoot\utils\ClangbuilderUI.exe"
+        $clangbuilderlnk.TargetPath = "$ClangbuilderRoot\bin\utils\ClangbuilderUI.exe"
         $clangbuilderlnk.Description = "Start ClangbuilderUI"
         $clangbuilderlnk.WindowStyle = 1
-        $clangbuilderlnk.WorkingDirectory = "$ClangbuilderRoot\utils"
-        $clangbuilderlnk.IconLocation = "$ClangbuilderRoot\utils\ClangbuilderUI.exe,0"
+        $clangbuilderlnk.WorkingDirectory = "$ClangbuilderRoot\bin\utils"
+        $clangbuilderlnk.IconLocation = "$ClangbuilderRoot\bin\utils\ClangbuilderUI.exe,0"
         $clangbuilderlnk.Save()
     }
     else {

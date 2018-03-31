@@ -1,7 +1,7 @@
 # Powershell Clangbuilder package manger
 
 $ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
-$Pkgdir = "$ClangbuilderRoot/pkgs"
+$Pkgdir = "$ClangbuilderRoot/bin/pkgs"
 
 Import-Module -Name "$ClangbuilderRoot\modules\NetTLS"
 InitializeTLS
