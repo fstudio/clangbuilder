@@ -5,8 +5,11 @@ Import-Module -Name "$ClangbuilderRoot\modules\Initialize"
 Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
 Import-Module -Name "$ClangbuilderRoot\modules\Devinstall" # Package Manager
 
-DevinitializeEnv -Devlockfile "$ClangbuilderRoot/bin/pkgs/devlock.json"
-
+$ret = DevinitializeEnv -Devlockfile "$ClangbuilderRoot/bin/pkgs/devlock.json"
+if ($ret -ne 0) {
+    # Need vswhere
+    exit 1
+}
 Push-Location $PWD
 Set-Location $PSScriptRoot
 

@@ -6,7 +6,7 @@ Function Devdownload {
         [String]$Uri, ### URI
         [String]$Path ### save to path
     )
-    Write-Host "download $Uri ..."
+    Write-Host "devdownload: $Uri ..."
     $InternalUA = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
     $xuri = [uri]$Uri
     # only sourceforget.net when ua is Browser, cannot download it

@@ -35,14 +35,17 @@ if ($ClearEnv) {
     ReinitializePath
 }
 
-DevinitializeEnv -Devlockfile "$ClangbuilderRoot/bin/pkgs/devlock.json"
-$ret=0
-if($InstanceId.Length -eq 0){
-    $ret=DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
-}else{
-    $ret=InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow
-}
+$ret=DevinitializeEnv -Devlockfile $Devlockfile
 if($ret -ne 0){
+    exit 1
+}
+if ($InstanceId.Length -eq 0) {
+    $ret = DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
+}
+else {
+    $ret = InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow
+}
+if ($ret -ne 0) {
     Write-Host -ForegroundColor Red "Not found valid installed visual studio."
     exit 1
 }

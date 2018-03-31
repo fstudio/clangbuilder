@@ -60,7 +60,8 @@ Function DevInstallOne {
         Write-Host -ForegroundColor Red "`'$Name`' port config invalid."
         return $OVersion
     }
-    if ($OVersion -eq $devpkg.version) {
+    $pkversion = $devpkg.version
+    if ($OVersion -eq $pkversion) {
         Write-Host -ForegroundColor Yellow "devinstall: $Name already install. version: $OVersion"
         return $OVersion
     }
@@ -76,18 +77,18 @@ Function DevInstallOne {
         $besturl = $xurl
     }
     if ($besturl -eq $null) {
-        return $OVersion
+        return $null
     }
     $ext = $devpkg.extension
     $pkgfile = "$Root\bin\pkgs\$Name.$ext"
     $newdir = "$Root\bin\pkgs\$Name"
     $ret = Devdownload -Uri $besturl -Path "$pkgfile"
     if ($ret -eq $false) {
-        return $OVersion
+        return $null
     }
     try {
         if ((Test-Path "$Root\bin\pkgs\$Name")) {
-            Move-Item -Force "$Root\bin\pkgs\$Name" "$Root\bin\pkgs\$Name.$PID"
+            Move-Item -Force "$Root\bin\pkgs\$Name" "$Root\bin\pkgs\$Name.$PID" -ErrorAction SilentlyContinue |Out-Null
         }
         Switch ($ext) {
             "zip" {
@@ -102,29 +103,28 @@ Function DevInstallOne {
             } 
             "exe" {
                 if (!(Test-Path $newdir)) {
-                    mkdir $newdir
+                    mkdir $newdir|Out-Null
                 }
                 Copy-Item -Path $pkgfile -Destination $newdir -Force
             }
         }
     }
     catch {
-        if (!(Test-Path "$Root\bin\pkgs\$Name" -and (Test-Path "$Root\bin\pkgs\$Name.$PID"))) {
-            Move-Item -Force "$Root\bin\pkgs\$Name.$PID" "$Root\bin\pkgs\$Name"
+        if (!(Test-Path "$Root\bin\pkgs\$Name") -and (Test-Path "$Root\bin\pkgs\$Name.$PID")) {
+            Move-Item -Force "$Root\bin\pkgs\$Name.$PID" "$Root\bin\pkgs\$Name" -ErrorAction SilentlyContinue |Out-Null
         }
-        if ((Test-Path "$Root\bin\pkgs\$Name.$PID")) {
-            #Move-Item -Force "$Root\bin\pkgs\$Name" "$Root\bin\pkgs\$Name.$PID"
-            Remove-Item -Force "$Root\bin\pkgs\$Name.$PID" -Recurse -Force
+        if (Test-Path "$Root\bin\pkgs\$Name.$PID") {
+            Remove-Item -Force -Recurse  "$Root\bin\pkgs\$Name.$PID"  -ErrorAction SilentlyContinue |Out-Null
         }
-        return $version
+        return $OVersion
     }
-    if ((Test-Path "$Root\bin\pkgs\$Name.$PID")) {
+    if (Test-Path "$Root\bin\pkgs\$Name.$PID") {
         #Move-Item -Force "$Root\bin\pkgs\$Name" "$Root\bin\pkgs\$Name.$PID"
-        Remove-Item -Force "$Root\bin\pkgs\$Name.$PID" -Recurse -Force
+        Remove-Item -Force -Recurse "$Root\bin\pkgs\$Name.$PID"  -ErrorAction SilentlyContinue |Out-Null
     }
-    Remove-Item $pkgfile
-    Write-Host -ForegroundColor Green "install $Name success, version: $($devpkg.version)"
-    return $devpkg.version
+    Remove-Item $pkgfile -Force -ErrorAction SilentlyContinue |Out-Null ##ignore remove-item return del/null
+    Write-Host -ForegroundColor Green "devinstall: install $Name success, version: $pkversion"
+    return $pkversion
 }
 
 Function Devinstalldefault {
@@ -149,6 +149,9 @@ Function Devinstalldefault {
                 if ($ver -ne $null) {
                     Add-Member -InputObject $obj -Name $name -Value $ver -MemberType NoteProperty -Force
                     $sstable["$name"] = $ver
+                }
+                else {
+                    $sstable["$name"] = $version
                 }
             }
         }
