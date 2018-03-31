@@ -243,7 +243,7 @@ Function InitializeVisualCppTools {
         [String]$InstanceId,
         [Switch]$Sdklow
     )
-    $VisualCppToolsInstallDir = "$ClangbuilderRoot\utils\msvc"
+    $VisualCppToolsInstallDir = "$ClangbuilderRoot\bin\utils\msvc"
     $LockFile = "$VisualCppToolsInstallDir\VisualCppTools.lock.json"
     
     if (!(Test-Path $LockFile)) {
@@ -265,7 +265,7 @@ Function InitializeVisualCppTools {
         InitializeWinSdk10  -Arch $Arch -HostEnv $HostEnv
     }
     
-    $env:VisualCppToolsPath = $ClangbuilderRoot + "\utils\msvc\" + $instlock.Path
+    $env:VisualCppToolsPath = $ClangbuilderRoot + "\bin\utils\msvc\" + $instlock.Path
     $tooldir = $env:VisualCppToolsPath + "\lib\native"
     $env:VSPropsFile = $env:VisualCppToolsPath + "\build\native\" + $instlock.Name + ".props"
     Write-Host "MSBuild can import $env:VSPropsFile"

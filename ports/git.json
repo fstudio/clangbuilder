@@ -1,0 +1,14 @@
+{
+    "description": "Git is a modern distributed version control system focused on speed",
+    "version": "2.16.3",
+    "url": [
+        "https://github.com/git-for-windows/git/releases/download/v2.16.3.windows.1/MinGit-2.16.3-busybox-32-bit.zip",
+        "https://npm.taobao.org/mirrors/git-for-windows/v2.16.3.windows.1/MinGit-2.16.3-busybox-32-bit.zip"
+    ],
+    "url64": [
+        "https://github.com/git-for-windows/git/releases/download/v2.16.3.windows.1/MinGit-2.16.3-busybox-64-bit.zip",
+        "https://npm.taobao.org/mirrors/git-for-windows/v2.16.3.windows.1/MinGit-2.16.3-busybox-64-bit.zip"
+    ],
+    "extension": "zip",
+    "mount": "/cmd"
+}
