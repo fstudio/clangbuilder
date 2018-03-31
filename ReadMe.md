@@ -180,8 +180,8 @@ When you only need to start a console environment, you can click on the `Environ
 
 ## Add Portable Utilities
 
-You can modify `config/packages.json`, 
-and then double-click `script/UpdatePkgs.bat` to the software you need as part of the Clangbuilder is added to the environment
+You can port some tools to clangbuilder, see `ports`
+and then double-click `script/DevAll.bat` to the software you need as part of the Clangbuilder is added to the environment
 
 
 ## Add Extranl Libs

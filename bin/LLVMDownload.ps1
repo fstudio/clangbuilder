@@ -2,11 +2,9 @@ param(
     [Switch]$LLDB
 )
 
-Import-Module -Name "$ClangbuilderRoot\modules\NetTLS"
+."$PSScriptRoot\ProfileEnv.ps1"
 
-InitializeTLS
-
-#$MainURL="https://releases.llvm.org/4.0.1/llvm-4.0.1.src.tar.xz"
+#$MainURL="https://releases.llvm.org/6.0.0/llvm-6.0.0.src.tar.xz"
 
 Function DownloadFile {
     param(

@@ -19,17 +19,13 @@ param (
     [Switch]$Package,
     [Switch]$ClearEnv
 )
-
-$ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
-Import-Module -Name "$ClangbuilderRoot\modules\NetTLS"
-
-InitializeTLS
+."$PSScriptRoot\ProfileEnv.ps1"
 
 Import-Module -Name "$ClangbuilderRoot\modules\Initialize"
 Import-Module -Name "$ClangbuilderRoot\modules\Utils"
 Import-Module -Name "$ClangbuilderRoot\modules\CMake"
 Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
-Import-Module -Name "$ClangbuilderRoot\modules\PM" # Package Manager
+Import-Module -Name "$ClangbuilderRoot\modules\Devinstall" # Package Manager
 
 
 # Cleanup $env:PATH, because, some tools modify Disrupt PATH
@@ -39,7 +35,7 @@ if ($ClearEnv) {
     ReinitializePath
 }
 
-InitializePackageEnv -ClangbuilderRoot $ClangbuilderRoot
+DevinitializeEnv -Devlockfile "$ClangbuilderRoot/bin/pkgs/devlock.json"
 $ret=0
 if($InstanceId.Length -eq 0){
     $ret=DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch

@@ -1,0 +1,7 @@
+{
+    "description": "Python 2.7",
+    "version": "2.7.14",
+    "url": "https://www.python.org/ftp/python/2.7.14/python-2.7.14.msi",
+    "urls": "https://www.python.org/ftp/python/2.7.14/python-2.7.14.amd64.msi",
+    "extension": "msi"
+}

@@ -1,12 +1,11 @@
 #!/usr/bin/env powershell
 # Clangbuilder compile clangbuilderui ...
-$ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
-
+."$PSScriptRoot\ProfileEnv.ps1"
 Import-Module -Name "$ClangbuilderRoot\modules\Initialize"
 Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
-Import-Module -Name "$ClangbuilderRoot\modules\PM" # Package Manager
+Import-Module -Name "$ClangbuilderRoot\modules\Devinstall" # Package Manager
 
-InitializePackageEnv -ClangbuilderRoot $ClangbuilderRoot
+DevinitializeEnv -Devlockfile "$ClangbuilderRoot/bin/pkgs/devlock.json"
 
 Push-Location $PWD
 Set-Location $PSScriptRoot

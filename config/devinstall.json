@@ -1,0 +1,12 @@
+{
+    "core": [
+        "7z",
+        "cmake",
+        "git",
+        "ninja",
+        "nsis",
+        "nuget",
+        "python2",
+        "vswhere"
+    ]
+}

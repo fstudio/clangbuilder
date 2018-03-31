@@ -1,12 +1,6 @@
-
 # See https://blogs.msdn.microsoft.com/vcblog/2016/02/16/\
 #try-out-the-latest-c-compiler-toolset-without-waiting-for-the-next-update-of-visual-studio/
-
-$ClangbuilderRoot = Split-Path $PSScriptRoot
-
-Import-Module -Name "$ClangbuilderRoot\modules\NetTLS"
-
-InitializeTLS
+."$PSScriptRoot\ProfileEnv.ps1"
 
 $ViusalCppAtomURL = "https://visualcpp.myget.org/F/dailymsvc/api/v2"
 $VisualCppToolsInstallDir = "$ClangbuilderRoot\bin\utils\msvc"

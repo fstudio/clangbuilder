@@ -1,0 +1,6 @@
+{
+    "description": "Ninja is a small build system with a focus on speed.",
+    "version": "1.8.2",
+    "url": "https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-win.zip",
+    "extension": "zip"
+}

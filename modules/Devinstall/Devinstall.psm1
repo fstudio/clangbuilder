@@ -1,4 +1,27 @@
-## Powershell Package Initialize
+## PowerShell Dev install engine
+
+
+Function Devdownload {
+    param(
+        [String]$Uri, ### URI
+        [String]$Path ### save to path
+    )
+    Write-Host "download $Uri ..."
+    $InternalUA = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
+    $xuri = [uri]$Uri
+    # only sourceforget.net when ua is Browser, cannot download it
+    if ($xuri.Host -eq "sourceforge.net") {
+        $InternalUA = "clangbuilder/6.0"
+    }
+    try {
+        Invoke-WebRequest -Uri $Uri -OutFile $Path -UserAgent $InternalUA -UseBasicParsing
+    }
+    catch {
+        Write-Host -ForegroundColor Red "download failed: $_"
+        return $false
+    }
+    return $true
+}
 
 Function Find-ExecutablePath {
     param(
@@ -57,14 +80,23 @@ Function Get-RegistryValueEx {
     (Get-ItemProperty $Path $Key).$Key
 }
 
-
-Function InitializePackageEnv {
+Function DevinitializeEnv{
     param(
-        [String]$ClangbuilderRoot
+        [String]$Devlockfile
     )
-    $obj = Get-Content -Path "$ClangbuilderRoot\bin\pkgs\packages.lock.json" |ConvertFrom-Json
+    $item=Get-Item $Devlockfile  -ErrorAction SilentlyContinue
+    if($item -eq $null){
+        Write-Host  -ForegroundColor Red "Not found $Devlockfile."
+        return 1
+    }
+    $pkdir=$item.Directory.FullName
+    $obj=Get-Content -Path $Devlockfile -ErrorAction SilentlyContinue |ConvertFrom-Json  -ErrorAction SilentlyContinue 
+    if($obj -eq $null){
+        Write-Host  -ForegroundColor Red "Not found valid installed tools."
+        return 1
+    }
     Get-Member -InputObject $obj -MemberType NoteProperty|ForEach-Object {
-        $xpath = Find-ExecutablePath -Path "$ClangbuilderRoot\bin\pkgs\$($_.Name)"
+        $xpath = Find-ExecutablePath -Path "$pkdir\$($_.Name)"
         if ($null -ne $xpath) {
             Test-AddPath -Path $xpath
         }
@@ -81,28 +113,7 @@ Function InitializePackageEnv {
             Test-AddPath "$gitinstall\bin"
         }
     }
-}
-
-
-Function PMDownload {
-    param(
-        [String]$Uri, ### URI
-        [String]$Path ### save to path
-    )
-    Write-Host "Download $Uri ..."
-    $InternalUA = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
-    if ($Uri.Contains("sourceforge.net")) {
-        $InternalUA = "Clangbuilder/5.0"
-    }
-	
-    try {
-        Invoke-WebRequest -Uri $Uri -OutFile $Path -UserAgent $InternalUA -UseBasicParsing
-    }
-    catch {
-        Write-Host -ForegroundColor Red "Download error: $_"
-        return $false
-    }
-    return $true
+    return 0
 }
 
 Function Expand-Msi {
@@ -170,39 +181,3 @@ Function Initialize-MsiArchive {
     ParseMsiArchiveFolder  -Path $Path -Subdir "Files"|Out-Null
 }
 
-
-Function Install-Package {
-    param(
-        [String]$ClangbuilderRoot,
-        [String]$Name,
-        [String]$Uri,
-        [ValidateSet("zip", "msi", "exe")]
-        [String]$Extension
-    )
-
-    $MyPackage = "$ClangbuilderRoot\bin\pkgs\$Name.$Extension"
-    $NewDir = "$ClangbuilderRoot\bin\pkgs\$Name"
-    $ret = PMDownload -Uri $Uri -Path "$MyPackage"
-    if ($ret -eq $false) {
-        return ;
-    }
-    Switch ($Extension) {
-        "zip" {
-            Expand-Archive -Path $MyPackage -DestinationPath $NewDir
-            Initialize-ZipArchive -Path $NewDir
-        } 
-        "msi" {
-            $ret = Expand-Msi -Path $MyPackage -DestinationPath  $NewDir
-            if ($ret -eq 0) {
-                Initialize-MsiArchive -Path $NewDir
-            }
-        } 
-        "exe" {
-            if (!(Test-Path $NewDir)) {
-                mkdir $NewDir
-            }
-            Copy-Item -Path $MyPackage -Destination $NewDir -Force
-        }
-    }
-    Remove-Item $MyPackage
-}

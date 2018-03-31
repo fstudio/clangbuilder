@@ -6,9 +6,7 @@ param(
     [String]$Branch = "Mainline"
 )
 
-Import-Module -Name "$ClangbuilderRoot\modules\NetTLS"
-
-InitializeTLS
+."$PSScriptRoot\ProfileEnv.ps1"
 
 Function Update-LLVM {
     param(

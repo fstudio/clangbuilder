@@ -341,11 +341,10 @@ Function InitializeVisualStudio {
         $vsinstances = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -requires Microsoft.VisualStudio.Component.Windows10SDK  -format json|ConvertFrom-JSON
     }
     #Microsoft.VisualStudio.Component.VC.Tools.x86.x64
-
-    $vsinstance = $vsinstances|Where-Object {$_.instanceId -eq $InstanceId}
-    if ($vsinstances -eq $null) {
+    if ($vsinstances -eq $null -or $vsinstances.Count -eq 0) {
         return 1
     }
+    $vsinstance = $vsinstances|Where-Object {$_.instanceId -eq $InstanceId}
     Write-Host "Use Visual Studio $($vsinstance.installationVersion) $Arch"
     $ArgumentList = Get-ArchBatchString -InstanceId $InstanceId -Arch $Arch
     if ($vsinstance.instanceId.StartsWith("VisualStudio")) {
