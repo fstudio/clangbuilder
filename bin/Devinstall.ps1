@@ -114,13 +114,13 @@ Function DevInstallOne {
         }
         if ((Test-Path "$Root\bin\pkgs\$Name.$PID")) {
             #Move-Item -Force "$Root\bin\pkgs\$Name" "$Root\bin\pkgs\$Name.$PID"
-            Remove-Item -Force "$Root\bin\pkgs\$Name.$PID"
+            Remove-Item -Force "$Root\bin\pkgs\$Name.$PID" -Recurse -Force
         }
         return $version
     }
     if ((Test-Path "$Root\bin\pkgs\$Name.$PID")) {
         #Move-Item -Force "$Root\bin\pkgs\$Name" "$Root\bin\pkgs\$Name.$PID"
-        Remove-Item -Force "$Root\bin\pkgs\$Name.$PID"
+        Remove-Item -Force "$Root\bin\pkgs\$Name.$PID" -Recurse -Force
     }
     Remove-Item $pkgfile
     Write-Host -ForegroundColor Green "install $Name success, version: $($devpkg.version)"
