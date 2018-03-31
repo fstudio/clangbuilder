@@ -327,7 +327,15 @@ Function InitializeVisualStudio {
     if ($InstanceId -eq "VisualStudio.EWDK") {
         return InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
     }
-    $vsinstances = vswhere -products * -prerelease -legacy -format json|ConvertFrom-JSON
+    $vsinstances = $null
+    if ($InstanceId.StartsWith("VisualStudio")) {
+        $vsinstances = vswhere -products * -prerelease -legacy -format json|ConvertFrom-JSON
+    }
+    else {
+        $vsinstances = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -requires Microsoft.VisualStudio.Component.Windows10SDK  -format json|ConvertFrom-JSON
+    }
+    #Microsoft.VisualStudio.Component.VC.Tools.x86.x64
+
     $vsinstance = $vsinstances|Where-Object {$_.instanceId -eq $InstanceId}
     Write-Host "Use Visual Studio $($vsinstance.installationVersion) $Arch"
     $ArgumentList = Get-ArchBatchString -InstanceId $InstanceId -Arch $Arch
@@ -395,11 +403,20 @@ Function DefaultVisualStudio {
     $env:PATH = "$ClangbuilderRoot/pkgs/vswhere;$env:PATH"
     $vsinstalls = $null
     try {
-        $vsinstalls = vswhere -products * -prerelease -legacy -format json|ConvertFrom-JSON
+        $vsinstalls = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -requires Microsoft.VisualStudio.Component.Windows10SDK  -format json|ConvertFrom-JSON
+        if ($vsinstalls.Count -eq 0) {
+            Write-Host -ForegroundColor Yellow "Not found support WindowsSDK 10, Visual C++ component, use fallback rule."
+            ### use fallback fules
+            $vsinstalls = vswhere -products * -prerelease -legacy -format json|ConvertFrom-JSON
+        }
     }
     catch {
         Write-Error "$_"
         Pop-Location
+        exit 1
+    }
+    if ($vsinstalls -eq $null -or $vsinstalls.Count -eq 0) {
+        Write-Host -ForegroundColor Red "Not found valid installed visual studio."
         exit 1
     }
     return (InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $vsinstalls[0].instanceId)

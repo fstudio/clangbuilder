@@ -103,16 +103,6 @@ $CMakeArguments = "`"$LLVMSource`""
 
 if ($LLDB) {
     $CMakeArguments += " -DLLDB_RELOCATABLE_PYTHON=1 -DLLDB_DISABLE_PYTHON=1"
-    # $PythonHome = Get-PythonHOME -Arch $Arch
-    # Write-Host -ForegroundColor Yellow "Building LLVM with lldb,$Engine"
-    # if ($null -eq $PythonHome) {
-    #     $CMakeArguments += " -DLLDB_DISABLE_PYTHON=1"
-    #     Write-Host -ForegroundColor Yellow "Not Found Python 3 installed,Disable LLDB Python Support"
-    # }
-    # else {
-    #     $CMakeArguments += " -DPYTHON_HOME=$PythonHome"
-    #     Write-Host -ForegroundColor Green "Python 3: $PythonHome"
-    # }
 }
 
 $CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor   -DLLVM_ENABLE_ASSERTIONS=OFF"
