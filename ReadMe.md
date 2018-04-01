@@ -68,7 +68,7 @@ You can run ClangbuilderUI, Modify Arch, Configuration and other options. after 
 **Branch**
 
 +  Mainline, master/trunk branch , git fetch from https://github.com/llvm-mirror/
-+  Stable, llvm stable branch, like release_50, git fetch from https://github.com/llvm-mirror/
++  Stable, llvm stable branch, like release_60, git fetch from https://github.com/llvm-mirror/
 +  Release, llvm release tag, download for https://releases.llvm.org/
 
 
@@ -147,7 +147,7 @@ Build LLVM for ARM64 is broken, But You can download **Enterprise WDK (EWDK) Ins
 }
 ```
 
-*Update*: Visual Studio 15.4 can install `Visual C++ compilers and libraries for ARM64`， CMake 3.10 will support ARM64. 
+*Update*: Visual Studio 15.4 can install `Visual C++ compilers and libraries for ARM64`， CMake 3.10 start support ARM64. 
 
 See: [VS15: Adds ARM64 architecture support.](https://gitlab.kitware.com/cmake/cmake/merge_requests/1215)
 
