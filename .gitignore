@@ -1,12 +1,13 @@
-/out/
-/pkgs/
 .vscode/
-/utils/
+/bin/external/
 /bin/pkgs/
 /bin/utils/
 /config/ewdk.json
 /config/prebuilt.json
 /config/pkinit.json
+/out/
+/utils/
+/pkgs/
 *.pdb
 *.exe
 *.obj

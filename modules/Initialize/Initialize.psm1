@@ -67,21 +67,17 @@ Function InitializeExtranl {
         [String]$ClangbuilderRoot
     )
     
-    $ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
-    $ExtranllibsDir = "$ClangbuilderRoot\libs"
+    $ExtranlDir="$ClangbuilderRoot\bin\external"
     
-    if (Test-Path "$ExtranllibsDir\$Arch\include") {
-        $env:INCLUDE = $env:INCLUDE + [System.IO.Path]::PathSeparator + "$ExtranllibsDir\$Arch\include"
+    if (Test-Path "$ExtranlDir\include") {
+        $env:INCLUDE = $env:INCLUDE +";$ExtranlDir\include"
     }
-    if (Test-Path "$ExtranllibsDir\$Arch\lib") {
-        $env:LIB = $env:LIB + [System.IO.Path]::PathSeparator + "$ExtranllibsDir\$Arch\lib"
+    if (Test-Path "$ExtranlDir\lib\$Arch") {
+        $env:LIB = $env:LIB + ";$ExtranlDir\lib\$Arch"
     }
-    if (Test-Path "$ExtranllibsDir\$Arch\bin") {
-        $env:PATH = $env:PATH + [System.IO.Path]::PathSeparator + "$ExtranllibsDir\$Arch\bin"
+    if (Test-Path "$ExtranlDir\bin\$Arch") {
+        $env:PATH = $env:PATH + ";$ExtranlDir\bin\$Arch"
+    }elseif(Test-Path "$ExtranlDir\bin"){
+        $env:PATH = $env:PATH + ";$ExtranlDir\bin\$Arch"
     }
-    
-    if (Test-Path "$Extranllibs\$Arch\libs") {
-        $env:LIB = $env:LIB + [System.IO.Path]::PathSeparator + "$ExtranllibsDir\$Arch\libs"
-    }
-    
 }
