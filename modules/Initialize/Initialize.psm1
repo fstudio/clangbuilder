@@ -32,7 +32,10 @@ Function InitializeEnv {
     param(
         [String]$ClangbuilderRoot
     )
-    $env:PATH = "$ClangbuilderRoot" + [System.IO.Path]::DirectorySeparatorChar + "bin"+ [System.IO.Path]::PathSeparator+ $env:PATH 
+    if(!$env:PATH.EndsWith( [System.IO.Path]::PathSeparator)){
+        $env:PATH+= [System.IO.Path]::PathSeparator
+    }
+    $env:PATH =$env:PATH + "$ClangbuilderRoot" + [System.IO.Path]::DirectorySeparatorChar + "bin"
     $InitializeFile = "$ClangbuilderRoot/config/initialize.json"
     if (!(Test-Path $InitializeFile)) {
         return 
