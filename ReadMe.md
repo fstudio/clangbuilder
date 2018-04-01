@@ -211,6 +211,24 @@ Usage: devinstall cmd args
        help        print help message
 ```
 
+Default installed tools:
+
+```json
+{
+    "core": [
+        "7z",
+        "cmake",
+        "git",
+        "ninja",
+        "nsis",
+        "nuget",
+        "python2",
+        "vswhere"
+    ]
+}
+```
+
+
 
 Current ported tools:
 
