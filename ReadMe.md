@@ -133,7 +133,7 @@ clang-cl -std:c++14  -Iinclude\c++\v1 hello.cc c++.lib
 copy `c++.dll` to your path(or exe self directory). Clang 6.0 or Clang trunk mybe no Warning.
 
 When need support C++17 with `-std:c++17`,Please modify `new:+165`, Fix redefinition of 'align_val_t'.
-See: [patch/libcxx-msvc-cxx17.patch](patch/libcxx-msvc-cxx17.patch)
+See: [patch/libcxx-msvc-cxx17.patch](./sources/patch/libcxx-msvc-cxx17.patch)
 
 
 **ARM64**
