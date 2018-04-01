@@ -239,12 +239,18 @@ switch ($subcmd) {
             Write-Host -ForegroundColor Red "devinstall install missing argument, example: devinstall install cmake"
             exit 1
         }
+        if (!(Test-Path "$ClangbuilderRoot/bin/pkgs")) {
+            mkdir  "$ClangbuilderRoot/bin/pkgs"
+        }
         $pkgname = $args[1]
         if (!(DevInstall -Root $ClangbuilderRoot -Name $pkgname)) {
             exit 1
         }
     }
     "upgrade" {
+        if (!(Test-Path "$ClangbuilderRoot/bin/pkgs")) {
+            mkdir  "$ClangbuilderRoot/bin/pkgs"
+        }
         $ret = $false
         if ($args.Count -gt 1 -and $args[1] -eq "--default") {
             $ret = Devupgrade -Root  $ClangbuilderRoot -Default
