@@ -152,6 +152,24 @@ Build LLVM for ARM64 is broken, But You can download **Enterprise WDK (EWDK) Ins
 
 See: [VS15: Adds ARM64 architecture support.](https://gitlab.kitware.com/cmake/cmake/merge_requests/1215)
 
+
+**Use Clean Environment**
+
+Clangbuilder support `Clean Environment`, When use `-ClearEnv` flag or enable check box `Use Clean Environment`, Clangbuilder will retset `$env:PATH`.
+
+```powershell
+Function ReinitializePath {
+    if ($PSEdition -eq "Desktop" -or $IsWindows) {
+        $env:PATH += "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
+    }
+    else {
+        $env:PATH = "/usr/local/bin:/usr/bin:/bin"
+    }
+}
+
+```
+
+
 ## Commandline
 
 ```cmd
