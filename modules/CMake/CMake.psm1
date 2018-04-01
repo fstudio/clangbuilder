@@ -47,8 +47,8 @@ Function CMakeCustomflags{
     )
     $flags=""
     $vflags=@{}
-    CMakeFileflags -File "$ClangbuilderRoot\out\cmakeflags.$Branch.json" -Table $vflags
-    CMakeFileflags -File "$ClangbuilderRoot\out\cmakeflags.json" -Table $vflags
+    CMakeFileflags -File "$ClangbuilderRoot/out/cmakeflags.$Branch.json" -Table $vflags
+    CMakeFileflags -File "$ClangbuilderRoot/out/cmakeflags.json" -Table $vflags
     foreach($_ in $vflags.Keys){
         $flags+=" "+$vflags.Item($_)
     }
