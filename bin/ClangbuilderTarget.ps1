@@ -39,6 +39,11 @@ $ret = DevinitializeEnv -Devlockfile $Devlockfile
 if ($ret -ne 0) {
     exit 1
 }
+
+if ((Test-Path Alias:curl) -and (Test-ExecuteFile "curl.exe")) {
+    Remove-Item Alias:curl
+}
+
 if ($InstanceId.Length -eq 0) {
     $InstallationVersion = "15.0"
     $ret = DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
