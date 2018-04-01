@@ -257,7 +257,7 @@ wget                1.19.4              A command-line utility for retrieving fi
 ## Add Extranl Libs
 
 You can add extranl lib, such as [z3](https://github.com/Z3Prover/z3),
-download extranl lib, unpack to `bin/external` , `bin/external/include` is include dir, 'bin/external/lib/$arch(x86,x64,arm,arm64)', 'bin/external/bin/$arch(x86,x64,arm,arm64)'.
+download extranl lib, unpack to `bin/external` , `bin/external/include` is include dir, `bin/external/lib/$arch(x86,x64,arm,arm64)`, `bin/external/bin/$arch(x86,x64,arm,arm64)`.
 
 ## About Ninja Task
 
