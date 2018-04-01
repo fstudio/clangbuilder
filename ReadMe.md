@@ -130,10 +130,9 @@ Only NinjaBootstrap and NinjaIterate will compile libc++ ,Because Visual C++ not
 clang-cl -std:c++14  -Iinclude\c++\v1 hello.cc c++.lib
 ```
 
-copy `c++.dll` to your path(or exe self directory). Clang 6.0 or Clang trunk mybe no Warning.
+after copy `c++.dll` to your path(or exe self directory). 
 
-When need support C++17 with `-std:c++17`,Please modify `new:+165`, Fix redefinition of 'align_val_t'.
-See: [patch/libcxx-msvc-cxx17.patch](./sources/patch/libcxx-msvc-cxx17.patch)
+**C++17**: Clang 7.0 support C++17 ,Clang 6.0 please use [libcxx-msvc-cxx17.patch](https://github.com/fstudio/clangbuilder/blob/master/sources/patch/libcxx-msvc-cxx17.patch).
 
 
 **ARM64**
