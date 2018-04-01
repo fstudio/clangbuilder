@@ -44,6 +44,11 @@ if ((Test-Path Alias:curl) -and (Test-ExecuteFile "curl.exe")) {
     Remove-Item Alias:curl
 }
 
+if ((Test-Path Alias:wget) -and (Test-ExecuteFile "wget.exe")) {
+    Remove-Item Alias:wget
+}
+
+
 if ($InstanceId.Length -eq 0) {
     $InstallationVersion = "15.0"
     $ret = DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
