@@ -198,6 +198,11 @@ When you only need to start a console environment, you can click on the `Environ
 
 **Update 2018-04-01** Clangbuilder 6.0 support `devinstall`, You can run devinstall under `Environment Console`, use `devinstall install $ToolName` to install your need tools.
 
+## Add Portable Utilities
+
+You can port some tools to clangbuilder, see `ports`
+and then double-click `script/DevAll.bat` to the software you need as part of the Clangbuilder is added to the environment
+
 Usage: 
 
 ```txt
@@ -249,13 +254,6 @@ swigwin             3.0.12              Simplified Wrapper and Interface Generat
 vswhere             2.4.1               Locate Visual Studio 2017 and newer installations.
 wget                1.19.4              A command-line utility for retrieving files using HTTP, HTTPS and FTP protocols.
 ```
-
-
-## Add Portable Utilities
-
-You can port some tools to clangbuilder, see `ports`
-and then double-click `script/DevAll.bat` to the software you need as part of the Clangbuilder is added to the environment
-
 
 ## Add Extranl Libs
 
