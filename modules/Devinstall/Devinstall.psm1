@@ -14,6 +14,9 @@ Function Devdownload {
         $InternalUA = "clangbuilder/6.0"
     }
     try {
+        if(Test-Path $Path){
+            Remove-Item -Force $Path
+        }
         Invoke-WebRequest -Uri $Uri -OutFile $Path -UserAgent $InternalUA -UseBasicParsing
     }
     catch {
