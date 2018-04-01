@@ -132,7 +132,7 @@ clang-cl -std:c++14  -Iinclude\c++\v1 hello.cc c++.lib
 
 after copy `c++.dll` to your path(or exe self directory). 
 
-**C++17**: Clang 7.0 support C++17 ,Clang 6.0 please use [libcxx-msvc-cxx17.patch](https://github.com/fstudio/clangbuilder/blob/master/sources/patch/libcxx-msvc-cxx17.patch).
+**Libcxx C++17(vcruntime)**: Clang 7.0 support C++17 ,Clang 6.0 please use [libcxx-msvc-cxx17.patch](https://github.com/fstudio/clangbuilder/blob/master/sources/patch/libcxx-msvc-cxx17.patch).
 
 
 **ARM64**
