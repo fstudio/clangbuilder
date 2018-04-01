@@ -1,0 +1,7 @@
+{
+    "description": "The ultra fast download utility",
+    "version": "1.33.1",
+    "url": "https://github.com/aria2/aria2/releases/download/release-1.33.1/aria2-1.33.1-win-32bit-build1.zip",
+    "url64": "https://github.com/aria2/aria2/releases/download/release-1.33.1/aria2-1.33.1-win-64bit-build1.zip",
+    "extension": "zip"
+}
