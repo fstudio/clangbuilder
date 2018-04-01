@@ -196,12 +196,11 @@ $env:Path = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${
 
 When you only need to start a console environment, you can click on the `Environment Console`.
 
-**Update 2018-04-01** Clangbuilder 6.0 support `devinstall`, You can run devinstall under `Environment Console`, use `devinstall install $ToolName` to install your need tools.
 
 ## Add Portable Utilities
 
 You can port some tools to clangbuilder, see `ports`
-and then double-click `script/DevAll.bat` to the software you need as part of the Clangbuilder is added to the environment
+and then double-click `script/DevAll.bat` to the software you need as part of the Clangbuilder is added to the environment. Clangbuilder 6.0 support `devinstall`, You can run devinstall under `Environment Console`, use `devinstall install $ToolName` to install your need tools.
 
 Usage: 
 
