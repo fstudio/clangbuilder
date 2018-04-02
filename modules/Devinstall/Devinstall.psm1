@@ -14,13 +14,16 @@ Function Devdownload {
         $InternalUA = "clangbuilder/6.0"
     }
     try {
-        if(Test-Path $Path){
+        if (Test-Path $Path) {
             Remove-Item -Force $Path
         }
         Invoke-WebRequest -Uri $Uri -OutFile $Path -UserAgent $InternalUA -UseBasicParsing
     }
     catch {
         Write-Host -ForegroundColor Red "download failed: $_"
+        if (Test-Path $Path) {
+            Remove-Item $Path
+        }
         return $false
     }
     return $true
@@ -83,23 +86,14 @@ Function Get-RegistryValueEx {
     (Get-ItemProperty $Path $Key).$Key
 }
 
-Function DevinitializeEnv{
+Function DevinitializeEnv {
     param(
-        [String]$Devlockfile
+        [String]$ClangbuilderRoot,
+        [String]$Pkglocksdir
     )
-    $item=Get-Item $Devlockfile  -ErrorAction SilentlyContinue
-    if($item -eq $null){
-        Write-Host  -ForegroundColor Red "Not found $Devlockfile."
-        return 1
-    }
-    $pkdir=$item.Directory.FullName
-    $obj=Get-Content -Path $Devlockfile -ErrorAction SilentlyContinue |ConvertFrom-Json  -ErrorAction SilentlyContinue 
-    if($obj -eq $null){
-        Write-Host  -ForegroundColor Red "Not found valid installed tools."
-        return 1
-    }
-    Get-Member -InputObject $obj -MemberType NoteProperty|ForEach-Object {
-        $xpath = Find-ExecutablePath -Path "$pkdir\$($_.Name)"
+    $pkgdir="$ClangbuilderRoot\bin\pkgs"
+    Get-ChildItem "$Pkglocksdir\*.json" -ErrorAction SilentlyContinue|ForEach-Object{
+        $xpath = Find-ExecutablePath -Path "$pkgdir\$($_.BaseName)"
         if ($null -ne $xpath) {
             Test-AddPath -Path $xpath
         }
@@ -109,11 +103,11 @@ Function DevinitializeEnv{
         $gitkey2 = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
         if (Test-Path $gitkey) {
             $gitinstall = Get-RegistryValueEx $gitkey "InstallLocation"
-            Test-AddPath "$gitinstall\bin"
+            Test-AddPath "${gitinstall}\bin"
         }
         elseif (Test-Path $gitkey2) {
             $gitinstall = Get-RegistryValueEx $gitkey2 "InstallLocation"
-            Test-AddPath "$gitinstall\bin"
+            Test-AddPath "${gitinstall}bin"
         }
     }
     return 0

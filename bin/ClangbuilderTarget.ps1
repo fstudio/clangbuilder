@@ -35,7 +35,7 @@ if ($ClearEnv) {
     ReinitializePath
 }
 
-$ret = DevinitializeEnv -Devlockfile $Devlockfile
+$ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot -Pkglocksdir $Pkglocksdir
 if ($ret -ne 0) {
     exit 1
 }

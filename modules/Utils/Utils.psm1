@@ -139,7 +139,7 @@ Function Test-BestSourcesURL {
         $u = $Urls[$i]
         $xuri = [uri]$u
         $resptime = TestTcpConnection -ServerName $xuri.Host -Port $xuri.Port
-        Write-Host "$u response time: $resptime ms"
+        Write-Host "$u time: $resptime ms"
         if ($pretime -gt $resptime) {
             $index = $i
             $pretime = $resptime

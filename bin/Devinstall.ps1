@@ -18,16 +18,15 @@ Usage: devinstall cmd args
 }
 Function ListSubcmd {
     param(
-        [String]$Devlockfile
+        [String]$Pkglocksdir
     )
-    $obj = Get-Content -Path $Devlockfile -ErrorAction SilentlyContinue |ConvertFrom-Json  -ErrorAction SilentlyContinue 
-    if ($obj -eq $null) {
-        Write-Host -ForegroundColor Red "Not found valid installed tools."
-        return 
-    }
-    Write-Host -ForegroundColor Green "devinstall tools, found installed tools:"
-    Get-Member -InputObject $obj -MemberType NoteProperty|ForEach-Object {
-        $_.Name.PadRight(20) + $obj."$($_.Name)"
+    Get-ChildItem -Path "$Pkglocksdir/*.json"|ForEach-Object {
+        $obj = Get-Content -Path $_.FullName -ErrorAction SilentlyContinue |ConvertFrom-Json  -ErrorAction SilentlyContinue 
+        if ($obj -eq $null -or $obj.version -eq $null) {
+            Write-Host -ForegroundColor Red "Invalid file locks: $($_.FullName)"
+            return 
+        }
+        $_.BaseName.PadRight(20) + $obj.version
     }
 }
 
@@ -45,25 +44,30 @@ Function SearchSubcmd {
     }
 }
 
-Function DevInstallOne {
+Function DevbaseInstall {
     param(
-        [String]$Root,
-        [String]$Name,
-        [String]$OVersion
+        [String]$ClangbuilderRoot,
+        [String]$Pkglocksdir,
+        [String]$Name
     )
-    $devpkg = Get-Content "$Root/ports/$Name.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+    if (!(Test-Path "$ClangbuilderRoot/ports/$Name.json")) {
+        Write-Host -ForegroundColor Red "devinstall: $Name not yet ported."
+        return $false
+    }
+    $devpkg = Get-Content "$ClangbuilderRoot/ports/$Name.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
     if ($devpkg -eq $null) {
         Write-Host -ForegroundColor Red "`'$Name`' not yet ported."
-        return $OVersion
+        return $false
     }
     if ($devpkg.version -eq $null) {
         Write-Host -ForegroundColor Red "`'$Name`' port config invalid."
-        return $OVersion
+        return $false
     }
+    $oldtable = Get-Content "$Pkglocksdir/$Name.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
     $pkversion = $devpkg.version
-    if ($OVersion -eq $pkversion) {
-        Write-Host -ForegroundColor Yellow "devinstall: $Name already install. version: $OVersion"
-        return $OVersion
+    if ($oldtable -ne $null -and $oldtable.version -eq $pkversion) {
+        Write-Host -ForegroundColor Yellow "devinstall: $Name is up to date. version: $($oldtable.version)"
+        return $true
     }
     $xurl = $devpkg.url
     if ([System.Environment]::Is64BitOperatingSystem -and $devpkg.url64 -ne $null) {
@@ -80,143 +84,88 @@ Function DevInstallOne {
         return $null
     }
     $ext = $devpkg.extension
-    $pkgfile = "$Root\bin\pkgs\$Name.$ext"
-    $newdir = "$Root\bin\pkgs\$Name"
+    $pkgfile = "$ClangbuilderRoot\bin\pkgs\$Name.$ext"
+    $installdir = "$ClangbuilderRoot\bin\pkgs\$Name"
+    $tempdir = "$installdir.$PID"
     $ret = Devdownload -Uri $besturl -Path "$pkgfile"
     if ($ret -eq $false) {
         return $null
     }
     try {
-        if ((Test-Path "$Root\bin\pkgs\$Name")) {
-            Move-Item -Force "$Root\bin\pkgs\$Name" "$Root\bin\pkgs\$Name.$PID" -ErrorAction SilentlyContinue |Out-Null
+        if ((Test-Path $installdir)) {
+            Move-Item -Force  $installdir $tempdir -ErrorAction SilentlyContinue |Out-Null
         }
         Switch ($ext) {
             "zip" {
-                Expand-Archive -Path $pkgfile -DestinationPath $newdir
-                Initialize-ZipArchive -Path $newdir
+                Expand-Archive -Path $pkgfile -DestinationPath $installdir
+                Initialize-ZipArchive -Path $installdir
             } 
             "msi" {
-                $ret = Expand-Msi -Path $pkgfile -DestinationPath  $newdir
+                $ret = Expand-Msi -Path $pkgfile -DestinationPath  $installdir
                 if ($ret -eq 0) {
-                    Initialize-MsiArchive -Path $newdir
+                    Initialize-MsiArchive -Path $installdir
                 }
             } 
             "exe" {
-                if (!(Test-Path $newdir)) {
-                    mkdir $newdir|Out-Null
+                if (!(Test-Path $installdir)) {
+                    mkdir $installdir|Out-Null
                 }
-                Copy-Item -Path $pkgfile -Destination $newdir -Force
+                Copy-Item -Path $pkgfile -Destination $installdir -Force
             }
         }
     }
     catch {
-        if (!(Test-Path "$Root\bin\pkgs\$Name") -and (Test-Path "$Root\bin\pkgs\$Name.$PID")) {
-            Move-Item -Force "$Root\bin\pkgs\$Name.$PID" "$Root\bin\pkgs\$Name" -ErrorAction SilentlyContinue |Out-Null
+        if (!(Test-Path $installdir) -and (Test-Path $tempdir)) {
+            Move-Item -Force $tempdir $installdir -ErrorAction SilentlyContinue |Out-Null
         }
-        if (Test-Path "$Root\bin\pkgs\$Name.$PID") {
-            Remove-Item -Force -Recurse  "$Root\bin\pkgs\$Name.$PID"  -ErrorAction SilentlyContinue |Out-Null
+        if (Test-Path $tempdir) {
+            Remove-Item -Force -Recurse  $tempdir  -ErrorAction SilentlyContinue |Out-Null
         }
-        return $OVersion
+        return $false
     }
-    if (Test-Path "$Root\bin\pkgs\$Name.$PID") {
-        #Move-Item -Force "$Root\bin\pkgs\$Name" "$Root\bin\pkgs\$Name.$PID"
-        Remove-Item -Force -Recurse "$Root\bin\pkgs\$Name.$PID"  -ErrorAction SilentlyContinue |Out-Null
+    $versiontable = @{}
+    $versiontable["version"] = $pkversion
+    ConvertTo-Json $versiontable |Out-File -Force -FilePath "$Pkglocksdir/$Name.json"
+    if (Test-Path $tempdir) {
+        Remove-Item -Force -Recurse $tempdir  -ErrorAction SilentlyContinue |Out-Null
     }
     Remove-Item $pkgfile -Force -ErrorAction SilentlyContinue |Out-Null ##ignore remove-item return del/null
     Write-Host -ForegroundColor Green "devinstall: install $Name success, version: $pkversion"
-    return $pkversion
-}
-
-Function Devinstalldefault {
-    param(
-        [String]$Root
-    )
-    $sstable = @{}
-    $devcore = Get-Content "$Root/config/devinstall.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
-    if ($devcore.core -eq $null) {
-        Write-Host -ForegroundColor Red "devinstall missing default core tools config, file: $Root/config/devinstall.json"
-        return $false
-    }
-    $Devlockfile = $Root + "/bin/pkgs/devlocks.json"
-    $obj = Get-Content $Devlockfile  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue 
-    if ($obj -ne $null) {
-        $mb = Get-Member -InputObject $obj -MemberType NoteProperty
-        if ($mb.Count -ne $null) {
-            foreach ($i in $mb) {
-                $name = $i.Name
-                $version = $obj."$name"
-                $ver = DevInstallOne -Root $Root -Name $name -OVersion $version
-                if ($ver -ne $null) {
-                    Add-Member -InputObject $obj -Name $name -Value $ver -MemberType NoteProperty -Force
-                    $sstable["$name"] = $ver
-                }
-                else {
-                    $sstable["$name"] = $version
-                }
-            }
-        }
-    }
-
-    foreach ($t in $devcore.core) {
-        if (!$sstable.ContainsKey($t)) {
-            $ver = DevInstallOne -Root $Root -Name $t -OVersion $null
-            if ($ver -ne $null) {
-                $sstable["$t"] = $ver
-            }
-        }
-    }
-    ConvertTo-Json $sstable |Out-File -Force -FilePath "$Root/bin/pkgs/devlocks.json"
     return $true
 }
 
-Function DevInstall {
-    param(
-        [String]$Root,
-        [String]$Name
-    )
-    if (!(Test-Path "$Root/ports/$Name.json")) {
-        Write-Host -ForegroundColor Red "devinstall: $Name not yet ported."
-        return $false
-    }
-    $Devlockfile = $Root + "/bin/pkgs/devlocks.json"
-    $obj = Get-Content $Devlockfile  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
-    $ver = DevInstallOne  -Root $Root -Name $Name -OVersion $obj."$Name"
-    if ($ver -eq $null) {
-        return $false
-    }
-
-    Add-Member -InputObject $obj -Name $Name -Value $ver -MemberType NoteProperty -Force
-    ConvertTo-Json $obj |Out-File -Force -FilePath "$Root/bin/pkgs/devlocks.json"
-    return $true
-}
 
 Function Devupgrade {
     param(
-        [String]$Root,
+        [String]$ClangbuilderRoot,
+        [String]$Pkglocksdir,
         [Switch]$Default
     )
+    $pkgtable = @{}
+    Get-ChildItem -Path "$Pkglocksdir/*.json"|ForEach-Object {
+        $obj = Get-Content -Path $_.FullName -ErrorAction SilentlyContinue |ConvertFrom-Json  -ErrorAction SilentlyContinue 
+        if ($obj -eq $null -or $obj.version -eq $null) {
+            Write-Host -ForegroundColor Red "Invalid file locks: $($_.FullName)"
+            return 
+        }
+        $xname = $_.BaseName
+        $pkgtable["$xname"] = $obj.version
+        DevbaseInstall -ClangbuilderRoot $ClangbuilderRoot -Name $xname -Pkglocksdir $Pkglocksdir|Out-Null
+    }
+
     if ($Default) {
-        Write-Host "devinstall: Use upgrade --default, will install devinstall.json#core."
-        return Devinstalldefault -Root $Root
-    }
-    $Devlockfile = $Root + "/bin/pkgs/devlocks.json"
-    $obj = Get-Content $Devlockfile  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue 
-    if ($obj -eq $null) {
-        return Devinstalldefault -Root $Root
-    }
-    $mb = Get-Member -InputObject $obj -MemberType NoteProperty
-    if ($mb.Count -eq $null) {
-        return Devinstalldefault -Root $Root
-    }
-    foreach ($i in $mb) {
-        $name = $i.Name
-        $version = $obj."$name"
-        $ver = DevInstallOne -Root $Root -Name $name -OVersion $version
-        if ($ver -ne $null) {
-            Add-Member -InputObject $obj -Name $name -Value $ver -MemberType NoteProperty -Force
+        $devcore = Get-Content "$ClangbuilderRoot/config/devinstall.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+        if ($devcore.core -eq $null) {
+            Write-Host -ForegroundColor Red "devinstall missing default core tools config, file: $ClangbuilderRoot/config/devinstall.json"
+            return $false
+        }
+        
+        foreach ($t in $devcore.core) {
+            if (!$pkgtable.ContainsKey($t)) {
+                DevbaseInstall -ClangbuilderRoot $ClangbuilderRoot -Name $t -Pkglocksdir $Pkglocksdir|Out-Null
+            }
         }
     }
-    ConvertTo-Json $obj |Out-File -Force -FilePath "$Root/bin/pkgs/devlocks.json"
     return $true
 }
 
@@ -226,10 +175,18 @@ if ($args.Count -eq 0) {
 }
 
 $subcmd = $args[0]
+$Pkgroot = "$ClangbuilderRoot/bin/pkgs"
+$Pkglocksdir = "$Pkgroot/.locks"
 
+if (!(Test-Path $Pkgroot)) {
+    mkdir  $Pkgroot
+}
+if (!(Test-Path $Pkglocksdir)) {
+    mkdir  $Pkglocksdir
+}
 switch ($subcmd) {
     "list" {
-        ListSubcmd -Devlockfile "$ClangbuilderRoot/bin/pkgs/devlocks.json"
+        ListSubcmd -Pkglocksdir $Pkglocksdir
     }
     "search" {
         SearchSubcmd -Root $ClangbuilderRoot
@@ -239,11 +196,9 @@ switch ($subcmd) {
             Write-Host -ForegroundColor Red "devinstall install missing argument, example: devinstall install cmake"
             exit 1
         }
-        if (!(Test-Path "$ClangbuilderRoot/bin/pkgs")) {
-            mkdir  "$ClangbuilderRoot/bin/pkgs"
-        }
+
         $pkgname = $args[1]
-        if (!(DevInstall -Root $ClangbuilderRoot -Name $pkgname)) {
+        if (!(DevbaseInstall -ClangbuilderRoot $ClangbuilderRoot -Name $pkgname -Pkglocksdir $Pkglocksdir )) {
             exit 1
         }
     }
@@ -251,12 +206,16 @@ switch ($subcmd) {
         if (!(Test-Path "$ClangbuilderRoot/bin/pkgs")) {
             mkdir  "$ClangbuilderRoot/bin/pkgs"
         }
+        if (!(Test-Path "$ClangbuilderRoot/bin/pkgs/.locks")) {
+            mkdir  "$ClangbuilderRoot/bin/pkgs/.locks"
+        }
         $ret = $false
         if ($args.Count -gt 1 -and $args[1] -eq "--default") {
-            $ret = Devupgrade -Root  $ClangbuilderRoot -Default
+            Write-Host "devinstall: Use upgrade --default, will install devinstall.json#core."
+            $ret = Devupgrade -ClangbuilderRoot  $ClangbuilderRoot -Pkglocksdir $Pkglocksdir  -Default
         }
         else {
-            $ret = Devupgrade -Root  $ClangbuilderRoot
+            $ret = Devupgrade -ClangbuilderRoot  $ClangbuilderRoot -Pkglocksdir $Pkglocksdir
         }
         if ($ret -eq $false) {
             exit 1
