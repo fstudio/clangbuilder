@@ -13,47 +13,49 @@ Function CMakeInstallationFix {
     }
 }
 
-Function CMakeFileflags{
+Function CMakeFileflags {
     param(
         [String]$File,
         [Hashtable]$Table
     )
-    if(Test-Path $File){
-        try{
+    if (Test-Path $File) {
+        try {
             Write-Host "Find cmake flags file: $File"
             $cmakeflags = Get-Content -Path $File|ConvertFrom-JSON
             foreach ($flag in $cmakeflags.CMake) {
-                $vv=$flag.Split("=")
-                if($Table.Contains($vv[0])){
+                $vv = $flag.Split("=")
+                if ($Table.Contains($vv[0])) {
                     continue
                 }
-                if($vv.Count -eq 2){
-                    $Table[$vv[0]]=$flag
-                }else{
-                    $Table[$flag]=$flag
+                if ($vv.Count -eq 2) {
+                    $Table[$vv[0]] = $flag
+                }
+                else {
+                    $Table[$flag] = $flag
                 }
             }
-        }catch{
+        }
+        catch {
             Write-Host -ForegroundColor Red "Parse error $_"
             return 
         }
     }
 }
 
-Function CMakeCustomflags{
+Function CMakeCustomflags {
     param(
         [String]$ClangbuilderRoot,
         [String]$Branch
     )
-    $flags=""
-    $vflags=@{}
+    $flags = ""
+    $vflags = @{}
     CMakeFileflags -File "$ClangbuilderRoot/out/cmakeflags.$Branch.json" -Table $vflags
     CMakeFileflags -File "$ClangbuilderRoot/out/cmakeflags.json" -Table $vflags
-    foreach($_ in $vflags.Keys){
-        $flags+=" "+$vflags.Item($_)
+    foreach ($_ in $vflags.Keys) {
+        $flags += " " + $vflags.Item($_)
     }
 
-    if($flags.Length -gt 1){
+    if ($flags.Length -gt 1) {
         Write-Host "New cmake flags: $flags"
     }
     return $flags

@@ -37,11 +37,6 @@ Function Update-LLVM {
     Pop-Location
 }
 
-
-$ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
-#$LatestObj = Get-Content -Path "$ClangbuilderRoot/config/latest.json" |ConvertFrom-Json
-
-
 $LLVMRepositoriesRoot = "https://github.com/llvm-mirror"
 $OutDir = "$ClangbuilderRoot\out"
 

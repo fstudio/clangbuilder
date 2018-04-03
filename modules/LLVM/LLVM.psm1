@@ -2,14 +2,14 @@
 
 
 
-Function DownloadFile{
+Function DownloadFile {
     param(
         [String]$URI
     )
     Write-Debug "$URI"
 }
 
-Function UnpackFile{
+Function UnpackFile {
     param(
         [String]$File, # Filename
         [String]$Path,
@@ -20,7 +20,7 @@ Function UnpackFile{
 }
 
 ##
-Function LLVMDownload{
+Function LLVMDownload {
     param(
         [Switch]$LLDB
     )
@@ -31,14 +31,14 @@ Function LLVMDownload{
     }
 }
 
-Function LLVMRemoteFetch{
+Function LLVMRemoteFetch {
     param(
-        [String]$Branch="master",
+        [String]$Branch = "master",
         [Switch]$LLDB
     )
 }
 
-Function Update-LLVM{
+Function Update-LLVM {
     param(
         [string]$Branch
     )
