@@ -5,6 +5,7 @@
 /config/ewdk.json
 /config/prebuilt.json
 /config/pkinit.json
+/config/profile.ps1
 /out/
 /utils/
 /pkgs/
