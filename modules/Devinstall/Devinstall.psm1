@@ -145,6 +145,7 @@ Function ParseMsiArchiveFolder {
         [String]$Path,
         [String]$Subdir
     )
+    #Write-Host "Parse $Path/$Subdir"
     $ProgramFilesSubDir = "$Path\$Subdir"
     if ((Test-Path $ProgramFilesSubDir)) {
         $Item_ = Get-ChildItem -Path $ProgramFilesSubDir
@@ -173,6 +174,12 @@ Function Initialize-MsiArchive {
         return 
     }
     if ( ParseMsiArchiveFolder  -Path $Path -Subdir "ProgramFiles64") {
+        return 
+    }
+    if (Test-Path "$Path/Windows") {
+        Remove-Item -Path "$Path/Windows" -Recurse
+    }
+    if ( ParseMsiArchiveFolder  -Path $Path -Subdir "PFiles") {
         return 
     }
     ParseMsiArchiveFolder  -Path $Path -Subdir "Files"|Out-Null
