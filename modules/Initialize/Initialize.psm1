@@ -32,10 +32,10 @@ Function InitializeEnv {
     param(
         [String]$ClangbuilderRoot
     )
-    if(!$env:PATH.EndsWith( [System.IO.Path]::PathSeparator)){
-        $env:PATH+= [System.IO.Path]::PathSeparator
+    if (!$env:PATH.EndsWith( [System.IO.Path]::PathSeparator)) {
+        $env:PATH += [System.IO.Path]::PathSeparator
     }
-    $env:PATH =$env:PATH + "$ClangbuilderRoot" + [System.IO.Path]::DirectorySeparatorChar + "bin"
+    $env:PATH = $env:PATH + "$ClangbuilderRoot" + [System.IO.Path]::DirectorySeparatorChar + "bin"
     $InitializeFile = "$ClangbuilderRoot/config/initialize.json"
     if (!(Test-Path $InitializeFile)) {
         return 
@@ -67,17 +67,18 @@ Function InitializeExtranl {
         [String]$ClangbuilderRoot
     )
     
-    $ExtranlDir="$ClangbuilderRoot\bin\external"
+    $ExtranlDir = "$ClangbuilderRoot\bin\external"
     
     if (Test-Path "$ExtranlDir\include") {
-        $env:INCLUDE = $env:INCLUDE +";$ExtranlDir\include"
+        $env:INCLUDE = $env:INCLUDE + ";$ExtranlDir\include"
     }
     if (Test-Path "$ExtranlDir\lib\$Arch") {
         $env:LIB = $env:LIB + ";$ExtranlDir\lib\$Arch"
     }
     if (Test-Path "$ExtranlDir\bin\$Arch") {
         $env:PATH = $env:PATH + ";$ExtranlDir\bin\$Arch"
-    }elseif(Test-Path "$ExtranlDir\bin"){
+    }
+    elseif (Test-Path "$ExtranlDir\bin") {
         $env:PATH = $env:PATH + ";$ExtranlDir\bin\$Arch"
     }
 }

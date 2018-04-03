@@ -324,7 +324,7 @@ Function InitializeVisualStudio {
         [String]$InstanceId,
         [Switch]$Sdklow
     )
-    if($InstanceId -eq $null -or $InstanceId.Length -eq 0){
+    if ($InstanceId -eq $null -or $InstanceId.Length -eq 0) {
         return 1
     }
     if ($InstanceId -eq "VisualCppTools") {

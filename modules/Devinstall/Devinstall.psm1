@@ -91,8 +91,8 @@ Function DevinitializeEnv {
         [String]$ClangbuilderRoot,
         [String]$Pkglocksdir
     )
-    $pkgdir="$ClangbuilderRoot\bin\pkgs"
-    Get-ChildItem "$Pkglocksdir\*.json" -ErrorAction SilentlyContinue|ForEach-Object{
+    $pkgdir = "$ClangbuilderRoot\bin\pkgs"
+    Get-ChildItem "$Pkglocksdir\*.json" -ErrorAction SilentlyContinue|ForEach-Object {
         $xpath = Find-ExecutablePath -Path "$pkgdir\$($_.BaseName)"
         if ($null -ne $xpath) {
             Test-AddPath -Path $xpath
