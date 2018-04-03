@@ -140,29 +140,6 @@ Function Initialize-ZipArchive {
     }
 }
 
-Function ParseMsiArchiveFolder {
-    param(
-        [String]$Path,
-        [String]$Subdir
-    )
-    #Write-Host "Parse $Path/$Subdir"
-    $ProgramFilesSubDir = "$Path\$Subdir"
-    if ((Test-Path $ProgramFilesSubDir)) {
-        $Item_ = Get-ChildItem -Path $ProgramFilesSubDir
-        if ($Item_.Count -eq 1) {
-            if ($Item_[0] -isnot [System.IO.DirectoryInfo]) {
-                Move-Item -Path $Item_[0].FullName -Destination $Path
-                return $TRUE;
-            }
-            $SubFile = $Item_[0].FullName
-            Move-Item -Force -Path "$SubFile/*" -Destination $Path
-            Remove-Item -Force -Recurse $ProgramFilesSubDir
-            return $TRUE;
-        }
-    }
-    return $FALSE;
-}
-
 Function Initialize-MsiArchive {
     param(
         [String]$Path
@@ -170,18 +147,24 @@ Function Initialize-MsiArchive {
     Get-ChildItem -Path "$Path\*.msi"|ForEach-Object {
         Remove-Item -Path $_.FullName
     }
-    if (ParseMsiArchiveFolder -Path $Path -Subdir "Program Files") {
-        return 
+    if (Test-Path "$Path\Windows") {
+        Remove-Item -Path "$Path\Windows" -Recurse
     }
-    if ( ParseMsiArchiveFolder  -Path $Path -Subdir "ProgramFiles64") {
-        return 
+    $skipdirs = "Program Files", "ProgramFiles64", "PFiles", "Files"
+    foreach ($d in $skipdirs) {
+        $sd = "$Path/$d"
+        if (Test-Path $sd) {
+            $ssdir = Get-ChildItem -Path $sd
+            if ($ssdir.Count -eq 1) {
+                if ($ssdir[0] -isnot [System.IO.DirectoryInfo]) {
+                    Move-Item -Path $ssdir[0].FullName -Destination $Path
+                    return 
+                }
+                $xsubdir = $ssdir[0].FullName
+                Move-Item -Force -Path "$xsubdir/*" -Destination $Path
+                Remove-Item -Force -Recurse $sd
+            }
+        }
     }
-    if (Test-Path "$Path/Windows") {
-        Remove-Item -Path "$Path/Windows" -Recurse
-    }
-    if ( ParseMsiArchiveFolder  -Path $Path -Subdir "PFiles") {
-        return 
-    }
-    ParseMsiArchiveFolder  -Path $Path -Subdir "Files"|Out-Null
 }
 
