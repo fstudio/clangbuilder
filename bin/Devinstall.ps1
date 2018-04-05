@@ -63,6 +63,20 @@ Function DevbaseInstall {
         Write-Host -ForegroundColor Red "`'$Name`' port config invalid."
         return $false
     }
+    $ext = $devpkg.extension
+    $AllowedExtensions = "exe", "zip", "msi", "7z"
+    if (!$AllowedExtensions.Contains($ext)) {
+        Write-Host -ForegroundColor Red "extension `'$ext`' not allowed."
+        return $false
+    }
+    $sevenzipbin = "$ClangbuilderRoot\bin\pkgs\7z\7z.exe"
+    if ($devpkg.extension -eq "7z") {
+        if (!(Test-Path $sevenzipbin)) {
+            Write-Host -ForegroundColor Red "This package extension is `'7z`', but 7z not install. Please run devi install 7z."
+            return $false
+        }
+    }
+
     $oldtable = Get-Content "$Pkglocksdir/$Name.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
     $pkversion = $devpkg.version
     if ($oldtable -ne $null -and $oldtable.version -eq $pkversion) {
@@ -83,7 +97,7 @@ Function DevbaseInstall {
     if ($besturl -eq $null) {
         return $null
     }
-    $ext = $devpkg.extension
+
     $pkgfile = "$ClangbuilderRoot\bin\pkgs\$Name.$ext"
     $installdir = "$ClangbuilderRoot\bin\pkgs\$Name"
     $tempdir = "$installdir.$PID"
@@ -111,6 +125,13 @@ Function DevbaseInstall {
                     mkdir $installdir|Out-Null
                 }
                 Copy-Item -Path $pkgfile -Destination $installdir -Force
+            }
+            "7z" {
+                $ret = ProcessExec -FilePath $sevenzipbin -Arguments "e -spf -y `"$pkgfile`" `"-o$installdir`""
+                if ($ret -ne 0) {
+                    throw "decompress $pkgfile by 7z failed"
+                }
+                Initialize-ZipArchive -Path $installdir
             }
         }
     }
