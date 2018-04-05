@@ -41,8 +41,6 @@ Function UnpackFile {
     }
 }
 
-$ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
-
 Push-Location $PWD
 
 if (!(Test-Path "$ClangbuilderRoot/out/rel")) {
