@@ -5,8 +5,7 @@ param(
 ."$PSScriptRoot\ProfileEnv.ps1"
 
 #$MainURL="https://releases.llvm.org/6.0.0/llvm-6.0.0.src.tar.xz"
-
-Function DownloadFile {
+Function LLVMGet {
     param(
         [String]$Version,
         [String]$Name
@@ -17,7 +16,7 @@ Function DownloadFile {
         Invoke-WebRequest -Uri "https://releases.llvm.org/$Version/$Name-$Version.src.tar.xz" -OutFile "$Name.tar.xz" -UserAgent $UserAgent -UseBasicParsing
     }
     catch {
-        Write-Host -ForegroundColor Red "$_"
+        Write-Host -ForegroundColor Red "download $Name failed: $_"
     }
 }
 
@@ -70,15 +69,15 @@ if (Test-Path "$PWD\llvm") {
 
 Write-Host "LLVM release: $release"
 
-DownloadFile -Version $release -Name "llvm"
-DownloadFile -Version $release -Name "cfe"
-DownloadFile -Version $release -Name "lld"
-DownloadFile -Version $release -Name "compiler-rt"
-DownloadFile -Version $release -Name "libcxx"
-DownloadFile -Version $release -Name "clang-tools-extra"
+LLVMGet -Version $release -Name "llvm"
+LLVMGet -Version $release -Name "cfe"
+LLVMGet -Version $release -Name "lld"
+LLVMGet -Version $release -Name "compiler-rt"
+LLVMGet -Version $release -Name "libcxx"
+LLVMGet -Version $release -Name "clang-tools-extra"
 
 if ($LLDB) {
-    DownloadFile -Version $release -Name "lldb"
+    LLVMGet -Version $release -Name "lldb"
 }
 
 UnpackFile -File "$PWD\llvm.tar.xz" -Path "." -OldName "llvm-$release.src" -Name "llvm"
