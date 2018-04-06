@@ -3,5 +3,17 @@
     "version": "2.3.0",
     "url": "http://radare.mikelloc.com/get/2.3.0/radare2-msvc_32-2.3.0.zip",
     "url64": "http://radare.mikelloc.com/get/2.3.0/radare2-msvc_64-2.3.0.zip",
-    "extension": "zip"
+    "extension": "zip",
+    "links": [
+        "r2agent.exe",
+        "rabin2.exe",
+        "radare2.exe",
+        "radiff2.exe",
+        "rafind2.exe",
+        "raagg2.exe",
+        "rahash2.exe",
+        "rarun2.exe",
+        "rasm2.exe",
+        "rax2.exe"
+    ]
 }
