@@ -163,13 +163,13 @@ Function DevbaseInstall {
                 if ($LASTEXITCODE -ne 0) {
                     throw "file $symlinkfile"
                 }
+                Write-Host -ForegroundColor Green "link $($item.FullName) to $symlinkfile success."
             }
             $versiontable["linked"] = $true
         }
         catch {
             Write-Host -ForegroundColor Red "create symbolic link failed: $_"
         }
-   
     }
     ConvertTo-Json $versiontable |Out-File -Force -FilePath "$Pkglocksdir/$Name.json"
     if (Test-Path $tempdir) {
