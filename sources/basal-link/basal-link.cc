@@ -7,28 +7,9 @@
 #define SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE 0x02
 #endif
 
-// class LanguageHelper
-// {
-//   public:
-//     LanguageHelper()
-//     {
-//         langid = GetConsoleCP();
-//         SetConsoleCP(CP_UTF8);
-//         SetConsoleOutputCP(CP_UTF8);
-//     }
-//     ~LanguageHelper()
-//     {
-//         SetConsoleCP(langid);
-//         SetConsoleOutputCP(langid);
-//     }
-
-//   private:
-//     int langid = 65001;
-// };
 
 int wmain(int argc, wchar_t **argv) {
   setlocale(LC_ALL, ""); //// Codepage no way
-
   if (argc < 3) {
     fwprintf(stderr, L"usage: basal-link source target\n");
     return 1;

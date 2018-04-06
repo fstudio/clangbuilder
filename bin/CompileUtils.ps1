@@ -57,10 +57,10 @@ if (Test-Path "$ClangbuilderRoot\bin\utils\ClangbuilderUI.exe") {
 else {
     Write-Error "Cannot found ClangbuilderUI.exe "
 }
-Set-Location "$ClangbuilderRoot\sources\symlink"
+Set-Location "$ClangbuilderRoot\sources\basal-link"
 &nmake
-if (Test-Path "$ClangbuilderRoot\sources\symlink\basal-link.exe") {
-    Copy-Item -Path  "$ClangbuilderRoot\sources\symlink\basal-link.exe" -Destination  "$ClangbuilderRoot\bin"
+if (Test-Path "$ClangbuilderRoot\sources\basal-link\basal-link.exe") {
+    Copy-Item -Path  "$ClangbuilderRoot\sources\basal-link\basal-link.exe" -Destination  "$ClangbuilderRoot\bin"
 }
 &nmake clean
 
