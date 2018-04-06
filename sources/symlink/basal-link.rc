@@ -2,7 +2,7 @@
 //
 #include "windows.h"
 
-#define COPYRIGHT L"Copyright \xA9 2017 Force Charlie. All Rights Reserved."
+#define COPYRIGHT L"Copyright \xA9 2018 Force Charlie. All Rights Reserved."
 
 
 /////////////////////////////////////////////////////////////////////////////

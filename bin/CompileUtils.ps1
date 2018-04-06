@@ -20,7 +20,7 @@ if ($ret -ne 0) {
 }
 ## Add environment
 InitializeEnv -ClangbuilderRoot $ClangbuilderRoot
-Set-Location "$ClangbuilderRoot\sources\tools\ClangbuilderUI"
+Set-Location "$ClangbuilderRoot\sources\ClangbuilderUI"
 Write-Host "Building ClangbuilderUI ..."
 &nmake
 
@@ -57,6 +57,11 @@ if (Test-Path "$ClangbuilderRoot\bin\utils\ClangbuilderUI.exe") {
 else {
     Write-Error "Cannot found ClangbuilderUI.exe "
 }
-
+Set-Location "$ClangbuilderRoot\sources\symlink"
+&nmake
+if (Test-Path "$ClangbuilderRoot\sources\symlink\basal-link.exe") {
+    Copy-Item -Path  "$ClangbuilderRoot\sources\symlink\basal-link.exe" -Destination  "$ClangbuilderRoot\bin"
+}
+&nmake clean
 
 Pop-Location
