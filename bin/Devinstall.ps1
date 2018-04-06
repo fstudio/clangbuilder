@@ -144,8 +144,33 @@ Function DevbaseInstall {
         }
         return $false
     }
+
     $versiontable = @{}
     $versiontable["version"] = $pkversion
+    if ($devpkg.links -ne $null) {
+        if (!(Test-Path "$ClangbuilderRoot/bin/pkgs/.linked")) {
+            mkdir "$ClangbuilderRoot/bin/pkgs/.linked"|Out-Null
+        }
+        try {
+            foreach ($i in $devpkg.links) {
+                $srcfile = "$installdir/$i"
+                $item = Get-Item $srcfile
+                $symlinkfile = "$ClangbuilderRoot/bin/pkgs/.linked/" + $item.Name
+                if (Test-Path $symlinkfile) {
+                    Remove-Item -Force -Recurse $symlinkfile
+                }
+                &"$ClangbuilderRoot/bin/basal-link.exe" $item.FullName $symlinkfile
+                if ($LASTEXITCODE -ne 0) {
+                    throw "file $symlinkfile"
+                }
+            }
+            $versiontable["linked"] = $true
+        }
+        catch {
+            Write-Host -ForegroundColor Red "create symbolic link failed: $_"
+        }
+   
+    }
     ConvertTo-Json $versiontable |Out-File -Force -FilePath "$Pkglocksdir/$Name.json"
     if (Test-Path $tempdir) {
         Remove-Item -Force -Recurse $tempdir  -ErrorAction SilentlyContinue |Out-Null

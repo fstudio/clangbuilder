@@ -93,10 +93,16 @@ Function DevinitializeEnv {
     )
     $pkgdir = "$ClangbuilderRoot\bin\pkgs"
     Get-ChildItem "$Pkglocksdir\*.json" -ErrorAction SilentlyContinue|ForEach-Object {
-        $xpath = Find-ExecutablePath -Path "$pkgdir\$($_.BaseName)"
-        if ($null -ne $xpath) {
-            Test-AddPath -Path $xpath
+        $xobj= Get-Content $_.FullName  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+        if($xobj.linked -eq $null -or $xobj.linked -ne $true){
+            $xpath = Find-ExecutablePath -Path "$pkgdir\$($_.BaseName)"
+            if ($null -ne $xpath) {
+                Test-AddPath -Path $xpath
+            }
         }
+    }
+    if(Test-Path "$ClangbuilderRoot\bin\pkgs\.linked"){
+        $env:PATH = "$ClangbuilderRoot\bin\pkgs\.linked" + [System.IO.Path]::PathSeparator + $env:PATH
     }
     if (!(Test-ExecuteFile "git")) {
         $gitkey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"

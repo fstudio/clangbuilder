@@ -3,5 +3,9 @@
     "version": "2.13.03",
     "url": "https://www.nasm.us/pub/nasm/releasebuilds/2.13.03/win32/nasm-2.13.03-win32.zip",
     "url64": "https://www.nasm.us/pub/nasm/releasebuilds/2.13.03/win64/nasm-2.13.03-win64.zip",
-    "extension": "zip"
+    "extension": "zip",
+    "links": [
+        "nasm.exe",
+        "ndisasm.exe"
+    ]
 }

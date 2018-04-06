@@ -3,5 +3,13 @@
     "version": "0.70",
     "url": "https://the.earth.li/~sgtatham/putty/latest/w32/putty-0.70-installer.msi",
     "url64": "https://the.earth.li/~sgtatham/putty/latest/w64/putty-64bit-0.70-installer.msi",
-    "extension": "msi"
+    "extension": "msi",
+    "links": [
+        "putty.exe",
+        "puttygen.exe",
+        "psftp.exe",
+        "pscp.exe",
+        "plink.exe",
+        "pageant.exe"
+    ]
 }

@@ -3,5 +3,8 @@
     "version": "1.19.4",
     "url": "https://eternallybored.org/misc/wget/1.19.4/32/wget.exe",
     "url64": "https://eternallybored.org/misc/wget/1.19.4/64/wget.exe",
-    "extension": "exe"
+    "extension": "exe",
+    "links": [
+        "wget.exe"
+    ]
 }

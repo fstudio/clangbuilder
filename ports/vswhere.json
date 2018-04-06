@@ -2,5 +2,8 @@
     "description": "Locate Visual Studio 2017 and newer installations.",
     "version": "2.4.1",
     "url": "https://github.com/Microsoft/vswhere/releases/download/2.4.1/vswhere.exe",
-    "extension": "exe"
+    "extension": "exe",
+    "links": [
+        "vswhere.exe"
+    ]
 }

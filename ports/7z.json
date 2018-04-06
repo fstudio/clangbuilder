@@ -3,5 +3,8 @@
     "version": "18.03",
     "url": "https://sourceforge.net/projects/sevenzip/files/7-Zip/18.03/7z1803.msi/download",
     "url64": "https://sourceforge.net/projects/sevenzip/files/7-Zip/18.03/7z1803-x64.msi/download",
-    "extension": "msi"
+    "extension": "msi",
+    "links": [
+        "7z.exe"
+    ]
 }

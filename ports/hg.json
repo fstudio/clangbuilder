@@ -3,5 +3,9 @@
     "version": "4.5.2",
     "url": "https://www.mercurial-scm.org/release/windows/mercurial-4.5.2-x86.msi",
     "url64": "https://www.mercurial-scm.org/release/windows/mercurial-4.5.2-x64.msi",
-    "extension": "msi"
+    "extension": "msi",
+    "links": [
+        "hg.exe",
+        "python27.dll"
+    ]
 }
