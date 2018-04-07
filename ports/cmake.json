@@ -3,5 +3,12 @@
     "version": "3.11.0",
     "url": "https://cmake.org/files/v3.11/cmake-3.11.0-win32-x86.zip",
     "url64": "https://cmake.org/files/v3.11/cmake-3.11.0-win64-x64.zip",
-    "extension": "zip"
+    "extension": "zip",
+    "links": [
+        "bin\\cmake.exe",
+        "bin\\cmake-gui.exe",
+        "bin\\cmcldeps.exe",
+        "bin\\cpack.exe",
+        "bin\\ctest.exe"
+    ]
 }
