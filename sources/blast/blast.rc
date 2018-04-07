@@ -4,7 +4,7 @@
 
 #define COPYRIGHT L"Copyright \xA9 2018 Force Charlie. All Rights Reserved."
 
-
+ICON1 ICON "blast.ico"
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
@@ -28,12 +28,12 @@ BEGIN
 BLOCK "080404b0"
 BEGIN
 VALUE "CompanyName", "Force Charlie"
-VALUE "FileDescription", "Basal Symbolic Link Creator"
+VALUE "FileDescription", "Blast symbolic linker"
 VALUE "FileVersion", "1.0.0.1"
 VALUE "InternalName", "basal-link.exe"
 VALUE "LegalCopyright", COPYRIGHT
 VALUE "OriginalFilename", "basal-link.exe"
-VALUE "ProductName", "Basal Symbolic Link Creator"
+VALUE "ProductName", "Blast symbolic linker"
 VALUE "ProductVersion", "1.0.0.1"
 END
 END

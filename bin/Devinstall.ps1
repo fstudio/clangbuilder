@@ -159,9 +159,9 @@ Function DevbaseInstall {
                 if (Test-Path $symlinkfile) {
                     Remove-Item -Force -Recurse $symlinkfile
                 }
-                &"$ClangbuilderRoot/bin/basal-link.exe" $item.FullName $symlinkfile
+                &"$ClangbuilderRoot/bin/blast.exe" --link $item.FullName $symlinkfile
                 if ($LASTEXITCODE -ne 0) {
-                    throw "file $symlinkfile"
+                    throw "failed create symlink: $symlinkfile"
                 }
                 Write-Host -ForegroundColor Green "link $($item.FullName) to $symlinkfile success."
             }
