@@ -197,6 +197,9 @@ Function InitializeWinSdk10 {
     $env:INCLUDE += "${installdir}include\$version\ucrt;"
     $env:INCLUDE += "${installdir}include\$version\um;"
     $env:INCLUDE += "${installdir}include\$version\winrt"
+    if (Test-Path "${installdir}include\$version\cppwinrt") {
+        $env:INCLUDE += ";${installdir}include\$version\cppwinrt"
+    }
     $env:PATH = "$env:PATH;${installdir}bin\$version\$HostEnv"
 }
 
