@@ -1,3 +1,3 @@
 @Echo off
-Title %CD% - Update Packages
+Title %CD% - devi console
 PowerShell -NoProfile -NoLogo -ExecutionPolicy unrestricted -File "%~dp0../bin/Devinstall.ps1" %*

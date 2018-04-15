@@ -44,6 +44,36 @@ Function SearchSubcmd {
     }
 }
 
+
+Function DevbaseUninstall {
+    param(
+        [String]$ClangbuilderRoot,
+        [String]$Name
+    )
+    $lockfile = "$ClangbuilderRoot/bin/pkgs/.locks/$Name.json"
+    if (!(Test-Path "$Pkglocksdir/$Name.json")) {
+        Write-Host -ForegroundColor Red "not found $Name in $Pkglocksdir"
+    }
+    else {
+        $instmd = Get-Content $lockfile  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+        if ($instmd.links -ne $null) {
+            foreach ($lkfile in $instmd.links) {
+                $xlinked = "$ClangbuilderRoot/bin/pkgs/.linked/$lkfile"
+                if (Test-Path $xlinked) {
+                    Remove-Item -Force $xlinked
+                }
+            }
+        }
+        Remove-Item $lockfile -Force
+    }
+
+    $pkgdir = "$ClangbuilderRoot/bin/pkgs/$Name"
+    if (Test-Path $pkgdir) {
+        Remove-Item -Force -Recurse  $pkgdir  -ErrorAction SilentlyContinue |Out-Null
+    }
+    Write-Host -ForegroundColor Yellow "devinstall: uninstall $Name done."
+}
+
 Function DevbaseInstall {
     param(
         [String]$ClangbuilderRoot,
@@ -190,8 +220,7 @@ Function Devupgrade {
     param(
         [String]$ClangbuilderRoot,
         [String]$Pkglocksdir,
-        [Switch]$Default,
-        [Switch]$Drop ## drop unported package
+        [Switch]$Default
     )
     $pkgtable = @{}
     Get-ChildItem -Path "$Pkglocksdir/*.json"|ForEach-Object {
@@ -201,6 +230,13 @@ Function Devupgrade {
             return 
         }
         $xname = $_.BaseName
+        if (!(Test-Path "$ClangbuilderRoot/ports/$xname.json")) {
+            if ($Default) {
+                Write-Host -ForegroundColor Yellow "remove unported package: $xname"
+                DevbaseUninstall -ClangbuilderRoot $ClangbuilderRoot -Name $xname
+                return $true
+            }
+        }
         $pkgtable["$xname"] = $obj.version
         DevbaseInstall -ClangbuilderRoot $ClangbuilderRoot -Name $xname -Pkglocksdir $Pkglocksdir|Out-Null
     }
@@ -251,6 +287,17 @@ switch ($subcmd) {
 
         $pkgname = $args[1]
         if (!(DevbaseInstall -ClangbuilderRoot $ClangbuilderRoot -Name $pkgname -Pkglocksdir $Pkglocksdir )) {
+            exit 1
+        }
+    }
+    "uninstall" {
+        if ($args.Count -lt 2) {
+            Write-Host -ForegroundColor Red "devinstall uninstall missing argument, example: devinstall uninstall putty"
+            exit 1
+        }
+
+        $pkgname = $args[1]
+        if (!(DevbaseUninstall -ClangbuilderRoot $ClangbuilderRoot -Name $pkgname )) {
             exit 1
         }
     }
