@@ -6,7 +6,7 @@
         "ninja",
         "nsis",
         "nuget",
-        "python2",
+        "python3",
         "vswhere"
     ]
 }
