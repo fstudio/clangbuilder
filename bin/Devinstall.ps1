@@ -152,6 +152,7 @@ Function DevbaseInstall {
             mkdir "$ClangbuilderRoot/bin/pkgs/.linked"|Out-Null
         }
         try {
+            [System.Collections.ArrayList]$mlinks = @()
             foreach ($i in $devpkg.links) {
                 $srcfile = "$installdir/$i"
                 $item = Get-Item $srcfile
@@ -163,7 +164,11 @@ Function DevbaseInstall {
                 if ($LASTEXITCODE -ne 0) {
                     throw "failed create symlink: $symlinkfile"
                 }
+                $mlinks.Add($item.Name)|Out-Null
                 Write-Host -ForegroundColor Green "link $($item.FullName) to $symlinkfile success."
+            }
+            if ($mlinks.Count -gt 0) {
+                $versiontable["links"] = $mlinks
             }
             $versiontable["linked"] = $true
         }
@@ -185,7 +190,8 @@ Function Devupgrade {
     param(
         [String]$ClangbuilderRoot,
         [String]$Pkglocksdir,
-        [Switch]$Default
+        [Switch]$Default,
+        [Switch]$Drop ## drop unported package
     )
     $pkgtable = @{}
     Get-ChildItem -Path "$Pkglocksdir/*.json"|ForEach-Object {
