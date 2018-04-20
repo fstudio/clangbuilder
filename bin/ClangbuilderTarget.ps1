@@ -163,7 +163,7 @@ Function Get-ClangArgument {
     )
     # https://github.com/llvm-mirror/clang/blob/6c57331175c84f06b8adbae858043ab5c782355f/lib/Driver/ToolChains/MSVC.cpp#L1269
     $VisualCppVersionTable = @{
-        "15" = "19.11";
+        "15" = "19.14";
         "14" = "19.00";
         "12" = "18.00";
         "11" = "17.00"
@@ -181,7 +181,7 @@ Function Get-ClangArgument {
             $msvc = $VisualCppVersionTable[$Installation]
         }
         else {
-            $msvc = "19.11"
+            $msvc = "19.14"
         }
         $CompilerFlags = "-fms-compatibility-version=$msvc $ClangArgs"
     }
