@@ -158,6 +158,9 @@ Function Set-Workdir {
 }
 
 Function Get-ClangArgument {
+    # Parse clang args
+    # $ver=(Get-Item $clexe|Select-Object -ExpandProperty VersionInfo|Select-Object -Property FileVersion)
+    # https://github.com/llvm-mirror/clang/blob/6c57331175c84f06b8adbae858043ab5c782355f/lib/Driver/ToolChains/MSVC.cpp#L1269
     "#include <cstdio>
 int main()
 {
@@ -170,7 +173,7 @@ int main()
     return 0;
 }
 "|Out-File "$env:TEMP/clangbuilder_detect.cc"
-    cl /EHsc /nologo "$env:TEMP/clangbuilder_detect.cc" "/Fe:$env:TEMP/clangbuilder_detect.exe"
+    cl /EHsc /nologo "$env:TEMP/clangbuilder_detect.cc" "/Fe:$env:TEMP/clangbuilder_detect.exe"|Out-Null
     $MSVC_VER = &"$env:TEMP/clangbuilder_detect.exe"
     Remove-Item "clangbuilder_detect.obj" -Force |Out-Null
     Remove-Item "$env:TEMP/clangbuilder_detect.cc"  -Force |Out-Null
@@ -179,32 +182,16 @@ int main()
         $MSVC_VER = "19.12"
     }
     Write-Host "Detecting: -fms-compatibility-version=$MSVC_VER "
-    # $ver=(Get-Item $clexe|Select-Object -ExpandProperty VersionInfo|Select-Object -Property FileVersion)
-    # https://github.com/llvm-mirror/clang/blob/6c57331175c84f06b8adbae858043ab5c782355f/lib/Driver/ToolChains/MSVC.cpp#L1269
-    $VisualCppVersionTable = @{
-        "15" = $MSVC_VER;
-        "14" = "19.00";
-        "12" = "18.00";
-        "11" = "17.00"
-    };
     $ClangMarchArgument = @{
         "x64"   = "-m64";
         "x86"   = "-m32";
         "ARM"   = "--target=arm-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1";
         "ARM64" = "--target=arm64-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
     }
-    $Arguments = "-GNinja $Global:CMakeArguments"
-    $CompilerFlags = $ClangArgs
-    if ($SetMsvc) {
-        if ($VisualCppVersionTable.ContainsKey($Global:Installation)) {
-            $msvc = $VisualCppVersionTable[$Installation]
-        }
-        else {
-            $msvc = $MSVC_VER
-        }
-        $CompilerFlags = "-fms-compatibility-version=$msvc $ClangArgs"
-    }
     $ClangArgs = $ClangMarchArgument[$Arch]
+    $Arguments = "-GNinja $Global:CMakeArguments"
+    $CompilerFlags = "-fms-compatibility-version=$MSVC_VER $ClangArgs"
+
     $Arguments += " -DCMAKE_C_FLAGS=`"$CompilerFlags`""
     $Arguments += " -DCMAKE_CXX_FLAGS=`"$CompilerFlags`""
     if ($Installation -eq "14" -or ($Installation -eq "15")) {
