@@ -161,27 +161,26 @@ Function Get-ClangArgument {
     # Parse clang args
     # $ver=(Get-Item $clexe|Select-Object -ExpandProperty VersionInfo|Select-Object -Property FileVersion)
     # https://github.com/llvm-mirror/clang/blob/6c57331175c84f06b8adbae858043ab5c782355f/lib/Driver/ToolChains/MSVC.cpp#L1269
-    "#include <cstdio>
-int main()
-{
-#ifdef _MSC_VER
-    int ver=_MSC_VER;
-    printf(`"%d.%d\n`",ver/100,ver%100);
-#else
-    printf(`"19.11\n`");
-#endif
-    return 0;
-}
-"|Out-File "$env:TEMP/clangbuilder_detect.cc"
-    cl /EHsc /nologo "$env:TEMP/clangbuilder_detect.cc" "/Fe:$env:TEMP/clangbuilder_detect.exe"|Out-Null
-    $MSVC_VER = &"$env:TEMP/clangbuilder_detect.exe"
-    Remove-Item "clangbuilder_detect.obj" -Force |Out-Null
-    Remove-Item "$env:TEMP/clangbuilder_detect.cc"  -Force |Out-Null
-    Remove-Item "$env:TEMP/clangbuilder_detect.exe" -Force |Out-Null
-    if ($MSVC_VER -eq $null -or $MSVC_VER.Length -eq 0) {
-        $MSVC_VER = "19.12"
+    
+    $msvc = "19.12"
+    try {
+        $clexe = (Get-Command cl).Source
+        $msvc = (Get-Item $clexe|Select-Object -ExpandProperty VersionInfo|Select-Object -Property FileVersion).FileVersion.SubString(0, 5)
     }
-    Write-Host "Detecting: -fms-compatibility-version=$MSVC_VER "
+    catch {
+        $VisualCppVersionTable = @{
+            "15" = "19.14";
+            "14" = "19.00";
+            "12" = "18.00";
+            "11" = "17.00"
+        };
+    
+        if ($VisualCppVersionTable.ContainsKey($Global:Installation)) {
+            $msvc = $VisualCppVersionTable[$Installation]
+        }
+    }
+
+    Write-Host "Detecting: -fms-compatibility-version=$msvc "
     $ClangMarchArgument = @{
         "x64"   = "-m64";
         "x86"   = "-m32";
@@ -190,7 +189,7 @@ int main()
     }
     $ClangArgs = $ClangMarchArgument[$Arch]
     $Arguments = "-GNinja $Global:CMakeArguments"
-    $CompilerFlags = "-fms-compatibility-version=$MSVC_VER $ClangArgs"
+    $CompilerFlags = "-fms-compatibility-version=$msvc $ClangArgs"
 
     $Arguments += " -DCMAKE_C_FLAGS=`"$CompilerFlags`""
     $Arguments += " -DCMAKE_CXX_FLAGS=`"$CompilerFlags`""
