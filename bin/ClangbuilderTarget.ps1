@@ -158,12 +158,31 @@ Function Set-Workdir {
 }
 
 Function Get-ClangArgument {
-    param(
-        [Switch]$SetMsvc
-    )
+    "#include <cstdio>
+int main()
+{
+#ifdef _MSC_VER
+    int ver=_MSC_VER;
+    printf(`"%d.%d\n`",ver/100,ver%100);
+#else
+    printf(`"19.11\n`");
+#endif
+    return 0;
+}
+"|Out-File "$env:TEMP/clangbuilder_detect.cc"
+    cl /EHsc /nologo "$env:TEMP/clangbuilder_detect.cc" "/Fe:$env:TEMP/clangbuilder_detect.exe"
+    $MSVC_VER = &"$env:TEMP/clangbuilder_detect.exe"
+    Remove-Item "clangbuilder_detect.obj" -Force |Out-Null
+    Remove-Item "$env:TEMP/clangbuilder_detect.cc"  -Force |Out-Null
+    Remove-Item "$env:TEMP/clangbuilder_detect.exe" -Force |Out-Null
+    if ($MSVC_VER -eq $null -or $MSVC_VER.Length -eq 0) {
+        $MSVC_VER = "19.12"
+    }
+    Write-Host "Detecting: -fms-compatibility-version=$MSVC_VER "
+    # $ver=(Get-Item $clexe|Select-Object -ExpandProperty VersionInfo|Select-Object -Property FileVersion)
     # https://github.com/llvm-mirror/clang/blob/6c57331175c84f06b8adbae858043ab5c782355f/lib/Driver/ToolChains/MSVC.cpp#L1269
     $VisualCppVersionTable = @{
-        "15" = "19.14";
+        "15" = $MSVC_VER;
         "14" = "19.00";
         "12" = "18.00";
         "11" = "17.00"
@@ -181,7 +200,7 @@ Function Get-ClangArgument {
             $msvc = $VisualCppVersionTable[$Installation]
         }
         else {
-            $msvc = "19.14"
+            $msvc = $MSVC_VER
         }
         $CompilerFlags = "-fms-compatibility-version=$msvc $ClangArgs"
     }
@@ -200,15 +219,14 @@ Function Get-ClangArgument {
 Function ClangNinjaGenerator {
     param(
         [String]$ClangExe,
-        [String]$BuildDir,
-        [Switch]$SetMsvc
+        [String]$BuildDir
     )
     $env:CC = $ClangExe
     $env:CXX = $ClangExe
     Write-Host "Build llvm, Use: CC=$env:CC CXX=$env:CXX"
     $Global:LatestBuildDir = $BuildDir
     Set-Workdir $Global:LatestBuildDir
-    $Arguments = Get-ClangArgument -SetMsvc:$SetMsvc
+    $Arguments = Get-ClangArgument
     $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
@@ -298,7 +316,7 @@ Function Invoke-NinjaIterate {
         Write-Host "$PrebuiltLLVM not exists"
         return 1
     }
-    $exitcode = ClangNinjaGenerator -ClangExe "$PrebuiltLLVM\bin\clang-cl.exe" -BuildDir "$ClangbuilderRoot\out\prebuilt" -SetMsvc
+    $exitcode = ClangNinjaGenerator -ClangExe "$PrebuiltLLVM\bin\clang-cl.exe" -BuildDir "$ClangbuilderRoot\out\prebuilt"
     return $exitcode
 }
 
