@@ -193,7 +193,8 @@ Function DevbaseInstall {
                 if(Test-Path "$ClangbuilderRoot/bin/blast.exe" ){
                     &"$ClangbuilderRoot/bin/blast.exe" --link  "$($item.FullName)" "$symlinkfile"
                 }else{
-                    cmd /c mklink "$symlinkfile" "$($item.FullName)" ## < Windows 10 need Admin
+                    $xsymlinkfile=$symlinkfile.Replace("/","\")
+                    cmd /c mklink "$xsymlinkfile" "$($item.FullName)" ## < Windows 10 need Admin
                 }
                 if ($LASTEXITCODE -ne 0) {
                     throw "failed create symlink: $symlinkfile"
