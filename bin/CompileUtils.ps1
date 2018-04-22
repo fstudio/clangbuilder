@@ -40,19 +40,15 @@ Set-Location $PSScriptRoot
 
 
 if (Test-Path "$ClangbuilderRoot\bin\utils\ClangbuilderUI.exe") {
-    if (!(Test-Path "$ClangbuilderRoot\ClangbuilderUI.lnk")) {
-        $cswshell = New-Object -ComObject WScript.Shell
-        $clangbuilderlnk = $cswshell.CreateShortcut("$ClangbuilderRoot\ClangbuilderUI.lnk")
-        $clangbuilderlnk.TargetPath = "$ClangbuilderRoot\bin\utils\ClangbuilderUI.exe"
-        $clangbuilderlnk.Description = "Start ClangbuilderUI"
-        $clangbuilderlnk.WindowStyle = 1
-        $clangbuilderlnk.WorkingDirectory = "$ClangbuilderRoot\bin\utils"
-        $clangbuilderlnk.IconLocation = "$ClangbuilderRoot\bin\utils\ClangbuilderUI.exe,0"
-        $clangbuilderlnk.Save()
-    }
-    else {
-        Write-Output "ClangbuilderUI.lnk already exists"
-    }
+    $cswshell = New-Object -ComObject WScript.Shell
+    $clangbuilderlnk = $cswshell.CreateShortcut("$ClangbuilderRoot\ClangbuilderUI.lnk")
+    $clangbuilderlnk.TargetPath = "$ClangbuilderRoot\bin\utils\ClangbuilderUI.exe"
+    $clangbuilderlnk.Description = "Start ClangbuilderUI"
+    $clangbuilderlnk.WindowStyle = 1
+    $clangbuilderlnk.WorkingDirectory = "$ClangbuilderRoot\bin\utils"
+    $clangbuilderlnk.IconLocation = "$ClangbuilderRoot\bin\utils\ClangbuilderUI.exe,0"
+    # support overwrite
+    $clangbuilderlnk.Save()
 }
 else {
     Write-Error "Cannot found ClangbuilderUI.exe "
