@@ -46,6 +46,10 @@
 #define IO_REPARSE_TAG_PROJFS_TOMBSTONE         (0xA0000022L)
 #define IO_REPARSE_TAG_AF_UNIX                  (0x80000023L)
 
+/// Windows Linux Subsystem
+#define IO_REPARSE_TAG_LX_FIFO                  (0x80000024L)
+#define IO_REPARSE_TAG_LX_CHR                   (0x80000025L)
+#define IO_REPARSE_TAG_LX_BLK                   (0x80000026L)
 */
 
 static LPCWSTR AppExecLinkParts[] = {
