@@ -388,6 +388,10 @@ public:
 int wmain(int argc, wchar_t **argv) {
   DotComInitialize dot;
   setlocale(LC_ALL, ""); //
+  if (argc >= 2 && wcscmp(argv[1], L"--help") == 0) {
+    usage();
+    return 0;
+  }
   if (argc < 3) {
     wprintf(L"usage: %s <options> file\n", argv[0]);
     return 1;
@@ -397,10 +401,6 @@ int wmain(int argc, wchar_t **argv) {
   }
   if (wcscmp(argv[1], L"--link") == 0 && argc >= 4) {
     return symlink(argv[2], argv[3]);
-  }
-  if (wcscmp(argv[1], L"--help") == 0) {
-    usage();
-    return 0;
   }
   fwprintf(stderr, L"unsupport option: '%s'\n", argv[1]);
   return 1;
