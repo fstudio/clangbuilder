@@ -81,7 +81,7 @@ LRESULT MainWindow::InitializeWindow() {
 
   RECT layout = {CW_USEDEFAULT, CW_USEDEFAULT,
                  CW_USEDEFAULT + MulDiv(700, dpiX, 96),
-                 CW_USEDEFAULT + MulDiv(500, dpiY, 96)};
+                 CW_USEDEFAULT + MulDiv(540, dpiY, 96)};
   Create(nullptr, layout, L"Clangbuilder Environment Utility",
          WS_NORESIZEWINDOW, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE);
   return S_OK;
@@ -214,16 +214,17 @@ HRESULT MainWindow::InitializeControl() {
   if (!VisualStudioSearch(root, instances_)) {
     return S_FALSE;
   }
-  assert(hVisualStudioBox);
-  assert(hPlatformBox);
-  assert(hConfigBox);
-  assert(hBuildBox);
-  assert(hBranchBox);
-  assert(hCheckPackaged_);
-  assert(hCheckCleanEnv_);
-  assert(hCheckLLDB_);
-  assert(hButtonTask_);
-  assert(hButtonEnv_);
+  // assert(hVisualStudioBox);
+  // assert(hPlatformBox);
+  // assert(hConfigBox);
+  // assert(hBuildBox);
+  // assert(hBranchBox);
+  // assert(hCheckLTO_);
+  // assert(hCheckPackaged_);
+  // assert(hCheckCleanEnv_);
+  // assert(hCheckLLDB_);
+  // assert(hButtonTask_);
+  // assert(hButtonEnv_);
 
   for (auto &i : instances_) {
     ::SendMessage(hVisualStudioBox, CB_ADDSTRING, 0,
@@ -306,28 +307,29 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   hBuildBox = LambdaCreateWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 180,
                                  400, 30, nullptr);
 
-  /* hBranchBox = LambdaCreateWindow(WC_BUTTONW, L"Build the latest release",
-  CHECKBOXSTYLE, 200, 220, 360, 27, nullptr);*/
+  hCheckLTO_ =
+      LambdaCreateWindow(WC_BUTTONW, L"Clang/LLVM bootstrap with ThinLTO",
+                         CHECKBOXSTYLE, 200, 230, 360, 27, nullptr);
 
   hCheckSdklow_ = LambdaCreateWindow(
       WC_BUTTONW, L"SDK Compatibility (Windows 8.1 SDK) (Env)", CHECKBOXSTYLE,
-      200, 230, 360, 27, nullptr);
+      200, 260, 360, 27, nullptr);
 
   hCheckPackaged_ =
       LambdaCreateWindow(WC_BUTTONW, L"Create Installation Package",
-                         CHECKBOXSTYLE, 200, 260, 360, 27, nullptr);
+                         CHECKBOXSTYLE, 200, 290, 360, 27, nullptr);
   hCheckCleanEnv_ =
       LambdaCreateWindow(WC_BUTTONW, L"Use Clean Environment (Env)",
-                         CHECKBOXSTYLE, 200, 290, 360, 27, nullptr);
+                         CHECKBOXSTYLE, 200, 320, 360, 27, nullptr);
   hCheckLLDB_ = LambdaCreateWindow(WC_BUTTONW,
                                    L"Build LLDB (Visual Studio 2015 or Later)",
-                                   CHECKBOXSTYLE, 200, 320, 360, 27, nullptr);
+                                   CHECKBOXSTYLE, 200, 350, 360, 27, nullptr);
   // Button_SetElevationRequiredState
   hButtonTask_ =
-      LambdaCreateWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 380,
+      LambdaCreateWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 420,
                          195, 30, (HMENU)IDC_BUTTON_STARTTASK);
   hButtonEnv_ = LambdaCreateWindow(WC_BUTTONW, L"Environment Console",
-                                   PUSHBUTTONSTYLE | BS_ICON, 405, 380, 195, 30,
+                                   PUSHBUTTONSTYLE | BS_ICON, 405, 420, 195, 30,
                                    (HMENU)IDC_BUTTON_STARTENV);
 
   HMENU hSystemMenu = ::GetSystemMenu(m_hWnd, FALSE);
@@ -400,6 +402,7 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
   UpdateWindowPos(hConfigBox);
   UpdateWindowPos(hBranchBox);
   UpdateWindowPos(hBuildBox);
+  UpdateWindowPos(hCheckLTO_);
   UpdateWindowPos(hCheckSdklow_);
   UpdateWindowPos(hCheckPackaged_);
   UpdateWindowPos(hCheckCleanEnv_);
@@ -584,6 +587,10 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   Command.append(L" -Flavor ").append(Configurations[flavor_]);
   Command.append(L" -Engine ").append(eitems[be].id);
   Command.append(L" -Branch ").append(BranchTable[bs]);
+
+  if (Button_GetCheck(hCheckLTO_) == BST_CHECKED) {
+    Command.append(L" -LTO");
+  }
 
   if (Button_GetCheck(hCheckSdklow_) == BST_CHECKED) {
     Command.append(L" -Sdklow");

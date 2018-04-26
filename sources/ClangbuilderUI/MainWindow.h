@@ -149,7 +149,7 @@ private:
   HWND hConfigBox;
   HWND hBranchBox;
   HWND hBuildBox;
-
+  HWND hCheckLTO_;
   HWND hCheckSdklow_;
   HWND hCheckPackaged_;
   HWND hCheckCleanEnv_;

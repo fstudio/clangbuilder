@@ -16,6 +16,7 @@ param (
     [Switch]$Environment, # start environment 
     [Switch]$Sdklow, # low sdk support
     [Switch]$LLDB,
+    [Switch]$LTO,
     [Switch]$Package,
     [Switch]$ClearEnv
 )
@@ -209,10 +210,24 @@ Function ClangNinjaGenerator {
     )
     $env:CC = $ClangExe
     $env:CXX = $ClangExe
+
     Write-Host "Build llvm, Use: CC=$env:CC CXX=$env:CXX"
+
     $Global:LatestBuildDir = $BuildDir
     Set-Workdir $Global:LatestBuildDir
     $Arguments = Get-ClangArgument
+    if ($LTO) {
+        try {
+            $ClangbinDir = (Split-Path  -Path (Get-Item $ClangExe).FullName).Replace("\","/")
+            # https://clang.llvm.org/docs/ThinLTO.html#clang-bootstrap
+            $Arguments += " -DLLVM_ENABLE_LTO=Thin `"-DCMAKE_LINKER=$ClangbinDir/lld-link.exe`""
+            $Arguments += " `"-DCMAKE_AR=$ClangbinDir/llvm-ar.exe`" `"-DCMAKE_RANLIB=$ClangbinDir/llvm-ranlib.exe`""
+        }
+        catch {
+            Write-Host "$_"
+        }
+        Write-Host -ForegroundColor Cyan "To bootstrap clang/LLVM with ThinLTO"
+    }
     $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
