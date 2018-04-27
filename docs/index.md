@@ -49,17 +49,17 @@ You can run ClangbuilderUI, Modify Arch, Configuration and other options. after 
 
 **ClangbuilderUI Snapshot**
 
-![clangbuilder](https://github.com/fstudio/clangbuilder/blob/master/docs/images/cbui.png)
+![clangbuilder](./images/cbui.png)
 
 **Update 2017-08-19** Clangbuilder support **VisualCppTools.Community.Daily**:
 
-![visualcpptools](https://github.com/fstudio/clangbuilder/blob/master/docs/images/visualcpptools.png)
+![visualcpptools](./images/visualcpptools.png)
 
 **VisualCppTools.Community.Daily** current not support msbuild (becasue cmake ...)
 
 **Update 2017-09-17** ClangbuilderUI Support EWDK
 
-![ewdk](https://github.com/fstudio/clangbuilder/blob/master/docs/images/ewdk.png)
+![ewdk](./images/ewdk.png)
 
 **Branch**
 
