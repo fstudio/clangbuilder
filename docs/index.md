@@ -2,7 +2,6 @@
 
 Automated tools help developers on Windows platforms building LLVM and clang.
  
-
 ## Installation
 
 ### PowerShell Policy
@@ -65,7 +64,7 @@ You can run ClangbuilderUI, Modify Arch, Configuration and other options. after 
 **Branch**
 
 +  Mainline, master/trunk branch , git fetch from https://github.com/llvm-mirror/
-+  Stable, llvm stable branch, like release_50, git fetch from https://github.com/llvm-mirror/
++  Stable, llvm stable branch, like release_60, git fetch from https://github.com/llvm-mirror/
 +  Release, llvm release tag, download for https://releases.llvm.org/
 
 
@@ -127,10 +126,9 @@ Only NinjaBootstrap and NinjaIterate will compile libc++ ,Because Visual C++ not
 clang-cl -std:c++14  -Iinclude\c++\v1 hello.cc c++.lib
 ```
 
-copy `c++.dll` to your path(or exe self directory). Clang 6.0 or Clang trunk mybe no Warning.
+after copy `c++.dll` to your path(or exe self directory). 
 
-When need support C++17 with `-std:c++17`,Please modify `new:+165`, Fix redefinition of 'align_val_t'.
-See: [patch/libcxx-msvc-cxx17.patch](https://github.com/fstudio/clangbuilder/blob/master/patch/libcxx-msvc-cxx17.patch)
+**Libcxx C++17(vcruntime)**: 7.0 support C++17; 6.0 please use [libcxx-msvc-cxx17.patch](https://github.com/fstudio/clangbuilder/blob/master/sources/patch/libcxx-msvc-cxx17.patch).
 
 
 **ARM64**
@@ -145,9 +143,27 @@ Build LLVM for ARM64 is broken, But You can download **Enterprise WDK (EWDK) Ins
 }
 ```
 
-*Update*: Visual Studio 15.4 can install `Visual C++ compilers and libraries for ARM64`， CMake 3.10 will support ARM64. 
+*Update*: Visual Studio 15.4 can install `Visual C++ compilers and libraries for ARM64`， CMake 3.10 start support ARM64. 
 
 See: [VS15: Adds ARM64 architecture support.](https://gitlab.kitware.com/cmake/cmake/merge_requests/1215)
+
+
+**Use Clean Environment**
+
+Clangbuilder support `Clean Environment`, When use `-ClearEnv` flag or enable check box `Use Clean Environment`, Clangbuilder will retset `$env:PATH`.
+
+```powershell
+Function ReinitializePath {
+    if ($PSEdition -eq "Desktop" -or $IsWindows) {
+        $env:PATH += "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
+    }
+    else {
+        $env:PATH = "/usr/local/bin:/usr/bin:/bin"
+    }
+}
+
+```
+
 
 ## Commandline
 
@@ -173,17 +189,78 @@ $env:Path = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${
 
 ## Environment Console
 
-When you only need to start a console environment, you can click on the `Environment Console`。
+When you only need to start a console environment, you can click on the `Environment Console`.
+
 
 ## Add Portable Utilities
 
 You can port some tools to clangbuilder, see `ports`
-and then double-click `script/DevAll.bat` to the software you need as part of the Clangbuilder is added to the environment
+and then double-click `script/DevAll.bat` to the software you need as part of the Clangbuilder is added to the environment. Clangbuilder 6.0 support `devinstall` (alias devi), You can run devinstall under `Environment Console`, use `devinstall install $ToolName` to install your need tools.
+
+Usage: 
+
+```txt
+DevInstall utilies 1.0
+Usage: devinstall cmd args
+       list        list installed tools
+       search      search ported tools
+       install     install tools
+       upgrade     upgrade tools
+       version     print devinstall version and exit
+       help        print help message
+```
+
+Default installed tools:
+
+```json
+{
+    "core": [
+        "7z",
+        "cmake",
+        "git",
+        "ninja",
+        "nsis",
+        "nuget",
+        "python2",
+        "vswhere"
+    ]
+}
+```
+
+Current ported tools:
+
+```txt
+7z                  18.03               7-Zip is a file archiver with a high compression ratio
+aria2               1.33.1              The ultra fast download utility
+cmake               3.11.0              CMake is an open-source, cross-platform family of tools designed to build, test and package software
+curl                7.59.0              Curl is a command-line tool for transferring data specified with URL syntax.
+git                 2.17.0              Git is a modern distributed version control system focused on speed
+gnuutils            1.0                 GNU utils for Windows
+hg                  4.5.2               Mercurial is a free, distributed source control management tool.
+ninja               1.8.2               Ninja is a small build system with a focus on speed.
+nsis                3.03                NSIS (Nullsoft Scriptable Install System) is a professional open source system to create Windows installers.
+nuget               4.6.1               NuGet is the package manager for .NET. The NuGet client tools provide the ability to produce and consume packages.
+openssh             v7.6.1.0p1-Beta     Portable OpenSSH
+putty               0.70                PuTTY: a free SSH and Telnet client.
+python2             2.7.14              Python 2.7
+swigwin             3.0.12              Simplified Wrapper and Interface Generator
+vswhere             2.4.1               Locate Visual Studio 2017 and newer installations.
+wget                1.19.4              A command-line utility for retrieving files using HTTP, HTTPS and FTP protocols.
+```
+
+**Extensions**:
+
+We support 4 extensions: `exe`, `zip`, `msi`, `7z`. If 7z is not installed, only the first three extensions are supported. If you need to port a 7z extension type of package, you need to understand the decompression format supported by 7z.exe.
+
+>7z.exe supported formats(Unpacking): AR, ARJ, CAB, CHM, CPIO, CramFS, DMG, EXT, FAT, GPT, HFS, IHEX, ISO, LZH, LZMA, MBR, MSI, NSIS, NTFS, QCOW2, RAR, RPM, SquashFS, UDF, UEFI, VDI, VHD, VMDK, WIM, XAR and Z
+
+
 
 
 ## Add Extranl Libs
 
-You can add extranl lib, such as [z3](https://github.com/Z3Prover/z3) , more info to view ExternalLibs.md
+You can add extranl lib, such as [z3](https://github.com/Z3Prover/z3),
+download extranl lib, unpack to `bin/external` , `bin/external/include` is include dir, `bin/external/lib/$arch(x86,x64,arm,arm64)`, `bin/external/bin/$arch(x86,x64,arm,arm64)`.
 
 ## About Ninja Task
 
