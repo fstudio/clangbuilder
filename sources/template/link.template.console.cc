@@ -9,7 +9,6 @@
 
 #define BLASTLINK_TARGET L"@LINK_TEMPLATE_TARGET"
 
-#pragma comment(lib, "shell32")
 
 size_t StringLength(const wchar_t *s) {
   const wchar_t *a;

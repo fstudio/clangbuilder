@@ -19,7 +19,9 @@ Function MakeLauncher {
     Set-Location $builddir
     $CCFile = "$Cbroot/sources/template/link.template.windows.cc"
     $obj = &$BlastFile --dump $Path|ConvertFrom-Json
+    $IsConsole=$false
     if ($obj -ne $null -and $obj.Subsystem -ne $null -and $obj.Subsystem -eq "Windows CUI") {
+        $IsConsole=$true
         $CCFile = "$Cbroot/sources/template/link.template.console.cc"
     }
     $epath = $SrcFile.Replace("\", "\\");
@@ -59,8 +61,14 @@ Function MakeLauncher {
             }
         }
         $rcontent|Out-File -FilePath "$Name.rc" -Encoding unicode
-        rc /nologo "$Name.rc"
-        cl /nologo "$Name.cc" "$Name.res" "/Fe:$Name.exe" kernel32.lib gdi32.lib user32.lib
+        rc /nologo "$Name.rc"|Out-Host
+        cl /nologo /Os "$Name.cc" /c|Out-Host
+        Write-Host "link $Name to exe"
+        if($IsConsole){
+            link /nologo /NODEFAULTLIB /SUBSYSTEM:CONSOLE /ENTRY:wmain "$Name.obj" "$Name.res" Shell32.lib kernel32.lib user32.lib "/OUT:$Name.exe"|Out-Host
+        }else{
+            link /nologo /NODEFAULTLIB /SUBSYSTEM:WINDOWS /ENTRY:wWinMain "$Name.obj" "$Name.res" Shell32.lib kernel32.lib user32.lib  "/OUT:$Name.exe"|Out-Host
+        }
         Move-Item "$Name.exe" -Force -Destination "$Cbroot/bin/pkgs/.linked/$Name.exe"
     }
     catch {
