@@ -33,7 +33,14 @@ Function MakeLauncher {
         $rcontent = $rcontent.Replace("@FileDescription", $versioninfo.FileDescription)
         $rcontent = $rcontent.Replace("@FileVersion", $versioninfo.FileVersion)
         $rcontent = $rcontent.Replace("@InternalName", $versioninfo.InternalName)
-        $rcontent = $rcontent.Replace("@LegalCopyright", $versioninfo.LegalCopyright)
+        if ($versioninfo.LegalCopyright -ne $null) {
+            $LegalCopyright = $versioninfo.LegalCopyright.Replace("(c)", "\xA9").Replace("(C)", "\xA9")
+            $rcontent = $rcontent.Replace("@LegalCopyright", $LegalCopyright)
+        }
+        else {
+            $rcontent = $rcontent.Replace("@LegalCopyright", "No checked copyright")
+        }
+
         $rcontent = $rcontent.Replace("@OriginalFilename", $versioninfo.OriginalFilename)
         $rcontent = $rcontent.Replace("@ProductName", $versioninfo.ProductName)
         $rcontent = $rcontent.Replace("@ProductVersion", $versioninfo.ProductVersion)

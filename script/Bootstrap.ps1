@@ -11,7 +11,7 @@ Function Fetchvswhere {
         $json=Get-Content "$Cbroot\ports\vswhere.json"|ConvertFrom-Json
         $InternalUA = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
         New-Item -ItemType Directory "$env:TEMP\vswhere.$PID"|Out-Null
-        Invoke-WebRequest -Uri $json.url -OutFile "$TEMP\vswhere.$PID\vswhere.exe" -UserAgent $InternalUA -UseBasicParsing
+        Invoke-WebRequest -Uri $json.url -OutFile "$env:TEMP\vswhere.$PID\vswhere.exe" -UserAgent $InternalUA -UseBasicParsing
         $env:PATH="$env:PATH;$env:TEMP\vswhere.$PID"
     }
     catch {
@@ -29,3 +29,7 @@ if (Test-Path $vswherebin) {
 }
 
 Invoke-Expression "$Cbroot\bin\CompileUtils.ps1"
+
+if(Test-Path "$env:TEMP\vswhere.$PID"){
+    Remove-Item -Force -Recurse "$env:TEMP\vswhere.$PID"
+}
