@@ -66,8 +66,15 @@ Function MakeLauncher {
     catch {
         Write-Host -ForegroundColor Red "$_"
         Set-Location $origindir
+        if(Test-Path $builddir){
+            Remove-Item -Force -Recurse $builddir  -ErrorAction SilentlyContinue |Out-Null
+        }
         return $false
     }
     #
     Set-Location $origindir
+    if(Test-Path $builddir){
+        Remove-Item -Force -Recurse $builddir  -ErrorAction SilentlyContinue |Out-Null
+    }
+    return $true
 }

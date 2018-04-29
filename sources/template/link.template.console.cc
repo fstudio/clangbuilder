@@ -92,45 +92,6 @@ private:
   size_t m_size;
 };
 
-class IconCache {
-public:
-  enum { kIconMaxSize = 20 };
-  IconCache() { size = 0; }
-  ~IconCache() {
-    for (unsigned i = 0; i < size; i++) {
-      DestroyIcon(icons[i]);
-    }
-  }
-  void PushIcon(HICON icon) {
-    if (size < kIconMaxSize) {
-      icons[size] = icon;
-      size++;
-    } else {
-      DestroyIcon(icon);
-    }
-  }
-
-private:
-  HICON icons[kIconMaxSize];
-  unsigned size;
-};
-
-bool UpdateConsoleIcon(const wchar_t *target) {
-  static IconCache cache;
-  HWND hWnd = GetConsoleWindow();
-  if (!hWnd)
-    return false;
-  if (IsWindow(hWnd)) {
-    HICON hSmall = nullptr;
-    HICON hLarge = nullptr;
-    if (ExtractIconExW(target, 0, &hLarge, &hSmall, 1) != 0) {
-      SendMessageW(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hLarge);
-      SendMessageW(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hSmall);
-      cache.PushIcon(hSmall);
-    }
-  }
-  return true;
-}
 
 bool IsSpaceExists(const wchar_t *s) {
   for (; *s && *s != L' '; s++)
@@ -172,10 +133,7 @@ bool BuildArgs(const wchar_t *target, StringBuffer &cmd) {
 bool LinkToApp(const wchar_t *target) {
   STARTUPINFOW siw;
   GetStartupInfoW(&siw);
-
-  if (siw.dwFlags & STARTF_USESHOWWINDOW) {
-    UpdateConsoleIcon(target);
-  }
+  
   StringBuffer cmd;
   if (!BuildArgs(target, cmd)) {
     return false;
