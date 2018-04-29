@@ -1,0 +1,2 @@
+nasm -f win64 BasicWindowExtended64.asm -o BasicWindowExtended64.obj
+link /ENTRY:Start /SUBSYSTEM:WINDOWS  kernel32.lib user32.lib gdi32.lib BasicWindowExtended64.obj

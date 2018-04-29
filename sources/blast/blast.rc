@@ -28,12 +28,12 @@ BEGIN
 BLOCK "080404b0"
 BEGIN
 VALUE "CompanyName", "Force Charlie"
-VALUE "FileDescription", "blast symbolic linker"
+VALUE "FileDescription", "blast - clangbuilder utils"
 VALUE "FileVersion", "1.0.0.1"
 VALUE "InternalName", "blast.exe"
 VALUE "LegalCopyright", COPYRIGHT
 VALUE "OriginalFilename", "blast.exe"
-VALUE "ProductName", "blast symbolic linker"
+VALUE "ProductName", "blast - clangbuilder utils"
 VALUE "ProductVersion", "1.0.0.1"
 END
 END

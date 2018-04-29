@@ -1,5 +1,5 @@
 
-$ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
+$ClangbuilderRoot = Split-Path (Split-Path -Parent $PSScriptRoot)
 Import-Module "$ClangbuilderRoot\modules\CMake"
 
 # Mainline

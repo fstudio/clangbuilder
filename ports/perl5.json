@@ -1,0 +1,7 @@
+{
+    "description": "Perl 5 is a highly capable, feature-rich programming language.",
+    "version": "5.26.1.1",
+    "url": "http://strawberryperl.com/download/5.26.1.1/strawberry-perl-5.26.1.1-32bit-portable.zip",
+    "url64": "http://strawberryperl.com/download/5.26.1.1/strawberry-perl-5.26.1.1-64bit-portable.zip",
+    "extension": "zip"
+}

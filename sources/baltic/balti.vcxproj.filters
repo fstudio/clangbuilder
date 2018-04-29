@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="balti.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="window.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="visualsearch.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="sources">
+      <UniqueIdentifier>{39777817-c484-4dc2-8b71-87e8dfc99c13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers">
+      <UniqueIdentifier>{700802b2-7287-49ec-b20e-5ff567b7a484}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{1c0c948d-efaa-4db6-b400-b7a2d88680cf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="resources.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="balti.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="balti.ico">
+      <Filter>resources</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
