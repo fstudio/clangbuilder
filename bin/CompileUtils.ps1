@@ -1,4 +1,4 @@
-#!/usr/bin/env powershell
+#!/usr/bin/env pwsh
 # Clangbuilder compile clangbuilderui ...
 ."$PSScriptRoot\ProfileEnv.ps1"
 Import-Module -Name "$ClangbuilderRoot\modules\Initialize"

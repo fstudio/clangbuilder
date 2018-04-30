@@ -1,4 +1,4 @@
-#!/usr/bin/env powershell
+#!/usr/bin/env pwsh
 # Initialize or update llvm clang sources for git
 param(
     [Switch]$LLDB,
