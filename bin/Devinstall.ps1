@@ -267,6 +267,8 @@ if ($args.Count -eq 0) {
     exit 0
 }
 
+#$env:PATH.Split(";")
+
 $subcmd = $args[0]
 $Pkgroot = "$ClangbuilderRoot/bin/pkgs"
 $Pkglocksdir = "$Pkgroot/.locks"

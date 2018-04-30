@@ -125,6 +125,7 @@ Function InitializeEnterpriseWDK {
     $env:LIB += "$SDKLIB\km\$Archlowpper;$SDKLIB\um\$Archlowpper;$SDKLIB\ucrt\$Archlowpper"
     $env:LIBPATH = "$VisualCppPath\lib\$Archlowpper;$VisualCppPath\atlmfc\lib\$Archlowpper;"
     $env:LIBPATH = "$SdkBaseDir\UnionMetadata\$EWDKVersion\;$SdkBaseDir\References\$EWDKVersion\;"
+    [environment]::SetEnvironmentVariable("VSENV_INITIALIZED","VisualStudio.EWDK")
     return 0
 }
 
@@ -279,7 +280,7 @@ Function InitializeVisualCppTools {
     else {
         InitializeVS14Layout -Path $tooldir -Arch $Arch -HostEnv $HostEnv
     }
-    
+    [environment]::SetEnvironmentVariable("VSENV_INITIALIZED","VisualStudio.CppTools")
     Write-Host "Use $($instlock.Name) $($instlock.Version)"
     return 0
 }
@@ -327,6 +328,9 @@ Function InitializeVisualStudio {
         [String]$InstanceId,
         [Switch]$Sdklow
     )
+    if($env:VSENV_INITIALIZED -ne $null){
+        return 0
+    }
     if ($InstanceId -eq $null -or $InstanceId.Length -eq 0) {
         return 1
     }
@@ -364,6 +368,7 @@ Function InitializeVisualStudio {
         if ($InstanceId -eq "VisualStudio.14.0") {
             FixVisualStudioSdkPath
         }
+        [environment]::SetEnvironmentVariable("VSENV_INITIALIZED","$InstanceId")
         return 0
     }
     
@@ -392,6 +397,7 @@ Function InitializeVisualStudio {
     }
     
     Invoke-BatchFile -Path $vcvarsall -ArgumentList $ArgumentList
+    [environment]::SetEnvironmentVariable("VSENV_INITIALIZED","VisualStudio.$ver")
     #Write-Host "call $vcvarsall"
     return 0
 }

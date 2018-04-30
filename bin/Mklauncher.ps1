@@ -41,7 +41,7 @@ Function Mklauncher {
             if (!(MakeLauncher -Cbroot $ClangbuilderRoot -Name $basename -Path $srcfile)) {
                 return $false
             }
-            Write-Host -ForegroundColor Yellow "link $srcfile to $ClangbuilderRoot/bin/pkgs/.linked/$basename.exe"
+            Write-Host -ForegroundColor Green "link $srcfile to $ClangbuilderRoot/bin/pkgs/.linked/$basename.exe"
             $mlinks.Add("$basename.exe")
         }
         $instmd = Get-Content "$ClangbuilderRoot/bin/pkgs/.locks/$Name.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
@@ -69,7 +69,7 @@ if ($args.Count -eq 0) {
 
 for ($i = 0; $i -lt $args.Count; $i++) {
     if (Mklauncher -Name $args[$i]) {
-        Write-Host -ForegroundColor Yellow "create launcher success: $($args[$i])"
+        Write-Host -ForegroundColor Green "create launcher success: $($args[$i])"
     }
     else {
         Write-Host -ForegroundColor Red "create launcher failed: $($args[$i])"
