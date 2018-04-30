@@ -92,18 +92,18 @@ Function DevinitializeEnv {
         [String]$Pkglocksdir
     )
     $pkgdir = "$ClangbuilderRoot\bin\pkgs"
-    $paths=$env:PATH.Split(";")
+    $paths = $env:PATH.Split(";")
     Get-ChildItem "$Pkglocksdir\*.json" -ErrorAction SilentlyContinue|ForEach-Object {
-        $xobj= Get-Content $_.FullName  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
-        if($xobj.linked -eq $null -or $xobj.linked -ne $true){
+        $xobj = Get-Content $_.FullName  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+        if ($xobj.linked -eq $null -or $xobj.linked -ne $true) {
             $xpath = Find-ExecutablePath -Path "$pkgdir\$($_.BaseName)"
             if ($null -ne $xpath -and !($paths.Contains($xpath))) {
                 Test-AddPath -Path $xpath
             }
         }
     }
-    if(!$paths.Contains("$ClangbuilderRoot\bin\pkgs\.linked")){
-        if(Test-Path "$ClangbuilderRoot\bin\pkgs\.linked"){
+    if (!$paths.Contains("$ClangbuilderRoot\bin\pkgs\.linked")) {
+        if (Test-Path "$ClangbuilderRoot\bin\pkgs\.linked") {
             $env:PATH = "$ClangbuilderRoot\bin\pkgs\.linked" + [System.IO.Path]::PathSeparator + $env:PATH
         }
     }
