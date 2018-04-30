@@ -36,6 +36,14 @@ The installation script will compile ClangbuilderUI and create a shortcut, downl
 
 If your need install `VisualCppTools.Community.Daily` ,click `script/VisualCppToolsFetch.bat`
 
+## Use Powershell Core
+
+Your can install powershell core and use it as `Execution Engine`.
+
+**Step**
+1.  Download Powershell Core [https://github.com/PowerShell/PowerShell/releases](https://github.com/PowerShell/PowerShell/releases)
+2.  Install PowerShell Core, (Add to Environment)
+3.  Create `required_pwsh` in `$ClangbuilderRoot\bin`
 
 ## Build Clang on Windows
 

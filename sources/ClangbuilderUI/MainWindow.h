@@ -122,6 +122,7 @@ public:
   LRESULT OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &bHandled);
   LRESULT OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                        BOOL &bHandled);
+  bool IsPwshRequired(std::wstring &cmd);
   ////
 private:
   ID2D1Factory *m_pFactory;

@@ -1,0 +1,1 @@
+mt -manifest fasmide.exe.manifest -outputresource:fasmide.exe

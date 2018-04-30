@@ -1,12 +1,9 @@
-////////////////////////
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <winnt.h>
-#include <Shellapi.h>
-#include <Shlobj.h>
+#include <Shlwapi.h>
+#include <Windows.h>
 
-#define BLASTLINK_TARGET L"@LINK_TEMPLATE_TARGET"
-
+#define TARGET_SCRIPT_FILE L"@TARGET_SCRIPT_FILE"
+// #define TARGET_SCRIPT_ARGS "upgrade --default" example
+//@TARGET_SCRIPT_ARGS
 
 size_t StringLength(const wchar_t *s) {
   const wchar_t *a;
@@ -29,6 +26,20 @@ wchar_t *StringCopy(wchar_t *d, const wchar_t *s) {
   while ((*d++ = *s++) != 0)
     ;
   return a;
+}
+
+wchar_t *StringCat(wchar_t *destination, const wchar_t *source) {
+  wchar_t *destination_it = destination;
+
+  // Find the end of the destination string:
+  while (*destination_it)
+    ++destination_it;
+
+  // Append the source string to the destination string:
+  while ((*destination_it++ = *source++) != L'\0') {
+  }
+
+  return destination;
 }
 
 class StringBuffer {
@@ -61,13 +72,13 @@ public:
     other.m_size = 0;
     return *this;
   }
-  bool append(const wchar_t *cstr) {
+  StringBuffer &append(const wchar_t *cstr) {
     auto l = StringLength(cstr);
     if (l > m_capability - m_size)
-      return false;
+      return *this;
     StringCopy(m_data + m_size, cstr);
     m_size += l;
-    return true;
+    return *this;
   }
   size_t capability() const { return m_capability; }
   size_t setsize(size_t sz) {
@@ -95,30 +106,61 @@ bool IsSpaceExists(const wchar_t *s) {
   return *s ? true : false;
 }
 
-bool BuildArgs(const wchar_t *target, StringBuffer &cmd) {
+
+bool GetPowerShellCore(StringBuffer &buf) {
+  //
+
+  return false;
+}
+///
+bool GetClangbuilderRoot(LPWSTR buffer, size_t bufsize) {
+  WCHAR xbuf[4096];
+  GetModuleFileNameW(nullptr, buffer, bufsize);
+  for (int i = 0; i < 5; i++) {
+    if (!PathRemoveFileSpecW(buffer)) {
+      return false;
+    }
+    StringCopy(xbuf, buffer);
+    StringCat(xbuf, L"\\bin\\ClangbuilderTarget.ps1");
+    if (PathFileExistsW(xbuf)) {
+      return true;
+    }
+  }
+  return true;
+}
+
+bool BuildArgs(StringBuffer &cmd) {
   int Argc = 0;
   auto Argv = CommandLineToArgvW(GetCommandLineW(), &Argc);
   if (!Argv) {
     return false;
   }
   StringBuffer buffer(0x8000);
-
-  if (IsSpaceExists(target)) {
-    buffer.append(L"\"");
-    buffer.append(target);
-    buffer.append(L"\" ");
-  } else {
-    buffer.append(target);
-    buffer.append(L" ");
+  WCHAR cbroot[4096] = {0};
+  if (!GetPowerShellCore(buffer)) {
+    MessageBoxW(nullptr, L"Please install powershell core and retry !",
+                L"PowerShell Core not installed", MB_OK | MB_ICONERROR);
+    return false;
   }
+  if (!GetClangbuilderRoot(cbroot, 4096)) {
+    MessageBoxW(nullptr, L"Please reinstall clangbuilder !",
+                L"Invalid clangbuilder installed", MB_OK | MB_ICONERROR);
+    return false;
+  }
+  buffer.append(L" -NoProfile -NoLogo -ExecutionPolicy unrestricted -File \"")
+      .append(cbroot)
+      .append(L"\\")
+      .append(TARGET_SCRIPT_FILE)
+      .append(L"\" ");
+#ifdef TARGET_SCRIPT_ARGS
+  buffer.append(TARGET_SCRIPT_ARGS).append(L" ");
+#endif
+
   for (int i = 1; i < Argc; i++) {
     if (IsSpaceExists(Argv[i])) {
-      buffer.append(L"\"");
-      buffer.append(Argv[i]);
-      buffer.append(L"\" ");
+      buffer.append(L"\"").append(Argv[i]).append(L"\" ");
     } else {
-      buffer.append(Argv[i]);
-      buffer.append(L" ");
+      buffer.append(Argv[i]).append(L" ");
     }
   }
   cmd.transfer(reinterpret_cast<StringBuffer &&>(buffer));
@@ -126,12 +168,13 @@ bool BuildArgs(const wchar_t *target, StringBuffer &cmd) {
   return true;
 }
 
-bool LinkToApp(const wchar_t *target) {
+int wmain() {
   STARTUPINFOW siw;
   GetStartupInfoW(&siw);
+
   StringBuffer cmd;
-  if (!BuildArgs(target, cmd)) {
-    return false;
+  if (!BuildArgs(cmd)) {
+    return 1;
   }
   STARTUPINFOW si;
   PROCESS_INFORMATION pi;
@@ -140,16 +183,11 @@ bool LinkToApp(const wchar_t *target) {
   si.cb = sizeof(si);
   if (!CreateProcessW(nullptr, cmd.data(), nullptr, nullptr, FALSE,
                       CREATE_UNICODE_ENVIRONMENT, nullptr, nullptr, &si, &pi)) {
-    return false;
+    return 1;
   }
   CloseHandle(pi.hThread);
-  CloseHandle(pi.hProcess);
-  return true;
-}
-
-int WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int) {
-  if (LinkToApp(BLASTLINK_TARGET)) {
-    return 0;
-  }
-  return 1;
+  WaitForSingleObject(pi.hProcess, INFINITE);
+  DWORD exitCode;
+  GetExitCodeProcess(pi.hProcess, &exitCode);
+  ExitProcess(exitCode);
 }

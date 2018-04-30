@@ -1,4 +1,5 @@
 .vscode/
+/bin/required_pwsh
 /bin/external/
 /bin/pkgs/
 /bin/utils/

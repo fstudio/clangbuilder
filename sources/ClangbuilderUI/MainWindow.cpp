@@ -463,6 +463,49 @@ bool MainWindow::InitializeClangbuilderTarget() {
   return false;
 }
 
+std::wstring ExpandEnvironmentStringsWapper(const wchar_t *str) {
+  std::wstring rstr(0x8000, L'\0');
+  auto N = ExpandEnvironmentStringsW(str, &rstr[0], 0x8000);
+  if (N >= 0) {
+    rstr.resize(N - 1);
+  } else {
+    rstr.clear();
+  }
+  return rstr;
+}
+
+// pwsh.exe
+bool InitializeSearchPowershellCore(std::wstring &pscore) {
+  bool success = false;
+  auto psdir = ExpandEnvironmentStringsWapper(L"%ProgramFiles%\\Powershell");
+  if (!PathFileExistsW(psdir.c_str())) {
+    psdir = ExpandEnvironmentStringsWapper(L"%ProgramW6432%\\Powershell");
+    if (!PathFileExistsW(psdir.c_str())) {
+      return false;
+    }
+  }
+  WIN32_FIND_DATAW wfd;
+  auto findstr = psdir + L"\\*";
+  HANDLE hFind = FindFirstFileW(findstr.c_str(), &wfd);
+  if (hFind == INVALID_HANDLE_VALUE) {
+    return false; /// Not found
+  }
+  do {
+    if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+      pscore.assign(psdir)
+          .append(L"\\")
+          .append(wfd.cFileName)
+          .append(L"\\pwsh.exe");
+      if (PathFileExistsW(pscore.c_str())) {
+        success = true;
+        break;
+      }
+    }
+  } while (FindNextFileW(hFind, &wfd));
+  FindClose(hFind);
+  return success;
+}
+
 bool InitializeSearchPowershell(std::wstring &ps) {
   WCHAR pszPath[MAX_PATH]; /// by default , System Dir Length <260
   if (SHGetFolderPathW(nullptr, CSIDL_SYSTEM, nullptr, 0, pszPath) != S_OK) {
@@ -535,13 +578,25 @@ LPWSTR FormatMessageInternal() {
   return nullptr;
 }
 
+bool MainWindow::IsPwshRequired(std::wstring &cmd) {
+  std::wstring xcmd;
+  std::wstring file = root + L"\\bin\\required_pwsh";
+  if (PathFileExistsW(file.c_str()) && InitializeSearchPowershellCore(xcmd)) {
+    cmd.assign(L"\"").append(xcmd).append(L"\"");
+    return true;
+  }
+  return false;
+}
+
 LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                BOOL &bHandled) {
   std::wstring Command;
-  if (!InitializeSearchPowershell(Command)) {
-    MessageWindowEx(m_hWnd, L"Search PowerShell Error",
-                    L"Please check PowerShell", nullptr, kFatalWindow);
-    return S_FALSE;
+  if (!IsPwshRequired(Command)) {
+    if (!InitializeSearchPowershell(Command)) {
+      MessageWindowEx(m_hWnd, L"Search PowerShell Error",
+                      L"Please check PowerShell", nullptr, kFatalWindow);
+      return S_FALSE;
+    }
   }
 
   Command.append(L" -NoLogo -NoExit   -File \"")
@@ -621,10 +676,12 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                  BOOL &bHandled) {
   std::wstring Command;
-  if (!InitializeSearchPowershell(Command)) {
-    MessageWindowEx(m_hWnd, L"Search PowerShell Error",
-                    L"Please check PowerShell", nullptr, kFatalWindow);
-    return S_FALSE;
+  if (!IsPwshRequired(Command)) {
+    if (!InitializeSearchPowershell(Command)) {
+      MessageWindowEx(m_hWnd, L"Search PowerShell Error",
+                      L"Please check PowerShell", nullptr, kFatalWindow);
+      return S_FALSE;
+    }
   }
 
   Command.append(L" -NoLogo -NoExit   -File \"")

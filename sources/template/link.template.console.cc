@@ -144,14 +144,14 @@ bool LinkToApp(const wchar_t *target) {
   si.cb = sizeof(si);
   if (!CreateProcessW(nullptr, cmd.data(), nullptr, nullptr, FALSE,
                       CREATE_UNICODE_ENVIRONMENT, nullptr, nullptr, &si, &pi)) {
-    return 1;
+    return false;
   }
   CloseHandle(pi.hThread);
   WaitForSingleObject(pi.hProcess, INFINITE);
   DWORD exitCode;
   GetExitCodeProcess(pi.hProcess, &exitCode);
   ExitProcess(exitCode);
-  return 0;
+  return true;
 }
 
 int wmain() {
