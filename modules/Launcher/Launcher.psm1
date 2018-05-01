@@ -52,8 +52,8 @@ Function MakeLauncher {
         $rcontent = $rcontent.Replace("@FileBuildPart", $versioninfo.FileBuildPart)
         $rcontent = $rcontent.Replace("@FilePrivatePart", $versioninfo.FilePrivatePart)
 
-        Get-command -CommandType Application "mt.exe" -ErrorAction SilentlyContinue -ErrorVariable +myErr|Out-Null
-        if ($myErr.count -eq 0) {
+        $mtcmd=Get-command -CommandType Application "mt.exe" -ErrorAction SilentlyContinue
+        if ($mtcmd -ne $null) {
             mt /nologo "-inputresource:$SrcFile" "-out:$Name.manifest"
             if ($LASTEXITCODE -eq 0 -and (Test-Path "$Name.manifest")) {
                 # https://msdn.microsoft.com/en-us/library/windows/desktop/aa374191(v=vs.85).aspx

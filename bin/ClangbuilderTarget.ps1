@@ -41,11 +41,24 @@ if ($ret -ne 0) {
     exit 1
 }
 
-if ((Test-Path Alias:curl) -and (Test-ExecuteFile "curl.exe")) {
+Function ExecuteExists{
+    param(
+        [Parameter(Position = 0, Mandatory = $True, HelpMessage = "Enter Execute Name")]
+        [ValidateNotNullorEmpty()]
+        [String]$Command
+    )
+    $cmd=Get-Command -CommandType Application $Command -ErrorAction SilentlyContinue
+    if($cmd -eq $null){
+        return $false
+    }
+    return $true
+}
+
+if ((Test-Path Alias:curl) -and (ExecuteExists "curl.exe")) {
     Remove-Item Alias:curl
 }
 
-if ((Test-Path Alias:wget) -and (Test-ExecuteFile "wget.exe")) {
+if ((Test-Path Alias:wget) -and (ExecuteExists "wget.exe")) {
     Remove-Item Alias:wget
 }
 
@@ -165,8 +178,8 @@ Function Get-ClangArgument {
     
     $msvc = "19.12"
     try {
-        $clexe = (Get-Command cl).Source
-        $msvc = (Get-Item $clexe|Select-Object -ExpandProperty VersionInfo|Select-Object -Property FileVersion).FileVersion.SubString(0, 5)
+        $clexe = Get-Command -CommandType Application "cl.exe"
+        $msvc = "$($clexe.FileVersionInfo.FileMajorPart).$($clexe.FileVersionInfo.FileMinorPart)"
     }
     catch {
         $VisualCppVersionTable = @{

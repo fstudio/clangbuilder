@@ -60,28 +60,6 @@ Function ReinitializePath {
     }
 }
 
-
-Function Get-PythonHOME {
-    param(
-        [String]$Arch
-    )
-    $PyCurrent = "3.5", "3.6", "3.7"
-    $IsWin64 = [System.Environment]::Is64BitOperatingSystem
-    foreach ($s in $PyCurrent) {
-        if ($IsWin64 -and ($Arch -eq "x86")) {
-            $PythonRegKey = "HKCU:\SOFTWARE\Python\PythonCore\$s-32\InstallPath"    
-        }
-        else {
-            $PythonRegKey = "HKCU:\SOFTWARE\Python\PythonCore\$s\InstallPath"
-        }
-        if (Test-Path $PythonRegKey) {
-            return (Get-ItemProperty $PythonRegKey).'(default)'
-        }
-    }
-    return $null
-}
-
-
 #$result=Update-Language -Lang 65001 # initialize language
 Function Update-Language {
     param(

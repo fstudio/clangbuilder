@@ -190,10 +190,11 @@ Function DevbaseInstall {
                 if (Test-Path $symlinkfile) {
                     Remove-Item -Force -Recurse $symlinkfile
                 }
-                if(Test-Path "$ClangbuilderRoot/bin/blast.exe" ){
+                if (Test-Path "$ClangbuilderRoot/bin/blast.exe" ) {
                     &"$ClangbuilderRoot/bin/blast.exe" --link  "$($item.FullName)" "$symlinkfile"
-                }else{
-                    $xsymlinkfile=$symlinkfile.Replace("/","\")
+                }
+                else {
+                    $xsymlinkfile = $symlinkfile.Replace("/", "\")
                     cmd /c mklink "$xsymlinkfile" "$($item.FullName)" ## < Windows 10 need Admin
                 }
                 if ($LASTEXITCODE -ne 0) {

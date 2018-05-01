@@ -59,20 +59,6 @@ Function Test-AddPath {
     }
 }
 
-Function Test-ExecuteFile {
-    param(
-        [Parameter(Position = 0, Mandatory = $True, HelpMessage = "Enter Execute Name")]
-        [ValidateNotNullorEmpty()]
-        [String]$ExeName
-    )
-    $myErr = @()
-    Get-command -CommandType Application $ExeName -ErrorAction SilentlyContinue -ErrorVariable +myErr
-    if ($myErr.count -eq 0) {
-        return $True
-    }
-    return $False
-}
-
 Function Get-RegistryValueEx {
     param(
         [ValidateNotNullorEmpty()]
@@ -107,7 +93,8 @@ Function DevinitializeEnv {
             $env:PATH = "$ClangbuilderRoot\bin\pkgs\.linked" + [System.IO.Path]::PathSeparator + $env:PATH
         }
     }
-    if (!(Test-ExecuteFile "git")) {
+    $cmd = Get-command -CommandType Application "git.exe" -ErrorAction SilentlyContinue
+    if ($cmd -eq $null) {
         $gitkey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
         $gitkey2 = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
         if (Test-Path $gitkey) {
