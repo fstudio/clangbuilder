@@ -125,15 +125,14 @@ Function DevbaseInstall {
         $besturl = $xurl
     }
     if ($besturl -eq $null) {
-        return $null
+        return $false
     }
 
     $pkgfile = "$ClangbuilderRoot\bin\pkgs\$Name.$ext"
     $installdir = "$ClangbuilderRoot\bin\pkgs\$Name"
     $tempdir = "$installdir.$PID"
-    $ret = Devdownload -Uri $besturl -Path "$pkgfile"
-    if ($ret -eq $false) {
-        return $null
+    if (!(Devdownload -Uri $besturl -Path "$pkgfile")) {
+        return $false
     }
     try {
         if ((Test-Path $installdir)) {
