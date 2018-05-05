@@ -74,8 +74,8 @@ $Text = "Visual C++ 2015"
 
 
 $ClangbuilderRoot = Split-Path $PSScriptRoot
-Import-Module "$ClangbuilderRoot\modules\PM"
-InitializePackageEnv -ClangbuilderRoot "$ClangbuilderRoot"
+Import-Module "$ClangbuilderRoot\modules\Devinstall"
+$ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot -Pkglocksdir "$ClangbuilderRoot\bin\pkgs\.locks"
 
 if ($UseVS2017) {
     $Text = "Visual C++ 2017"
