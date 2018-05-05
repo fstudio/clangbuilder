@@ -209,8 +209,8 @@ and then double-click `script/DevAll.bat` to the software you need as part of th
 Usage: 
 
 ```txt
-devi utilies 1.0
-Usage: devi cmd args
+devi portable package manager 1.0
+Usage: devi cmd tool_name
        list        list installed tools
        search      search ported tools
        install     install tools
