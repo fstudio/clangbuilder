@@ -4,6 +4,6 @@
     "Release": "6.0.0",
     "Prebuilt": {
         "url": "http://releases.llvm.org/6.0.0/LLVM-6.0.0-win32.exe",
-        "url64": "http://releases.llvm.org/6.0.0/LLVM-6.0.0-win32.exe"
+        "url64": "http://releases.llvm.org/6.0.0/LLVM-6.0.0-win64.exe"
     }
 }
