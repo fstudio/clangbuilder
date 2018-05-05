@@ -257,6 +257,9 @@ Function ClangNinjaGenerator {
 Function Invoke-MSBuild {
     $Global:LatestBuildDir = "$ClangbuilderRoot\out\msbuild"
     Set-Workdir $Global:LatestBuildDir
+    if($LTO){
+        
+    }
     if ($ArchName.Length -eq 0) {
         $Arguments = "-G`"Visual Studio $Installation`" "
     }
