@@ -239,19 +239,25 @@ Default installed tools:
 Current ported tools:
 
 ```txt
-7z                  18.03               7-Zip is a file archiver with a high compression ratio
+7z                  18.05               7-Zip is a file archiver with a high compression ratio
+ag                  2018-04-24/2.1.0    A code-searching tool similar to ack, but faster.
 aria2               1.33.1              The ultra fast download utility
-cmake               3.11.0              CMake is an open-source, cross-platform family of tools designed to build, test and package software
+cmake               3.11.1              CMake is an open-source, cross-platform family of tools designed to build, test and package software
 curl                7.59.0              Curl is a command-line tool for transferring data specified with URL syntax.
 git                 2.17.0              Git is a modern distributed version control system focused on speed
 gnuutils            1.0                 GNU utils for Windows
 hg                  4.5.2               Mercurial is a free, distributed source control management tool.
+nasm                2.13.03             NASM - The Netwide Assembler
+neovim              0.2.2               Neovim - Vim-fork focused on extensibility and usability
 ninja               1.8.2               Ninja is a small build system with a focus on speed.
 nsis                3.03                NSIS (Nullsoft Scriptable Install System) is a professional open source system to create Windows installers.
-nuget               4.6.1               NuGet is the package manager for .NET. The NuGet client tools provide the ability to produce and consume packages.
+nuget               4.6.2               NuGet is the package manager for .NET. The NuGet client tools provide the ability to produce and consume packages.
 openssh             v7.6.1.0p1-Beta     Portable OpenSSH
+perl5               5.26.1.1            Perl 5 is a highly capable, feature-rich programming language.
 putty               0.70                PuTTY: a free SSH and Telnet client.
-python2             2.7.14              Python 2.7
+python3             3.5.4               Python is a programming language.
+radare              2.5.0               unix-like reverse engineering framework and commandline tools
+ripgrep             0.8.1               ripgrep recursively searches directories for a regex pattern.
 swigwin             3.0.12              Simplified Wrapper and Interface Generator
 vswhere             2.4.1               Locate Visual Studio 2017 and newer installations.
 wget                1.19.4              A command-line utility for retrieving files using HTTP, HTTPS and FTP protocols.
