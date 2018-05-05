@@ -1,6 +1,6 @@
 $ClangbuilderRoot = Split-Path (Split-Path -Parent $PSScriptRoot)
 Import-Module "$ClangbuilderRoot\modules\Launcher"
-Import-Module -Name "$ClangbuilderRoot\modules\Devinstall" # Package Manager
+Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
 Import-Module "$ClangbuilderRoot\modules\VisualStudio"
 $ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot -Pkglocksdir "$ClangbuilderRoot/bin/pkgs/.locks"
 if ($ret -ne 0) {

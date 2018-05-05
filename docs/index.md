@@ -203,18 +203,18 @@ When you only need to start a console environment, you can click on the `Environ
 ## Add Portable Utilities
 
 You can port some tools to clangbuilder, see `ports`
-and then double-click `script/DevAll.bat` to the software you need as part of the Clangbuilder is added to the environment. Clangbuilder 6.0 support `devinstall` (alias devi), You can run devinstall under `Environment Console`, use `devinstall install $ToolName` to install your need tools.
+and then double-click `script/DevAll.bat` to the software you need as part of the Clangbuilder is added to the environment. Clangbuilder 6.0 support `devi` (alias devi), You can run devi under `Environment Console`, use `devi install $ToolName` to install your need tools.
 
 Usage: 
 
 ```txt
-DevInstall utilies 1.0
-Usage: devinstall cmd args
+devi utilies 1.0
+Usage: devi cmd args
        list        list installed tools
        search      search ported tools
        install     install tools
        upgrade     upgrade tools
-       version     print devinstall version and exit
+       version     print devi version and exit
        help        print help message
 ```
 

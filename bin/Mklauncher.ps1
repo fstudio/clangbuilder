@@ -1,6 +1,6 @@
 ## Mklauncher
 $ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
-Import-Module -Name "$ClangbuilderRoot\modules\Devinstall" # Package Manager
+Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
 Import-Module -Name "$ClangbuilderRoot\modules\Launcher"
 Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
 

@@ -3,7 +3,7 @@
 ."$PSScriptRoot\ProfileEnv.ps1"
 Import-Module -Name "$ClangbuilderRoot\modules\Initialize"
 Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
-Import-Module -Name "$ClangbuilderRoot\modules\Devinstall" # Package Manager
+Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
 
 $ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot -Pkglocksdir $Pkglocksdir
 if ($ret -ne 0) {

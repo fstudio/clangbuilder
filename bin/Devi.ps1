@@ -1,22 +1,22 @@
 #!/usr/bin/env pwsh
-# Devinstall tools
+# devi tools
 
 ."$PSScriptRoot\ProfileEnv.ps1"
-Import-Module -Name "$ClangbuilderRoot\modules\Devinstall" # Package Manager
+Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
 Import-Module -Name  "$ClangbuilderRoot\modules\Utils"
 
 Function PrintUsage {
-    Write-Host "DevInstall utilies 1.0
-Usage: devinstall cmd args
+    Write-Host "devi portable package manager 1.0
+Usage: devi cmd tool_name
        list        list installed tools
        search      search ported tools
        install     install tools
        upgrade     upgrade tools
-       version     print devinstall version and exit
+       version     print devi version and exit
        help        print help message
 "
 }
-Function ListSubcmd {
+Function CMDList {
     param(
         [String]$Pkglocksdir
     )
@@ -31,11 +31,11 @@ Function ListSubcmd {
 }
 
 # search
-Function SearchSubcmd {
+Function CMDSearch {
     param(
         [String]$Root
     )
-    Write-Host -ForegroundColor Green "devinstall tools, found ports:"
+    Write-Host -ForegroundColor Green "devi portable package manager, found ports:"
     Get-ChildItem -Path "$Root/ports/*.json" |ForEach-Object {
         $cj = Get-Content $_.FullName  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue 
         if ($cj -ne $null) {
@@ -45,7 +45,7 @@ Function SearchSubcmd {
 }
 
 
-Function DevbaseUninstall {
+Function CMDUninstall {
     param(
         [String]$ClangbuilderRoot,
         [String]$Name
@@ -71,17 +71,17 @@ Function DevbaseUninstall {
     if (Test-Path $pkgdir) {
         Remove-Item -Force -Recurse  $pkgdir  -ErrorAction SilentlyContinue |Out-Null
     }
-    Write-Host -ForegroundColor Yellow "devinstall: uninstall $Name done."
+    Write-Host -ForegroundColor Yellow "devi: uninstall $Name done."
 }
 
-Function DevbaseInstall {
+Function CMDInstall {
     param(
         [String]$ClangbuilderRoot,
         [String]$Pkglocksdir,
         [String]$Name
     )
     if (!(Test-Path "$ClangbuilderRoot/ports/$Name.json")) {
-        Write-Host -ForegroundColor Red "devinstall: $Name not yet ported."
+        Write-Host -ForegroundColor Red "devi: $Name not yet ported."
         return $false
     }
     $devpkg = Get-Content "$ClangbuilderRoot/ports/$Name.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
@@ -110,7 +110,7 @@ Function DevbaseInstall {
     $oldtable = Get-Content "$Pkglocksdir/$Name.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
     $pkversion = $devpkg.version
     if ($oldtable -ne $null -and $oldtable.version -eq $pkversion) {
-        Write-Host -ForegroundColor Yellow "devinstall: $Name is up to date. version: $($oldtable.version)"
+        Write-Host -ForegroundColor Yellow "devi: $Name is up to date. version: $($oldtable.version)"
         return $true
     }
     $xurl = $devpkg.url
@@ -216,12 +216,12 @@ Function DevbaseInstall {
         Remove-Item -Force -Recurse $tempdir  -ErrorAction SilentlyContinue |Out-Null
     }
     Remove-Item $pkgfile -Force -ErrorAction SilentlyContinue |Out-Null ##ignore remove-item return del/null
-    Write-Host -ForegroundColor Green "devinstall: install $Name success, version: $pkversion"
+    Write-Host -ForegroundColor Green "devi: install $Name success, version: $pkversion"
     return $true
 }
 
 
-Function Devupgrade {
+Function CMDUpgrade {
     param(
         [String]$ClangbuilderRoot,
         [String]$Pkglocksdir,
@@ -238,24 +238,24 @@ Function Devupgrade {
         if (!(Test-Path "$ClangbuilderRoot/ports/$xname.json")) {
             if ($Default) {
                 Write-Host -ForegroundColor Yellow "remove unported package: $xname"
-                DevbaseUninstall -ClangbuilderRoot $ClangbuilderRoot -Name $xname
+                CMDUninstall -ClangbuilderRoot $ClangbuilderRoot -Name $xname
                 return $true
             }
         }
         $pkgtable["$xname"] = $obj.version
-        DevbaseInstall -ClangbuilderRoot $ClangbuilderRoot -Name $xname -Pkglocksdir $Pkglocksdir|Out-Null
+        CMDInstall -ClangbuilderRoot $ClangbuilderRoot -Name $xname -Pkglocksdir $Pkglocksdir|Out-Null
     }
 
     if ($Default) {
-        $devcore = Get-Content "$ClangbuilderRoot/config/devinstall.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+        $devcore = Get-Content "$ClangbuilderRoot/config/devi.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
         if ($devcore.core -eq $null) {
-            Write-Host -ForegroundColor Red "devinstall missing default core tools config, file: $ClangbuilderRoot/config/devinstall.json"
+            Write-Host -ForegroundColor Red "devi missing default core tools config, file: $ClangbuilderRoot/config/devi.json"
             return $false
         }
         
         foreach ($t in $devcore.core) {
             if (!$pkgtable.ContainsKey($t)) {
-                DevbaseInstall -ClangbuilderRoot $ClangbuilderRoot -Name $t -Pkglocksdir $Pkglocksdir|Out-Null
+                CMDInstall -ClangbuilderRoot $ClangbuilderRoot -Name $t -Pkglocksdir $Pkglocksdir|Out-Null
             }
         }
     }
@@ -281,30 +281,30 @@ if (!(Test-Path $Pkglocksdir)) {
 }
 switch ($subcmd) {
     "list" {
-        ListSubcmd -Pkglocksdir $Pkglocksdir
+        CMDList -Pkglocksdir $Pkglocksdir
     }
     "search" {
-        SearchSubcmd -Root $ClangbuilderRoot
+        CMDSearch -Root $ClangbuilderRoot
     }
     "install" {
         if ($args.Count -lt 2) {
-            Write-Host -ForegroundColor Red "devinstall install missing argument, example: devinstall install cmake"
+            Write-Host -ForegroundColor Red "devi install missing argument, example: devi install cmake"
             exit 1
         }
 
         $pkgname = $args[1]
-        if (!(DevbaseInstall -ClangbuilderRoot $ClangbuilderRoot -Name $pkgname -Pkglocksdir $Pkglocksdir )) {
+        if (!(CMDInstall -ClangbuilderRoot $ClangbuilderRoot -Name $pkgname -Pkglocksdir $Pkglocksdir )) {
             exit 1
         }
     }
     "uninstall" {
         if ($args.Count -lt 2) {
-            Write-Host -ForegroundColor Red "devinstall uninstall missing argument, example: devinstall uninstall putty"
+            Write-Host -ForegroundColor Red "devi uninstall missing argument, example: devi uninstall putty"
             exit 1
         }
 
         $pkgname = $args[1]
-        if (!(DevbaseUninstall -ClangbuilderRoot $ClangbuilderRoot -Name $pkgname )) {
+        if (!(CMDUninstall -ClangbuilderRoot $ClangbuilderRoot -Name $pkgname )) {
             exit 1
         }
     }
@@ -317,11 +317,11 @@ switch ($subcmd) {
         }
         $ret = $false
         if ($args.Count -gt 1 -and $args[1] -eq "--default") {
-            Write-Host "devinstall: Use upgrade --default, will install devinstall.json#core."
-            $ret = Devupgrade -ClangbuilderRoot  $ClangbuilderRoot -Pkglocksdir $Pkglocksdir  -Default
+            Write-Host "devi: Use upgrade --default, will install devi.json#core."
+            $ret = CMDUpgrade -ClangbuilderRoot  $ClangbuilderRoot -Pkglocksdir $Pkglocksdir  -Default
         }
         else {
-            $ret = Devupgrade -ClangbuilderRoot  $ClangbuilderRoot -Pkglocksdir $Pkglocksdir
+            $ret = CMDUpgrade -ClangbuilderRoot  $ClangbuilderRoot -Pkglocksdir $Pkglocksdir
         }
         if ($ret -eq $false) {
             exit 1
@@ -329,7 +329,7 @@ switch ($subcmd) {
         Write-Host "Update package completed."
     }
     "version" {
-        Write-Host "devinstall: 1.0"
+        Write-Host "devi: 1.0"
     }
     "help" {
         PrintUsage
@@ -340,7 +340,7 @@ switch ($subcmd) {
         exit 0
     }
     Default {
-        Write-Host -ForegroundColor Red "unsupported command '$xcmd' your can run devinstall help -a"
+        Write-Host -ForegroundColor Red "unsupported command '$xcmd' your can run devi help -a"
         exit 1
     }
 }

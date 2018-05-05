@@ -26,7 +26,7 @@ Import-Module -Name "$ClangbuilderRoot\modules\Initialize"
 Import-Module -Name "$ClangbuilderRoot\modules\Utils"
 Import-Module -Name "$ClangbuilderRoot\modules\CMake"
 Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
-Import-Module -Name "$ClangbuilderRoot\modules\Devinstall" # Package Manager
+Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
 
 
 # Cleanup $env:PATH, because, some tools modify Disrupt PATH
