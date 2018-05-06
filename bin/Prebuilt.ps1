@@ -22,6 +22,14 @@ if ($revobj -eq $null -or $revobj.Release -eq $null) {
 }
 $relrev = $revobj.Release
 
+$pbobj = Get-Content "$ClangbuilderRoot\config\prebuilt.json" -ErrorAction SilentlyContinue|ConvertFrom-Json -ErrorAction SilentlyContinue
+
+if ($pbobj -ne $null -and ($pbobj.LLVM.Revision -ne $null)) {
+    if ($pbobj.LLVM.Revision -eq $relrev) {
+        Write-Host -ForegroundColor Yellow "llvm prebuilt binary $relrev already install. $($pbobj.LLVM.Path)"
+        exit 0
+    }
+}
 
 $Arch = "32"
 if ([System.Environment]::Is64BitOperatingSystem) {
@@ -71,7 +79,7 @@ else {
     }
 }
 
- $Host.UI.RawUI.WindowTitle =$WindowTitleBase
+$Host.UI.RawUI.WindowTitle = $WindowTitleBase
 
 $tempdir = "$wkdir\clang.$PID"
 if (Test-Path "$wkdir\clang") {
@@ -105,6 +113,7 @@ $jsonbase = @{}
 $llvmbase = @{}
 $llvmbase["Path"] = "$wkdir\clang"
 $llvmbase["Arch"] = "x$Arch"
+$llvmbase["Revision"] = $relrev
 $jsonbase["LLVM"] = $llvmbase
 
 ConvertTo-Json $jsonbase|Out-File -Force -FilePath "$ClangbuilderRoot\config\prebuilt.json"
