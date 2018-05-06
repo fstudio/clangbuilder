@@ -97,8 +97,9 @@ if (Test-Path $tempdir) {
     Remove-Item -Force -Recurse $tempdir
 }
 
-Remove-Item "$wkdir\clang\`$PLUGINSDIR" -Recurse -Force
-Remove-Item "$wkdir\clang\Uninstall.exe" -Force
+Remove-Item "$wkdir\clang\`$PLUGINSDIR" -Recurse -Force -ErrorAction SilentlyContinue |Out-Null
+Remove-Item "$wkdir\clang\Uninstall.exe" -Force  -ErrorAction SilentlyContinue |Out-Null
+Remove-Item -Force  $outfile -ErrorAction SilentlyContinue |Out-Null
 
 $jsonbase = @{}
 $llvmbase = @{}
