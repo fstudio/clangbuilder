@@ -106,10 +106,10 @@ Flags configuration format is json:
 
 **Engine**
 
-+   MSbuild use msbuild build llvm
-+   Ninja use ninja build llvm
-+   NinjaBootstrap use ninja build and bootstrap llvm
-+   NinjaIterate use ninja build llvm, but compile is prebuilt clang (config by `config\prebuilt.json`)
++   MSbuild use msbuild build llvm `MSBuild - MSVC`
++   Ninja use ninja build llvm `Ninja - MSVC`
++   NinjaBootstrap use ninja build and bootstrap llvm `Ninja - Bootstrap`
++   NinjaIterate use ninja build llvm, but compile is prebuilt clang (config by `config\prebuilt.json`) `Ninja - Clang`
 
 [prebuilt.json template](./config/prebuilt.template.json):
 ```json
@@ -120,6 +120,8 @@ Flags configuration format is json:
     }
 }
 ```
+Your can run `bin\prebuilt.bat` to install and config `portable` clang to bootstrap iterate bootstrap llvm..
+
 
 **LLDB**
 
