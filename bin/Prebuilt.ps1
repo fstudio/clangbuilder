@@ -1,4 +1,11 @@
 #!/usr/bin/env pwsh
+$ClangbuilderRoot = Split-Path $PSScriptRoot
+Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
+$ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot -Pkglocksdir "$ClangbuilderRoot\bin\pkgs\.locks"
+if ($ret -ne 0) {
+    exit 1
+}
+
 
 $szcmd = Get-Command "7z.exe" -ErrorAction SilentlyContinue
 if ($szcmd -eq $null) {
@@ -6,7 +13,7 @@ if ($szcmd -eq $null) {
     exit 1
 }
 
-$ClangbuilderRoot = Split-Path $PSScriptRoot
+
 $revobj = Get-Content "$ClangbuilderRoot\config\revision.json" -ErrorAction SilentlyContinue|ConvertFrom-Json -ErrorAction SilentlyContinue
 
 if ($revobj -eq $null -or $revobj.Release -eq $null) {
@@ -34,12 +41,16 @@ if (!(Test-Path "$ClangbuilderRoot\bin\utils")) {
 }
 
 $cmd = Get-Command "wget.exe" -ErrorAction SilentlyContinue
-$filename = "LLVM-$relrev-win$Arch.exe"
-$outfile = "$ClangbuilderRoot\bin\utils\$filename"
+$dlname = "LLVM-$relrev-win$Arch.exe"
+$outfile = "$ClangbuilderRoot\bin\utils\$dlname"
 $wkdir = "$ClangbuilderRoot\bin\utils"
 
+$WindowTitleBase = $Host.UI.RawUI.WindowTitle
+
+Write-Host "download $dluri"
+
 if ($cmd -ne $null) {
-    $process = Start-Process -FilePath "wget.exe" -ArgumentList "$dluri -O $outfile" -WorkingDirectory $wkdir -PassThru -Wait -NoNewWindow
+    $process = Start-Process -FilePath "wget.exe" -ArgumentList "$dluri -O $dlname" -WorkingDirectory $wkdir -PassThru -Wait -NoNewWindow
     if ($process.ExitCode -ne 0) {
         if (Test-Path $outfile) {
             Remove-Item -Force $outfile
@@ -60,19 +71,34 @@ else {
     }
 }
 
+ $Host.UI.RawUI.WindowTitle =$WindowTitleBase
+
+$tempdir = "$wkdir\clang.$PID"
+if (Test-Path "$wkdir\clang") {
+    Move-Item -Force "$wkdir\clang" $tempdir -ErrorAction SilentlyContinue
+}
 
 
-
-$p7 = Start-Process -FilePath "7z.exe" -ArgumentList "7z e -spf -y $filename -oclang"  -WorkingDirectory $wkdir  -PassThru -Wait -NoNewWindow
+$p7 = Start-Process -FilePath "7z.exe" -ArgumentList "e -spf -y $dlname -oclang"  -WorkingDirectory $wkdir  -PassThru -Wait -NoNewWindow
 
 if ($p7.ExitCode -ne 0) {
-    Write-Host "7z decompress $filename failed"
+    Write-Host "7z decompress $dlname failed"
     Remove-Item -Force "$outfile"
+    if (Test-Path  "$wkdir\clang") {
+        Remove-Item -Force -Recurse "$wkdir\clang"
+    }
+    if (Test-Path $tempdir) {
+        Move-Item -Force  $tempdir "$wkdir\clang" -ErrorAction SilentlyContinue |Out-Null
+    }
     exit 1
 }
 
+if (Test-Path $tempdir) {
+    Remove-Item -Force -Recurse $tempdir
+}
+
 Remove-Item "$wkdir\clang\`$PLUGINSDIR" -Recurse -Force
-Remove-Item "$wkdir\clang\Unintsall.exe" -Force
+Remove-Item "$wkdir\clang\Uninstall.exe" -Force
 
 $jsonbase = @{}
 $llvmbase = @{}
