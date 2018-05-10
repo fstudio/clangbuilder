@@ -74,6 +74,8 @@ Function CMDUninstall {
     Write-Host -ForegroundColor Yellow "devi: uninstall $Name done."
 }
 
+# Inno Setup unpack
+# innounp.exe -x $filename -dDIR
 Function CMDInstall {
     param(
         [String]$ClangbuilderRoot,
