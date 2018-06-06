@@ -1,8 +1,8 @@
 {
     "description": "CMake is an open-source, cross-platform family of tools designed to build, test and package software",
-    "version": "3.11.2",
-    "url": "https://cmake.org/files/v3.11/cmake-3.11.2-win32-x86.zip",
-    "url64": "https://cmake.org/files/v3.11/cmake-3.11.2-win64-x64.zip",
+    "version": "3.11.3",
+    "url": "https://cmake.org/files/v3.11/cmake-3.11.3-win32-x86.zip",
+    "url64": "https://cmake.org/files/v3.11/cmake-3.11.3-win64-x64.zip",
     "extension": "zip",
     "links": [
         "bin\\cmake.exe",
