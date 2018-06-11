@@ -1,0 +1,9 @@
+{
+    "description": "Pijul is a free and open source (GPL2) distributed version control system.",
+    "version": "0.10.0",
+    "url": "https://pijul.org/releases/pijul-0.10.0.exe",
+    "extension": "exe",
+    "links": [
+        "pijul.exe"
+    ]
+}
