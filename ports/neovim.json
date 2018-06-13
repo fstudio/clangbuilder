@@ -4,7 +4,7 @@
     "url": "https://github.com/neovim/neovim/releases/download/v0.3.0/nvim-win32.zip",
     "url64": "https://github.com/neovim/neovim/releases/download/v0.3.0/nvim-win64.zip",
     "extension": "zip",
-    "links": [
+    "launcher": [
         "bin\\nvim.exe",
         "bin\\nvim-qt.exe"
     ]
