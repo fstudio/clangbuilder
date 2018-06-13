@@ -175,15 +175,31 @@ Function CMDInstall {
         }
         return $false
     }
-
     $versiontable = @{}
     $versiontable["version"] = $pkversion
+    [System.Collections.ArrayList]$mlinks = @()
+    if ($oldtable.links -ne $null) {
+        foreach ($f in $oldtable.links) {
+            if ($devpkg.launcher -ne $null) {
+                if (!$devpkg.launcher.Contains($f)) {
+                    $launcherfile = "$ClangbuilderRoot/bin/pkgs/.linked/" + $f
+                    if (Test-Path $launcherfile) {
+                        Remove-Item -Force -Recurse $launcherfile
+                    }
+                }
+                else {
+                    Write-Host -ForegroundColor Green "Keep launcher: $f, you can run mklauncher rebuild it."
+                    $mlinks.Add($f)
+                }
+            }
+        }
+    }
+
     if ($devpkg.links -ne $null) {
         if (!(Test-Path "$ClangbuilderRoot/bin/pkgs/.linked")) {
             mkdir "$ClangbuilderRoot/bin/pkgs/.linked"|Out-Null
         }
         try {
-            [System.Collections.ArrayList]$mlinks = @()
             foreach ($i in $devpkg.links) {
                 $srcfile = "$installdir/$i"
                 $item = Get-Item $srcfile
@@ -204,15 +220,15 @@ Function CMDInstall {
                 $mlinks.Add($item.Name)|Out-Null
                 Write-Host -ForegroundColor Green "link $($item.FullName) to $symlinkfile success."
             }
-            if ($mlinks.Count -gt 0) {
-                $versiontable["links"] = $mlinks
-            }
-            $versiontable["linked"] = $true
         }
         catch {
             Write-Host -ForegroundColor Red "create symbolic link failed: $_"
         }
     }
+    if ($mlinks.Count -gt 0) {
+        $versiontable["links"] = $mlinks
+    }
+    $versiontable["linked"] = $true
     ConvertTo-Json $versiontable |Out-File -Force -FilePath "$Pkglocksdir/$Name.json"
     if (Test-Path $tempdir) {
         Remove-Item -Force -Recurse $tempdir  -ErrorAction SilentlyContinue |Out-Null
