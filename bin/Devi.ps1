@@ -181,15 +181,15 @@ Function CMDInstall {
     if ($oldtable.links -ne $null) {
         foreach ($f in $oldtable.links) {
             if ($devpkg.launcher -ne $null) {
-                if (!$devpkg.launcher.Contains($f)) {
+                if ($devpkg.launcher.Contains($f)) {
+                    Write-Host -ForegroundColor Green "Keep launcher: $f, you can run mklauncher rebuild it."
+                    $mlinks.Add($f)
+                }
+                else {
                     $launcherfile = "$ClangbuilderRoot/bin/pkgs/.linked/" + $f
                     if (Test-Path $launcherfile) {
                         Remove-Item -Force -Recurse $launcherfile
                     }
-                }
-                else {
-                    Write-Host -ForegroundColor Green "Keep launcher: $f, you can run mklauncher rebuild it."
-                    $mlinks.Add($f)
                 }
             }
         }
