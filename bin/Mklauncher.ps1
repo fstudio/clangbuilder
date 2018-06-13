@@ -48,7 +48,11 @@ Function Mklauncher {
         $obj = @{}
         $obj["version"] = $instmd.version
         if ($instmd.links -ne $null) {
-            $mlinks.AddRange($instmd.links)
+            foreach ($lk in $instmd.links) {
+                if (!$mlinks.Contains($lk)) {
+                    $mlinks.Add($lk)
+                }
+            }
         }
         $obj["links"] = $mlinks
         $obj["linked"] = $true
