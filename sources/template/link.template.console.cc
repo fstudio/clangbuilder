@@ -9,7 +9,6 @@
 
 #define BLASTLINK_TARGET L"@LINK_TEMPLATE_TARGET"
 
-
 size_t StringLength(const wchar_t *s) {
   const wchar_t *a;
   for (a = s; *s; s++)
@@ -91,7 +90,6 @@ private:
   size_t m_size;
 };
 
-
 bool IsSpaceExists(const wchar_t *s) {
   for (; *s && *s != L' '; s++)
     ;
@@ -119,6 +117,8 @@ bool BuildArgs(const wchar_t *target, StringBuffer &cmd) {
       buffer.append(L"\"");
       buffer.append(Argv[i]);
       buffer.append(L"\" ");
+    } else if (StringLength(Argv[i]) == 0) {
+      buffer.append(L"\"\" ");
     } else {
       buffer.append(Argv[i]);
       buffer.append(L" ");
@@ -132,7 +132,7 @@ bool BuildArgs(const wchar_t *target, StringBuffer &cmd) {
 bool LinkToApp(const wchar_t *target) {
   STARTUPINFOW siw;
   GetStartupInfoW(&siw);
-  
+
   StringBuffer cmd;
   if (!BuildArgs(target, cmd)) {
     return false;

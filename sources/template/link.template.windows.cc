@@ -7,7 +7,6 @@
 
 #define BLASTLINK_TARGET L"@LINK_TEMPLATE_TARGET"
 
-
 size_t StringLength(const wchar_t *s) {
   const wchar_t *a;
   for (a = s; *s; s++)
@@ -95,6 +94,7 @@ bool IsSpaceExists(const wchar_t *s) {
   return *s ? true : false;
 }
 
+
 bool BuildArgs(const wchar_t *target, StringBuffer &cmd) {
   int Argc = 0;
   auto Argv = CommandLineToArgvW(GetCommandLineW(), &Argc);
@@ -116,6 +116,8 @@ bool BuildArgs(const wchar_t *target, StringBuffer &cmd) {
       buffer.append(L"\"");
       buffer.append(Argv[i]);
       buffer.append(L"\" ");
+    } else if (StringLength(Argv[i]) == 0) {
+      buffer.append(L"\"\" ");
     } else {
       buffer.append(Argv[i]);
       buffer.append(L" ");
