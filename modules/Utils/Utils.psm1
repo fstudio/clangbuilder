@@ -1,7 +1,7 @@
 ### Utils.psm1
 
 Function Parallel() {
-    $MemSize = (Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory
+    $MemSize = (Get-CimInstance -Class Win32_ComputerSystem).TotalPhysicalMemory
     $ProcessorCount = $env:NUMBER_OF_PROCESSORS
     $MemParallelRaw = $MemSize / 1610612736 #1.5GB
     #[int]$MemParallel = [Math]::Floor($MemParallelRaw)
