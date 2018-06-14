@@ -179,18 +179,22 @@ Function CMDInstall {
     $versiontable["version"] = $pkversion
     [System.Collections.ArrayList]$mlinks = @()
     if ($oldtable.links -ne $null) {
+        [System.Collections.ArrayList]$lav = @() 
+        if ($devpkg.launcher -ne $null) {
+            foreach ($l in $devpkg.launcher) {
+                $lna = Split-Path -Leaf $l
+                $lav.Add($lna)|Out-Null
+            }
+        }
         foreach ($f in $oldtable.links) {
-            if ($devpkg.launcher -ne $null) {
-                if ($devpkg.launcher.Contains($f)) {
-                    Write-Host -ForegroundColor Green "Keep launcher: $f, you can run mklauncher rebuild it."
-                    $mlinks.Add($f)
-                }
-                else {
-                    $launcherfile = "$ClangbuilderRoot/bin/pkgs/.linked/" + $f
-                    if (Test-Path $launcherfile) {
-                        Remove-Item -Force -Recurse $launcherfile
-                    }
-                }
+            if ($lav.Contains($f)) {
+                Write-Host -ForegroundColor Green "Keep launcher: $f, you can run mklauncher rebuild it."
+                $mlinks.Add($f)|Out-Null
+                continue 
+            }
+            $launcherfile = "$ClangbuilderRoot/bin/pkgs/.linked/" + $f
+            if (Test-Path $launcherfile) {
+                Remove-Item -Force -Recurse $launcherfile
             }
         }
     }
