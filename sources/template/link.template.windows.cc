@@ -94,7 +94,6 @@ bool IsSpaceExists(const wchar_t *s) {
   return *s ? true : false;
 }
 
-
 bool BuildArgs(const wchar_t *target, StringBuffer &cmd) {
   int Argc = 0;
   auto Argv = CommandLineToArgvW(GetCommandLineW(), &Argc);
@@ -128,12 +127,12 @@ bool BuildArgs(const wchar_t *target, StringBuffer &cmd) {
   return true;
 }
 
-bool LinkToApp(const wchar_t *target) {
+int LinkToApp(const wchar_t *target) {
   STARTUPINFOW siw;
   GetStartupInfoW(&siw);
   StringBuffer cmd;
   if (!BuildArgs(target, cmd)) {
-    return false;
+    return -1;
   }
   STARTUPINFOW si;
   PROCESS_INFORMATION pi;
@@ -142,16 +141,14 @@ bool LinkToApp(const wchar_t *target) {
   si.cb = sizeof(si);
   if (!CreateProcessW(nullptr, cmd.data(), nullptr, nullptr, FALSE,
                       CREATE_UNICODE_ENVIRONMENT, nullptr, nullptr, &si, &pi)) {
-    return false;
+    return -1;
   }
   CloseHandle(pi.hThread);
   CloseHandle(pi.hProcess);
-  return true;
+  return 0;
 }
 
 int WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int) {
-  if (LinkToApp(BLASTLINK_TARGET)) {
-    return 0;
-  }
-  return 1;
+  ///
+  ExitProcess(LinkToApp(BLASTLINK_TARGET));
 }

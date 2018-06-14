@@ -129,13 +129,13 @@ bool BuildArgs(const wchar_t *target, StringBuffer &cmd) {
   return true;
 }
 
-bool LinkToApp(const wchar_t *target) {
+int LinkToApp(const wchar_t *target) {
   STARTUPINFOW siw;
   GetStartupInfoW(&siw);
 
   StringBuffer cmd;
   if (!BuildArgs(target, cmd)) {
-    return false;
+    return -1;
   }
   STARTUPINFOW si;
   PROCESS_INFORMATION pi;
@@ -144,19 +144,16 @@ bool LinkToApp(const wchar_t *target) {
   si.cb = sizeof(si);
   if (!CreateProcessW(nullptr, cmd.data(), nullptr, nullptr, FALSE,
                       CREATE_UNICODE_ENVIRONMENT, nullptr, nullptr, &si, &pi)) {
-    return false;
+    return -1;
   }
   CloseHandle(pi.hThread);
   WaitForSingleObject(pi.hProcess, INFINITE);
   DWORD exitCode;
   GetExitCodeProcess(pi.hProcess, &exitCode);
-  ExitProcess(exitCode);
-  return true;
+  return exitCode;
 }
 
 int wmain() {
-  if (LinkToApp(BLASTLINK_TARGET)) {
-    return 0;
-  }
-  return 1;
+  ///
+  ExitProcess(LinkToApp(BLASTLINK_TARGET));
 }

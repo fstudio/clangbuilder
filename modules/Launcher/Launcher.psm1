@@ -19,10 +19,13 @@ Function MakeLauncher {
     Set-Location $builddir
     $CCFile = "$Cbroot/sources/template/link.template.windows.cc"
     $obj = &$BlastFile --dump $Path|ConvertFrom-Json
-    $IsConsole=$false
+    $IsConsole = $false
     if ($obj -ne $null -and $obj.Subsystem -ne $null -and $obj.Subsystem -eq "Windows CUI") {
-        $IsConsole=$true
+        $IsConsole = $true
         $CCFile = "$Cbroot/sources/template/link.template.console.cc"
+    }
+    else {
+        Write-Host -ForegroundColor Yellow "$Path subsystem not console."
     }
     $epath = $SrcFile.Replace("\", "\\");
     $content = [System.IO.File]::ReadAllText("$CCFile").Replace("@LINK_TEMPLATE_TARGET", "$epath")
@@ -52,7 +55,7 @@ Function MakeLauncher {
         $rcontent = $rcontent.Replace("@FileBuildPart", $versioninfo.FileBuildPart)
         $rcontent = $rcontent.Replace("@FilePrivatePart", $versioninfo.FilePrivatePart)
 
-        $mtcmd=Get-command -CommandType Application "mt.exe" -ErrorAction SilentlyContinue
+        $mtcmd = Get-command -CommandType Application "mt.exe" -ErrorAction SilentlyContinue
         if ($mtcmd -ne $null) {
             mt /nologo "-inputresource:$SrcFile" "-out:$Name.manifest"
             if ($LASTEXITCODE -eq 0 -and (Test-Path "$Name.manifest")) {
@@ -64,9 +67,10 @@ Function MakeLauncher {
         rc /nologo "$Name.rc"|Out-Host
         cl /nologo /Os "$Name.cc" /c|Out-Host
         Write-Host "link $Name to exe"
-        if($IsConsole){
+        if ($IsConsole) {
             link /nologo /NODEFAULTLIB /SUBSYSTEM:CONSOLE /ENTRY:wmain "$Name.obj" "$Name.res" Shell32.lib kernel32.lib user32.lib "/OUT:$Name.exe"|Out-Host
-        }else{
+        }
+        else {
             link /nologo /NODEFAULTLIB /SUBSYSTEM:WINDOWS /ENTRY:wWinMain "$Name.obj" "$Name.res" Shell32.lib kernel32.lib user32.lib  "/OUT:$Name.exe"|Out-Host
         }
         Move-Item "$Name.exe" -Force -Destination "$Cbroot/bin/pkgs/.linked/$Name.exe"
@@ -74,14 +78,14 @@ Function MakeLauncher {
     catch {
         Write-Host -ForegroundColor Red "$_"
         Set-Location $origindir
-        if(Test-Path $builddir){
+        if (Test-Path $builddir) {
             Remove-Item -Force -Recurse $builddir  -ErrorAction SilentlyContinue |Out-Null
         }
         return $false
     }
     #
     Set-Location $origindir
-    if(Test-Path $builddir){
+    if (Test-Path $builddir) {
         Remove-Item -Force -Recurse $builddir  -ErrorAction SilentlyContinue |Out-Null
     }
     return $true
