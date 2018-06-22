@@ -231,8 +231,8 @@ Function CMDInstall {
     }
     if ($mlinks.Count -gt 0) {
         $versiontable["links"] = $mlinks
+        $versiontable["linked"] = $true
     }
-    $versiontable["linked"] = $true
     ConvertTo-Json $versiontable |Out-File -Force -FilePath "$Pkglocksdir/$Name.json"
     if (Test-Path $tempdir) {
         Remove-Item -Force -Recurse $tempdir  -ErrorAction SilentlyContinue |Out-Null

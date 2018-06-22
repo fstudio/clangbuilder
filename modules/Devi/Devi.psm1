@@ -81,9 +81,12 @@ Function DevinitializeEnv {
     $paths = $env:PATH.Split(";")
     Get-ChildItem "$Pkglocksdir\*.json" -ErrorAction SilentlyContinue|ForEach-Object {
         $xobj = Get-Content $_.FullName  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+        $pkgname=$_.BaseName
+	
         if ($xobj.linked -eq $null -or $xobj.linked -ne $true) {
-            $xpath = Find-ExecutablePath -Path "$pkgdir\$($_.BaseName)"
+            $xpath = Find-ExecutablePath -Path "$pkgdir\$pkgname"
             if ($null -ne $xpath -and !($paths.Contains($xpath))) {
+				#Write-Host "Add $pkgname"
                 Test-AddPath -Path $xpath
             }
         }
@@ -99,7 +102,7 @@ Function DevinitializeEnv {
         $gitkey2 = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
         if (Test-Path $gitkey) {
             $gitinstall = Get-RegistryValueEx $gitkey "InstallLocation"
-            Test-AddPath "${gitinstall}\bin"
+            Test-AddPath "${gitinstall}bin"
         }
         elseif (Test-Path $gitkey2) {
             $gitinstall = Get-RegistryValueEx $gitkey2 "InstallLocation"
