@@ -84,7 +84,7 @@ Function DevinitializeEnv {
         $pkgname=$_.BaseName
 
         if ($xobj.linked -eq $true) {
-            # No think todo 
+            # Nothing to do
         }elseif ($xobj.mount -ne $null){
             $xpath = Find-ExecutablePath -Path "$pkgdir\$pkgname\$($xobj.mount)"
             if ($null -ne $xpath -and !($paths.Contains($xpath))) {
