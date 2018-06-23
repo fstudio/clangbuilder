@@ -36,7 +36,7 @@ Function Find-ExecutablePath {
     if (!(Test-Path $Path)) {
         return $null
     }
-    $files = Get-ChildItem -Path "$Path\*.exe"
+    $files = Get-ChildItem -Path "$Path\*.exe" 
     if ($files.Count -ge 1) {
         return $Path
     }
@@ -82,8 +82,16 @@ Function DevinitializeEnv {
     Get-ChildItem "$Pkglocksdir\*.json" -ErrorAction SilentlyContinue|ForEach-Object {
         $xobj = Get-Content $_.FullName  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
         $pkgname=$_.BaseName
-	
-        if ($xobj.linked -eq $null -or $xobj.linked -ne $true) {
+
+        if ($xobj.linked -eq $true) {
+            # No think todo 
+        }elseif ($xobj.mount -ne $null){
+            $xpath = Find-ExecutablePath -Path "$pkgdir\$pkgname\$($xobj.mount)"
+            if ($null -ne $xpath -and !($paths.Contains($xpath))) {
+				#Write-Host "Add $pkgname"
+                Test-AddPath -Path $xpath
+            }
+        }else{
             $xpath = Find-ExecutablePath -Path "$pkgdir\$pkgname"
             if ($null -ne $xpath -and !($paths.Contains($xpath))) {
 				#Write-Host "Add $pkgname"
