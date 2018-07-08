@@ -8,8 +8,7 @@ param(
 Function LLVMGet {
     param(
         [String]$Version,
-        [String]$Name,
-        [String]$OutFile
+        [String]$Name
     )
     $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome 
     Write-Host "Download $Name-$Version"
@@ -69,7 +68,7 @@ if (Test-Path "$PWD\llvm") {
     Remove-Item -Force -Recurse "$PWD\llvm"
 }
 
-Write-Host "LLVM release: $release"
+Write-Host "Build LLVM $release. Channel: Release"
 
 LLVMGet -Version $release -Name "llvm"
 LLVMGet -Version $release -Name "cfe"
