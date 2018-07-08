@@ -8,15 +8,17 @@ param(
 Function LLVMGet {
     param(
         [String]$Version,
-        [String]$Name
+        [String]$Name,
+        [String]$OutFile
     )
     $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome 
     Write-Host "Download $Name-$Version"
+    $Filename = "$Name-$Version.src.tar.xz"
     try {
-        Invoke-WebRequest -Uri "https://releases.llvm.org/$Version/$Name-$Version.src.tar.xz" -OutFile "$Name.tar.xz" -UserAgent $UserAgent -UseBasicParsing
+        Invoke-WebRequest -Uri "https://releases.llvm.org/$Version/$Name-$Version.src.tar.xz" -OutFile $Filename -UserAgent $UserAgent -UseBasicParsing
     }
     catch {
-        Write-Host -ForegroundColor Red "download $Name failed: $_"
+        Write-Host -ForegroundColor Red "download $Filename failed: $_"
     }
 }
 
@@ -80,12 +82,12 @@ if ($LLDB) {
     LLVMGet -Version $release -Name "lldb"
 }
 
-UnpackFile -File "$PWD\llvm.tar.xz" -Path "." -OldName "llvm-$release.src" -Name "llvm"
-UnpackFile -File "$PWD\cfe.tar.xz" -Path "llvm\tools" -OldName "cfe-$release.src" -Name "clang"
-UnpackFile -File "$PWD\clang-tools-extra.tar.xz" -Path "llvm\tools\clang\tools" -OldName "clang-tools-extra-$release.src" -Name "extra"
-UnpackFile -File "$PWD\lld.tar.xz" -Path "llvm\tools" -OldName "lld-$release.src" -Name "lld"
-UnpackFile -File "$PWD\compiler-rt.tar.xz" -Path "llvm\projects" -OldName "compiler-rt-$release.src" -Name "compiler-rt"
-UnpackFile -File "$PWD\libcxx.tar.xz" -Path "llvm\projects" -OldName "libcxx-$release.src" -Name "libcxx"
+UnpackFile -File "$PWD\llvm-$release.src.tar.xz" -Path "." -OldName "llvm-$release.src" -Name "llvm"
+UnpackFile -File "$PWD\cfe-$release.src.tar.xz" -Path "llvm\tools" -OldName "cfe-$release.src" -Name "clang"
+UnpackFile -File "$PWD\clang-tools-extra-$release.src.tar.xz" -Path "llvm\tools\clang\tools" -OldName "clang-tools-extra-$release.src" -Name "extra"
+UnpackFile -File "$PWD\lld-$release.src.tar.xz" -Path "llvm\tools" -OldName "lld-$release.src" -Name "lld"
+UnpackFile -File "$PWD\compiler-rt-$release.src.tar.xz" -Path "llvm\projects" -OldName "compiler-rt-$release.src" -Name "compiler-rt"
+UnpackFile -File "$PWD\libcxx-$release.src.tar.xz" -Path "llvm\projects" -OldName "libcxx-$release.src" -Name "libcxx"
 
 if ($LLDB) {
     UnpackFile -File "$PWD\lldb.tar.xz" -Path "llvm\tools" -OldName "lldb-$release.src" -Name "lldb"
