@@ -21,10 +21,10 @@ Function CMDList {
         [String]$Pkglocksdir
     )
     Get-ChildItem -Path "$Pkglocksdir/*.json"|ForEach-Object {
-        $obj = Get-Content -Path $_.FullName -ErrorAction SilentlyContinue |ConvertFrom-Json  -ErrorAction SilentlyContinue 
-        if ($obj -eq $null -or $obj.version -eq $null) {
+        $obj = Get-Content -Path $_.FullName -ErrorAction SilentlyContinue |ConvertFrom-Json  -ErrorAction SilentlyContinue
+        if ($null -eq $obj -or ($null -eq $obj.version) ) {
             Write-Host -ForegroundColor Red "Invalid file locks: $($_.FullName)"
-            return 
+            return
         }
         $_.BaseName.PadRight(20) + $obj.version
     }
@@ -37,8 +37,8 @@ Function CMDSearch {
     )
     Write-Host -ForegroundColor Green "devi portable package manager, found ports:"
     Get-ChildItem -Path "$Root/ports/*.json" |ForEach-Object {
-        $cj = Get-Content $_.FullName  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue 
-        if ($cj -ne $null) {
+        $cj = Get-Content $_.FullName  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+        if ($null -eq $cj) {
             "$($_.BaseName)".PadRight(20) + "$($cj.version)".PadRight(20) + $cj.description
         }
     }
@@ -56,7 +56,7 @@ Function CMDUninstall {
     }
     else {
         $instmd = Get-Content $lockfile  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
-        if ($instmd.links -ne $null) {
+        if ($null -ne $instmd.links) {
             foreach ($lkfile in $instmd.links) {
                 $xlinked = "$ClangbuilderRoot/bin/pkgs/.linked/$lkfile"
                 if (Test-Path $xlinked) {
@@ -87,11 +87,11 @@ Function CMDInstall {
         return $false
     }
     $devpkg = Get-Content "$ClangbuilderRoot/ports/$Name.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
-    if ($devpkg -eq $null) {
+    if ( $null -eq $devpkg) {
         Write-Host -ForegroundColor Red "`'$Name`' not yet ported."
         return $false
     }
-    if ($devpkg.version -eq $null) {
+    if ($null -eq $devpkg.version) {
         Write-Host -ForegroundColor Red "`'$Name`' port config invalid."
         return $false
     }
@@ -111,12 +111,12 @@ Function CMDInstall {
 
     $oldtable = Get-Content "$Pkglocksdir/$Name.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
     $pkversion = $devpkg.version
-    if ($oldtable -ne $null -and $oldtable.version -eq $pkversion) {
+    if ($null -ne $oldtable -and $oldtable.version -eq $pkversion) {
         Write-Host -ForegroundColor Yellow "devi: $Name is up to date. version: $($oldtable.version)"
         return $true
     }
     $xurl = $devpkg.url
-    if ([System.Environment]::Is64BitOperatingSystem -and $devpkg.url64 -ne $null) {
+    if ([System.Environment]::Is64BitOperatingSystem -and ($null -ne $devpkg.url64)) {
         $xurl = $devpkg.url64
     }
     $besturl = $null
@@ -126,7 +126,7 @@ Function CMDInstall {
     else {
         $besturl = $xurl
     }
-    if ($besturl -eq $null) {
+    if ($null -eq $besturl) {
         return $false
     }
 
@@ -144,13 +144,14 @@ Function CMDInstall {
             "zip" {
                 Expand-Archive -Path $pkgfile -DestinationPath $installdir
                 Initialize-ZipArchive -Path $installdir
-            } 
+            }
             "msi" {
                 $ret = Expand-Msi -Path $pkgfile -DestinationPath  $installdir
-                if ($ret -eq 0) {
-                    Initialize-MsiArchive -Path $installdir
+                if ($ret -ne 0) {
+                    throw "Expand $pkgfile failed"
                 }
-            } 
+                Initialize-MsiArchive -Path $installdir
+            }
             "exe" {
                 if (!(Test-Path $installdir)) {
                     mkdir $installdir|Out-Null
@@ -167,6 +168,7 @@ Function CMDInstall {
         }
     }
     catch {
+        Write-Host -ForegroundColor Red "$_"
         if (!(Test-Path $installdir) -and (Test-Path $tempdir)) {
             Move-Item -Force $tempdir $installdir -ErrorAction SilentlyContinue |Out-Null
         }
@@ -178,9 +180,9 @@ Function CMDInstall {
     $versiontable = @{}
     $versiontable["version"] = $pkversion
     [System.Collections.ArrayList]$mlinks = @()
-    if ($oldtable.links -ne $null) {
-        [System.Collections.ArrayList]$lav = @() 
-        if ($devpkg.launcher -ne $null) {
+    if ($null -ne $oldtable.links) {
+        [System.Collections.ArrayList]$lav = @()
+        if ($null -ne $devpkg.launcher) {
             foreach ($l in $devpkg.launcher) {
                 $lna = Split-Path -Leaf $l
                 $lav.Add($lna)|Out-Null
@@ -190,7 +192,7 @@ Function CMDInstall {
             if ($lav.Contains($f)) {
                 Write-Host -ForegroundColor Green "Keep launcher: $f, you can run mklauncher rebuild it."
                 $mlinks.Add($f)|Out-Null
-                continue 
+                continue
             }
             $launcherfile = "$ClangbuilderRoot/bin/pkgs/.linked/" + $f
             if (Test-Path $launcherfile) {
@@ -199,7 +201,7 @@ Function CMDInstall {
         }
     }
 
-    if ($devpkg.links -ne $null) {
+    if ($null -ne $devpkg.links ) {
         if (!(Test-Path "$ClangbuilderRoot/bin/pkgs/.linked")) {
             mkdir "$ClangbuilderRoot/bin/pkgs/.linked"|Out-Null
         }
@@ -233,7 +235,7 @@ Function CMDInstall {
         $versiontable["links"] = $mlinks
         $versiontable["linked"] = $true
     }
-    if ($devpkg.mount -ne $null) {
+    if ($null -ne $devpkg.mount) {
         $versiontable["mount"] = $devpkg.mount
     }
     ConvertTo-Json $versiontable |Out-File -Force -FilePath "$Pkglocksdir/$Name.json"
@@ -254,10 +256,10 @@ Function CMDUpgrade {
     )
     $pkgtable = @{}
     Get-ChildItem -Path "$Pkglocksdir/*.json"|ForEach-Object {
-        $obj = Get-Content -Path $_.FullName -ErrorAction SilentlyContinue |ConvertFrom-Json  -ErrorAction SilentlyContinue 
-        if ($obj -eq $null -or $obj.version -eq $null) {
+        $obj = Get-Content -Path $_.FullName -ErrorAction SilentlyContinue |ConvertFrom-Json  -ErrorAction SilentlyContinue
+        if ( $null -eq $obj -or ( $null -eq $obj.version) ) {
             Write-Host -ForegroundColor Red "Invalid file locks: $($_.FullName)"
-            return 
+            return
         }
         $xname = $_.BaseName
         if (!(Test-Path "$ClangbuilderRoot/ports/$xname.json")) {
@@ -273,11 +275,10 @@ Function CMDUpgrade {
 
     if ($Default) {
         $devcore = Get-Content "$ClangbuilderRoot/config/devi.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
-        if ($devcore.core -eq $null) {
+        if ($null -eq $devcore.core) {
             Write-Host -ForegroundColor Red "devi missing default core tools config, file: $ClangbuilderRoot/config/devi.json"
             return $false
         }
-        
         foreach ($t in $devcore.core) {
             if (!$pkgtable.ContainsKey($t)) {
                 CMDInstall -ClangbuilderRoot $ClangbuilderRoot -Name $t -Pkglocksdir $Pkglocksdir|Out-Null
@@ -297,6 +298,7 @@ if ($args.Count -eq 0) {
 $subcmd = $args[0]
 $Pkgroot = "$ClangbuilderRoot/bin/pkgs"
 $Pkglocksdir = "$Pkgroot/.locks"
+$MutexName = "Clangbuild.Devi.Lock"
 
 if (!(Test-Path $Pkgroot)) {
     mkdir  $Pkgroot
@@ -318,9 +320,17 @@ switch ($subcmd) {
         }
 
         $pkgname = $args[1]
-        if (!(CMDInstall -ClangbuilderRoot $ClangbuilderRoot -Name $pkgname -Pkglocksdir $Pkglocksdir )) {
+        $mtx = New-Object System.Threading.Mutex($false, "Clangbuild.Devi.Lock")
+        $mtxresult = $mtx.WaitOne(1000)
+        if ($mtxresult -eq $false) {
+            Write-Host -ForegroundColor Red "devi is running."
             exit 1
         }
+        if (!(CMDInstall -ClangbuilderRoot $ClangbuilderRoot -Name $pkgname -Pkglocksdir $Pkglocksdir )) {
+            $mtx.ReleaseMutex()
+            exit 1
+        }
+        $mtx.ReleaseMutex()
     }
     "uninstall" {
         if ($args.Count -lt 2) {
@@ -329,9 +339,17 @@ switch ($subcmd) {
         }
 
         $pkgname = $args[1]
-        if (!(CMDUninstall -ClangbuilderRoot $ClangbuilderRoot -Name $pkgname )) {
+        $mtx = New-Object System.Threading.Mutex($false, $MutexName)
+        $mtxresult = $mtx.WaitOne(1000)
+        if ($mtxresult -eq $false) {
+            Write-Host -ForegroundColor Red "devi is running."
             exit 1
         }
+        if (!(CMDUninstall -ClangbuilderRoot $ClangbuilderRoot -Name $pkgname )) {
+            $mtx.ReleaseMutex()
+            exit 1
+        }
+        $mtx.ReleaseMutex()
     }
     "upgrade" {
         if (!(Test-Path "$ClangbuilderRoot/bin/pkgs")) {
@@ -341,6 +359,12 @@ switch ($subcmd) {
             mkdir  "$ClangbuilderRoot/bin/pkgs/.locks"
         }
         $ret = $false
+        $mtx = New-Object System.Threading.Mutex($false, $MutexName)
+        $mtxresult = $mtx.WaitOne(1000)
+        if ($mtxresult -eq $false) {
+            Write-Host -ForegroundColor Red "devi is running."
+            exit 1
+        }
         if ($args.Count -gt 1 -and $args[1] -eq "--default") {
             Write-Host "devi: Use upgrade --default, will install devi.json#core."
             $ret = CMDUpgrade -ClangbuilderRoot  $ClangbuilderRoot -Pkglocksdir $Pkglocksdir  -Default
@@ -349,8 +373,10 @@ switch ($subcmd) {
             $ret = CMDUpgrade -ClangbuilderRoot  $ClangbuilderRoot -Pkglocksdir $Pkglocksdir
         }
         if ($ret -eq $false) {
+            $mtx.ReleaseMutex()
             exit 1
         }
+        $mtx.ReleaseMutex()
         Write-Host "Update package completed."
     }
     "version" {
