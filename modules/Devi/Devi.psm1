@@ -36,7 +36,7 @@ Function Find-ExecutablePath {
     if (!(Test-Path $Path)) {
         return $null
     }
-    $files = Get-ChildItem -Path "$Path\*.exe" 
+    $files = Get-ChildItem -Path "$Path\*.exe"
     if ($files.Count -ge 1) {
         return $Path
     }
@@ -67,7 +67,7 @@ Function Get-RegistryValueEx {
         [String]$Key
     )
     if (!(Test-Path $Path)) {
-        return 
+        return
     }
     (Get-ItemProperty $Path $Key).$Key
 }
@@ -85,7 +85,7 @@ Function DevinitializeEnv {
 
         if ($xobj.linked -eq $true) {
             # Nothing to do
-        }elseif ($xobj.mount -ne $null){
+        }elseif ($null -ne $xobj.mount){
             $xpath = Find-ExecutablePath -Path "$pkgdir\$pkgname\$($xobj.mount)"
             if ($null -ne $xpath -and !($paths.Contains($xpath))) {
 				#Write-Host "Add $pkgname"
@@ -105,7 +105,7 @@ Function DevinitializeEnv {
         }
     }
     $cmd = Get-command -CommandType Application "git.exe" -ErrorAction SilentlyContinue
-    if ($cmd -eq $null) {
+    if ($null -eq $cmd) {
         $gitkey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
         $gitkey2 = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
         if (Test-Path $gitkey) {
@@ -165,7 +165,7 @@ Function Initialize-MsiArchive {
             if ($ssdir.Count -eq 1) {
                 if ($ssdir[0] -isnot [System.IO.DirectoryInfo]) {
                     Move-Item -Path $ssdir[0].FullName -Destination $Path
-                    return 
+                    return
                 }
                 $xsubdir = $ssdir[0].FullName
                 Move-Item -Force -Path "$xsubdir/*" -Destination $Path

@@ -38,26 +38,23 @@ Function InitializeEnv {
     $env:PATH = $env:PATH + "$ClangbuilderRoot" + [System.IO.Path]::DirectorySeparatorChar + "bin"
     $InitializeFile = "$ClangbuilderRoot/config/initialize.json"
     if (!(Test-Path $InitializeFile)) {
-        return 
+        return
     }
     $InitializeObj = Get-Content -Path $InitializeFile |ConvertFrom-Json
-    
     # Window Title
     if ($null -ne $InitializeObj.Title) {
         $Host.UI.RawUI.WindowTitle = $InitializeObj.Title
     }
-    
     # Welcome Message
     if ($null -ne $InitializeObj.Welcome) {
         Write-Host $InitializeObj.Welcome
     }
-    # 
-    
+    # Other
     if ($null -ne $InitializeObj.PATH) {
         foreach ($Np in $InitializeObj.PATH) {
             Add-AbstractPath -Dir $Np
         }
-    }    
+    }
 }
 
 Function InitializeExtranl {
@@ -66,9 +63,7 @@ Function InitializeExtranl {
         [String]$Arch = "x64",
         [String]$ClangbuilderRoot
     )
-    
     $ExtranlDir = "$ClangbuilderRoot\bin\external"
-    
     if (Test-Path "$ExtranlDir\include") {
         $env:INCLUDE = $env:INCLUDE + ";$ExtranlDir\include"
     }

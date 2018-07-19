@@ -10,7 +10,7 @@ Function LLVMGet {
         [String]$Version,
         [String]$Name
     )
-    $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome 
+    $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
     Write-Host "Download $Name-$Version"
     $Filename = "$Name-$Version.src.tar.xz"
     try {

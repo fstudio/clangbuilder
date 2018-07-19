@@ -18,7 +18,7 @@ Function Update-LLVM {
         [String]$Folder,
         [Parameter(Position = 2, Mandatory = $True, HelpMessage = "Enter checkout branch")]
         [ValidateNotNullorEmpty()]
-        [String]$Branch = "master"
+        [String]$Branch
     )
     Push-Location $PWD
     IF ((Test-Path "$Folder") -and (Test-Path "$Folder/.git")) {
@@ -32,7 +32,7 @@ Function Update-LLVM {
             Remove-Item -Force -Recurse "$Folder"
         }
         Write-Host "clone $URL"
-        &git clone $URL --depth=1 --single-branch --branch $Branch "$Folder" 
+        &git clone $URL --depth=1 --single-branch --branch $Branch "$Folder"
     }
     Pop-Location
 }

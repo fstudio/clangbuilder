@@ -1,4 +1,4 @@
-# CMake build 
+# CMake build
 
 Function CMakeInstallationFix {
     param(
@@ -37,7 +37,7 @@ Function CMakeFileflags {
         }
         catch {
             Write-Host -ForegroundColor Red "Parse error $_"
-            return 
+            return
         }
     }
 }

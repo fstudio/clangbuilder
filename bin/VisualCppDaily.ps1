@@ -17,7 +17,7 @@ try {
             $queryurl = $s.'@id'
         }
     }
-    if ($queryurl -eq $null) {
+    if ($null -eq $queryurl) {
         Write-Host -ForegroundColor Red "SearchQueryService url not found"
         exit 1
     }
@@ -36,7 +36,7 @@ catch {
     exit 1
 }
 
-if ($VisualCppDailyVersion -eq $null) {
+if ($null -eq $VisualCppDailyVersion) {
     Write-Host -ForegroundColor Red "Not found valid $VisualCppDailyName version."
     exit 1
 }
@@ -45,7 +45,7 @@ if ($VisualCppDailyVersion -eq $null) {
 Push-Location $PWD
 
 if (!(Test-Path $VisualCppToolsInstallDir)) {
-    New-Item -Force -ItemType Directory $VisualCppToolsInstallDir 
+    New-Item -Force -ItemType Directory $VisualCppToolsInstallDir
 }
 
 Set-Location $VisualCppToolsInstallDir
@@ -70,4 +70,4 @@ if ((Test-Path "$VisualCppToolsInstallDir\$VisualCppDailyName.$VisualCppDailyVer
     ConvertTo-Json $vccache |Out-File -Encoding utf8 -Force -FilePath "$VisualCppToolsInstallDir\VisualCppTools.lock.json"
 }
 
-Pop-Location 
+Pop-Location

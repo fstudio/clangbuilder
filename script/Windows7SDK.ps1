@@ -29,7 +29,6 @@ Function InitializeVisualStudio2017Compiler {
         [string]$VSDir,
         [String]$Arch
     )
-    
     $xml = [xml](Get-Content -Path "$VSDir\VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.props")
     $Version = $xml.Project.PropertyGroup.VCToolsVersion.'#text'
     $MSVCDir = "$VSDir\VC\Tools\MSVC\$Version"
@@ -78,7 +77,7 @@ Import-Module "$ClangbuilderRoot\modules\Devi"
 $ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot -Pkglocksdir "$ClangbuilderRoot\bin\pkgs\.locks"
 
 if($ret -ne $true){
-    
+    #TODO
 }
 
 if ($UseVS2017) {

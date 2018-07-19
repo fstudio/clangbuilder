@@ -11,9 +11,9 @@ param (
     [ValidateSet("MSBuild", "Ninja", "NinjaBootstrap", "NinjaIterate")]
     [String]$Engine = "MSBuild",
     [ValidateSet("Mainline", "Stable", "Release")]
-    [String]$Branch = "Mainline", #mainline 
+    [String]$Branch = "Mainline", #mainline
     [Alias("e")]
-    [Switch]$Environment, # start environment 
+    [Switch]$Environment, # start environment
     [Switch]$Sdklow, # low sdk support
     [Switch]$LLDB,
     [Switch]$LTO,
@@ -41,14 +41,14 @@ if ($ret -ne 0) {
     exit 1
 }
 
-Function ExecuteExists{
+Function ExecuteExists {
     param(
         [Parameter(Position = 0, Mandatory = $True, HelpMessage = "Enter Execute Name")]
         [ValidateNotNullorEmpty()]
         [String]$Command
     )
-    $cmd=Get-Command -CommandType Application $Command -ErrorAction SilentlyContinue
-    if($cmd -eq $null){
+    $cmd = Get-Command -CommandType Application $Command -ErrorAction SilentlyContinue
+    if ($null -eq $cmd) {
         return $false
     }
     return $true
@@ -175,7 +175,6 @@ Function Get-ClangArgument {
     # Parse clang args
     # $ver=(Get-Item $clexe|Select-Object -ExpandProperty VersionInfo|Select-Object -Property FileVersion)
     # https://github.com/llvm-mirror/clang/blob/6c57331175c84f06b8adbae858043ab5c782355f/lib/Driver/ToolChains/MSVC.cpp#L1269
-    
     $msvc = "19.12"
     try {
         $clexe = Get-Command -CommandType Application "cl.exe"
@@ -188,7 +187,6 @@ Function Get-ClangArgument {
             "12" = "18.00";
             "11" = "17.00"
         };
-    
         if ($VisualCppVersionTable.ContainsKey($Global:Installation)) {
             $msvc = $VisualCppVersionTable[$Installation]
         }
@@ -231,7 +229,7 @@ Function ClangNinjaGenerator {
     $Arguments = Get-ClangArgument
     if ($LTO) {
         try {
-            $ClangbinDir = (Split-Path  -Path (Get-Item $ClangExe).FullName).Replace("\","/")
+            $ClangbinDir = (Split-Path  -Path (Get-Item $ClangExe).FullName).Replace("\", "/")
             # https://clang.llvm.org/docs/ThinLTO.html#clang-bootstrap
             $Arguments += " -DLLVM_ENABLE_LTO=Thin `"-DCMAKE_LINKER=$ClangbinDir/lld-link.exe`""
             $Arguments += " `"-DCMAKE_AR=$ClangbinDir/llvm-ar.exe`" `"-DCMAKE_RANLIB=$ClangbinDir/llvm-ranlib.exe`""
@@ -257,8 +255,8 @@ Function ClangNinjaGenerator {
 Function Invoke-MSBuild {
     $Global:LatestBuildDir = "$ClangbuilderRoot\out\msbuild"
     Set-Workdir $Global:LatestBuildDir
-    if($LTO){
-        
+    if ($LTO) {
+        #TODO
     }
     if ($ArchName.Length -eq 0) {
         $Arguments = "-G`"Visual Studio $Installation`" "
@@ -270,12 +268,12 @@ Function Invoke-MSBuild {
         $Arguments += "-Thost=x64 ";
     }
     $Arguments += $CMakeArguments
-    $exitcode = ProcessExec  -FilePath "cmake" -Arguments $Arguments 
+    $exitcode = ProcessExec  -FilePath "cmake" -Arguments $Arguments
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1
     }
-    $exitcode = ProcessExec -FilePath "cmake" -Arguments "--build . --config $Flavor" 
+    $exitcode = ProcessExec -FilePath "cmake" -Arguments "--build . --config $Flavor"
     return $exitcode
 }
 
@@ -292,7 +290,7 @@ Function Invoke-Ninja {
     }
     #$oe = [Console]::OutputEncoding
     #[Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
-    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments 
+    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments
     if ($exitcode -ne 0) {
         Write-Error "CMake exit: $exitcode"
         return 1

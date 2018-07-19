@@ -20,7 +20,7 @@ Function MakeLauncher {
     $CCFile = "$Cbroot/sources/template/link.template.windows.cc"
     $obj = &$BlastFile --dump $Path|ConvertFrom-Json
     $IsConsole = $false
-    if ($obj -ne $null -and $obj.Subsystem -ne $null -and $obj.Subsystem -eq "Windows CUI") {
+    if ($null -ne $obj -and ($null -ne $obj.Subsystem) -and $obj.Subsystem -eq "Windows CUI") {
         $IsConsole = $true
         $CCFile = "$Cbroot/sources/template/link.template.console.cc"
     }
@@ -38,7 +38,7 @@ Function MakeLauncher {
         $rcontent = $rcontent.Replace("@FileDescription", $versioninfo.FileDescription)
         $rcontent = $rcontent.Replace("@FileVersion", $versioninfo.FileVersion)
         $rcontent = $rcontent.Replace("@InternalName", $versioninfo.InternalName)
-        if ($versioninfo.LegalCopyright -ne $null) {
+        if ($null -ne $versioninfo.LegalCopyright) {
             $LegalCopyright = $versioninfo.LegalCopyright.Replace("(c)", "\xA9").Replace("(C)", "\xA9")
             $rcontent = $rcontent.Replace("@LegalCopyright", $LegalCopyright)
         }
@@ -56,7 +56,7 @@ Function MakeLauncher {
         $rcontent = $rcontent.Replace("@FilePrivatePart", $versioninfo.FilePrivatePart)
 
         $mtcmd = Get-command -CommandType Application "mt.exe" -ErrorAction SilentlyContinue
-        if ($mtcmd -ne $null) {
+        if ($null -ne $mtcmd) {
             mt /nologo "-inputresource:$SrcFile" "-out:$Name.manifest"
             if ($LASTEXITCODE -eq 0 -and (Test-Path "$Name.manifest")) {
                 # https://msdn.microsoft.com/en-us/library/windows/desktop/aa374191(v=vs.85).aspx

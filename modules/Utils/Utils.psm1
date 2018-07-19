@@ -17,7 +17,7 @@ Function ProcessExec {
         [string]$Arguments,
         [string]$WorkingDirectory
     )
-    $ProcessInfo = New-Object System.Diagnostics.ProcessStartInfo 
+    $ProcessInfo = New-Object System.Diagnostics.ProcessStartInfo
     $ProcessInfo.FileName = $FilePath
     Write-Host "$FilePath $Arguments $PWD"
     if ($WorkingDirectory.Length -eq 0) {
@@ -28,8 +28,8 @@ Function ProcessExec {
     }
     $ProcessInfo.Arguments = $Arguments
     $ProcessInfo.UseShellExecute = $false ## use createprocess not shellexecute
-    $Process = New-Object System.Diagnostics.Process 
-    $Process.StartInfo = $ProcessInfo 
+    $Process = New-Object System.Diagnostics.Process
+    $Process.StartInfo = $ProcessInfo
     if ($Process.Start() -eq $false) {
         return -1
     }
@@ -74,7 +74,13 @@ public static extern bool SetConsoleOutputCP(int wCodePageID);
 '@
     $wconsole = Add-Type -MemberDefinition $code -Name "WinConsole" -PassThru
     $result = $wconsole::SetConsoleCP($Lang)
+    if (!$result) {
+        Write-Host -ForegroundColor Red "Set Console Codepage error"
+    }
     $result = $wconsole::SetConsoleOutputCP($Lang)
+    if (!$result) {
+        Write-Host -ForegroundColor Red "Set Console Output Codepage error"
+    }
 }
 
 function TestTcpConnection {
@@ -110,7 +116,6 @@ Function Test-BestSourcesURL {
     param(
         [String[]]$Urls
     )
-    [System.String]$besturl = $null;
     [System.Double]$pretime = [System.Double]::MaxValue
     [int]$index = 0
     for ($i = 0; $i -lt $Urls.Count; $i++) {

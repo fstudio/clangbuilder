@@ -30,7 +30,7 @@ Function Mklauncher {
     }
     try {
         $portobj = Get-Content "$ClangbuilderRoot\ports\$Name.json"|ConvertFrom-Json
-        if ($portobj.launcher -eq $null) {
+        if ($null -eq $portobj.launcher) {
             Write-Host -ForegroundColor Red "$Name not support launcher"
             return $false
         }
@@ -47,7 +47,7 @@ Function Mklauncher {
         $instmd = Get-Content "$ClangbuilderRoot/bin/pkgs/.locks/$Name.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
         $obj = @{}
         $obj["version"] = $instmd.version
-        if ($instmd.links -ne $null) {
+        if ($null -eq $instmd.links) {
             foreach ($lk in $instmd.links) {
                 if (!$mlinks.Contains($lk)) {
                     $mlinks.Add($lk)

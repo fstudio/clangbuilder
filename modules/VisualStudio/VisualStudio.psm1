@@ -33,7 +33,6 @@ Function Get-ArchBatchString {
             "ARM"   = "x86_arm";
             "ARM64" = "unknwon"
         }
-    
         $ArchListX64 = @{
             "x86"   = "x86";
             "x64"   = "amd64";
@@ -48,7 +47,6 @@ Function Get-ArchBatchString {
             "ARM"   = "x86_arm";
             "ARM64" = "x86_arm64"
         }
-    
         $ArchListX64 = @{
             "x86"   = "amd64_x86";
             "x64"   = "amd64";
@@ -56,7 +54,6 @@ Function Get-ArchBatchString {
             "ARM64" = "amd64_arm64"
         }
     }
-    
     if ([System.Environment]::Is64BitOperatingSystem) {
         return $ArchListX64[$Arch]
     }
@@ -88,7 +85,6 @@ Function InitializeEnterpriseWDK {
     }
     Write-Host "Initialize Windows 10 Enterprise WDK $Arch  Environment ..."
     Write-Host "Enterprise WDK Version: $EWDKVersion"
-    
     $BuildTools = "$EWDKPath\Program Files\Microsoft Visual Studio\2017\BuildTools"
     $SdkBaseDir = "$EWDKPath\Program Files\Windows Kits\10"
     $xml = [xml](Get-Content -Path "$BuildTools\VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.props")
@@ -125,7 +121,7 @@ Function InitializeEnterpriseWDK {
     $env:LIB += "$SDKLIB\km\$Archlowpper;$SDKLIB\um\$Archlowpper;$SDKLIB\ucrt\$Archlowpper"
     $env:LIBPATH = "$VisualCppPath\lib\$Archlowpper;$VisualCppPath\atlmfc\lib\$Archlowpper;"
     $env:LIBPATH = "$SdkBaseDir\UnionMetadata\$EWDKVersion\;$SdkBaseDir\References\$EWDKVersion\;"
-    [environment]::SetEnvironmentVariable("VSENV_INITIALIZED","VisualStudio.EWDK")
+    [environment]::SetEnvironmentVariable("VSENV_INITIALIZED", "VisualStudio.EWDK")
     return 0
 }
 
@@ -185,7 +181,7 @@ Function InitializeWinSdk10 {
         [String]$Arch,
         [String]$HostEnv = "x64"
     )
-    # Windows Kits\Installed Roots\ 
+    # Windows Kits\Installed Roots\
     $sdk10 = "HKLM:SOFTWARE\WOW6432Node\Microsoft\Microsoft SDKs\Windows\v10.0"
     if (!(Test-Path $sdk10)) {
         $sdk10 = "HKLM:SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0"
@@ -249,14 +245,11 @@ Function InitializeVisualCppTools {
     )
     $VisualCppToolsInstallDir = "$ClangbuilderRoot\bin\utils\msvc"
     $LockFile = "$VisualCppToolsInstallDir\VisualCppTools.lock.json"
-    
     if (!(Test-Path $LockFile)) {
         Write-Host -ForegroundColor Red "Not Found VisualCppTools.Community.Daily
         Please run '$ClangbuilderRoot\script\VisualCppToolsFetch.bat'"
         return 1
     }
-    
-    
     $instlock = Get-Content -Path $LockFile |ConvertFrom-Json
     $HostEnv = "x86"
     if ([System.Environment]::Is64BitOperatingSystem) {
@@ -268,19 +261,17 @@ Function InitializeVisualCppTools {
     else {
         InitializeWinSdk10  -Arch $Arch -HostEnv $HostEnv
     }
-    
     $env:VisualCppToolsPath = $ClangbuilderRoot + "\bin\utils\msvc\" + $instlock.Path
     $tooldir = $env:VisualCppToolsPath + "\lib\native"
     $env:VSPropsFile = $env:VisualCppToolsPath + "\build\native\" + $instlock.Name + ".props"
     Write-Host "MSBuild can import $env:VSPropsFile"
-    
     if ($instlock.Name.Contains("VS2017Layout")) {
         InitializeVS2017Layout -Path $tooldir -Arch $Arch -HostEnv $HostEnv
     }
     else {
         InitializeVS14Layout -Path $tooldir -Arch $Arch -HostEnv $HostEnv
     }
-    [environment]::SetEnvironmentVariable("VSENV_INITIALIZED","VisualStudio.CppTools")
+    [environment]::SetEnvironmentVariable("VSENV_INITIALIZED", "VisualStudio.CppTools")
     Write-Host "Use $($instlock.Name) $($instlock.Version)"
     return 0
 }
@@ -328,10 +319,10 @@ Function InitializeVisualStudio {
         [String]$InstanceId,
         [Switch]$Sdklow
     )
-    if($env:VSENV_INITIALIZED -ne $null){
+    if ($null -ne $env:VSENV_INITIALIZED) {
         return 0
     }
-    if ($InstanceId -eq $null -or $InstanceId.Length -eq 0) {
+    if ([String]::IsNullOrEmpty($InstanceId)) {
         return 1
     }
     if ($InstanceId -eq "VisualCppTools") {
@@ -348,7 +339,7 @@ Function InitializeVisualStudio {
         $vsinstances = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -requires Microsoft.VisualStudio.Component.Windows10SDK  -format json|ConvertFrom-JSON
     }
     #Microsoft.VisualStudio.Component.VC.Tools.x86.x64
-    if ($vsinstances -eq $null -or $vsinstances.Count -eq 0) {
+    if ($null -eq $vsinstances -or $vsinstances.Count -eq 0) {
         return 1
     }
     $vsinstance = $vsinstances|Where-Object {$_.instanceId -eq $InstanceId}
@@ -368,11 +359,9 @@ Function InitializeVisualStudio {
         if ($InstanceId -eq "VisualStudio.14.0") {
             FixVisualStudioSdkPath
         }
-        [environment]::SetEnvironmentVariable("VSENV_INITIALIZED","$InstanceId")
+        [environment]::SetEnvironmentVariable("VSENV_INITIALIZED", "$InstanceId")
         return 0
     }
-    
-    
     ## Now 15.4.26823.1 support Visual C++ for ARM64
     $FixedVer = [System.Version]::Parse("15.4.26823.0")
     $ver = [System.Version]::Parse($vsinstance.installationVersion)
@@ -382,22 +371,18 @@ Function InitializeVisualStudio {
         return (InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch "ARM64")
     }
     $vcvarsall = "$($vsinstance.installationPath)\VC\Auxiliary\Build\vcvarsall.bat"
-    
     $env:VS150COMNTOOLS = "$($vsinstance.installationPath)\Common7\Tools\"
     Write-Host "Update `$env:VS150COMNTOOLS to: $env:VS150COMNTOOLS"
-    
     if ($Sdklow) {
         Write-Host "Attention Please: Use Windows 8.1 SDK"
         $ArgumentList += " 8.1"
     }
-    
     if (!(Test-Path $vcvarsall)) {
         Write-Host "$vcvarsall not found"
         return 1
     }
-    
     Invoke-BatchFile -Path $vcvarsall -ArgumentList $ArgumentList
-    [environment]::SetEnvironmentVariable("VSENV_INITIALIZED","VisualStudio.$ver")
+    [environment]::SetEnvironmentVariable("VSENV_INITIALIZED", "VisualStudio.$ver")
     #Write-Host "call $vcvarsall"
     return 0
 }
@@ -429,7 +414,7 @@ Function DefaultVisualStudio {
         Pop-Location
         return 1
     }
-    if ($vsinstalls -eq $null -or $vsinstalls.Count -eq 0) {
+    if ($null -eq $vsinstalls -or $vsinstalls.Count -eq 0) {
         return 1
     }
     return (InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $vsinstalls[0].instanceId)

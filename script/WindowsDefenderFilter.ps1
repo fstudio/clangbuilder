@@ -1,5 +1,5 @@
 <#
-# Add ExclusionPath to Windows Defender 
+# Add ExclusionPath to Windows Defender
 # Support Windows 8.1 or Later
 # See https://technet.microsoft.com/en-us/library/dn433281.aspx
 #>

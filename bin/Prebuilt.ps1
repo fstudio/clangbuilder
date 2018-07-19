@@ -8,7 +8,7 @@ if ($ret -ne 0) {
 
 
 $szcmd = Get-Command "7z.exe" -ErrorAction SilentlyContinue
-if ($szcmd -eq $null) {
+if ($null -eq $szcmd) {
     Write-Host "7z not install, 'please use devi install 7z'"
     exit 1
 }
@@ -16,7 +16,7 @@ if ($szcmd -eq $null) {
 
 $revobj = Get-Content "$ClangbuilderRoot\config\revision.json" -ErrorAction SilentlyContinue|ConvertFrom-Json -ErrorAction SilentlyContinue
 
-if ($revobj -eq $null -or $revobj.Release -eq $null) {
+if ($null -eq $revob -or ($null -eq $revobj.Release) ) {
     Write-Host -ForegroundColor Red "Revision no set"
     exit 1
 }
@@ -24,7 +24,7 @@ $relrev = $revobj.Release
 
 $pbobj = Get-Content "$ClangbuilderRoot\config\prebuilt.json" -ErrorAction SilentlyContinue|ConvertFrom-Json -ErrorAction SilentlyContinue
 
-if ($pbobj -ne $null -and ($pbobj.LLVM.Revision -ne $null)) {
+if ($null -ne $pbobj -and ($null -ne $pbobj.LLVM.Revision)) {
     if ($pbobj.LLVM.Revision -eq $relrev) {
         Write-Host -ForegroundColor Yellow "llvm prebuilt binary $relrev already install. $($pbobj.LLVM.Path)"
         exit 0
@@ -57,7 +57,7 @@ $WindowTitleBase = $Host.UI.RawUI.WindowTitle
 
 Write-Host "download $dluri"
 
-if ($cmd -ne $null) {
+if ($null -ne $cmd) {
     $process = Start-Process -FilePath "wget.exe" -ArgumentList "$dluri -O $dlname" -WorkingDirectory $wkdir -PassThru -Wait -NoNewWindow
     if ($process.ExitCode -ne 0) {
         if (Test-Path $outfile) {
