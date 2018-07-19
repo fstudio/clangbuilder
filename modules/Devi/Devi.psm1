@@ -72,6 +72,22 @@ Function Get-RegistryValueEx {
     (Get-ItemProperty $Path $Key).$Key
 }
 
+Function IsAcceptPath {
+    param(
+        [String]$Str
+    )
+    if ([String]::IsNullOrEmpty($Str)) {
+        return $false
+    }
+    if ([String]::IsNullOrWhiteSpace($Str)) {
+        return $false
+    }
+    if ($Str -eq ".." -or $Str -eq ".") {
+        return $false
+    }
+    return $true
+}
+
 Function DevinitializeEnv {
     param(
         [String]$ClangbuilderRoot,
@@ -81,20 +97,22 @@ Function DevinitializeEnv {
     $paths = $env:PATH.Split(";")
     Get-ChildItem "$Pkglocksdir\*.json" -ErrorAction SilentlyContinue|ForEach-Object {
         $xobj = Get-Content $_.FullName  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
-        $pkgname=$_.BaseName
-
+        $pkgname = $_.BaseName
+        $mount = "$($xobj.mount)"
         if ($xobj.linked -eq $true) {
             # Nothing to do
-        }elseif ($null -ne $xobj.mount){
-            $xpath = Find-ExecutablePath -Path "$pkgdir\$pkgname\$($xobj.mount)"
+        }
+        elseif (IsAcceptPath -Str $mount) {
+            $xpath = Find-ExecutablePath -Path "$pkgdir\$pkgname\$mount"
             if ($null -ne $xpath -and !($paths.Contains($xpath))) {
-				#Write-Host "Add $pkgname"
+                #Write-Host "Add $pkgname"
                 Test-AddPath -Path $xpath
             }
-        }else{
+        }
+        else {
             $xpath = Find-ExecutablePath -Path "$pkgdir\$pkgname"
             if ($null -ne $xpath -and !($paths.Contains($xpath))) {
-				#Write-Host "Add $pkgname"
+                #Write-Host "Add $pkgname"
                 Test-AddPath -Path $xpath
             }
         }
