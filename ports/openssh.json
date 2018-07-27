@@ -1,7 +1,7 @@
 {
     "description": "Portable OpenSSH",
-    "version": "v7.7.1.0p1-Beta",
-    "url": "https://github.com/PowerShell/Win32-OpenSSH/releases/download/v7.7.1.0p1-Beta/OpenSSH-Win32.zip",
-    "url64": "https://github.com/PowerShell/Win32-OpenSSH/releases/download/v7.7.1.0p1-Beta/OpenSSH-Win64.zip",
+    "version": "v7.7.2.0p1-Beta",
+    "url": "https://github.com/PowerShell/Win32-OpenSSH/releases/download/v7.7.2.0p1-Beta/OpenSSH-Win32.zip",
+    "url64": "https://github.com/PowerShell/Win32-OpenSSH/releases/download/v7.7.2.0p1-Beta/OpenSSH-Win64.zip",
     "extension": "zip"
 }
