@@ -1,8 +1,8 @@
 {
     "description": "Curl is a command-line tool for transferring data specified with URL syntax.",
-    "version": "7.61.0",
-    "url": "https://bintray.com/artifact/download/vszakats/generic/curl-7.61.0-win32-mingw.zip",
-    "url64": "https://bintray.com/artifact/download/vszakats/generic/curl-7.61.0-win64-mingw.zip",
+    "version": "7.61.1",
+    "url": "https://bintray.com/artifact/download/vszakats/generic/curl-7.61.1-win32-mingw.zip",
+    "url64": "https://bintray.com/artifact/download/vszakats/generic/curl-7.61.1-win64-mingw.zip",
     "extension": "zip",
     "links": [
         "bin/curl.exe",
