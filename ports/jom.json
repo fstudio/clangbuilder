@@ -1,0 +1,9 @@
+{
+    "description": "jom is a clone of nmake",
+    "version": "1.1.2",
+    "url": "https://download.qt.io/official_releases/jom/jom_1_1_2.zip",
+    "extension": "zip",
+    "launcher": [
+        "jom.exe"
+    ]
+}
