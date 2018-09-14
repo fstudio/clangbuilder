@@ -199,8 +199,8 @@ if (!(MkdirAll -Dir "zlib_build")) {
 $cmakeflags = "-GNinja " + `
     "-DCMAKE_BUILD_TYPE=Release " + `
     "`"-DCMAKE_INSTALL_PREFIX=$Prefix`" " + `
-    "`"-DCMAKE_C_FLAGS=-MT`"" +`
-    "`"-DCMAKE_CXX_FLAGS=-MT`"" +`
+    "`"-DCMAKE_C_FLAGS=-MT`"" + `
+    "`"-DCMAKE_CXX_FLAGS=-MT`"" + `
     "-DSKIP_INSTALL_FILES=ON -DSKIP_BUILD_EXAMPLES=ON " + `
     "-DBUILD_SHARED_LIBS=OFF `"$PWD/$ZLIB_FILENAME`""
 
