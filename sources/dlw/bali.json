@@ -1,0 +1,11 @@
+{
+    "name": "dlw",
+    "modules": [
+        "github.com/fatih/color",
+        "gopkg.in/alecthomas/kingpin.v2",
+        "gopkg.in/cheggaaa/pb.v1"
+    ],
+    "Dirs": [
+        "."
+    ]
+}
