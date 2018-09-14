@@ -19,16 +19,17 @@ Write-Verbose $ZLIB_URL $OPENSSL_URL $BROTLI_URL $LIBSSH2_URL
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$Subffix = ""
+$Global:Subffix = ""
 if ($IsDesktop -or $IsWindows) {
-    $Subffix = ".exe"
+    $Global:Subffix = ".exe"
 }
+
 Function Findcommand {
     param(
         [String]$Name
     )
-    $commad = Get-Command "$Cmd$Subffix" -ErrorAction SilentlyContinue
-    if ($null -eq $commad) {
+    $command = Get-Command -CommandType Application "$Name$($Global:Subffix)" -ErrorAction SilentlyContinue
+    if ($null -eq $command) {
         return $null
     }
     return $command.Source
@@ -82,7 +83,7 @@ Write-Host -ForegroundColor Green "Use $tarexe as tar"
 $cmakeexe = Findcommand -Name "cmake"
 if ($null -eq $cmakeexe) {
     Write-Host -ForegroundColor Red "Please install cmake."
-    exit 1
+    return 1
 }
 Write-Host -ForegroundColor Green "Find cmake install: $cmakeexe"
 
@@ -90,7 +91,7 @@ Write-Host -ForegroundColor Green "Find cmake install: $cmakeexe"
 $Ninjaexe=Findcommand -Name "ninja"
 if ($null -eq $Ninjaexe) {
     Write-Host -ForegroundColor Red "Please install ninja."
-    exit 1
+    return 1
 }
 
 Write-Host -ForegroundColor Green "Find cmake install: $Ninjaexe"
@@ -100,12 +101,30 @@ if($null -eq $Patchexe){
     $Gitexe=Findcommand -Name "git"
     if ($null -eq $Gitexe) {
         Write-Host -ForegroundColor Red "Please install git for windows (or PortableGit)."
-        exit 1
+        return 1
     }
     $gitinstall=Split-Path -Parent (Split-Path -Parent $gitexe)
+    if([String]::IsNullOrEmpty($gitinstall)){
+        Write-Host -ForegroundColor Red "Please install git for windows (or PortableGit)."
+        return 1
+    }
+    $patchx=Join-Path $gitinstall "usr/bin/patch.exe"
+    if(!(Test-Path $patchx)){
+        $xinstall=Split-Path -Parent $gitinstall
+        if([String]::IsNullOrEmpty($xinstall)){
+            Write-Host -ForegroundColor Red "Please install git for windows (or PortableGit)."
+            return 1
+        }
+        $patchx=Join-Path  $xinstall "usr/bin/patch.exe"
+        if(!(Test-Path $patchx)){
+            Write-Host -ForegroundColor Red "Please install git for windows (or PortableGit)."
+            return 1
+        }
+    }
+    $Patchexe=$pathx
 }
 
-
+Write-Host  -ForegroundColor Green "Found patch install: $Patchexe"
 
 #git dir usr/bin/patch.exe
 Function DecompressTar {
@@ -135,7 +154,12 @@ if (!(DecompressTar -File "$ZLIB_FILENAME.tar.gz")) {
 }
 # Apply patch
 $ZLIB_PACTH = "$PSScriptRoot/zlib.patch"
-Write-Verbose $ZLIB_PACTH
+
+Set-Location "$ZLIB_FILENAME"
+
+&"$Pacthexe" -Nbp1 -i $ZLIB_PACTH
+
+Set-Location ".."
 
 if (!(MkdirAll -Dir "zlib_build")) {
     exit 1
