@@ -1,0 +1,72 @@
+diff --git a/CMake/FindLibSSH2.cmake b/CMake/FindLibSSH2.cmake
+index 84822dba7..0d6219425 100644
+--- a/CMake/FindLibSSH2.cmake
++++ b/CMake/FindLibSSH2.cmake
+@@ -12,7 +12,7 @@ endif()
+ find_path(LIBSSH2_INCLUDE_DIR libssh2.h
+ )
+ 
+-find_library(LIBSSH2_LIBRARY NAMES ssh2
++find_library(LIBSSH2_LIBRARY NAMES ssh2 libssh2
+ )
+ 
+ if(LIBSSH2_INCLUDE_DIR)
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e6dbb73f1..34575e68d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -323,7 +323,7 @@ if(CMAKE_USE_WINSSL)
+   set(SSL_ENABLED ON)
+   set(USE_SCHANNEL ON) # Windows native SSL/TLS support
+   set(USE_WINDOWS_SSPI ON) # CMAKE_USE_WINSSL implies CURL_WINDOWS_SSPI
+-  list(APPEND CURL_LIBS "crypt32")
++  list(APPEND CURL_LIBS "crypt32" "advapi32")
+ endif()
+ if(CURL_WINDOWS_SSPI)
+   set(USE_WINDOWS_SSPI ON)
+@@ -380,6 +380,9 @@ if(USE_NGHTTP2)
+   find_package(NGHTTP2 REQUIRED)
+   include_directories(${NGHTTP2_INCLUDE_DIRS})
+   list(APPEND CURL_LIBS ${NGHTTP2_LIBRARIES})
++  if(NOT BUILD_SHARED_LIBS)
++    add_definitions(-DNGHTTP2_STATICLIB)
++  endif()
+ endif()
+ 
+ if(NOT CURL_DISABLE_LDAP)
+@@ -1144,7 +1147,9 @@ function(TRANSFORM_MAKEFILE_INC INPUT_FILE OUTPUT_FILE)
+ 
+ endfunction()
+ 
+-if(WIN32 AND NOT CYGWIN)
++if(MSVC)
++  set(CURL_INSTALL_CMAKE_DIR share/curl)
++elseif(WIN32 AND NOT CYGWIN)
+   set(CURL_INSTALL_CMAKE_DIR CMake)
+ else()
+   set(CURL_INSTALL_CMAKE_DIR lib/cmake/curl)
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index fce2d2d25..5befb42b4 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -41,6 +41,7 @@ include(${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake)
+ 
+ if(MSVC)
+   list(APPEND CURL_FILES curl.rc)
++  set(CMAKE_RC_FLAGS "-c650001")
+ endif()
+ 
+ # CURL_FILES comes from Makefile.inc
+diff --git a/src/curl.rc b/src/curl.rc
+index d47f50635..239918eee 100644
+--- a/src/curl.rc
++++ b/src/curl.rc
+@@ -24,6 +24,8 @@
+ 
+ LANGUAGE  0x09,0x01
+ 
++ICONAPP ICON "curl.ico"
++
+ #define RC_VERSION  CURL_VERSION_MAJOR, CURL_VERSION_MINOR, CURL_VERSION_PATCH, 0
+ 
+ VS_VERSION_INFO VERSIONINFO
