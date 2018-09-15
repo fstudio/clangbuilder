@@ -1,10 +1,12 @@
 #!/usr/bin/env pwsh
 # Require Clangbuilder install perl
 
-$ZLIB_VERSION = "1.2.11"
-$OPENSSL_VERSION = "1.1.1"
-$BROTLI_VERSION = "1.0.5"
-$LIBSSH2_VERSION = "1.8.0"
+param(
+    [String]$WD
+)
+
+# Import version info
+. "$PSScriptRoot/version.ps1"
 
 # thanks https://github.com/curl/curl-for-win
 
@@ -16,85 +18,18 @@ $OPENSSL_URL = "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz
 $BROTLI_URL = "https://github.com/google/brotli/archive/v${BROTLI_VERSION}.tar.gz"
 $LIBSSH2_URL = "https://github.com/libssh2/libssh2/releases/download/libssh2-${LIBSSH2_VERSION}/libssh2-${LIBSSH2_VERSION}.tar.gz"
 
-Write-Verbose $ZLIB_URL $OPENSSL_URL $BROTLI_URL $LIBSSH2_URL
+Write-Host $ZLIB_URL $OPENSSL_URL $BROTLI_URL $LIBSSH2_URL
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+Import-Module -Name "$PSScriptRoot/Utility"
 
-
-Function Exec {
+Function CMakeBuildFlow {
     param(
-        [string]$FilePath,
-        [string]$Argv,
-        [string]$WD
+        [String]$Argv,
+        [String]$SD # sources dir
     )
-    $ProcessInfo = New-Object System.Diagnostics.ProcessStartInfo
-    $ProcessInfo.FileName = $FilePath
-    Write-Host "$FilePath $Argv $WD"
-    if ($null -eq $WD -or $WD.Length -eq 0) {
-        $ProcessInfo.WorkingDirectory = $PWD
-    }
-    else {
-        $ProcessInfo.WorkingDirectory = $WD
-    }
-    $ProcessInfo.Arguments = $Argv
-    $ProcessInfo.UseShellExecute = $false ## use createprocess not shellexecute
-    $Process = New-Object System.Diagnostics.Process
-    $Process.StartInfo = $ProcessInfo
-    if ($Process.Start() -eq $false) {
-        return -1
-    }
-    $Process.WaitForExit()
-    return $Process.ExitCode
 }
 
-$Global:Subffix = ""
-if ($IsDesktop -or $IsWindows) {
-    $Global:Subffix = ".exe"
-}
-
-Function Findcommand {
-    param(
-        [String]$Name
-    )
-    $command = Get-Command -CommandType Application "$Name$($Global:Subffix)" -ErrorAction SilentlyContinue
-    if ($null -eq $command) {
-        return $null
-    }
-    return $command.Source
-}
-
-Function MkdirAll {
-    param(
-        [String]$Dir
-    )
-    try {
-        New-Item -ItemType Directory -Force $Dir
-    }
-    catch {
-        Write-Host -ForegroundColor Red "$_"
-        return $false
-    }
-    return $true
-}
-
-Function WinGet {
-    param(
-        [String]$URL,
-        [String]$O
-    )
-    # 
-    Write-Host "Download: $O"
-    $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
-    try {
-        Invoke-WebRequest -Uri $URL -OutFile $O -UseBasicParsing -UserAgent $UserAgent
-
-    }
-    catch {
-        Write-Host -ForegroundColor Red "download $O failed: $_"
-        return $false
-    }
-    return $true
-}
 
 $tarexe = Findcommand -Name "tar"
 $decompress = "-xvf"
@@ -126,6 +61,7 @@ Write-Host -ForegroundColor Green "Find cmake install: $Ninjaexe"
 
 $Patchexe = Findcommand -Name "patch"
 if ($null -eq $Patchexe) {
+
     $Gitexe = Findcommand -Name "git"
     if ($null -eq $Gitexe) {
         Write-Host -ForegroundColor Red "Please install git for windows (or PortableGit)."
@@ -137,6 +73,7 @@ if ($null -eq $Patchexe) {
         return 1
     }
     $patchx = Join-Path $gitinstall "usr/bin/patch.exe"
+    Write-Host "Try to find patch from $patchx"
     if (!(Test-Path $patchx)) {
         $xinstall = Split-Path -Parent $gitinstall
         if ([String]::IsNullOrEmpty($xinstall)) {
@@ -149,24 +86,30 @@ if ($null -eq $Patchexe) {
             return 1
         }
     }
-    $Patchexe = $pathx
+    $Patchexe = $patchx
 }
 
 Write-Host  -ForegroundColor Green "Found patch install: $Patchexe"
 
 #git dir usr/bin/patch.exe
-Function DecompressTar {
-    param(
-        [String]$File
-    )
-    $exitcode = Exec -FilePath $tarexe -Argv "$decompress $File"
-    if ($exitcode -ne 0) {
-        return $false
-    }
-    return $true
+
+
+if ([String]::IsNullOrEmpty($WD)) {
+    $cbroot = Split-Path -Parent (Split-Path -Path $PSScriptRoot)
+    $WD = Join-Path $cbroot "out/curl"
+}
+if (!(MkdirAll -Dir $WD)) {
+    exit 1
 }
 
-$Prefix = "$PWD/build"
+Write-Host -ForegroundColor Cyan "Build curl on windows use"
+
+Set-Location $WD
+
+$Prefix = Join-Path $WD "build"
+$CURLPrefix = Join-Path $WD "out"
+
+Write-Host "we will deploy curl to: $CURLPrefix"
 
 if (!(MkdirAll -Dir $Prefix)) {
     exit 1
@@ -176,18 +119,16 @@ if (!(WinGet -URL $ZLIB_URL -O "$ZLIB_FILENAME.tar.gz")) {
     exit 1
 }
 
-if (!(DecompressTar -File "$ZLIB_FILENAME.tar.gz")) {
+
+if ((Exec -FilePath $tarexe -Argv "$decompress $ZLIB_FILENAME.tar.gz") -ne 0) {
     Write-Host -ForegroundColor Red "Decompress $ZLIB_FILENAME.tar.gz failed!"
     exit 1
 }
 
 Write-Host -ForegroundColor Yellow "Apply zlib.patch ..."
-# Apply patch
 $ZLIB_PACTH = "$PSScriptRoot/zlib.patch"
 
-#Set-Location "$ZLIB_FILENAME"
-
-$ec = Exec -FilePath $Pacthexe -Argv "-Nbp1 -i `"$ZLIB_PACTH`"" -WD "$PWD/$ZLIB_FILENAME"
+$ec = Exec -FilePath $Patchexe -Argv "-Nbp1 -i `"$ZLIB_PACTH`"" -WD "$PWD/$ZLIB_FILENAME"
 if ($ec -ne 0) {
     Write-Host -ForegroundColor Red "Apply $ZLIB_PACTH failed"
 }
