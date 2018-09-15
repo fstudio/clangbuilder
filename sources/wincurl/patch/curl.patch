@@ -53,7 +53,7 @@ index fce2d2d25..5befb42b4 100644
  
  if(MSVC)
    list(APPEND CURL_FILES curl.rc)
-+  set(CMAKE_RC_FLAGS "-c650001")
++  set(CMAKE_RC_FLAGS "-c65001")
  endif()
  
  # CURL_FILES comes from Makefile.inc
