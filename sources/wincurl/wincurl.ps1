@@ -256,7 +256,7 @@ if (!(DecompressTar -URL $BROTLI_URL -File "$BROTLI_FILE.tar.gz")) {
 }
 
 $BDIR = Join-Path $WD $BROTLI_FILE
-$BBUILD = Join-Path $BDIR "build"
+$BBUILD = Join-Path $BDIR "out"
 $BPATCH = Join-Path $PSScriptRoot "patch/brotli.patch"
 
 if (!(MkdirAll -Dir $BBUILD)) {
