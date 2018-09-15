@@ -381,7 +381,7 @@ if (!(DecompressTar -URL $CURLURL -File "$CURL_FILE.tar.gz" -Hash $CURL_HASH)) {
 
 $CURLDIR = Join-Path $WD $CURL_FILE
 $CURLBD = Join-Path $CURLDIR "build"
-$CURLPATCH = Join-Path $PSScriptRoot "patch/nghttp2.patch"
+$CURLPATCH = Join-Path $PSScriptRoot "patch/curl.patch"
 $CURLICON = Join-Path $PSScriptRoot "patch/curl.ico"
 
 if (!(MkdirAll -Dir $CURLBD)) {
