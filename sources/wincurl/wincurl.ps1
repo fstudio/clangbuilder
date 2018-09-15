@@ -398,9 +398,11 @@ if ($ec -ne 0) {
 
 $curlflags = "-GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF " + `
     "-DUSE_NGHTTP2=ON -DBUILD_TESTING=OFF " + `
-    "-DUSE_OPENSSL=ON -DUSE_WINSSL=ON " + `
     "-DBUILD_CURL_EXE=ON " + `
     "-DCURL_STATIC_CRT=ON " + `
+    "-DCMAKE_USE_OPENSSL=ON "+`
+    "-DCMAKE_USE_WINSSL=ON "+`
+    "-DCURL_BROTLI=ON "+`
     "-DCMAKE_USE_LIBSSH2=ON " + `
     "`"-DCMAKE_INSTALL_PREFIX=$CURLOUT`" .."
 
