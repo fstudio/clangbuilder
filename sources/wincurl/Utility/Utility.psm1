@@ -8,8 +8,8 @@ Function Exec {
     )
     $ProcessInfo = New-Object System.Diagnostics.ProcessStartInfo
     $ProcessInfo.FileName = $FilePath
-    Write-Host "$FilePath $Argv $WD"
-    if ($null -eq $WD -or $WD.Length -eq 0) {
+    Write-Host "$FilePath $Argv [$WD] "
+    if ([String]::IsNullOrEmpty($WD)) {
         $ProcessInfo.WorkingDirectory = $PWD
     }
     else {

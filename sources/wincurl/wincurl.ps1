@@ -125,10 +125,13 @@ if ((Exec -FilePath $tarexe -Argv "$decompress $ZLIB_FILENAME.tar.gz") -ne 0) {
     exit 1
 }
 
-Write-Host -ForegroundColor Yellow "Apply zlib.patch ..."
-$ZLIB_PACTH = "$PSScriptRoot/zlib.patch"
+$ZLIBDIR = Join-Path $PWD $ZLIB_FILENAME
+$ZLIBBD = Join-Path $PWD "zlib_build"
 
-$ec = Exec -FilePath $Patchexe -Argv "-Nbp1 -i `"$ZLIB_PACTH`"" -WD "$PWD/$ZLIB_FILENAME"
+Write-Host -ForegroundColor Yellow "Apply zlib.patch ..."
+$ZLIB_PACTH = Join-Path $PSScriptRoot "zlib.patch"
+
+$ec = Exec -FilePath $Patchexe -Argv "-Nbp1 -i `"$ZLIB_PACTH`"" -WD $ZLIBDIR
 if ($ec -ne 0) {
     Write-Host -ForegroundColor Red "Apply $ZLIB_PACTH failed"
 }
@@ -140,25 +143,26 @@ if (!(MkdirAll -Dir "zlib_build")) {
 $cmakeflags = "-GNinja " + `
     "-DCMAKE_BUILD_TYPE=Release " + `
     "`"-DCMAKE_INSTALL_PREFIX=$Prefix`" " + `
-    "`"-DCMAKE_C_FLAGS=-MT`"" + `
-    "`"-DCMAKE_CXX_FLAGS=-MT`"" + `
-    "-DSKIP_INSTALL_FILES=ON -DSKIP_BUILD_EXAMPLES=ON " + `
-    "-DBUILD_SHARED_LIBS=OFF `"$PWD/$ZLIB_FILENAME`""
+    "`"-DCMAKE_C_FLAGS=-MT`" " + `
+    "`"-DCMAKE_CXX_FLAGS=-MT`" " + `
+    "-DSKIP_INSTALL_FILES=ON " + `
+    "-DSKIP_BUILD_EXAMPLES=ON " + `
+    "-DBUILD_SHARED_LIBS=OFF `"$ZLIBDIR`""
 
 
-$ec = Exec -FilePath $cmakeexe -Argv $cmakeflags -WD "$PWD/zlib_build"
+$ec = Exec -FilePath $cmakeexe -Argv $cmakeflags -WD $ZLIBBD
 if ($ec -ne 0) {
     Write-Host -ForegroundColor Red "zlib: create build.ninja error"
     return 1
 }
 
-$ec = Exec -FilePath $Ninjaexe -Argv "all" -WD "$PWD/zlib_build" 
+$ec = Exec -FilePath $Ninjaexe -Argv "all" -WD $ZLIBBD
 if ($ec -ne 0) {
     Write-Host -ForegroundColor Red "zlib: build error"
     return 1
 }
 
-$ec = Exec -FilePath $Ninjaexe -Argv "install" -WD "$PWD/zlib_build"
+$ec = Exec -FilePath $Ninjaexe -Argv "install" -WD $ZLIBBD
 if ($ec -ne 0) {
     Write-Host -ForegroundColor Red "zlib: install error"
     return 1
