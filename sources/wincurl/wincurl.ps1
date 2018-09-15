@@ -13,7 +13,8 @@ param(
 # Filename
 $ZLIB_FILENAME = "zlib-${ZLIB_VERSION}"
 
-$ZLIB_URL = "https://github.com/madler/zlib/archive/v${ZLIB_VERSION}.tar.gz"
+#$ZLIB_URL = "https://github.com/madler/zlib/archive/v${ZLIB_VERSION}.tar.gz"
+$ZLIB_URL = "https://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz"
 $OPENSSL_URL = "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz"
 $BROTLI_URL = "https://github.com/google/brotli/archive/v${BROTLI_VERSION}.tar.gz"
 $LIBSSH2_URL = "https://github.com/libssh2/libssh2/releases/download/libssh2-${LIBSSH2_VERSION}/libssh2-${LIBSSH2_VERSION}.tar.gz"
@@ -23,13 +24,13 @@ Write-Host $ZLIB_URL $OPENSSL_URL $BROTLI_URL $LIBSSH2_URL
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Import-Module -Name "$PSScriptRoot/Utility"
 
-Function CMakeBuildFlow {
-    param(
-        [String]$Argv,
-        [String]$SD # sources dir
-    )
+$clexe = Get-Command -CommandType Application "cl" -ErrorAction SilentlyContinue
+if ($null -eq $clexe) {
+    Write-Host -ForegroundColor Red "Please install Visual Studio 2017 or BuildTools (C++) and Initialzie DevEnv"
+    exit 1
 }
 
+Write-Host "Find cl.exe: $($clexe.Version)"
 
 $tarexe = Findcommand -Name "tar"
 $decompress = "-xvf"
@@ -143,8 +144,6 @@ if (!(MkdirAll -Dir "zlib_build")) {
 $cmakeflags = "-GNinja " + `
     "-DCMAKE_BUILD_TYPE=Release " + `
     "`"-DCMAKE_INSTALL_PREFIX=$Prefix`" " + `
-    "`"-DCMAKE_C_FLAGS=-MT`" " + `
-    "`"-DCMAKE_CXX_FLAGS=-MT`" " + `
     "-DSKIP_INSTALL_FILES=ON " + `
     "-DSKIP_BUILD_EXAMPLES=ON " + `
     "-DBUILD_SHARED_LIBS=OFF `"$ZLIBDIR`""
@@ -168,6 +167,8 @@ if ($ec -ne 0) {
     return 1
 }
 
+Rename-Item -Path "$Prefix/lib/zlibstatic.lib"   "$Prefix/lib/zlib.lib"  -Force -ErrorAction SilentlyContinue
+#Copy-Item -Path "$ZLIBDIR/LICENSE" 
 
 # build zlib static
 # build openssl static
