@@ -404,9 +404,11 @@ if ($ec -ne 0) {
 }
 
 #https://github.com/curl/curl/blob/master/CMake/FindBrotli.cmake
-$BROTLIDEC_LIBRARY=Join-Path $Prefix "lib/brotlidec-static.lib"
-$BROTLICOMMON_LIBRARY=Join-Path $Prefix "lib/brotlicommon-static.lib"
-$BROTLI_INCLUDE_DIR=Join-Path $Prefix "include"
+$BROTLIDEC_LIBRARY = Join-Path $Prefix "lib/brotlidec-static.lib"
+$BROTLICOMMON_LIBRARY = Join-Path $Prefix "lib/brotlicommon-static.lib"
+$BROTLI_INCLUDE_DIR = Join-Path $Prefix "include"
+
+## Use codepage 1252
 
 $curlflags = "-GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF " + `
     "-DUSE_NGHTTP2=ON -DBUILD_TESTING=OFF " + `
@@ -414,12 +416,13 @@ $curlflags = "-GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF " + `
     "-DCURL_STATIC_CRT=ON " + `
     "-DCMAKE_USE_OPENSSL=ON " + `
     "-DCMAKE_USE_WINSSL=ON " + `
-    "-DCURL_BROTLI=ON " + `
     "-DCMAKE_USE_LIBSSH2=ON " + `
-    "-DCMAKE_RC_FLAGS=-c65001 " + `
-    "`"-DBROTLIDEC_LIBRARY=$BROTLIDEC_LIBRARY`" "+`
-    "`"-DBROTLICOMMON_LIBRARY=$BROTLICOMMON_LIBRARY`" "+`
-    "`"-DBROTLI_INCLUDE_DIRS=$BROTLI_INCLUDE_DIR`" "+`
+    "-DCURL_BROTLI=ON " + `
+    "-DCMAKE_RC_FLAGS=-c1252 " + `
+    "`"-DBROTLI_DIR=$Prefix`" " + `
+    "`"-DBROTLIDEC_LIBRARY=$BROTLIDEC_LIBRARY`" " + `
+    "`"-DBROTLICOMMON_LIBRARY=$BROTLICOMMON_LIBRARY`" " + `
+    "`"-DBROTLI_INCLUDE_DIRS=$BROTLI_INCLUDE_DIR`" " + `
     "`"-DCMAKE_INSTALL_PREFIX=$CURLOUT`" .."
 
 $ec = Exec -FilePath $cmakeexe -Argv $curlflags -WD $CURLBD
