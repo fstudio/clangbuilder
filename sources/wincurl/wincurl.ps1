@@ -10,28 +10,6 @@ param(
 
 # thanks https://github.com/curl/curl-for-win
 
-# Filename
-$ZLIB_FILENAME = "zlib-${ZLIB_VERSION}"
-#$ZLIB_URL = "https://github.com/madler/zlib/archive/v${ZLIB_VERSION}.tar.gz"
-$ZLIB_URL = "https://www.zlib.net/zlib-${ZLIB_VERSION}.tar.gz"
-
-$OPENSSL_URL = "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz"
-$OPENSSL_FILE = "openssl-${OPENSSL_VERSION}"
-
-$BROTLI_URL = "https://github.com/google/brotli/archive/v${BROTLI_VERSION}.tar.gz"
-$BROTLI_FILE = "brotli-${BROTLI_VERSION}"
-
-$NGHTTP2_URL = "https://github.com/nghttp2/nghttp2/releases/download/v${NGHTTP2_VERSION}/nghttp2-${NGHTTP2_VERSION}.tar.gz"
-$NGHTTP2_FILE = "nghttp2-${NGHTTP2_VERSION}"
-
-$LIBSSH2_URL = "https://www.libssh2.org/download/libssh2-${LIBSSH2_VERSION}.tar.gz"
-$LIBSSH2_FILE = "libssh2-${LIBSSH2_VERSION}"
-
-$CURL_URL = "https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz"
-$CURL_FILE = "curl-${CURL_VERSION}"
-
-#curl-ca-bundle
-$CA_BUNDLE_URL = "https://curl.haxx.se/ca/cacert-2018-06-20.pem"
 
 Write-Host "Download urls:
 zlib: $ZLIB_URL
@@ -69,11 +47,28 @@ Write-Host -ForegroundColor Green "Use $tarexe as tar"
 Function DecompressTar {
     param(
         [String]$URL,
-        [String]$File
+        [String]$File,
+        [String]$Hash
     )
-    if (!(WinGet -URL $URL -O $File)) {
-        return $false
+    if(!(Test-Path $File)){
+        if (!(WinGet -URL $URL -O $File)) {
+            return $false
+        }
+    }else{
+        if((Get-FileHash -Algorithm SHA256 $File).Hash -ne $Hash){
+            Remove-Item -Force $File
+            if (!(WinGet -URL $URL -O $File)) {
+                return $false
+            }
+        }
     }
+    if((Get-FileHash -Algorithm SHA256 $File).Hash -ne $Hash){
+        Remove-Item -Force $File
+        if (!(WinGet -URL $URL -O $File)) {
+            return $false
+        }
+    }
+
     if ((Exec -FilePath $tarexe -Argv "$decompress $File") -ne 0) {
         Write-Host -ForegroundColor Red "Decompress $File failed"
         return $false
@@ -81,6 +76,12 @@ Function DecompressTar {
     return $true
 }
 
+$curlexe=Findcommand -Name "curl"
+if($null -eq $curlexe){
+    Write-Host -ForegroundColor Red "Please install curl or upgrade to Windows 10 17134 or Later."
+    return 1
+}
+Write-Host -ForegroundColor Green "Find curl install: $curlexe"
 
 $cmakeexe = Findcommand -Name "cmake"
 if ($null -eq $cmakeexe) {
@@ -159,7 +160,7 @@ if (!(MkdirAll -Dir $Prefix)) {
 }
 
 ################################################## Zlib
-if (!(DecompressTar -URL $ZLIB_URL -File "$ZLIB_FILENAME.tar.gz")) {
+if (!(DecompressTar -URL $ZLIB_URL -File "$ZLIB_FILENAME.tar.gz" -Hash $ZLIB_HASH)) {
     exit 1
 }
 
@@ -210,7 +211,7 @@ Rename-Item -Path "$Prefix/lib/zlibstatic.lib"   "$Prefix/lib/zlib.lib"  -Force 
 ##################################################### OpenSSL
 Write-Host -ForegroundColor Yellow "Build OpenSSL $OPENSSL_VERSION"
 
-if (!(DecompressTar -URL $OPENSSL_URL -File "$OPENSSL_FILE.tar.gz")) {
+if (!(DecompressTar -URL $OPENSSL_URL -File "$OPENSSL_FILE.tar.gz" -Hash $OPENSSL_HASH)) {
     exit 1
 }
 
@@ -251,7 +252,7 @@ if ($ec -ne 0) {
 # build brotli static
 ######################################################### Brotli
 Write-Host -ForegroundColor Yellow "Build brotli $BROTLI_VERSION"
-if (!(DecompressTar -URL $BROTLI_URL -File "$BROTLI_FILE.tar.gz")) {
+if (!(DecompressTar -URL $BROTLI_URL -File "$BROTLI_FILE.tar.gz" -Hash $BROTLI_HASH)) {
     exit 1
 }
 
@@ -293,7 +294,7 @@ if ($ec -ne 0) {
 
 ######################################################### Nghttp2
 Write-Host -ForegroundColor Yellow "Build nghttp2 $NGHTTP2_VERSION"
-if (!(DecompressTar -URL $NGHTTP2_URL -File "$NGHTTP2_FILE.tar.gz")) {
+if (!(DecompressTar -URL $NGHTTP2_URL -File "$NGHTTP2_FILE.tar.gz" -Hash $NGHTTP2_HASH)) {
     exit 1
 }
 
@@ -333,7 +334,7 @@ if ($ec -ne 0) {
 
 ############################################################# Libssh2
 Write-Host -ForegroundColor Yellow "Build libssh2 $LIBSSH2_VERSION"
-if (!(DecompressTar -URL $LIBSSH2_URL -File "$LIBSSH2_FILE.tar.gz")) {
+if (!(DecompressTar -URL $LIBSSH2_URL -File "$LIBSSH2_FILE.tar.gz" -Hash $LIBSSH2_HASH)) {
     exit 1
 }
 $LIBSSH2DIR = Join-Path $WD $LIBSSH2_FILE
@@ -369,7 +370,7 @@ if ($ec -ne 0) {
 ############################################################## CURL
 
 Write-Host -ForegroundColor Yellow "Final build curl $CURL_VERSION"
-if (!(DecompressTar -URL $CURLURL -File "$CURL_FILE.tar.gz")) {
+if (!(DecompressTar -URL $CURLURL -File "$CURL_FILE.tar.gz" -Hash $CURL_HASH)) {
     exit 1
 }
 

@@ -57,17 +57,10 @@ Function WinGet {
         [String]$O
     )
     # 
-    Write-Host "Download: $O"
-    $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
-    try {
-        Invoke-WebRequest -Uri $URL -OutFile $O -UseBasicParsing -UserAgent $UserAgent
-
-    }
-    catch {
-        Write-Host -ForegroundColor Red "download $O failed: $_"
+    Write-Host "Download file: $O"
+    $ex=Exec -FilePath "curl.exe" -Argv "--progress-bar -fS --connect-timeout 15 --retry 3 -o $O -L --proto-redir =https $URL" -WD $PWD
+    if($ex -ne 0){
         return $false
     }
     return $true
 }
-
-
