@@ -170,7 +170,7 @@ if (!(DecompressTar -URL $ZLIB_URL -File "$ZLIB_FILENAME.tar.gz" -Hash $ZLIB_HAS
 }
 
 $ZLIBDIR = Join-Path $PWD $ZLIB_FILENAME
-$ZLIBBD = Join-Path $PWD "zlib_build"
+$ZLIBBD = Join-Path $ZLIBDIR "build"
 
 Write-Host -ForegroundColor Yellow "Apply zlib.patch ..."
 $ZLIB_PACTH = Join-Path $PSScriptRoot "patch/zlib.patch"
@@ -180,7 +180,7 @@ if ($ec -ne 0) {
     Write-Host -ForegroundColor Red "Apply $ZLIB_PACTH failed"
 }
 
-if (!(MkdirAll -Dir "zlib_build")) {
+if (!(MkdirAll -Dir $ZLIBBD)) {
     exit 1
 }
 
@@ -344,17 +344,24 @@ if (!(DecompressTar -URL $LIBSSH2_URL -File "$LIBSSH2_FILE.tar.gz" -Hash $LIBSSH
 }
 $LIBSSH2DIR = Join-Path $WD $LIBSSH2_FILE
 $LIBSSH2BUILD = Join-Path $LIBSSH2DIR "build"
-
+$LIBSSH2PATCH = Join-Path $PSScriptRoot "patch/libssh2.patch"
 
 if (!(MkdirAll -Dir $LIBSSH2BUILD)) {
     exit 1
 }
 
-$ngflags = "-GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF " + `
-    "-DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DENABLE_ZLIB_COMPRESSION=ON " + `
+$ec = Exec -FilePath $Patchexe -Argv "-Nbp1 -i `"$LIBSSH2PATCH`"" -WD $LIBSSH2DIR
+if ($ec -ne 0) {
+    Write-Host -ForegroundColor Red "Apply $LIBSSH2PATCH failed"
+}
+
+$libssh2flags = "-GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF " + `
+    "-DBUILD_EXAMPLES=OFF " + `
+    "-DBUILD_TESTING=OFF " + `
+    "-DENABLE_ZLIB_COMPRESSION=ON " + `
     "`"-DCMAKE_INSTALL_PREFIX=$Prefix`" .."
 
-$ec = Exec -FilePath $cmakeexe -Argv $ngflags -WD $LIBSSH2BUILD
+$ec = Exec -FilePath $cmakeexe -Argv $libssh2flags -WD $LIBSSH2BUILD
 if ($ec -ne 0) {
     Write-Host -ForegroundColor Red "libssh2: create build.ninja error"
     return 1
@@ -396,14 +403,23 @@ if ($ec -ne 0) {
     Write-Host -ForegroundColor Red "Apply $CURLPATCH failed"
 }
 
+#https://github.com/curl/curl/blob/master/CMake/FindBrotli.cmake
+$BROTLIDEC_LIBRARY=Join-Path $Prefix "lib/brotlidec-static.lib"
+$BROTLICOMMON_LIBRARY=Join-Path $Prefix "lib/brotlicommon-static.lib"
+$BROTLI_INCLUDE_DIR=Join-Path $Prefix "include"
+
 $curlflags = "-GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF " + `
     "-DUSE_NGHTTP2=ON -DBUILD_TESTING=OFF " + `
     "-DBUILD_CURL_EXE=ON " + `
     "-DCURL_STATIC_CRT=ON " + `
-    "-DCMAKE_USE_OPENSSL=ON "+`
-    "-DCMAKE_USE_WINSSL=ON "+`
-    "-DCURL_BROTLI=ON "+`
+    "-DCMAKE_USE_OPENSSL=ON " + `
+    "-DCMAKE_USE_WINSSL=ON " + `
+    "-DCURL_BROTLI=ON " + `
     "-DCMAKE_USE_LIBSSH2=ON " + `
+    "-DCMAKE_RC_FLAGS=-c65001 " + `
+    "`"-DBROTLIDEC_LIBRARY=$BROTLIDEC_LIBRARY`" "+`
+    "`"-DBROTLICOMMON_LIBRARY=$BROTLICOMMON_LIBRARY`" "+`
+    "`"-DBROTLI_INCLUDE_DIRS=$BROTLI_INCLUDE_DIR`" "+`
     "`"-DCMAKE_INSTALL_PREFIX=$CURLOUT`" .."
 
 $ec = Exec -FilePath $cmakeexe -Argv $curlflags -WD $CURLBD
@@ -432,4 +448,4 @@ if (!(WinGet -URL $CA_BUNDLE_URL -O $CA_BUNDLE)) {
     Write-Host -ForegroundColor Red "download curl-ca-bundle.crt  error"
 }
 
-Write-Host -ForegroundColor Red "curl: build completed"
+Write-Host -ForegroundColor Green "curl: build completed"

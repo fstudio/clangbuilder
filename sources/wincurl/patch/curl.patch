@@ -12,7 +12,7 @@ index 84822dba7..0d6219425 100644
  
  if(LIBSSH2_INCLUDE_DIR)
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index e6dbb73f1..34575e68d 100644
+index e6dbb73f1..dabaf84de 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -323,7 +323,7 @@ if(CMAKE_USE_WINSSL)
@@ -24,17 +24,28 @@ index e6dbb73f1..34575e68d 100644
  endif()
  if(CURL_WINDOWS_SSPI)
    set(USE_WINDOWS_SSPI ON)
-@@ -380,6 +380,9 @@ if(USE_NGHTTP2)
+@@ -380,6 +380,20 @@ if(USE_NGHTTP2)
    find_package(NGHTTP2 REQUIRED)
    include_directories(${NGHTTP2_INCLUDE_DIRS})
    list(APPEND CURL_LIBS ${NGHTTP2_LIBRARIES})
 +  if(NOT BUILD_SHARED_LIBS)
 +    add_definitions(-DNGHTTP2_STATICLIB)
++    set(CompilerFlags
++        CMAKE_CXX_FLAGS
++        CMAKE_CXX_FLAGS_DEBUG
++        CMAKE_CXX_FLAGS_RELEASE
++        CMAKE_C_FLAGS
++        CMAKE_C_FLAGS_DEBUG
++        CMAKE_C_FLAGS_RELEASE
++    )
++    foreach(CompilerFlag ${CompilerFlags})
++        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
++    endforeach()
 +  endif()
  endif()
  
  if(NOT CURL_DISABLE_LDAP)
-@@ -1144,7 +1147,9 @@ function(TRANSFORM_MAKEFILE_INC INPUT_FILE OUTPUT_FILE)
+@@ -1144,7 +1158,9 @@ function(TRANSFORM_MAKEFILE_INC INPUT_FILE OUTPUT_FILE)
  
  endfunction()
  
@@ -45,18 +56,6 @@ index e6dbb73f1..34575e68d 100644
    set(CURL_INSTALL_CMAKE_DIR CMake)
  else()
    set(CURL_INSTALL_CMAKE_DIR lib/cmake/curl)
-diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index fce2d2d25..5befb42b4 100644
---- a/src/CMakeLists.txt
-+++ b/src/CMakeLists.txt
-@@ -41,6 +41,7 @@ include(${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake)
- 
- if(MSVC)
-   list(APPEND CURL_FILES curl.rc)
-+  set(CMAKE_RC_FLAGS "-c65001")
- endif()
- 
- # CURL_FILES comes from Makefile.inc
 diff --git a/src/curl.rc b/src/curl.rc
 index d47f50635..239918eee 100644
 --- a/src/curl.rc

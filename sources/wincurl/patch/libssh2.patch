@@ -1,0 +1,25 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ae55942..3f6a59f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -85,6 +85,20 @@ install(
+ include(max_warnings)
+ include(FeatureSummary)
+ 
++if(NOT BUILD_SHARED_LIBS)
++	set(CompilerFlags
++		CMAKE_CXX_FLAGS
++		CMAKE_CXX_FLAGS_DEBUG
++		CMAKE_CXX_FLAGS_RELEASE
++		CMAKE_C_FLAGS
++		CMAKE_C_FLAGS_DEBUG
++		CMAKE_C_FLAGS_RELEASE
++	)
++	foreach(CompilerFlag ${CompilerFlags})
++		string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
++	endforeach()
++endif()
++
+ add_subdirectory(src)
+ 
+ option(BUILD_EXAMPLES "Build libssh2 examples" ON)

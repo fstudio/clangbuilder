@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index ac55f6b..e016967 100644
+index 99b9258..10075fa 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -166,12 +166,11 @@ endforeach()
+@@ -156,12 +156,11 @@ endforeach()
  
  foreach(lib brotlicommon brotlidec brotlienc brotlicommon-static brotlidec-static brotlienc-static)
    target_link_libraries(${lib} ${LIBM_LIBRARY})
@@ -16,7 +16,7 @@ index ac55f6b..e016967 100644
  endforeach()
  
  target_link_libraries(brotlidec brotlicommon)
-@@ -199,27 +198,35 @@ target_link_libraries(brotli ${BROTLI_LIBRARIES_STATIC})
+@@ -189,27 +188,46 @@ target_link_libraries(brotli ${BROTLI_LIBRARIES_STATIC})
  if(NOT BROTLI_BUNDLED_MODE)
    install(
      TARGETS brotli
@@ -24,7 +24,8 @@ index ac55f6b..e016967 100644
 +    RUNTIME DESTINATION tools/brotli
 +    CONFIGURATIONS Release
    )
- 
+-
++  
 +  if(BUILD_SHARED_LIBS)
    install(
      TARGETS ${BROTLI_LIBRARIES_CORE}
@@ -42,6 +43,17 @@ index ac55f6b..e016967 100644
      LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
      RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
    )
++  set(CompilerFlags
++    CMAKE_CXX_FLAGS
++    CMAKE_CXX_FLAGS_DEBUG
++    CMAKE_CXX_FLAGS_RELEASE
++    CMAKE_C_FLAGS
++    CMAKE_C_FLAGS_DEBUG
++    CMAKE_C_FLAGS_RELEASE
++  )
++  foreach(CompilerFlag ${CompilerFlags})
++    string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
++  endforeach()
 +  endif()
  
    install(
