@@ -50,19 +50,20 @@ Function DecompressTar {
         [String]$File,
         [String]$Hash
     )
-    if(!(Test-Path $File)){
+    if (!(Test-Path $File)) {
         if (!(WinGet -URL $URL -O $File)) {
             return $false
         }
-    }else{
-        if((Get-FileHash -Algorithm SHA256 $File).Hash -ne $Hash){
+    }
+    else {
+        if ((Get-FileHash -Algorithm SHA256 $File).Hash -ne $Hash) {
             Remove-Item -Force $File
             if (!(WinGet -URL $URL -O $File)) {
                 return $false
             }
         }
     }
-    if((Get-FileHash -Algorithm SHA256 $File).Hash -ne $Hash){
+    if ((Get-FileHash -Algorithm SHA256 $File).Hash -ne $Hash) {
         Remove-Item -Force $File
         if (!(WinGet -URL $URL -O $File)) {
             return $false
@@ -76,8 +77,8 @@ Function DecompressTar {
     return $true
 }
 
-$curlexe=Findcommand -Name "curl"
-if($null -eq $curlexe){
+$curlexe = Findcommand -Name "curl"
+if ($null -eq $curlexe) {
     Write-Host -ForegroundColor Red "Please install curl or upgrade to Windows 10 17134 or Later."
     return 1
 }
@@ -395,7 +396,7 @@ $curlflags = "-GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF " + `
     "-DUSE_NGHTTP2=ON -DBUILD_TESTING=OFF " + `
     "-DUSE_OPENSSL=ON -DUSE_WINSSL=ON " + `
     "-DBUILD_CURL_EXE=ON " + `
-    "-DCURL_STATIC_CRT=ON "+`
+    "-DCURL_STATIC_CRT=ON " + `
     "-DCMAKE_USE_LIBSSH2=ON " + `
     "`"-DCMAKE_INSTALL_PREFIX=$CURLOUT`" .."
 
