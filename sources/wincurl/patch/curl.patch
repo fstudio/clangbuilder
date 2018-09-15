@@ -12,7 +12,7 @@ index 84822dba7..0d6219425 100644
  
  if(LIBSSH2_INCLUDE_DIR)
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index e6dbb73f1..dabaf84de 100644
+index e6dbb73f1..c0e4a5f6e 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -323,7 +323,7 @@ if(CMAKE_USE_WINSSL)
@@ -45,7 +45,42 @@ index e6dbb73f1..dabaf84de 100644
  endif()
  
  if(NOT CURL_DISABLE_LDAP)
-@@ -1144,7 +1158,9 @@ function(TRANSFORM_MAKEFILE_INC INPUT_FILE OUTPUT_FILE)
+@@ -513,16 +527,24 @@ if(CURL_ZLIB)
+ endif()
+ 
+ option(CURL_BROTLI "Set to ON to enable building curl with brotli support." OFF)
+-set(HAVE_BROTLI OFF)
+-if(CURL_BROTLI)
+-  find_package(BROTLI QUIET)
+-  if(BROTLI_FOUND)
+-    set(HAVE_BROTLI ON)
+-    list(APPEND CURL_LIBS ${BROTLI_LIBRARIES})
+-    include_directories(${BROTLI_INCLUDE_DIRS})
+-    list(APPEND CMAKE_REQUIRED_INCLUDES ${BROTLI_INCLUDE_DIRS})
+-  endif()
+-endif()
++#set(HAVE_BROTLI OFF)
++#if(CURL_BROTLI)
++#  find_package(BROTLI QUIET)
++#  if(BROTLI_FOUND)
++#    set(HAVE_BROTLI ON)
++#    list(APPEND CURL_LIBS ${BROTLI_LIBRARIES})
++#    include_directories(${BROTLI_INCLUDE_DIRS})
++#    list(APPEND CMAKE_REQUIRED_INCLUDES ${BROTLI_INCLUDE_DIRS})
++#  endif()
++#endif()
++# Force enable brotli
++set(BROTLI_LIBRARIES
++    brotlicommon
++    brotlidec
++    brotlienc
++)
++set(HAVE_BROTLI ON)
++list(APPEND CURL_LIBS ${BROTLI_LIBRARIES})
+ 
+ #libSSH2
+ option(CMAKE_USE_LIBSSH2 "Use libSSH2" ON)
+@@ -1144,7 +1166,9 @@ function(TRANSFORM_MAKEFILE_INC INPUT_FILE OUTPUT_FILE)
  
  endfunction()
  

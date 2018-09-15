@@ -297,6 +297,11 @@ if ($ec -ne 0) {
     return 1
 }
 
+## Fix curl not exists
+Move-Item -Path "$Prefix/lib/brotlicommon-static.lib"   "$Prefix/lib/brotlicommon.lib"  -Force -ErrorAction SilentlyContinue
+Move-Item -Path "$Prefix/lib/brotlidec-static.lib"   "$Prefix/lib/brotlidec.lib"  -Force -ErrorAction SilentlyContinue
+Move-Item -Path "$Prefix/lib/brotlienc-static.lib"   "$Prefix/lib/brotlienc.lib"  -Force -ErrorAction SilentlyContinue
+
 ######################################################### Nghttp2
 Write-Host -ForegroundColor Yellow "Build nghttp2 $NGHTTP2_VERSION"
 if (!(DecompressTar -URL $NGHTTP2_URL -File "$NGHTTP2_FILE.tar.gz" -Hash $NGHTTP2_HASH)) {
@@ -420,9 +425,6 @@ $curlflags = "-GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF " + `
     "-DCURL_BROTLI=ON " + `
     "-DCMAKE_RC_FLAGS=-c1252 " + `
     "`"-DBROTLI_DIR=$Prefix`" " + `
-    "`"-DBROTLIDEC_LIBRARY=$BROTLIDEC_LIBRARY`" " + `
-    "`"-DBROTLICOMMON_LIBRARY=$BROTLICOMMON_LIBRARY`" " + `
-    "`"-DBROTLI_INCLUDE_DIRS=$BROTLI_INCLUDE_DIR`" " + `
     "`"-DCMAKE_INSTALL_PREFIX=$CURLOUT`" .."
 
 $ec = Exec -FilePath $cmakeexe -Argv $curlflags -WD $CURLBD
