@@ -146,7 +146,7 @@ $cmakeflags = "-GNinja " + `
     "-DBUILD_SHARED_LIBS=OFF `"$PWD/$ZLIB_FILENAME`""
 
 
-$ec = Exec-FilePath $cmakeexe -Argv $cmakeflags -WD "$PWD/zlib_build"
+$ec = Exec -FilePath $cmakeexe -Argv $cmakeflags -WD "$PWD/zlib_build"
 if ($ec -ne 0) {
     Write-Host -ForegroundColor Red "zlib: create build.ninja error"
     return 1
