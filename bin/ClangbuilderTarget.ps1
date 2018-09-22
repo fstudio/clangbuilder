@@ -207,7 +207,7 @@ Function Get-ClangArgument {
     $Arguments += " -DCMAKE_C_FLAGS=`"$CompilerFlags`""
     $Arguments += " -DCMAKE_CXX_FLAGS=`"$CompilerFlags`""
     if ($Libcxx) {
-        $Arguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_NO_VCRUNTIME=YES -DLIBCXX_ENABLE_SHARED=YES"
+        $Arguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
         $Arguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=NO"
         #$Arguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
         $Arguments += " -DLIBCXX_HAS_WIN32_THREAD_API=ON"
