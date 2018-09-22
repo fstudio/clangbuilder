@@ -108,6 +108,7 @@ public:
   SYSCOMMAND_ID_HANDLER(IDM_CLANGBUILDER_ABOUT, OnSysMemuAbout)
   COMMAND_ID_HANDLER(IDC_BUTTON_STARTTASK, OnBuildNow)
   COMMAND_ID_HANDLER(IDC_BUTTON_STARTENV, OnStartupEnv)
+  COMMAND_ID_HANDLER(IDM_ENGINE_COMBOX, OnChangeEngine)
   END_MSG_MAP()
   LRESULT OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle);
   LRESULT OnDestroy(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle);
@@ -122,6 +123,8 @@ public:
   LRESULT OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &bHandled);
   LRESULT OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                        BOOL &bHandled);
+  LRESULT OnChangeEngine(WORD wNotifyCode, WORD wID, HWND hWndCtl,
+                         BOOL &bHandled);
   bool IsPwshRequired(std::wstring &cmd);
   ////
 private:
@@ -150,6 +153,7 @@ private:
   HWND hConfigBox;
   HWND hBranchBox;
   HWND hBuildBox;
+  HWND hLibcxx_;
   HWND hCheckLTO_;
   HWND hCheckSdklow_;
   HWND hCheckPackaged_;

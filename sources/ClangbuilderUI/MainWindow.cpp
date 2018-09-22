@@ -214,17 +214,6 @@ HRESULT MainWindow::InitializeControl() {
   if (!VisualStudioSearch(root, instances_)) {
     return S_FALSE;
   }
-  // assert(hVisualStudioBox);
-  // assert(hPlatformBox);
-  // assert(hConfigBox);
-  // assert(hBuildBox);
-  // assert(hBranchBox);
-  // assert(hCheckLTO_);
-  // assert(hCheckPackaged_);
-  // assert(hCheckCleanEnv_);
-  // assert(hCheckLLDB_);
-  // assert(hButtonTask_);
-  // assert(hButtonEnv_);
 
   for (auto &i : instances_) {
     ::SendMessage(hVisualStudioBox, CB_ADDSTRING, 0,
@@ -305,31 +294,34 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   hBranchBox = LambdaCreateWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 140,
                                   400, 30, nullptr);
   hBuildBox = LambdaCreateWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 180,
-                                 400, 30, nullptr);
+                                 400, 30, (HMENU)IDM_ENGINE_COMBOX);
 
+  hLibcxx_ = LambdaCreateWindow(WC_BUTTONW, L"Build Libcxx on Windows",
+                                CHECKBOXSTYLE, 200, 230, 360, 27, nullptr);
+  ::EnableWindow(hLibcxx_, FALSE);
   hCheckLTO_ =
       LambdaCreateWindow(WC_BUTTONW, L"Clang/LLVM bootstrap with ThinLTO",
-                         CHECKBOXSTYLE, 200, 230, 360, 27, nullptr);
+                         CHECKBOXSTYLE, 200, 260, 360, 27, nullptr);
 
   hCheckSdklow_ = LambdaCreateWindow(
       WC_BUTTONW, L"SDK Compatibility (Windows 8.1 SDK) (Env)", CHECKBOXSTYLE,
-      200, 260, 360, 27, nullptr);
+      200, 290, 360, 27, nullptr);
 
   hCheckPackaged_ =
       LambdaCreateWindow(WC_BUTTONW, L"Create Installation Package",
-                         CHECKBOXSTYLE, 200, 290, 360, 27, nullptr);
+                         CHECKBOXSTYLE, 200, 320, 360, 27, nullptr);
   hCheckCleanEnv_ =
       LambdaCreateWindow(WC_BUTTONW, L"Use Clean Environment (Env)",
-                         CHECKBOXSTYLE, 200, 320, 360, 27, nullptr);
+                         CHECKBOXSTYLE, 200, 350, 360, 27, nullptr);
   hCheckLLDB_ = LambdaCreateWindow(WC_BUTTONW,
                                    L"Build LLDB (Visual Studio 2015 or Later)",
-                                   CHECKBOXSTYLE, 200, 350, 360, 27, nullptr);
+                                   CHECKBOXSTYLE, 200, 380, 360, 27, nullptr);
   // Button_SetElevationRequiredState
   hButtonTask_ =
-      LambdaCreateWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 420,
+      LambdaCreateWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 430,
                          195, 30, (HMENU)IDC_BUTTON_STARTTASK);
   hButtonEnv_ = LambdaCreateWindow(WC_BUTTONW, L"Environment Console",
-                                   PUSHBUTTONSTYLE | BS_ICON, 405, 420, 195, 30,
+                                   PUSHBUTTONSTYLE | BS_ICON, 405, 430, 195, 30,
                                    (HMENU)IDC_BUTTON_STARTENV);
 
   HMENU hSystemMenu = ::GetSystemMenu(m_hWnd, FALSE);
@@ -643,6 +635,10 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   Command.append(L" -Engine ").append(eitems[be].id);
   Command.append(L" -Branch ").append(BranchTable[bs]);
 
+  if ((be == 1 || be == 3) && Button_GetCheck(hLibcxx_) == BST_CHECKED) {
+    Command.append(L" -Libcxx");
+  }
+
   if (Button_GetCheck(hCheckLTO_) == BST_CHECKED) {
     Command.append(L" -LTO");
   }
@@ -673,6 +669,7 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   }
   return S_OK;
 }
+
 LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                  BOOL &bHandled) {
   std::wstring Command;
@@ -723,6 +720,19 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
       MessageWindowEx(m_hWnd, L"CreateProcess failed", errmsg, nullptr,
                       kFatalWindow);
       LocalFree(errmsg);
+    }
+  }
+  return S_OK;
+}
+
+LRESULT MainWindow::OnChangeEngine(WORD wNotifyCode, WORD wID, HWND hWndCtl,
+                                   BOOL &bHandled) {
+  if (wNotifyCode == CBN_SELCHANGE) {
+    auto N = ComboBox_GetCurSel(hBuildBox);
+    if (N == 1 || N == 3) {
+      ::EnableWindow(hLibcxx_, TRUE);
+    } else {
+      ::EnableWindow(hLibcxx_, FALSE);
     }
   }
   return S_OK;
