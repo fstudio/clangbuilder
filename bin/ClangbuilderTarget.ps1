@@ -175,14 +175,14 @@ Function Get-ClangArgument {
     # Parse clang args
     # $ver=(Get-Item $clexe|Select-Object -ExpandProperty VersionInfo|Select-Object -Property FileVersion)
     # https://github.com/llvm-mirror/clang/blob/6c57331175c84f06b8adbae858043ab5c782355f/lib/Driver/ToolChains/MSVC.cpp#L1269
-    $msvc = "19.12"
+    $msvc = "19.15"
     try {
-        $clexe = Get-Command -CommandType Application "cl.exe"
+        $clexe = (Get-Command -CommandType Application "cl.exe")[0]
         $msvc = "$($clexe.FileVersionInfo.FileMajorPart).$($clexe.FileVersionInfo.FileMinorPart)"
     }
     catch {
         $VisualCppVersionTable = @{
-            "15" = "19.14";
+            "15" = "19.15";
             "14" = "19.00";
             "12" = "18.00";
             "11" = "17.00"
@@ -207,7 +207,7 @@ Function Get-ClangArgument {
     $Arguments += " -DCMAKE_CXX_FLAGS=`"$CompilerFlags`""
     if ($Installation -eq "14" -or ($Installation -eq "15")) {
         $Arguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
-        $Arguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=ON"
+        $Arguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=NO"
         #$Arguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
         $Arguments += " -DLIBCXX_HAS_WIN32_THREAD_API=ON"
     }
