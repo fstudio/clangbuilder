@@ -1,9 +1,9 @@
 #pragma once
 
-#include <winrt/Windows.System.h>
-#include <winrt/Windows.UI.Composition.Desktop.h>
-#include <windows.ui.composition.interop.h>
 #include <ShellScalingAPI.h>
-#include <DispatcherQueue.h>
-
-extern "C" IMAGE_DOS_HEADER __ImageBase;
+#include <winrt/Windows.System.h>
+#include <winrt/windows.ui.xaml.hosting.h>
+#include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
+#include <winrt/windows.ui.xaml.controls.h>
+#include <winrt/Windows.UI.Xaml.Media.h>
+#include <winrt/Windows.UI.Xaml.Controls.Primitives.h>

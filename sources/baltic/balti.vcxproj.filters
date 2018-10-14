@@ -43,4 +43,9 @@
       <Filter>resources</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="balti.exe.manifest">
+      <Filter>resources</Filter>
+    </Manifest>
+  </ItemGroup>
 </Project>
