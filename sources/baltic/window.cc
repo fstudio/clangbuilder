@@ -234,6 +234,16 @@ Windows::UI::Xaml::UIElement CreateDefaultContent() {
   /*container.Background(Windows::UI::Xaml::Media::SolidColorBrush{
    * Windows::UI::Colors::LightSlateGray() });*/
   container.Background(acrylicBrush);
+  Windows::UI::Xaml::Controls::TextBox text;
+  text.Width(600);
+  text.Height(60);
+  text.SetValue(Windows::UI::Xaml::FrameworkElement::VerticalAlignmentProperty(),
+              box_value(Windows::UI::Xaml::VerticalAlignment::Top));
+
+  text.SetValue(
+      Windows::UI::Xaml::FrameworkElement::HorizontalAlignmentProperty(),
+      box_value(Windows::UI::Xaml::HorizontalAlignment::Center));
+  container.Children().Append(text);
 
   Windows::UI::Xaml::Controls::Button b;
   /*
@@ -247,7 +257,7 @@ Windows::UI::Xaml::UIElement CreateDefaultContent() {
         });
   */
   b.Click([](Windows::Foundation::IInspectable const &sender,
-              Windows::UI::Xaml::RoutedEventArgs const &) {
+             Windows::UI::Xaml::RoutedEventArgs const &) {
     MessageBoxW(nullptr, L"Hello world", L"Balti", MB_OK);
   });
   b.Width(600);
