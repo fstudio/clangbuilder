@@ -39,7 +39,7 @@ $CURL_URL = "https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz"
 $CURL_FILE = "curl-${CURL_VERSION}"
 
 #curl-ca-bundle
-$CA_BUNDLE_URL = "https://curl.haxx.se/ca/cacert-2018-06-20.pem"
+$CA_BUNDLE_URL = "https://curl.haxx.se/ca/cacert-2018-10-17.pem"
 
 
 Write-Host -ForegroundColor Cyan "zlib: $ZLIB_VERSION $ZLIB_HASH
