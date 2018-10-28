@@ -69,7 +69,7 @@ if ($InstanceId.Length -eq 0) {
     $ret = DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
 }
 else {
-    $ret = InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow
+    $ret = InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow -InstallationVersion $InstallationVersion
 }
 if ($InstallationVersion.Length -eq 0) {
     if ($InstanceId.StartsWith("VisualStudio.")) {

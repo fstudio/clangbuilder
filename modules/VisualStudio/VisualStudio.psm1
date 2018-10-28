@@ -317,6 +317,7 @@ Function InitializeVisualStudio {
         [ValidateSet("x86", "x64", "ARM", "ARM64")]
         [String]$Arch = "x64",
         [String]$InstanceId,
+        [String]$InstallationVersion, # installationVersion
         [Switch]$Sdklow
     )
     if ($null -ne $env:VSENV_INITIALIZED) {
@@ -332,8 +333,12 @@ Function InitializeVisualStudio {
         return (InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch)
     }
     $vsinstances = $null
+    #Write-Host "$InstallationVersion"
     if ($InstanceId.StartsWith("VisualStudio.")) {
         $vsinstances = vswhere -products * -prerelease -legacy -format json|ConvertFrom-JSON
+    }elseif($null -ne $InstallationVersion -and $InstallationVersion.StartsWith("16.")){
+        # FIXME. this is Visual Studio 2019's bug
+        $vsinstances = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json|ConvertFrom-JSON
     }
     else {
         $vsinstances = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -requires Microsoft.VisualStudio.Component.Windows10SDK  -format json|ConvertFrom-JSON
@@ -343,6 +348,10 @@ Function InitializeVisualStudio {
         return 1
     }
     $vsinstance = $vsinstances|Where-Object {$_.instanceId -eq $InstanceId}
+    if($null -eq $vsinstance){
+        Write-Host -ForegroundColor Red "Please check Visual Studio Is Included Microsoft.VisualStudio.Component.Windows10SDK and Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+        return 1
+    }
     Write-Host "Use Visual Studio $($vsinstance.installationVersion) $Arch"
     $ArgumentList = Get-ArchBatchString -InstanceId $InstanceId -Arch $Arch
     if ($vsinstance.instanceId.StartsWith("VisualStudio")) {
@@ -371,8 +380,10 @@ Function InitializeVisualStudio {
         return (InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch "ARM64")
     }
     $vcvarsall = "$($vsinstance.installationPath)\VC\Auxiliary\Build\vcvarsall.bat"
-    $env:VS150COMNTOOLS = "$($vsinstance.installationPath)\Common7\Tools\"
-    Write-Host "Update `$env:VS150COMNTOOLS to: $env:VS150COMNTOOLS"
+    $vscommtools="VS$($ver.Major)0COMNTOOLS"
+    Set-Variable -Name "env:$vscommtools" -Value "$($vsinstance.installationPath)\Common7\Tools\"
+   $vscommdir=Get-Variable -Name "env:$vscommtools" -ValueOnly
+    Write-Host "Update `$env:$vscommtools to: $vscommdir"
     if ($Sdklow) {
         Write-Host "Attention Please: Use Windows 8.1 SDK"
         $ArgumentList += " 8.1"
