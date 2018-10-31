@@ -12,7 +12,7 @@ index 84822dba7..0d6219425 100644
  
  if(LIBSSH2_INCLUDE_DIR)
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index e6dbb73f1..c0e4a5f6e 100644
+index a3c17c452..5b8a3bd24 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -323,7 +323,7 @@ if(CMAKE_USE_WINSSL)
@@ -24,28 +24,7 @@ index e6dbb73f1..c0e4a5f6e 100644
  endif()
  if(CURL_WINDOWS_SSPI)
    set(USE_WINDOWS_SSPI ON)
-@@ -380,6 +380,20 @@ if(USE_NGHTTP2)
-   find_package(NGHTTP2 REQUIRED)
-   include_directories(${NGHTTP2_INCLUDE_DIRS})
-   list(APPEND CURL_LIBS ${NGHTTP2_LIBRARIES})
-+  if(NOT BUILD_SHARED_LIBS)
-+    add_definitions(-DNGHTTP2_STATICLIB)
-+    set(CompilerFlags
-+        CMAKE_CXX_FLAGS
-+        CMAKE_CXX_FLAGS_DEBUG
-+        CMAKE_CXX_FLAGS_RELEASE
-+        CMAKE_C_FLAGS
-+        CMAKE_C_FLAGS_DEBUG
-+        CMAKE_C_FLAGS_RELEASE
-+    )
-+    foreach(CompilerFlag ${CompilerFlags})
-+        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
-+    endforeach()
-+  endif()
- endif()
- 
- if(NOT CURL_DISABLE_LDAP)
-@@ -513,16 +527,24 @@ if(CURL_ZLIB)
+@@ -530,16 +530,24 @@ if(CURL_ZLIB)
  endif()
  
  option(CURL_BROTLI "Set to ON to enable building curl with brotli support." OFF)
@@ -80,17 +59,28 @@ index e6dbb73f1..c0e4a5f6e 100644
  
  #libSSH2
  option(CMAKE_USE_LIBSSH2 "Use libSSH2" ON)
-@@ -1144,7 +1166,9 @@ function(TRANSFORM_MAKEFILE_INC INPUT_FILE OUTPUT_FILE)
- 
- endfunction()
- 
--if(WIN32 AND NOT CYGWIN)
-+if(MSVC)
-+  set(CURL_INSTALL_CMAKE_DIR share/curl)
-+elseif(WIN32 AND NOT CYGWIN)
-   set(CURL_INSTALL_CMAKE_DIR CMake)
+@@ -1259,7 +1267,21 @@ if(BUILD_SHARED_LIBS)
  else()
-   set(CURL_INSTALL_CMAKE_DIR lib/cmake/curl)
+   set(ENABLE_SHARED         "no")
+   set(ENABLE_STATIC         "yes")
++  add_definitions(-DNGHTTP2_STATICLIB)
++  set(CompilerFlags
++    CMAKE_CXX_FLAGS
++    CMAKE_CXX_FLAGS_DEBUG
++    CMAKE_CXX_FLAGS_RELEASE
++    CMAKE_C_FLAGS
++    CMAKE_C_FLAGS_DEBUG
++    CMAKE_C_FLAGS_RELEASE
++  )
++  foreach(CompilerFlag ${CompilerFlags})
++    string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
++  endforeach()
+ endif()
++
++
+ set(exec_prefix             "\${prefix}")
+ set(includedir              "\${prefix}/include")
+ set(LDFLAGS                 "${CMAKE_SHARED_LINKER_FLAGS}")
 diff --git a/src/curl.rc b/src/curl.rc
 index d47f50635..239918eee 100644
 --- a/src/curl.rc
