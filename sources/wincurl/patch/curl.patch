@@ -12,7 +12,7 @@ index 84822dba7..0d6219425 100644
  
  if(LIBSSH2_INCLUDE_DIR)
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index a3c17c452..5b8a3bd24 100644
+index a3c17c452..b68a4270c 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -323,7 +323,7 @@ if(CMAKE_USE_WINSSL)
@@ -59,10 +59,11 @@ index a3c17c452..5b8a3bd24 100644
  
  #libSSH2
  option(CMAKE_USE_LIBSSH2 "Use libSSH2" ON)
-@@ -1259,7 +1267,21 @@ if(BUILD_SHARED_LIBS)
- else()
-   set(ENABLE_SHARED         "no")
-   set(ENABLE_STATIC         "yes")
+@@ -1160,6 +1168,22 @@ if(USE_MANUAL)
+   add_subdirectory(docs)
+ endif()
+ 
++if(NOT BUILD_SHARED_LIBS)
 +  add_definitions(-DNGHTTP2_STATICLIB)
 +  set(CompilerFlags
 +    CMAKE_CXX_FLAGS
@@ -75,6 +76,15 @@ index a3c17c452..5b8a3bd24 100644
 +  foreach(CompilerFlag ${CompilerFlags})
 +    string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
 +  endforeach()
++endif()
++
++
+ add_subdirectory(lib)
+ 
+ if(BUILD_CURL_EXE)
+@@ -1260,6 +1284,8 @@ else()
+   set(ENABLE_SHARED         "no")
+   set(ENABLE_STATIC         "yes")
  endif()
 +
 +
