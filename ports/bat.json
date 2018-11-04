@@ -1,0 +1,10 @@
+{
+    "description": "A cat(1) clone with wings.",
+    "version": "v0.8.0",
+    "url": null,
+    "url64": "https://github.com/sharkdp/bat/releases/download/v0.8.0/bat-v0.8.0-x86_64-pc-windows-msvc.zip",
+    "extension": "zip",
+    "links": [
+        "bat.exe"
+    ]
+}

@@ -127,6 +127,7 @@ Function CMDInstall {
         $besturl = $xurl
     }
     if ($null -eq $besturl) {
+        Write-Host -ForegroundColor Red "$Name not provider download url!"
         return $false
     }
 
