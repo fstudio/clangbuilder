@@ -268,6 +268,9 @@ Function Invoke-MSBuild {
     if ([System.Environment]::Is64BitOperatingSystem) {
         $Arguments += "-Thost=x64 ";
     }
+    # /utf-8
+    $Arguments += " -DCMAKE_C_FLAGS=`"/utf-8`""
+    $Arguments += " -DCMAKE_CXX_FLAGS=`"/utf-8`""
     $Arguments += $CMakeArguments
     $exitcode = ProcessExec  -FilePath "cmake" -Arguments $Arguments
     if ($exitcode -ne 0) {
@@ -286,8 +289,11 @@ Function Invoke-Ninja {
     ## ARM64 can build Desktop App, but ARM not
     if ($Arch -eq "ARM") {
         Write-Host -ForegroundColor Yellow "Warning: Build LLVM Maybe failed."
-        $Arguments += " -DCMAKE_C_FLAGS=`"-D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
-        $Arguments += " -DCMAKE_CXX_FLAGS=`"-D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
+        $Arguments += " -DCMAKE_C_FLAGS=`"/utf-8 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
+        $Arguments += " -DCMAKE_CXX_FLAGS=`"/utf-8 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
+    } else {
+        $Arguments += " -DCMAKE_C_FLAGS=`"/utf-8`""
+        $Arguments += " -DCMAKE_CXX_FLAGS=`"/utf-8`""
     }
     #$oe = [Console]::OutputEncoding
     #[Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
