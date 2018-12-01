@@ -2,7 +2,8 @@
 # Require Clangbuilder install perl
 
 param(
-    [String]$WD
+    [String]$WD,
+    [String]$Perlexe
 )
 
 # Import version info
@@ -143,7 +144,10 @@ if ($null -eq $Patchexe) {
 }
 Write-Host  -ForegroundColor Green "Found patch install: $Patchexe"
 
-$Perlexe = Findcommand -Name "perl"
+if ($null -eq $Perlexe -or ($False -eq (Test-Path $Perlexe))) {
+    $Perlexe = Findcommand -Name "perl"
+}
+
 if ($null -eq $Perlexe) {
     Write-Host -ForegroundColor Red "Please install perl (strawberryperl, activeperl).
     perl implementation must produce Windows like paths (with backward slash directory separators). "
