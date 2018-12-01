@@ -44,6 +44,37 @@ if ($null -eq $tarexe) {
 Write-Host -ForegroundColor Green "Use $tarexe as tar"
 
 
+Function Findcommand4GitDevs{
+    param(
+        [String]$Command
+    )
+    $gitexex = Findcommand -Name "git"
+    if ($null -eq $gitexex) {
+        Write-Host -ForegroundColor Red "Please install git for windows (or PortableGit)."
+        return $null
+    }
+    $gitinstall = Split-Path -Parent (Split-Path -Parent $gitexex)
+    if ([String]::IsNullOrEmpty($gitinstall)) {
+        Write-Host -ForegroundColor Red "Please install git for windows (or PortableGit)."
+        return $null
+    }
+    $cmdx = Join-Path $gitinstall "usr/bin/${Command}.exe"
+    Write-Host "Try to find patch from $cmdx"
+    if (!(Test-Path $cmdx)) {
+        $xinstall = Split-Path -Parent $gitinstall
+        if ([String]::IsNullOrEmpty($xinstall)) {
+            Write-Host -ForegroundColor Red "Please install git for windows (or PortableGit)."
+            return $null
+        }
+        $cmdx = Join-Path  $xinstall "usr/bin/${Command}.exe"
+        if (!(Test-Path $cmdx)) {
+            Write-Host -ForegroundColor Red "Please install git for windows (or PortableGit)."
+            return $null
+        }
+    }
+    return $cmdx
+}
+
 Function DecompressTar {
     param(
         [String]$URL,
@@ -105,39 +136,18 @@ Write-Host -ForegroundColor Green "Find cmake install: $Ninjaexe"
 
 $Patchexe = Findcommand -Name "patch"
 if ($null -eq $Patchexe) {
-
-    $Gitexe = Findcommand -Name "git"
-    if ($null -eq $Gitexe) {
-        Write-Host -ForegroundColor Red "Please install git for windows (or PortableGit)."
-        return 1
+    $Patchexe=Findcommand4GitDevs -Command "patch"
+    if ($null -eq $Patchexe) {
+        return 1;
     }
-    $gitinstall = Split-Path -Parent (Split-Path -Parent $gitexe)
-    if ([String]::IsNullOrEmpty($gitinstall)) {
-        Write-Host -ForegroundColor Red "Please install git for windows (or PortableGit)."
-        return 1
-    }
-    $patchx = Join-Path $gitinstall "usr/bin/patch.exe"
-    Write-Host "Try to find patch from $patchx"
-    if (!(Test-Path $patchx)) {
-        $xinstall = Split-Path -Parent $gitinstall
-        if ([String]::IsNullOrEmpty($xinstall)) {
-            Write-Host -ForegroundColor Red "Please install git for windows (or PortableGit)."
-            return 1
-        }
-        $patchx = Join-Path  $xinstall "usr/bin/patch.exe"
-        if (!(Test-Path $patchx)) {
-            Write-Host -ForegroundColor Red "Please install git for windows (or PortableGit)."
-            return 1
-        }
-    }
-    $Patchexe = $patchx
 }
 Write-Host  -ForegroundColor Green "Found patch install: $Patchexe"
 
 $Perlexe = Findcommand -Name "perl"
 if ($null -eq $Perlexe) {
-    Write-Host -ForegroundColor Red "Please add perl to your environment."
-    exit 1
+    Write-Host -ForegroundColor Red "Please install perl (strawberryperl, activeperl).
+    perl implementation must produce Windows like paths (with backward slash directory separators). "
+    return 1
 }
 Write-Host  -ForegroundColor Green "Found perl install: $Perlexe"
 
