@@ -45,7 +45,7 @@ if ($null -eq $tarexe) {
 Write-Host -ForegroundColor Green "Use $tarexe as tar"
 
 
-Function Findcommand4GitDevs{
+Function Findcommand4GitDevs {
     param(
         [String]$Command
     )
@@ -137,7 +137,7 @@ Write-Host -ForegroundColor Green "Find cmake install: $Ninjaexe"
 
 $Patchexe = Findcommand -Name "patch"
 if ($null -eq $Patchexe) {
-    $Patchexe=Findcommand4GitDevs -Command "patch"
+    $Patchexe = Findcommand4GitDevs -Command "patch"
     if ($null -eq $Patchexe) {
         return 1;
     }
