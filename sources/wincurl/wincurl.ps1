@@ -243,15 +243,15 @@ if ($ec -ne 0) {
     return 1
 }
 
-$ec = Exec -FilePath nmake -Argv "-f makefile" -WD $openssldir
+$ec = Exec -FilePath nmake -Argv "-f makefile build_libs" -WD $openssldir
 if ($ec -ne 0) {
     Write-Host -ForegroundColor Red "openssl: build error"
     return 1
 }
 
-$ec = Exec -FilePath nmake -Argv "-f makefile install_sw" -WD $openssldir
+$ec = Exec -FilePath nmake -Argv "-f makefile install_dev" -WD $openssldir
 if ($ec -ne 0) {
-    Write-Host -ForegroundColor Red "openssl: install_sw error"
+    Write-Host -ForegroundColor Red "openssl: install_dev error"
     return 1
 }
 # build brotli static
