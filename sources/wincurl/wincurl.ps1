@@ -144,9 +144,7 @@ if ($null -eq $Patchexe) {
 }
 Write-Host  -ForegroundColor Green "Found patch install: $Patchexe"
 
-if ($null -eq $Perlexe -or ($False -eq (Test-Path $Perlexe))) {
-    $Perlexe = Findcommand -Name "perl"
-}
+$Perlexe = Findcommand -Name "perl"
 
 if ($null -eq $Perlexe) {
     Write-Host -ForegroundColor Red "Please install perl (strawberryperl, activeperl).
