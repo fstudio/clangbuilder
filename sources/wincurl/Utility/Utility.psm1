@@ -34,6 +34,10 @@ Function Findcommand {
     if ($null -eq $command) {
         return $null
     }
+    $target = Get-Item $command[0].Source| Select-Object -ExpandProperty Target
+    if ($null -ne $target) {
+        return $target.ToString()
+    }
     return $command[0].Source
 }
 
@@ -58,8 +62,8 @@ Function WinGet {
     )
     # 
     Write-Host "Download file: $O"
-    $ex=Exec -FilePath "curl.exe" -Argv "--progress-bar -fS --connect-timeout 15 --retry 3 -o $O -L --proto-redir =https $URL" -WD $PWD
-    if($ex -ne 0){
+    $ex = Exec -FilePath "curl.exe" -Argv "--progress-bar -fS --connect-timeout 15 --retry 3 -o $O -L --proto-redir =https $URL" -WD $PWD
+    if ($ex -ne 0) {
         return $false
     }
     return $true
