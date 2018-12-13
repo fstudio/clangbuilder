@@ -12,7 +12,7 @@ index 84822dba7..0d6219425 100644
  
  if(LIBSSH2_INCLUDE_DIR)
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index a3c17c452..b68a4270c 100644
+index e11f519c8..5ca7d9b8b 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -323,7 +323,7 @@ if(CMAKE_USE_WINSSL)
@@ -92,12 +92,12 @@ index a3c17c452..b68a4270c 100644
  set(includedir              "\${prefix}/include")
  set(LDFLAGS                 "${CMAKE_SHARED_LINKER_FLAGS}")
 diff --git a/src/curl.rc b/src/curl.rc
-index d47f50635..239918eee 100644
+index 4dac2ae70..035f9c975 100644
 --- a/src/curl.rc
 +++ b/src/curl.rc
 @@ -24,6 +24,8 @@
  
- LANGUAGE  0x09,0x01
+ LANGUAGE  0, 0
  
 +ICONAPP ICON "curl.ico"
 +
