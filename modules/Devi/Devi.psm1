@@ -8,7 +8,7 @@ Function Devdownload {
     )
     Write-Host "devdownload: $Uri ..."
     #$InternalUA = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
-    $InternalUA = "wget/4.0" # TO Set UA as wget.
+    $InternalUA = "Wget/4.0 (MSVC)" # TO Set UA as wget.
     $xuri = [uri]$Uri
     try {
         if (Test-Path $Path) {
