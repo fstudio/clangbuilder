@@ -7,12 +7,9 @@ Function Devdownload {
         [String]$Path ### save to path
     )
     Write-Host "devdownload: $Uri ..."
-    $InternalUA = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
+    #$InternalUA = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
+    $InternalUA = "wget/4.0" # TO Set UA as wget.
     $xuri = [uri]$Uri
-    # only sourceforget.net when ua is Browser, cannot download it
-    if ($xuri.Host -eq "sourceforge.net") {
-        $InternalUA = "clangbuilder/6.0"
-    }
     try {
         if (Test-Path $Path) {
             Remove-Item -Force $Path

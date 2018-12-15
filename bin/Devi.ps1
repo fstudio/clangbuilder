@@ -392,7 +392,7 @@ switch ($subcmd) {
         exit 0
     }
     Default {
-        Write-Host -ForegroundColor Red "unsupported command '$xcmd' your can run devi help -a"
+        Write-Host -ForegroundColor Red "unsupported command '$subcmd' your can run devi help -a"
         exit 1
     }
 }

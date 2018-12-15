@@ -1,8 +1,8 @@
 {
     "description": "A command-line utility for retrieving files using HTTP, HTTPS and FTP protocols.",
-    "version": "1.19.4",
-    "url": "https://eternallybored.org/misc/wget/1.19.4/32/wget.exe",
-    "url64": "https://eternallybored.org/misc/wget/1.19.4/64/wget.exe",
+    "version": "1.20.0",
+    "url": "https://eternallybored.org/misc/wget/1.20/32/wget.exe",
+    "url64": "https://eternallybored.org/misc/wget/1.20/64/wget.exe",
     "extension": "exe",
     "links": [
         "wget.exe"
