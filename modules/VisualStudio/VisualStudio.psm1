@@ -115,8 +115,7 @@ Function InitializeEnterpriseWDK {
         $env:PATH += ";$VisualCppPath\bin\Host$HostEnv\$Archlowpper"
     }
     $env:PATH += ";$SdkBaseDir\bin\$EWDKVersion\$HostEnv;"
-    $env:PATH += "$VisualCppPath\onecore\$HostEnv\Microsoft.VC150.CRT\;$SdkBaseDir\Redist\ucrt\DLLs\$HostEnv;"
-    $env:PATH += "$EWDKFile\Program Files\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.1 Tools;$BuildTools\MSBuild\15.0\Bin"
+    $env:PATH += "$EWDKFile\Program Files\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools;$BuildTools\MSBuild\15.0\Bin"
     $env:LIB = "$VisualCppPath\lib\$Archlowpper;$VisualCppPath\atlmfc\lib\$Archlowpper;"
     $env:LIB += "$SDKLIB\km\$Archlowpper;$SDKLIB\um\$Archlowpper;$SDKLIB\ucrt\$Archlowpper"
     $env:LIBPATH = "$VisualCppPath\lib\$Archlowpper;$VisualCppPath\atlmfc\lib\$Archlowpper;"
