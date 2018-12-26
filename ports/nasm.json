@@ -1,6 +1,6 @@
 {
     "description": "NASM - The Netwide Assembler",
-    "version": "2.14",
+    "version": "2.14.1",
     "url": "https://www.nasm.us/pub/nasm/releasebuilds/2.14.01/win32/nasm-2.14.01-win32.zip",
     "url64": "https://www.nasm.us/pub/nasm/releasebuilds/2.14.01/win64/nasm-2.14.01-win64.zip",
     "extension": "zip",
