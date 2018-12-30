@@ -1,7 +1,7 @@
 //Microsoft Visual C++ generated resource script.
 //
 #include "windows.h"
-#define POSHLOADER_COPYRIGHT L"Copyright \x00a9 2018 The Force Charlie.All Rights Reserved"
+#define POSHLOADER_COPYRIGHT L"Copyright \x00a9 2019 The Force Charlie.All Rights Reserved"
 
 
 IDI_CLANGBUILDERUI       ICON         "pwshex.ico"

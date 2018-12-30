@@ -422,7 +422,7 @@ LRESULT MainWindow::OnCtlColorStatic(UINT nMsg, WPARAM wParam, LPARAM lParam,
 LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                    BOOL &bHandled) {
   MessageWindowEx(m_hWnd, L"About Clangbuilder",
-                  L"Prerelease: 3.1\nCopyright \xA9 2018, Force Charlie. "
+                  L"Prerelease: 3.2\nCopyright \xA9 2019, Force Charlie. "
                   L"All Rights Reserved.",
                   L"For more information about this tool.\nVisit: <a "
                   L"href=\"http://forcemz.net/\">forcemz.net</a>",
