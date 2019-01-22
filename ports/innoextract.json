@@ -1,0 +1,9 @@
+{
+    "description": "A tool to unpack installers created by Inno Setup.",
+    "version": "1.7",
+    "url": "https://github.com/dscharrer/innoextract/releases/download/1.7/innoextract-1.7-windows.zip",
+    "extension": "zip",
+    "links": [
+        "innoextract.exe"
+    ]
+}
