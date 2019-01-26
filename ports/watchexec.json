@@ -1,0 +1,9 @@
+{
+    "description": "Execute commands in response to file modifications.",
+    "version": "1.10.0",
+    "url": "https://github.com/mattgreen/watchexec/releases/download/1.10.0/watchexec-1.10.0-x86_64-pc-windows-gnu.zip",
+    "extension": "zip",
+    "links": [
+        "watchexec.exe"
+    ]
+}
