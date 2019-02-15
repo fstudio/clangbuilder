@@ -12,11 +12,11 @@ $BROTLI_HASH = "4c61bfb0faca87219ea587326c467b95acb25555b53d1a421ffa3c8a9296ee2c
 $LIBSSH2_VERSION = "1.8.0"
 $LIBSSH2_HASH = "39f34e2f6835f4b992cafe8625073a88e5a28ba78f83e8099610a7b3af4676d4"
 
-$NGHTTP2_VERSION = "1.35.0"
-$NGHTTP2_HASH = "ea04e4e749df13d60a88b706752e04f6f907227bf380aefd7aeeb4aa0db43407"
+$NGHTTP2_VERSION = "1.36.0"
+$NGHTTP2_HASH = "6b222a264aca23d497f7878a7751bd9da12676717493fe747db49afb51daae79"
 
-$CURL_VERSION = "7.63.0"
-$CURL_HASH = "d483b89062832e211c887d7cf1b65c902d591b48c11fe7d174af781681580b41"
+$CURL_VERSION = "7.64.0"
+$CURL_HASH = "cb90d2eb74d4e358c1ed1489f8e3af96b50ea4374ad71f143fa4595e998d81b5"
 
 # Filename
 $ZLIB_FILENAME = "zlib-${ZLIB_VERSION}"
@@ -39,7 +39,7 @@ $CURL_URL = "https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz"
 $CURL_FILE = "curl-${CURL_VERSION}"
 
 #curl-ca-bundle
-$CA_BUNDLE_URL = "https://curl.haxx.se/ca/cacert-2018-10-17.pem"
+$CA_BUNDLE_URL = "https://curl.haxx.se/ca/cacert-2019-01-23.pem"
 
 
 Write-Host -ForegroundColor Cyan "zlib: $ZLIB_VERSION $ZLIB_HASH
