@@ -6,6 +6,7 @@
     "extension": "zip",
     "launcher": [
         "bin\\nvim.exe",
-        "bin\\nvim-qt.exe"
+        "bin\\nvim-qt.exe",
+        "bin\\xxd.exe"
     ]
 }

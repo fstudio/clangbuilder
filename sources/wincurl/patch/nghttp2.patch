@@ -1,24 +1,12 @@
 diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
-index 17e422b2..5e865779 100644
+index 2228a5d7..398a9a12 100644
 --- a/lib/CMakeLists.txt
 +++ b/lib/CMakeLists.txt
-@@ -37,8 +37,8 @@ if(WIN32)
-   set(NGHTTP2_RES ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+@@ -69,6 +69,19 @@ if(HAVE_CUNIT OR ENABLE_STATIC_LIB)
+   endif()
  endif()
  
--# Public shared library
--add_library(nghttp2 SHARED ${NGHTTP2_SOURCES} ${NGHTTP2_RES})
-+# Public library
-+add_library(nghttp2 ${NGHTTP2_SOURCES} ${NGHTTP2_RES})
- set_target_properties(nghttp2 PROPERTIES
-   COMPILE_FLAGS "${WARNCFLAGS}"
-   VERSION ${LT_VERSION} SOVERSION ${LT_SOVERSION}
-@@ -49,6 +49,21 @@ target_include_directories(nghttp2 INTERFACE
-     "${CMAKE_CURRENT_SOURCE_DIR}/includes"
-     )
- 
-+if(NOT BUILD_SHARED_LIBS)
-+  target_compile_definitions(nghttp2 PUBLIC "-DNGHTTP2_STATICLIB")
++if(ENABLE_STATIC_LIB)
 +  set(CompilerFlags
 +        CMAKE_CXX_FLAGS
 +        CMAKE_CXX_FLAGS_DEBUG
@@ -31,7 +19,6 @@ index 17e422b2..5e865779 100644
 +        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
 +    endforeach()
 +endif()
-+    
- if(HAVE_CUNIT OR ENABLE_STATIC_LIB)
-   # Static library (for unittests because of symbol visibility)
-   add_library(nghttp2_static STATIC ${NGHTTP2_SOURCES})
+ 
+ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libnghttp2.pc"
+   DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")

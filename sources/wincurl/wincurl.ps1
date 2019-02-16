@@ -333,7 +333,7 @@ if ($ec -ne 0) {
     Write-Host -ForegroundColor Red "Apply $NGPATCH failed"
 }
 
-$ngflags = "-GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF " + `
+$ngflags = "-GNinja -DCMAKE_BUILD_TYPE=Release -DENABLE_SHARED_LIB=OFF -DENABLE_STATIC_LIB=ON " + `
     "-DENABLE_LIB_ONLY=ON -DENABLE_ASIO_LIB=OFF `"-DCMAKE_INSTALL_PREFIX=$Prefix`" .."
 
 $ec = Exec -FilePath $cmakeexe -Argv $ngflags -WD $NGBUILD
