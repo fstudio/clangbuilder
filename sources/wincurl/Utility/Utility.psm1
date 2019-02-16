@@ -34,9 +34,9 @@ Function Findcommand {
     if ($null -eq $command) {
         return $null
     }
-    $target = Get-Item $command[0].Source| Select-Object -ExpandProperty Target
-    if ($null -ne $target) {
-        return $target.ToString()
+    $target = Get-Item $command[0].Source
+    if ($null -ne $target -and $target.LinkType -eq "SymbolicLink") {
+        return $target.Target
     }
     return $command[0].Source
 }
