@@ -1,8 +1,8 @@
 {
     "description": "7-Zip is a file archiver with a high compression ratio",
-    "version": "18.06",
-    "url": "https://sourceforge.net/projects/sevenzip/files/7-Zip/18.06/7z1806.msi/download",
-    "url64": "https://sourceforge.net/projects/sevenzip/files/7-Zip/18.06/7z1806-x64.msi/download",
+    "version": "19.00",
+    "url": "https://7-zip.org/a/7z1900.msi",
+    "url64": "https://7-zip.org/a/7z1900-x64.msi",
     "extension": "msi",
     "launcher": [
         "7z.exe"
