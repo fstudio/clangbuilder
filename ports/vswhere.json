@@ -1,5 +1,5 @@
 {
-    "description": "Locate Visual Studio 2017 and newer installations.",
+    "description": "Visual Studio Locator.",
     "version": "2.6.7",
     "url": "https://github.com/Microsoft/vswhere/releases/download/2.6.7/vswhere.exe",
     "extension": "exe",
