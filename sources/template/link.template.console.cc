@@ -9,122 +9,184 @@
 
 #define BLASTLINK_TARGET L"@LINK_TEMPLATE_TARGET"
 
-size_t StringLength(const wchar_t *s) {
-  const wchar_t *a;
-  for (a = s; *s; s++)
+wchar_t *wcharmalloc(size_t n) {
+  return reinterpret_cast<wchar_t *>(
+      HeapAlloc(GetProcessHeap(), 0, sizeof(wchar_t) * n));
+}
+
+void wcharfree(wchar_t *p) { HeapFree(GetProcessHeap(), 0, p); }
+
+void *xmemcpy(void *dest, const void *src, size_t n) {
+  unsigned char *d = reinterpret_cast<unsigned char *>(dest);
+  const unsigned char *s = reinterpret_cast<const unsigned char *>(src);
+  for (; n; n--)
+    *d++ = *s++;
+  return dest;
+}
+inline size_t stringlength(const wchar_t *s) {
+  const wchar_t *a = s;
+  for (; *a != 0; a++) {
     ;
-  return s - a;
-}
-
-wchar_t *StringSearchW(const wchar_t *string, wchar_t ch) {
-  while (*string && *string != (wchar_t)ch)
-    string++;
-
-  if (*string == (wchar_t)ch)
-    return ((wchar_t *)string);
-  return (NULL);
-}
-
-wchar_t *StringCopy(wchar_t *d, const wchar_t *s) {
-  wchar_t *a = d;
-  while ((*d++ = *s++) != 0)
-    ;
-  return a;
-}
-
-class StringBuffer {
-public:
-  StringBuffer() : m_capability(0), m_data(nullptr) {}
-  StringBuffer(StringBuffer &&other) {
-    m_data = other.m_data;
-    other.m_data = nullptr;
-    m_capability = other.m_capability;
-    other.m_capability = 0;
-    m_size = other.m_size;
-    other.m_size = 0;
   }
-  StringBuffer(size_t n) {
-    m_data = (wchar_t *)HeapAlloc(GetProcessHeap(), 0, sizeof(wchar_t) * n);
-    m_capability = n;
-    m_size = 0;
+  return a - s;
+}
+
+inline void zeromem(wchar_t *p, size_t len) {
+  for (size_t i = 0; i < len; i++) {
+    p[i] = 0;
   }
-  ~StringBuffer() {
-    if (m_data) {
-      HeapFree(GetProcessHeap(), 0, m_data);
+}
+
+struct escapehelper {
+  ~escapehelper() {
+    if (buffer != nullptr) {
+      wcharfree(buffer);
     }
   }
-  StringBuffer &transfer(StringBuffer &&other) {
-    m_data = other.m_data;
-    other.m_data = nullptr;
-    m_capability = other.m_capability;
-    other.m_capability = 0;
-    m_size = other.m_size;
-    other.m_size = 0;
-    return *this;
-  }
-  bool append(const wchar_t *cstr) {
-    auto l = StringLength(cstr);
-    if (l > m_capability - m_size)
-      return false;
-    StringCopy(m_data + m_size, cstr);
-    m_size += l;
-    return true;
-  }
-  size_t capability() const { return m_capability; }
-  size_t setsize(size_t sz) {
-    if (m_size == 0)
-      m_size = sz;
-    return m_size;
-  }
-  const wchar_t *data() const {
-    if (m_size < m_capability && m_size != 0) {
-      m_data[m_size] = 0;
+  wchar_t *buffer{nullptr};
+  const wchar_t *escape(const wchar_t *s) {
+    auto len = stringlength(s);
+    if (len == 0) {
+      return L"\"\"";
     }
-    return m_data;
+    auto n = len;
+    auto hasSpace = false;
+    for (size_t i = 0; i < len; i++) {
+      switch (s[i]) {
+      case L'"':
+      case L'\\':
+        n++;
+        break;
+      case L' ':
+      case L'\t':
+        hasSpace = true;
+        break;
+      default:
+        break;
+      }
+    }
+    if (hasSpace) {
+      n += 2;
+    }
+    if (n == len) {
+      return s;
+    }
+    buffer = wcharmalloc(n + 1);
+    size_t j = 0;
+    if (hasSpace) {
+      buffer[j] = L'"';
+      j++;
+    }
+    int slashes = 0;
+    for (size_t i = 0; i < len; i++) {
+      switch (s[i]) {
+      default:
+        slashes = 0;
+        buffer[j] = s[i];
+        break;
+      case L'\\':
+        slashes++;
+        buffer[j] = s[i];
+        break;
+      case L'"':
+        for (; slashes > 0; slashes--) {
+          buffer[j] = L'\\';
+          j++;
+        }
+        buffer[j] = L'\\';
+        j++;
+        buffer[j] = s[i];
+        break;
+      }
+      j++;
+    }
+    if (hasSpace) {
+      for (; slashes > 0; slashes--) {
+        buffer[j] = L'\\';
+        j++;
+      }
+      buffer[j] = L'"';
+      j++;
+    }
+    buffer[j] = L'\0';
+    return buffer;
   }
-  wchar_t *data() { return m_data; }
-
-private:
-  wchar_t *m_data;
-  size_t m_capability;
-  size_t m_size;
 };
 
-bool IsSpaceExists(const wchar_t *s) {
-  for (; *s && *s != L' '; s++)
-    ;
-  return *s ? true : false;
-}
+class ArgvBuffer {
+public:
+  ArgvBuffer() = default;
+  ArgvBuffer(size_t n) {
+    reserve(n); //
+  }
+  ~ArgvBuffer() {
+    if (data_) {
+      wcharfree(data_);
+    }
+  }
+  void reserve(size_t n) {
+    if (n <= capability_) {
+      return;
+    }
+    auto np = wcharmalloc(n);
+    zeromem(np, n);
+    if (data_ != nullptr) {
+      xmemcpy(np, data_, size_); ///
+      wcharfree(data_);
+    }
+    capability_ = n;
+    data_ = np;
+  }
 
-bool BuildArgs(const wchar_t *target, StringBuffer &cmd) {
+  ArgvBuffer &assign(const wchar_t *a0) {
+    escapehelper es;
+    auto p = es.escape(a0);
+    auto l = stringlength(p);
+    if (l + 1 >= capability_) {
+      reserve(l + 1);
+    }
+    xmemcpy(data_, p, l);
+    data_[l] = 0;
+    size_ = l;
+    return *this;
+  }
+
+  ArgvBuffer &append(const wchar_t *ax) {
+    escapehelper es;
+    auto p = es.escape(ax);
+    auto l = stringlength(p);
+    if (l + size_ + 2 >= capability_) {
+      reserve(l + size_ + 2);
+    }
+    data_[size_] = L' ';
+    size_++;
+    xmemcpy(data_ + size_, p, l);
+    size_ += l;
+    data_[size_] = L'\0';
+    return *this;
+  }
+  const wchar_t *data() const { return data_; }
+  wchar_t *data() { return data_; }
+  size_t size() const { return size_; }
+
+private:
+  wchar_t *data_ = nullptr;
+  size_t capability_{0};
+  size_t size_{0};
+};
+
+
+bool BuildArgs(const wchar_t *target, ArgvBuffer &ab) {
   int Argc = 0;
   auto Argv = CommandLineToArgvW(GetCommandLineW(), &Argc);
   if (!Argv) {
     return false;
   }
-  StringBuffer buffer(0x8000);
-
-  if (IsSpaceExists(target)) {
-    buffer.append(L"\"");
-    buffer.append(target);
-    buffer.append(L"\" ");
-  } else {
-    buffer.append(target);
-    buffer.append(L" ");
-  }
+  ab.reserve(0x8000);
+  ab.assign(target);
   for (int i = 1; i < Argc; i++) {
-    if (IsSpaceExists(Argv[i])) {
-      buffer.append(L"\"");
-      buffer.append(Argv[i]);
-      buffer.append(L"\" ");
-    } else if (StringLength(Argv[i]) == 0) {
-      buffer.append(L"\"\" ");
-    } else {
-      buffer.append(Argv[i]);
-      buffer.append(L" ");
-    }
+    ab.append(Argv[i]);
   }
-  cmd.transfer(reinterpret_cast<StringBuffer &&>(buffer));
   LocalFree(Argv);
   return true;
 }
@@ -133,8 +195,8 @@ int LinkToApp(const wchar_t *target) {
   STARTUPINFOW siw;
   GetStartupInfoW(&siw);
 
-  StringBuffer cmd;
-  if (!BuildArgs(target, cmd)) {
+  ArgvBuffer ab;
+  if (!BuildArgs(target, ab)) {
     return -1;
   }
   STARTUPINFOW si;
@@ -142,7 +204,7 @@ int LinkToApp(const wchar_t *target) {
   SecureZeroMemory(&si, sizeof(si));
   SecureZeroMemory(&pi, sizeof(pi));
   si.cb = sizeof(si);
-  if (!CreateProcessW(nullptr, cmd.data(), nullptr, nullptr, FALSE,
+  if (!CreateProcessW(nullptr, ab.data(), nullptr, nullptr, FALSE,
                       CREATE_UNICODE_ENVIRONMENT, nullptr, nullptr, &si, &pi)) {
     return -1;
   }
