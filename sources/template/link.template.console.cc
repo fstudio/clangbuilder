@@ -131,7 +131,7 @@ public:
     auto np = wcharmalloc(n);
     zeromem(np, n);
     if (data_ != nullptr) {
-      xmemcpy(np, data_, size_); ///
+      xmemcpy(np, data_, size_ * sizeof(wchar_t)); ///
       wcharfree(data_);
     }
     capability_ = n;
@@ -145,7 +145,7 @@ public:
     if (l + 1 >= capability_) {
       reserve(l + 1);
     }
-    xmemcpy(data_, p, l);
+    xmemcpy(data_, p, l * sizeof(wchar_t));
     data_[l] = 0;
     size_ = l;
     return *this;
@@ -160,7 +160,7 @@ public:
     }
     data_[size_] = L' ';
     size_++;
-    xmemcpy(data_ + size_, p, l);
+    xmemcpy(data_ + size_, p, l * sizeof(wchar_t));
     size_ += l;
     data_[size_] = L'\0';
     return *this;
@@ -174,7 +174,6 @@ private:
   size_t capability_{0};
   size_t size_{0};
 };
-
 
 bool BuildArgs(const wchar_t *target, ArgvBuffer &ab) {
   int Argc = 0;

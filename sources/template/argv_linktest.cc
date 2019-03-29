@@ -4,9 +4,11 @@
 #include <winnt.h>
 #include <Shellapi.h>
 #include <Shlobj.h>
-#include <cstddef>
+#include <stdio.h>
+#include <stdlib.h>
+#include <clocale>
 
-#define BLASTLINK_TARGET L"@LINK_TEMPLATE_TARGET"
+#define BLASTLINK_TARGET L"F:\\Clangbuilder\\sources\\template\\argv_test.exe"
 
 wchar_t *wcharmalloc(size_t n) {
   return reinterpret_cast<wchar_t *>(
@@ -22,6 +24,7 @@ void *xmemcpy(void *dest, const void *src, size_t n) {
     *d++ = *s++;
   return dest;
 }
+
 inline size_t stringlength(const wchar_t *s) {
   const wchar_t *a = s;
   for (; *a != 0; a++) {
@@ -130,7 +133,7 @@ public:
     auto np = wcharmalloc(n);
     zeromem(np, n);
     if (data_ != nullptr) {
-      xmemcpy(np, data_, size_ * sizeof(wchar_t));
+      xmemcpy(np, data_, size_ * sizeof(wchar_t)); ///
       wcharfree(data_);
     }
     capability_ = n;
@@ -141,6 +144,7 @@ public:
     escapehelper es;
     auto p = es.escape(a0);
     auto l = stringlength(p);
+    wprintf(L"P %s\n", p);
     if (l + 1 >= capability_) {
       reserve(l + 1);
     }
@@ -157,11 +161,11 @@ public:
     if (l + size_ + 2 >= capability_) {
       reserve(l + size_ + 2);
     }
-    data_[size_] = ' ';
+    data_[size_] = L' ';
     size_++;
     xmemcpy(data_ + size_, p, l * sizeof(wchar_t));
     size_ += l;
-    data_[size_] = '\0';
+    data_[size_] = L'\0';
     return *this;
   }
   const wchar_t *data() const { return data_; }
@@ -176,7 +180,9 @@ private:
 
 bool BuildArgs(const wchar_t *target, ArgvBuffer &ab) {
   int Argc = 0;
-  auto Argv = CommandLineToArgvW(GetCommandLineW(), &Argc);
+  auto argv_ = GetCommandLineW();
+  wprintf(L"All: %s\n", argv_);
+  auto Argv = CommandLineToArgvW(argv_, &Argc);
   if (!Argv) {
     return false;
   }
@@ -192,6 +198,8 @@ bool BuildArgs(const wchar_t *target, ArgvBuffer &ab) {
 int LinkToApp(const wchar_t *target) {
   STARTUPINFOW siw;
   GetStartupInfoW(&siw);
+  _wsetlocale(LC_ALL, L"");
+  wprintf(L"-----------> target\n %s\n", target);
   ArgvBuffer ab;
   if (!BuildArgs(target, ab)) {
     return -1;
@@ -201,16 +209,19 @@ int LinkToApp(const wchar_t *target) {
   SecureZeroMemory(&si, sizeof(si));
   SecureZeroMemory(&pi, sizeof(pi));
   si.cb = sizeof(si);
+  wprintf(L"ARGV: %s\n", ab.data());
   if (!CreateProcessW(nullptr, ab.data(), nullptr, nullptr, FALSE,
                       CREATE_UNICODE_ENVIRONMENT, nullptr, nullptr, &si, &pi)) {
     return -1;
   }
   CloseHandle(pi.hThread);
-  CloseHandle(pi.hProcess);
-  return 0;
+  WaitForSingleObject(pi.hProcess, INFINITE);
+  DWORD exitCode;
+  GetExitCodeProcess(pi.hProcess, &exitCode);
+  return exitCode;
 }
 
-int WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int) {
+int wmain() {
   ///
   ExitProcess(LinkToApp(BLASTLINK_TARGET));
 }
