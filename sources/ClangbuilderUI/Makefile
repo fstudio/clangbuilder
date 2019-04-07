@@ -4,7 +4,7 @@ CC=cl
 LD=link
 #-std:c++latest 
 CFLAGS=-nologo -DNODEBUG -DUNICODE -D_UNICODE -O2 -MT 
-CXXFLAGS=-TP  -W3 -EHsc -Zc:forScope -Zc:wchar_t
+CXXFLAGS=-TP  -W3 -EHsc -Zc:forScope -Zc:wchar_t -std:c++17
 LDFLAGS=/NOLOGO -OPT:REF  
 LIBS=KERNEL32.lib ADVAPI32.lib Shell32.lib USER32.lib GDI32.lib comctl32.lib Shlwapi.lib \
 ComDlg32.lib d2d1.lib dwrite.lib shcore.lib Winmm.lib Pathcch.lib ole32.lib comsupp.lib

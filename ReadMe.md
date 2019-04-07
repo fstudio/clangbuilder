@@ -1,5 +1,6 @@
 # Clangbuilder
 
+<a href="LICENSE"><img src="https://img.shields.io/github/license/fstudio/clangbuilder.svg"></a>
 <a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg"></a>
 
 Automated tools help developers on Windows platforms building LLVM and clang.
@@ -54,7 +55,7 @@ Clangbuilder Now Only support use Visual C++ build Clang LLVM LLDB.
 
 Best Visual Studio Version:
 
->Visual Studio 2017 15.5 or later
+>Visual Studio 2017 15.9 or later
 
 You can run ClangbuilderUI, Modify Arch, Configuration and other options. after click `Building`
 
