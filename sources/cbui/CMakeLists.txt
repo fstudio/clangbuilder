@@ -1,6 +1,6 @@
 # Author: Force Charlie
-# Copyright (C) 2018. Force Charlie. All Rights Reserved.
-cmake_minimum_required(VERSION 3.2)
+# Copyright (C) 2019. Force Charlie. All Rights Reserved.
+cmake_minimum_required(VERSION 3.12)
 project(ClangbuilderUI)
 
 
@@ -16,10 +16,10 @@ endif()
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 if(NOT DEFINED CLANGBUILDERUI_VERSION_MAJOR)
-  set(CLANGBUILDERUI_VERSION_MAJOR 3)
+  set(CLANGBUILDERUI_VERSION_MAJOR 7)
 endif()
 if(NOT DEFINED CLANGBUILDERUI_VERSION_MINOR)
-  set(CLANGBUILDERUI_VERSION_MINOR 1)
+  set(CLANGBUILDERUI_VERSION_MINOR 0)
 endif()
 if(NOT DEFINED CLANGBUILDERUI_VERSION_PATCH)
   set(CLANGBUILDERUI_VERSION_PATCH 0)
@@ -43,15 +43,9 @@ include(CPack)
 
 
 add_executable(ClangbuilderUI WIN32
-  ClangbuilderUI.cpp
-  ClangbuilderUI.manifest
-  ClangbuilderUI.rc
-  MainWindow.cpp
-  MessageWindow.cpp
-  cmVSSetupHelper.cxx
-  stdafx.cpp
-  VisualStudioSearch.cpp
-  WindowsUtil.cpp
+  appui.cc
+  apputils.cc
+  vssearch.cc
 )
 
 add_definitions(

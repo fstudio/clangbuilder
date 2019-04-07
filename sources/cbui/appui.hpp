@@ -13,7 +13,7 @@
 #include <wincodec.h>
 #include <vector>
 #include "Clangbuilder.h"
-#include "appuires.h"
+#include "res/appuires.h"
 #include "inc/comutils.hpp"
 
 #ifndef SYSCOMMAND_ID_HANDLER
@@ -41,7 +41,6 @@ struct KryceLabel {
   RECT layout;
   std::wstring text;
 };
-
 
 class MainWindow : public CWindowImpl<MainWindow, CWindow, CMetroWindowTraits> {
 public:
@@ -77,7 +76,6 @@ public:
                        BOOL &bHandled);
   LRESULT OnChangeEngine(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                          BOOL &bHandled);
-  bool IsPwshRequired(std::wstring &cmd);
   ////
 private:
   ID2D1Factory *m_pFactory;

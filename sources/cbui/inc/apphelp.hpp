@@ -4,9 +4,8 @@
 #include "base.hpp"
 #include <shlwapi.h>
 
-
 namespace clangbuilder {
-  
+
 #if defined(_M_AMD64) || defined(_M_ARM64)
 inline bool IsWow64ProcessEx() { return false; } /// constexpr
 inline bool IsWow64Process() { return false; }   /// constexpr
@@ -74,35 +73,11 @@ inline bool IsWow64Process() {
   return (bIsWow64 == TRUE);
 }
 #endif
-
-/*
-bool MainWindow::InitializeClangbuilderTarget() {
-  std::wstring engine_(PATHCCH_MAX_CCH, L'\0');
-  auto buffer = &engine_[0];
-  // std::array<wchar_t, PATHCCH_MAX_CCH> engine_;
-  GetModuleFileNameW(HINST_THISCOMPONENT, buffer, PATHCCH_MAX_CCH);
-  std::wstring tmpfile;
-  for (int i = 0; i < 5; i++) {
-    if (!PathRemoveFileSpecW(buffer)) {
-      return false;
-    }
-    tmpfile.assign(buffer);
-    tmpfile.append(L"\\bin\\").append(L"ClangbuilderTarget.ps1");
-    if (PathFileExistsW(tmpfile.c_str())) {
-      root.assign(buffer);
-      targetFile.assign(std::move(tmpfile));
-      return true;
-    }
-  }
-  return false;
-}
-
-*/
-
+constexpr size_t pathcchmax = 0x8000;
 inline bool LookupClangbuilderTarget(std::wstring &root,
                                      std::wstring &targetFile,
                                      base::error_code &ec) {
-  constexpr size_t pathcchmax = 0x8000;
+
   std::wstring engine_(pathcchmax, L'\0');
   auto buffer = &engine_[0];
   // std::array<wchar_t, PATHCCH_MAX_CCH> engine_;
@@ -122,6 +97,63 @@ inline bool LookupClangbuilderTarget(std::wstring &root,
   }
   ec = base::make_error_code(L"ClangbuilderTarget.ps1 not found");
   return false;
+}
+
+inline std::wstring ExpandEnv(std::wstring_view v) {
+  std::wstring rstr(pathcchmax, L'\0');
+  auto N = ExpandEnvironmentStringsW(v.data(), &rstr[0], pathcchmax);
+  if (N >= 0) {
+    rstr.resize(N - 1);
+  } else {
+    rstr.clear();
+  }
+  return rstr;
+}
+
+inline bool LookupPwshCore(std::wstring &ps) {
+  bool success = false;
+  auto psdir = ExpandEnv(L"%ProgramFiles%\\Powershell");
+  if (!PathFileExistsW(psdir.c_str())) {
+    psdir = ExpandEnv(L"%ProgramW6432%\\Powershell");
+    if (!PathFileExistsW(psdir.c_str())) {
+      return false;
+    }
+  }
+  WIN32_FIND_DATAW wfd;
+  auto findstr = psdir + L"\\*";
+  HANDLE hFind = FindFirstFileW(findstr.c_str(), &wfd);
+  if (hFind == INVALID_HANDLE_VALUE) {
+    return false; /// Not found
+  }
+  do {
+    if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+      auto pscore = base::strcat(psdir, L"\\", wfd.cFileName, L"\\pwsh.exe");
+      if (PathFileExistsW(pscore.c_str())) {
+        ps.assign(std::move(pscore));
+        success = true;
+        break;
+      }
+    }
+  } while (FindNextFileW(hFind, &wfd));
+  FindClose(hFind);
+  return success;
+}
+
+inline bool IsPwshCoreEnable(std::wstring_view root, std::wstring &cmd) {
+  auto rp = base::strcat(root, L"\\bin\\required_pwsh");
+  if (!PathFileExistsW(rp.c_str())) {
+    return false;
+  }
+  return LookupPwshCore(cmd);
+}
+
+inline bool LookupPwshDesktop(std::wstring &ps) {
+  WCHAR pszPath[MAX_PATH]; /// by default , System Dir Length <260
+  if (SHGetFolderPathW(nullptr, CSIDL_SYSTEM, nullptr, 0, pszPath) != S_OK) {
+    return false;
+  }
+  ps = base::strcat(pszPath, L"\\WindowsPowerShell\\v1.0\\powershell.exe");
+  return true;
 }
 
 } // namespace clangbuilder

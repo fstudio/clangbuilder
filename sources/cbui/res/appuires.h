@@ -2,7 +2,9 @@
 // Microsoft Visual C++ generated include file.
 // Used by ClangbuilderUI.rc
 //
-
+#ifndef APPUIRES_H
+#define APPUIRES_H
+#include "version.h"
 #define IDS_APP_TITLE 103
 
 #define IDR_MAINFRAME 128
@@ -46,3 +48,5 @@
 #define _APS_NEXT_SYMED_VALUE 110
 #endif
 #endif
+#endif
+

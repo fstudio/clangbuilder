@@ -12,14 +12,14 @@ OBJS=main.obj cmVSSetupHelper.obj appui.obj \
 VisualStudioSearch.obj apputils.obj
 
 
-all:app.res $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) app.res /MANIFEST:EMBED -MANIFESTINPUT:app.manifest -OUT:ClangbuilderUI.exe $(LIBS)
+all:res/app.res $(OBJS)
+	$(LD) $(LDFLAGS) $(OBJS) res/app.res /MANIFEST:EMBED -MANIFESTINPUT:res/app.manifest -OUT:ClangbuilderUI.exe $(LIBS)
 
 clean:
 	del /s /q *.res *.obj *.pdb *.exe >nul 2>nul
 	
-app.res:app.rc
-	rc app.rc
+res/app.res:res/app.rc
+	rc res\app.rc
 	
 {.}.cpp.obj::
 	$(CC) $(CFLAGS) $(CXXFLAGS) -c $<

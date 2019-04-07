@@ -9,7 +9,6 @@
 #include <PathCch.h>
 #include <ShellScalingAPI.h>
 #include <array>
-#include "version.h"
 #include "inc/apphelp.hpp"
 #include "inc/apputils.hpp"
 #include "appui.hpp"
@@ -276,9 +275,9 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   logFont.lfWeight = FW_NORMAL;
   wcscpy_s(logFont.lfFaceName, L"Segoe UI");
   hFont = CreateFontIndirectW(&logFont);
-  auto LambdaCreateWindow = [&](LPCWSTR lpClassName, LPCWSTR lpWindowName,
-                                DWORD dwStyle, int X, int Y, int nWidth,
-                                int nHeight, HMENU hMenu) -> HWND {
+  auto MakeWindow = [&](LPCWSTR lpClassName, LPCWSTR lpWindowName,
+                        DWORD dwStyle, int X, int Y, int nWidth, int nHeight,
+                        HMENU hMenu) -> HWND {
     auto hw = CreateWindowExW(
         WINDOWEXSTYLE, lpClassName, lpWindowName, dwStyle, MulDiv(X, dpiX, 96),
         MulDiv(Y, dpiY, 96), MulDiv(nWidth, dpiX, 96),
@@ -288,44 +287,40 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
     }
     return hw;
   };
-  hVisualStudioBox = LambdaCreateWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200,
-                                        20, 400, 30, nullptr);
-  hPlatformBox = LambdaCreateWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 60,
-                                    400, 30, nullptr);
-  hConfigBox = LambdaCreateWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 100,
-                                  400, 30, nullptr);
-  hBranchBox = LambdaCreateWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 140,
-                                  400, 30, nullptr);
-  hBuildBox = LambdaCreateWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 180,
-                                 400, 30, (HMENU)IDM_ENGINE_COMBOX);
+  hVisualStudioBox =
+      MakeWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 20, 400, 30, nullptr);
+  hPlatformBox =
+      MakeWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 60, 400, 30, nullptr);
+  hConfigBox =
+      MakeWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 100, 400, 30, nullptr);
+  hBranchBox =
+      MakeWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 140, 400, 30, nullptr);
+  hBuildBox = MakeWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 180, 400, 30,
+                         (HMENU)IDM_ENGINE_COMBOX);
 
-  hLibcxx_ = LambdaCreateWindow(WC_BUTTONW, L"Build Libcxx on Windows",
-                                CHECKBOXSTYLE, 200, 230, 360, 27, nullptr);
+  hLibcxx_ = MakeWindow(WC_BUTTONW, L"Build Libcxx on Windows", CHECKBOXSTYLE,
+                        200, 230, 360, 27, nullptr);
   ::EnableWindow(hLibcxx_, FALSE);
-  hCheckLTO_ =
-      LambdaCreateWindow(WC_BUTTONW, L"Clang/LLVM bootstrap with ThinLTO",
-                         CHECKBOXSTYLE, 200, 260, 360, 27, nullptr);
+  hCheckLTO_ = MakeWindow(WC_BUTTONW, L"Clang/LLVM bootstrap with ThinLTO",
+                          CHECKBOXSTYLE, 200, 260, 360, 27, nullptr);
 
-  hCheckSdklow_ = LambdaCreateWindow(
-      WC_BUTTONW, L"SDK Compatibility (Windows 8.1 SDK) (Env)", CHECKBOXSTYLE,
-      200, 290, 360, 27, nullptr);
+  hCheckSdklow_ =
+      MakeWindow(WC_BUTTONW, L"SDK Compatibility (Windows 8.1 SDK) (Env)",
+                 CHECKBOXSTYLE, 200, 290, 360, 27, nullptr);
 
-  hCheckPackaged_ =
-      LambdaCreateWindow(WC_BUTTONW, L"Create Installation Package",
-                         CHECKBOXSTYLE, 200, 320, 360, 27, nullptr);
-  hCheckCleanEnv_ =
-      LambdaCreateWindow(WC_BUTTONW, L"Use Clean Environment (Env)",
-                         CHECKBOXSTYLE, 200, 350, 360, 27, nullptr);
-  hCheckLLDB_ = LambdaCreateWindow(WC_BUTTONW,
-                                   L"Build LLDB (Visual Studio 2015 or Later)",
-                                   CHECKBOXSTYLE, 200, 380, 360, 27, nullptr);
+  hCheckPackaged_ = MakeWindow(WC_BUTTONW, L"Create Installation Package",
+                               CHECKBOXSTYLE, 200, 320, 360, 27, nullptr);
+  hCheckCleanEnv_ = MakeWindow(WC_BUTTONW, L"Use Clean Environment (Env)",
+                               CHECKBOXSTYLE, 200, 350, 360, 27, nullptr);
+  hCheckLLDB_ =
+      MakeWindow(WC_BUTTONW, L"Build LLDB (Visual Studio 2015 or Later)",
+                 CHECKBOXSTYLE, 200, 380, 360, 27, nullptr);
   // Button_SetElevationRequiredState
-  hButtonTask_ =
-      LambdaCreateWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 430,
-                         195, 30, (HMENU)IDC_BUTTON_STARTTASK);
-  hButtonEnv_ = LambdaCreateWindow(WC_BUTTONW, L"Environment Console",
-                                   PUSHBUTTONSTYLE | BS_ICON, 405, 430, 195, 30,
-                                   (HMENU)IDC_BUTTON_STARTENV);
+  hButtonTask_ = MakeWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 430,
+                            195, 30, (HMENU)IDC_BUTTON_STARTTASK);
+  hButtonEnv_ =
+      MakeWindow(WC_BUTTONW, L"Environment Console", PUSHBUTTONSTYLE | BS_ICON,
+                 405, 430, 195, 30, (HMENU)IDC_BUTTON_STARTENV);
 
   HMENU hSystemMenu = ::GetSystemMenu(m_hWnd, FALSE);
   InsertMenuW(hSystemMenu, SC_CLOSE, MF_ENABLED, IDM_CLANGBUILDER_ABOUT,
@@ -444,48 +439,6 @@ std::wstring ExpandEnvironmentStringsWapper(const wchar_t *str) {
   return rstr;
 }
 
-// pwsh.exe
-bool InitializeSearchPowershellCore(std::wstring &pscore) {
-  bool success = false;
-  auto psdir = ExpandEnvironmentStringsWapper(L"%ProgramFiles%\\Powershell");
-  if (!PathFileExistsW(psdir.c_str())) {
-    psdir = ExpandEnvironmentStringsWapper(L"%ProgramW6432%\\Powershell");
-    if (!PathFileExistsW(psdir.c_str())) {
-      return false;
-    }
-  }
-  WIN32_FIND_DATAW wfd;
-  auto findstr = psdir + L"\\*";
-  HANDLE hFind = FindFirstFileW(findstr.c_str(), &wfd);
-  if (hFind == INVALID_HANDLE_VALUE) {
-    return false; /// Not found
-  }
-  do {
-    if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-      pscore.assign(psdir)
-          .append(L"\\")
-          .append(wfd.cFileName)
-          .append(L"\\pwsh.exe");
-      if (PathFileExistsW(pscore.c_str())) {
-        success = true;
-        break;
-      }
-    }
-  } while (FindNextFileW(hFind, &wfd));
-  FindClose(hFind);
-  return success;
-}
-
-bool InitializeSearchPowershell(std::wstring &ps) {
-  WCHAR pszPath[MAX_PATH]; /// by default , System Dir Length <260
-  if (SHGetFolderPathW(nullptr, CSIDL_SYSTEM, nullptr, 0, pszPath) != S_OK) {
-    return false;
-  }
-  ps.assign(pszPath);
-  ps.append(L"\\WindowsPowerShell\\v1.0\\powershell.exe");
-  return true;
-}
-
 bool PsCreateProcess(LPWSTR pszCommand) {
   PROCESS_INFORMATION pi;
   STARTUPINFO si;
@@ -520,23 +473,13 @@ LPWSTR FormatMessageInternal() {
   return nullptr;
 }
 
-bool MainWindow::IsPwshRequired(std::wstring &cmd) {
-  std::wstring xcmd;
-  std::wstring file = root + L"\\bin\\required_pwsh";
-  if (PathFileExistsW(file.c_str()) && InitializeSearchPowershellCore(xcmd)) {
-    cmd.assign(L"\"").append(xcmd).append(L"\"");
-    return true;
-  }
-  return false;
-}
-
 LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                BOOL &bHandled) {
   std::wstring Command;
-  if (!IsPwshRequired(Command)) {
-    if (!InitializeSearchPowershell(Command)) {
-      utils::PrivMessageBox(m_hWnd, L"Search PowerShell Error",
-                            L"Please check PowerShell", nullptr,
+  if (!clangbuilder::IsPwshCoreEnable(root, Command)) {
+    if (!clangbuilder::LookupPwshDesktop(Command)) {
+      utils::PrivMessageBox(m_hWnd, L"PowerShell not found",
+                            L"Please check PowerShell is installed", nullptr,
                             utils::kFatalWindow);
       return S_FALSE;
     }
@@ -625,8 +568,8 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                  BOOL &bHandled) {
   std::wstring Command;
-  if (!IsPwshRequired(Command)) {
-    if (!InitializeSearchPowershell(Command)) {
+  if (!clangbuilder::IsPwshCoreEnable(root, Command)) {
+    if (!clangbuilder::LookupPwshDesktop(Command)) {
       utils::PrivMessageBox(m_hWnd, L"Search PowerShell Error",
                             L"Please check PowerShell", nullptr,
                             utils::kFatalWindow);
