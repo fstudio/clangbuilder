@@ -52,6 +52,36 @@ public:
 private:
   T *ptr;
 };
+
+class comstr {
+public:
+  comstr() { str = nullptr; }
+  comstr(const comstr &src) {
+    if (src.str != NULL) {
+      str = ::SysAllocStringByteLen((char *)str, ::SysStringByteLen(str));
+    } else {
+      str = ::SysAllocStringByteLen(NULL, 0);
+    }
+  }
+  comstr &operator=(const comstr &src) {
+    if (str != src.str) {
+      ::SysFreeString(str);
+      if (src.str != NULL) {
+        str = ::SysAllocStringByteLen((char *)str, ::SysStringByteLen(str));
+      } else {
+        str = ::SysAllocStringByteLen(NULL, 0);
+      }
+    }
+    return *this;
+  }
+  operator BSTR() const { return str; }
+  BSTR *operator&() throw() { return &str; }
+  ~comstr() throw() { ::SysFreeString(str); }
+
+private:
+  BSTR str;
+};
+
 } // namespace priv
 
 #endif

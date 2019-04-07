@@ -361,6 +361,102 @@ bool cmVSSetupAPIHelper::EnumerateAndChooseVSInstance() {
   return isVSInstanceExists;
 }
 
+bool cmVSSetupAPIHelper::GetVSInstanceInfoAll(std::vector<VSInstanceInfo> &ai,
+                                              int &choose) {
+  if (initializationFailure || setupConfig == NULL || setupConfig2 == NULL ||
+      setupHelper == NULL) {
+    return false;
+  }
+  ai.clear();
+  choose = 0;
+  // TO check EWDK
+  if (this->IsEWDKEnabled()) {
+    std::wstring envWindowsSdkDir81, envVSVersion, envVsInstallDir;
+
+    cmsys::GetEnvString(L"WindowsSdkDir_81", envWindowsSdkDir81);
+    cmsys::GetEnvString(L"VisualStudioVersion", envVSVersion);
+    cmsys::GetEnvString(L"VSINSTALLDIR", envVsInstallDir);
+
+    if (!envVSVersion.empty() && !envVsInstallDir.empty()) {
+      VSInstanceInfo vi;
+      vi.VSInstallLocation =
+          std::wstring(envVsInstallDir.begin(), envVsInstallDir.end());
+      vi.Version = std::wstring(envVSVersion.begin(), envVSVersion.end());
+      vi.VCToolsetVersion = envVSVersion;
+      vi.ullVersion = std::stoi(envVSVersion);
+      vi.IsWin10SDKInstalled = true;
+      vi.IsWin81SDKInstalled = !envWindowsSdkDir81.empty();
+      vi.IsEnterpriseWDK = true;
+      ai.push_back(std::move(vi));
+    }
+  }
+
+  std::wstring envVSCommonToolsDir;
+  std::wstring envVSCommonToolsDirEnvName =
+      L"VS" + std::to_wstring(this->Version) + L"0COMNTOOLS";
+  cmsys::GetEnvString(envVSCommonToolsDirEnvName.c_str(), envVSCommonToolsDir);
+  std::vector<VSInstanceInfo> vecVSInstances;
+  SmartCOMPtr<IEnumSetupInstances> enumInstances = NULL;
+  if (FAILED(setupConfig2->EnumInstances(
+          (IEnumSetupInstances **)&enumInstances)) ||
+      !enumInstances) {
+    return false;
+  }
+
+  std::wstring const wantVersion = std::to_wstring(this->Version) + L'.';
+
+  SmartCOMPtr<ISetupInstance> instance;
+  while (SUCCEEDED(enumInstances->Next(1, &instance, NULL)) && instance) {
+    SmartCOMPtr<ISetupInstance2> instance2 = NULL;
+    if (FAILED(instance->QueryInterface(IID_ISetupInstance2,
+                                        (void **)&instance2)) ||
+        !instance2) {
+      instance = NULL;
+      continue;
+    }
+
+    VSInstanceInfo instanceInfo;
+    bool isInstalled = GetVSInstanceInfo(instance2, instanceInfo);
+    instance = instance2 = NULL;
+
+    if (isInstalled) {
+      // We are looking for a specific major version.
+      if (instanceInfo.Version.size() < wantVersion.size() ||
+          instanceInfo.Version.substr(0, wantVersion.size()) != wantVersion) {
+        continue;
+      }
+
+      if (!this->SpecifiedVSInstallLocation.empty()) {
+        // We are looking for a specific instance.
+        auto currentVSLocation = instanceInfo.GetInstallLocation();
+        if (cmsys::ComparePath(currentVSLocation,
+                               this->SpecifiedVSInstallLocation)) {
+          chosenInstanceInfo = instanceInfo;
+          return true;
+        }
+      } else {
+        // We are not looking for a specific instance.
+        // If we've been given a hint then use it.
+        if (!envVSCommonToolsDir.empty()) {
+          auto currentVSLocation = instanceInfo.GetInstallLocation();
+          currentVSLocation += L"/Common7/Tools";
+          if (cmsys::ComparePath(currentVSLocation, envVSCommonToolsDir)) {
+            chosenInstanceInfo = instanceInfo;
+            return true;
+          }
+        }
+        // Otherwise, add this to the list of candidates.
+        ai.push_back(instanceInfo);
+      }
+    }
+  }
+
+  if (ai.size() > 0) {
+    choose = ChooseVSInstance(ai);
+  }
+  return true;
+}
+
 int cmVSSetupAPIHelper::ChooseVSInstance(
     const std::vector<VSInstanceInfo> &vecVSInstances) {
   if (vecVSInstances.size() == 0)

@@ -16,7 +16,6 @@
 
 #include <windows.h>
 
-
 template <class T> class SmartCOMPtr {
 public:
   SmartCOMPtr() { ptr = NULL; }
@@ -101,6 +100,7 @@ struct VSInstanceInfo {
   ULONGLONG ullVersion = 0;
   bool IsWin10SDKInstalled = false;
   bool IsWin81SDKInstalled = false;
+  bool IsEnterpriseWDK = false;
 
   std::wstring GetInstallLocation() const;
 };
@@ -114,6 +114,7 @@ public:
 
   bool IsVSInstalled();
   bool GetVSInstanceInfo(std::wstring &vsInstallLocation);
+  bool GetVSInstanceInfoAll(std::vector<VSInstanceInfo> &ai, int &choose);
   bool GetVCToolsetVersion(std::wstring &vsToolsetVersion);
   bool IsWin10SDKInstalled();
   bool IsWin81SDKInstalled();
