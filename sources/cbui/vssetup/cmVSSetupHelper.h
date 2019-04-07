@@ -9,7 +9,7 @@
 
 #include <objbase.h>
 // Published by Visual Studio Setup team
-#include "vssetup/Setup.Configuration.h"
+#include "Setup.Configuration.h"
 
 #include <string>
 #include <vector>

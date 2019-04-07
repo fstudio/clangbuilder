@@ -143,4 +143,5 @@ std::optional<std::wstring> PrivFolderPicker(HWND hWnd, const wchar_t *title) {
   CoTaskMemFree(pszFolderPath);
   return opt;
 }
+
 } // namespace utils

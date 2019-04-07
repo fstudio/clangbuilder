@@ -14,6 +14,7 @@
 #include <vector>
 #include "Clangbuilder.h"
 #include "appuires.h"
+#include "inc/comutils.hpp"
 
 #ifndef SYSCOMMAND_ID_HANDLER
 #define SYSCOMMAND_ID_HANDLER(id, func)                                        \
@@ -41,52 +42,6 @@ struct KryceLabel {
   std::wstring text;
 };
 
-template <class T> class COMPtr {
-public:
-  COMPtr() { ptr = NULL; }
-  COMPtr(T *p) {
-    ptr = p;
-    if (ptr != NULL)
-      ptr->AddRef();
-  }
-  COMPtr(const COMPtr<T> &sptr) {
-    ptr = sptr.ptr;
-    if (ptr != NULL)
-      ptr->AddRef();
-  }
-  T **operator&() { return &ptr; }
-  T *operator->() { return ptr; }
-  T *operator=(T *p) {
-    if (*this != p) {
-      ptr = p;
-      if (ptr != NULL)
-        ptr->AddRef();
-    }
-    return *this;
-  }
-  operator T *() const { return ptr; }
-  template <class I> HRESULT QueryInterface(REFCLSID rclsid, I **pp) {
-    if (pp != NULL) {
-      return ptr->QueryInterface(rclsid, (void **)pp);
-    } else {
-      return E_FAIL;
-    }
-  }
-  HRESULT CoCreateInstance(REFCLSID clsid, IUnknown *pUnknown,
-                           REFIID interfaceId,
-                           DWORD dwClsContext = CLSCTX_ALL) {
-    HRESULT hr = ::CoCreateInstance(clsid, pUnknown, dwClsContext, interfaceId,
-                                    (void **)&ptr);
-    return hr;
-  }
-  ~COMPtr() {
-    if (ptr != NULL)
-      ptr->Release();
-  }
-
-private:
-  T *ptr;
-};
 
 class MainWindow : public CWindowImpl<MainWindow, CWindow, CMetroWindowTraits> {
 public:
@@ -142,7 +97,6 @@ private:
   HRESULT OnRender();
   D2D1_SIZE_U CalculateD2DWindowSize();
   void OnResize(UINT width, UINT height);
-  bool InitializeClangbuilderTarget();
   /// member
   HFONT hFont{nullptr};
   HWND hVisualStudioBox;

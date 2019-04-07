@@ -76,6 +76,7 @@ template <class F> inline final_act<F> finally(F &&f) noexcept {
 struct error_code {
   std::wstring message;
   long code{NO_ERROR};
+  const wchar_t *data()const{return message.data();}
   explicit operator bool() const noexcept { return code != NO_ERROR; }
 };
 

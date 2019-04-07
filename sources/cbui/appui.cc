@@ -208,9 +208,9 @@ void MainWindow::OnResize(UINT width, UINT height) {
   BS_PUSHBUTTON | BS_TEXT | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE
 
 HRESULT MainWindow::InitializeControl() {
-  if (!InitializeClangbuilderTarget()) {
-    MessageBoxW(L"Initialize Clangbuilder Environemnt Error",
-                L"Clangbuilder Error", MB_OK | MB_ICONERROR);
+  base::error_code ec;
+  if (!clangbuilder::LookupClangbuilderTarget(root, targetFile, ec)) {
+    MessageBoxW(ec.data(), L"Clangbuilder Error", MB_OK | MB_ICONERROR);
     return S_FALSE;
   }
 
@@ -222,7 +222,7 @@ HRESULT MainWindow::InitializeControl() {
     ::SendMessage(hVisualStudioBox, CB_ADDSTRING, 0,
                   (LPARAM)(i.description.c_str()));
   }
-  int index = instances_.empty() ? 0 : (instances_.size() - 1);
+  int index = instances_.empty() ? 0 : (int)(instances_.size() - 1);
   ::SendMessage(hVisualStudioBox, CB_SETCURSEL, (WPARAM)(index), 0);
 
   for (auto &a : Platforms) {
@@ -231,7 +231,7 @@ HRESULT MainWindow::InitializeControl() {
 #ifdef _M_X64
   ::SendMessage(hPlatformBox, CB_SETCURSEL, 1, 0);
 #else
-  if (IsWow64Process()) {
+  if (clangbuilder::IsWow64Process()) {
     ::SendMessage(hPlatformBox, CB_SETCURSEL, 1, 0);
   } else {
     ::SendMessage(hPlatformBox, CB_SETCURSEL, 0, 0);
@@ -433,27 +433,6 @@ LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
  * ClangbuilderTarget.ps1
  */
 
-bool MainWindow::InitializeClangbuilderTarget() {
-  std::wstring engine_(PATHCCH_MAX_CCH, L'\0');
-  auto buffer = &engine_[0];
-  // std::array<wchar_t, PATHCCH_MAX_CCH> engine_;
-  GetModuleFileNameW(HINST_THISCOMPONENT, buffer, PATHCCH_MAX_CCH);
-  std::wstring tmpfile;
-  for (int i = 0; i < 5; i++) {
-    if (!PathRemoveFileSpecW(buffer)) {
-      return false;
-    }
-    tmpfile.assign(buffer);
-    tmpfile.append(L"\\bin\\").append(L"ClangbuilderTarget.ps1");
-    if (PathFileExistsW(tmpfile.c_str())) {
-      root.assign(buffer);
-      targetFile.assign(std::move(tmpfile));
-      return true;
-    }
-  }
-  return false;
-}
-
 std::wstring ExpandEnvironmentStringsWapper(const wchar_t *str) {
   std::wstring rstr(0x8000, L'\0');
   auto N = ExpandEnvironmentStringsW(str, &rstr[0], 0x8000);
@@ -507,35 +486,6 @@ bool InitializeSearchPowershell(std::wstring &ps) {
   return true;
 }
 
-#ifndef _M_X64
-class FsRedirection {
-public:
-  typedef BOOL WINAPI fntype_Wow64DisableWow64FsRedirection(PVOID *OldValue);
-  typedef BOOL WINAPI fntype_Wow64RevertWow64FsRedirection(PVOID *OldValue);
-  FsRedirection() {
-    auto hModule = KrModule();
-    auto pfnWow64DisableWow64FsRedirection =
-        (fntype_Wow64DisableWow64FsRedirection *)GetProcAddress(
-            hModule, "Wow64DisableWow64FsRedirection");
-    if (pfnWow64DisableWow64FsRedirection) {
-      pfnWow64DisableWow64FsRedirection(&OldValue);
-    }
-  }
-  ~FsRedirection() {
-    auto hModule = KrModule();
-    auto pfnWow64RevertWow64FsRedirection =
-        (fntype_Wow64RevertWow64FsRedirection *)GetProcAddress(
-            hModule, "Wow64RevertWow64FsRedirection");
-    if (pfnWow64RevertWow64FsRedirection) {
-      pfnWow64RevertWow64FsRedirection(&OldValue);
-    }
-  }
-
-private:
-  PVOID OldValue = NULL;
-};
-#endif
-
 bool PsCreateProcess(LPWSTR pszCommand) {
   PROCESS_INFORMATION pi;
   STARTUPINFO si;
@@ -544,8 +494,9 @@ bool PsCreateProcess(LPWSTR pszCommand) {
   si.cb = sizeof(si);
   si.dwFlags = STARTF_USESHOWWINDOW;
   si.wShowWindow = SW_SHOW;
-#ifdef _M_IX86 //// Only x86 on Windows 64
-  FsRedirection fsRedirection;
+#if defined(_M_IX86) || defined(_M_ARM)
+  //// Only x86,ARM on Windows 64
+  clangbuilder::FsRedirection fsRedirection;
 #endif
   if (CreateProcessW(nullptr, pszCommand, NULL, NULL, FALSE,
                      CREATE_NEW_CONSOLE | NORMAL_PRIORITY_CLASS, NULL, NULL,
