@@ -1,10 +1,7 @@
 //
-//
-//
-//
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef CBUI_APPUI_HPP
+#define CBUI_APPUI_HPP
 
 #include <atlbase.h>
 #include <atlwin.h>
@@ -16,7 +13,7 @@
 #include <wincodec.h>
 #include <vector>
 #include "Clangbuilder.h"
-#include "Resource.h"
+#include "appuires.h"
 
 #ifndef SYSCOMMAND_ID_HANDLER
 #define SYSCOMMAND_ID_HANDLER(id, func)                                        \

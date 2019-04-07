@@ -1,6 +1,7 @@
 #ifndef CBUI_BASE_HPP
 #define CBUI_BASE_HPP
 #pragma once
+#include "sdkver.hpp"
 #ifndef _WINDOWS_
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN //

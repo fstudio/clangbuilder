@@ -1,6 +1,6 @@
 //////////////
 
-#include "stdafx.h"
+#include "inc/base.hpp"
 #include <stdio.h>
 #include <shellapi.h>
 #include <Shlwapi.h>

@@ -1,29 +1,38 @@
-// ClangbuilderUI.cpp : Defines the entry point for the application.
+// main.cc : Defines the entry point for the application.
 //
-
-#include "stdafx.h"
-#include <stdexcept> // https://en.cppreference.com/w/cpp/error/runtime_error
-#include "ClangbuilderUI.h"
-#include "Clangbuilder.h"
+#include "inc/base.hpp"
 #include "appui.hpp"
 
-class DotComInitialize {
+class dot_global_initializer {
 public:
-  DotComInitialize() {
-    if (FAILED(CoInitialize(NULL))) {
-      throw std::runtime_error("CoInitialize failed");
+  dot_global_initializer() {
+    if (FAILED(::CoInitialize(nullptr))) {
+      ::MessageBoxW(nullptr, L"CoInitialize() failed", L"COM initialize failed",
+                    MB_OK | MB_ICONERROR);
+      ExitProcess(1);
     }
   }
-  ~DotComInitialize() { CoUninitialize(); }
+  dot_global_initializer(const dot_global_initializer &) = delete;
+  dot_global_initializer &operator=(const dot_global_initializer &) = delete;
+  ~dot_global_initializer() { ::CoUninitialize(); }
+
+private:
 };
 
-int WindowMessageRunLoop() {
+int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
+                       _In_opt_ HINSTANCE hPrevInstance, _In_ LPTSTR lpCmdLine,
+                       _In_ int nCmdShow) {
+  UNREFERENCED_PARAMETER(hPrevInstance);
+  UNREFERENCED_PARAMETER(lpCmdLine);
+  UNREFERENCED_PARAMETER(nCmdShow);
+  UNREFERENCED_PARAMETER(hInstance);
+  dot_global_initializer di;
+  HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
   INITCOMMONCONTROLSEX info = {sizeof(INITCOMMONCONTROLSEX),
                                ICC_TREEVIEW_CLASSES | ICC_COOL_CLASSES |
                                    ICC_LISTVIEW_CLASSES};
   InitCommonControlsEx(&info);
-  /// DPI
-  SetProcessDPIAware();
+  SetProcessDPIAware(); // Enable DPI
   MainWindow window;
   MSG msg;
   window.InitializeWindow();
@@ -34,16 +43,4 @@ int WindowMessageRunLoop() {
     DispatchMessage(&msg);
   }
   return 0;
-}
-
-int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
-                       _In_opt_ HINSTANCE hPrevInstance, _In_ LPTSTR lpCmdLine,
-                       _In_ int nCmdShow) {
-  UNREFERENCED_PARAMETER(hPrevInstance);
-  UNREFERENCED_PARAMETER(lpCmdLine);
-  UNREFERENCED_PARAMETER(nCmdShow);
-  UNREFERENCED_PARAMETER(hInstance);
-  DotComInitialize dot;
-  HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
-  return WindowMessageRunLoop();
 }

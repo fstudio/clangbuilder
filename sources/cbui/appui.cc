@@ -1,4 +1,5 @@
-#include "stdafx.h"
+#include "inc/base.hpp"
+#include <Windowsx.h>
 #include <cassert>
 #include <Prsht.h>
 #include <CommCtrl.h>

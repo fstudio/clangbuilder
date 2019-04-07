@@ -1,10 +1,12 @@
 ////
-#include "apputils.hpp"
+#include "inc/apputils.hpp" // WINDOWS
+/////////////////
 #include <CommCtrl.h>
 #include <commdlg.h>
 #include <shellapi.h>
 #include <ShlObj.h>
-#include "comutils.hpp"
+#include "inc/comutils.hpp"
+
 
 HRESULT WINAPI taskdialog_callback_impl(__in HWND hwnd, __in UINT msg,
                                         __in WPARAM wParam, __in LPARAM lParam,
