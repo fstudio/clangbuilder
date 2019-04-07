@@ -24,6 +24,10 @@ struct VSInstanceItem {
   bool operator<(const VSInstanceItem &o) { return ullVersion > o.ullVersion; }
 };
 
+inline bool operator<(const VSInstanceItem &o, const VSInstanceItem &r) {
+  return o.ullVersion > r.ullVersion;
+}
+
 class VisualStudioNativeSearcher {
 public:
   VisualStudioNativeSearcher()
