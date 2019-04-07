@@ -2,7 +2,9 @@
 #ifndef CBUI_APPHELP_HPP
 #define CBUI_APPHELP_HPP
 #include "base.hpp"
-#include <shlwapi.h>
+#include <Shlwapi.h>
+#include <Shellapi.h>
+#include <Shlobj.h>
 
 namespace clangbuilder {
 

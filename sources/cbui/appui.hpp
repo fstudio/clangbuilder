@@ -12,6 +12,7 @@
 #include <dwrite.h>
 #include <wincodec.h>
 #include <vector>
+#include <string_view>
 #include "Clangbuilder.h"
 #include "res/appuires.h"
 #include "inc/comutils.hpp"
@@ -40,6 +41,23 @@ struct KryceLabel {
   }
   RECT layout;
   std::wstring text;
+};
+
+struct EngineItem {
+  EngineItem(std::wstring_view d, std::wstring_view v) : Desc(d), Value(v) {}
+  std::wstring Desc;
+  std::wstring Value;
+};
+
+struct ClangbuilderTable {
+  std::vector<std::wstring> Targets;
+  std::vector<std::wstring> Configurations;
+  std::vector<EngineItem> Engines;
+  std::vector<std::wstring> Branches;
+  ClangbuilderTable &AddEngine(std::wstring_view d, std::wstring_view v){
+    Engines.push_back(EngineItem(d,v));
+    return *this;
+  }
 };
 
 class MainWindow : public CWindowImpl<MainWindow, CWindow, CMetroWindowTraits> {
@@ -114,5 +132,6 @@ private:
   std::vector<VisualStudioInstance> instances_;
   std::wstring targetFile;
   std::wstring root;
+  ClangbuilderTable tables;
 };
 #endif

@@ -30,25 +30,6 @@ inline void SafeRelease(Interface **ppInterfaceToRelease) {
   }
 }
 
-const wchar_t *Platforms[] = {L"x86", L"x64", L"ARM", L"ARM64"};
-const wchar_t *Configurations[] = {L"Release", L"MinSizeRel", L"RelWithDebInfo",
-                                   L"Debug"};
-
-struct EngineItem {
-  const wchar_t *desc;
-  const wchar_t *id;
-};
-
-const EngineItem eitems[] = {
-    {L"Ninja - MSVC", L"Ninja"},
-    {L"Ninja - Clang", L"NinjaIterate"},
-    {L"MSBuild - MSVC", L"MSBuild"},
-    {L"Ninja - Bootstrap", L"NinjaBootstrap"}
-    /// all engine
-};
-
-const wchar_t *BranchTable[] = {L"Mainline", L"Stable", L"Release"};
-
 /*
  * Resources Initialize and Release
  */
@@ -57,7 +38,16 @@ MainWindow::MainWindow()
     : m_pFactory(nullptr), m_pHwndRenderTarget(nullptr),
       m_pBasicTextBrush(nullptr), m_AreaBorderBrush(nullptr),
       m_pWriteFactory(nullptr), m_pWriteTextFormat(nullptr) {
-  ///
+  tables.Targets =
+      std::initializer_list<std::wstring>{L"x86", L"x64", L"ARM", L"ARM64"};
+  tables.Configurations = std::initializer_list<std::wstring>{
+      L"Release", L"MinSizeRel", L"RelWithDebInfo", L"Debug"};
+  tables.AddEngine(L"Ninja - MSVC", L"Ninja");
+  tables.AddEngine(L"Ninja - Clang", L"NinjaIterate");
+  tables.AddEngine(L"MSBuild - MSVC", L"MSBuild");
+  tables.AddEngine(L"Ninja - Bootstrap", L"NinjaBootstrap");
+  tables.Branches =
+      std::initializer_list<std::wstring>{L"Mainline", L"Stable", L"Release"};
 }
 MainWindow::~MainWindow() {
   SafeRelease(&m_pWriteTextFormat);
@@ -224,8 +214,8 @@ HRESULT MainWindow::InitializeControl() {
   int index = instances_.empty() ? 0 : (int)(instances_.size() - 1);
   ::SendMessage(hVisualStudioBox, CB_SETCURSEL, (WPARAM)(index), 0);
 
-  for (auto &a : Platforms) {
-    ::SendMessage(hPlatformBox, CB_ADDSTRING, 0, (LPARAM)a);
+  for (const auto &a : tables.Targets) {
+    ::SendMessage(hPlatformBox, CB_ADDSTRING, 0, (LPARAM)a.data());
   }
 #ifdef _M_X64
   ::SendMessage(hPlatformBox, CB_SETCURSEL, 1, 0);
@@ -238,19 +228,19 @@ HRESULT MainWindow::InitializeControl() {
 
 #endif
 
-  for (auto &f : Configurations) {
-    ::SendMessage(hConfigBox, CB_ADDSTRING, 0, (LPARAM)f);
+  for (const auto &f : tables.Configurations) {
+    ::SendMessage(hConfigBox, CB_ADDSTRING, 0, (LPARAM)f.data());
   }
 
   ::SendMessage(hConfigBox, CB_SETCURSEL, 0, 0);
 
-  for (auto e : eitems) {
-    ::SendMessage(hBuildBox, CB_ADDSTRING, 0, (LPARAM)e.desc);
+  for (const auto &e : tables.Engines) {
+    ::SendMessage(hBuildBox, CB_ADDSTRING, 0, (LPARAM)e.Desc.data());
   }
   ::SendMessage(hBuildBox, CB_SETCURSEL, 0, 0);
 
-  for (auto b : BranchTable) {
-    ::SendMessage(hBranchBox, CB_ADDSTRING, 0, (LPARAM)b);
+  for (const auto &b : tables.Branches) {
+    ::SendMessage(hBranchBox, CB_ADDSTRING, 0, (LPARAM)b.data());
   }
   ::SendMessage(hBranchBox, CB_SETCURSEL, 0, 0);
 
@@ -427,200 +417,6 @@ LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 /*
  * ClangbuilderTarget.ps1
  */
-
-std::wstring ExpandEnvironmentStringsWapper(const wchar_t *str) {
-  std::wstring rstr(0x8000, L'\0');
-  auto N = ExpandEnvironmentStringsW(str, &rstr[0], 0x8000);
-  if (N >= 0) {
-    rstr.resize(N - 1);
-  } else {
-    rstr.clear();
-  }
-  return rstr;
-}
-
-bool PsCreateProcess(LPWSTR pszCommand) {
-  PROCESS_INFORMATION pi;
-  STARTUPINFO si;
-  ZeroMemory(&si, sizeof(si));
-  ZeroMemory(&pi, sizeof(pi));
-  si.cb = sizeof(si);
-  si.dwFlags = STARTF_USESHOWWINDOW;
-  si.wShowWindow = SW_SHOW;
-#if defined(_M_IX86) || defined(_M_ARM)
-  //// Only x86,ARM on Windows 64
-  clangbuilder::FsRedirection fsRedirection;
-#endif
-  if (CreateProcessW(nullptr, pszCommand, NULL, NULL, FALSE,
-                     CREATE_NEW_CONSOLE | NORMAL_PRIORITY_CLASS, NULL, NULL,
-                     &si, &pi)) {
-    CloseHandle(pi.hThread);
-    CloseHandle(pi.hProcess);
-    return true;
-  }
-  return false;
-}
-
-LPWSTR FormatMessageInternal() {
-  LPWSTR hlocal;
-  if (FormatMessageW(
-          FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
-              FORMAT_MESSAGE_ALLOCATE_BUFFER,
-          NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
-          (LPWSTR)&hlocal, 0, NULL)) {
-    return hlocal;
-  }
-  return nullptr;
-}
-
-LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
-                               BOOL &bHandled) {
-  std::wstring Command;
-  if (!clangbuilder::IsPwshCoreEnable(root, Command)) {
-    if (!clangbuilder::LookupPwshDesktop(Command)) {
-      utils::PrivMessageBox(m_hWnd, L"PowerShell not found",
-                            L"Please check PowerShell is installed", nullptr,
-                            utils::kFatalWindow);
-      return S_FALSE;
-    }
-  }
-
-  Command.append(L" -NoLogo -NoExit   -File \"")
-      .append(targetFile)
-      .push_back('"');
-  auto vsindex_ = ComboBox_GetCurSel(hVisualStudioBox);
-  if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_) {
-    return S_FALSE;
-  }
-  auto archindex_ = ComboBox_GetCurSel(hPlatformBox);
-  if (archindex_ < 0 || ARRAYSIZE(Platforms) <= archindex_) {
-    return S_FALSE;
-  }
-  int xver = 0;
-  wchar_t *mm = nullptr;
-  xver = wcstoul(instances_[vsindex_].installversion.c_str(), &mm, 10);
-  if (xver < 15 && archindex_ >= 3) {
-    utils::PrivMessageBox(
-        m_hWnd, L"This toolchain does not support ARM64",
-        L"Please use Visual Studio 15.4 or Later (CppDailyTools "
-        L"14.13.26310 or Later)",
-        nullptr, utils::kFatalWindow);
-    return S_FALSE;
-  }
-  auto flavor_ = ComboBox_GetCurSel(hConfigBox);
-  if (flavor_ < 0 || ARRAYSIZE(Configurations) <= flavor_) {
-    return S_FALSE;
-  }
-
-  auto be = ComboBox_GetCurSel(hBuildBox);
-  if (be < 0 || ARRAYSIZE(eitems) <= be) {
-    return S_FALSE;
-  }
-
-  auto bs = ComboBox_GetCurSel(hBranchBox);
-  if (bs < 0 || ARRAYSIZE(BranchTable) <= bs) {
-    return S_FALSE;
-  }
-
-  Command.append(L" -InstanceId ").append(instances_[vsindex_].instanceId);
-  Command.append(L" -InstallationVersion ")
-      .append(instances_[vsindex_].installversion);
-  Command.append(L" -Arch ").append(Platforms[archindex_]);
-  Command.append(L" -Flavor ").append(Configurations[flavor_]);
-  Command.append(L" -Engine ").append(eitems[be].id);
-  Command.append(L" -Branch ").append(BranchTable[bs]);
-
-  if ((be == 1 || be == 3) && Button_GetCheck(hLibcxx_) == BST_CHECKED) {
-    Command.append(L" -Libcxx");
-  }
-
-  if (Button_GetCheck(hCheckLTO_) == BST_CHECKED) {
-    Command.append(L" -LTO");
-  }
-
-  if (Button_GetCheck(hCheckSdklow_) == BST_CHECKED) {
-    Command.append(L" -Sdklow");
-  }
-
-  if (Button_GetCheck(hCheckPackaged_) == BST_CHECKED) {
-    Command.append(L" -Package");
-  }
-
-  if (Button_GetCheck(hCheckLLDB_) == BST_CHECKED) {
-    Command.append(L" -LLDB");
-  }
-
-  if (Button_GetCheck(hCheckCleanEnv_) == BST_CHECKED) {
-    Command.append(L" -ClearEnv");
-  }
-  if (!PsCreateProcess(&Command[0])) {
-    ////
-    auto errmsg = FormatMessageInternal();
-    if (errmsg) {
-      utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", errmsg, nullptr,
-                            utils::kFatalWindow);
-      LocalFree(errmsg);
-    }
-  }
-  return S_OK;
-}
-
-LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
-                                 BOOL &bHandled) {
-  std::wstring Command;
-  if (!clangbuilder::IsPwshCoreEnable(root, Command)) {
-    if (!clangbuilder::LookupPwshDesktop(Command)) {
-      utils::PrivMessageBox(m_hWnd, L"Search PowerShell Error",
-                            L"Please check PowerShell", nullptr,
-                            utils::kFatalWindow);
-      return S_FALSE;
-    }
-  }
-
-  Command.append(L" -NoLogo -NoExit   -File \"")
-      .append(targetFile)
-      .push_back('"');
-  auto vsindex_ = ComboBox_GetCurSel(hVisualStudioBox);
-  if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_) {
-    return S_FALSE;
-  }
-  auto archindex_ = ComboBox_GetCurSel(hPlatformBox);
-  if (archindex_ < 0 || sizeof(Platforms) <= archindex_) {
-    return S_FALSE;
-  }
-  int xver = 0;
-  wchar_t *mm = nullptr;
-  xver = wcstoul(instances_[vsindex_].installversion.c_str(), &mm, 10);
-  if (xver < 15 && archindex_ >= 3) {
-    utils::PrivMessageBox(
-        m_hWnd, L"This toolchain does not support ARM64",
-        L"Please use Visual Studio 15.4 or Later (CppDailyTools "
-        L"14.13.26310 or Later)",
-        nullptr, utils::kFatalWindow);
-    return S_FALSE;
-  }
-  Command.append(L" -Environment -InstanceId ")
-      .append(instances_[vsindex_].instanceId);
-  Command.append(L" -InstallationVersion ")
-      .append(instances_[vsindex_].installversion);
-  Command.append(L" -Arch ").append(Platforms[archindex_]);
-  if (Button_GetCheck(hCheckSdklow_) == BST_CHECKED) {
-    Command.append(L" -Sdklow");
-  }
-  if (Button_GetCheck(hCheckCleanEnv_) == BST_CHECKED) {
-    Command.append(L" -ClearEnv");
-  }
-
-  if (!PsCreateProcess(&Command[0])) {
-    auto errmsg = FormatMessageInternal();
-    if (errmsg) {
-      utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", errmsg, nullptr,
-                            utils::kFatalWindow);
-      LocalFree(errmsg);
-    }
-  }
-  return S_OK;
-}
 
 LRESULT MainWindow::OnChangeEngine(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                    BOOL &bHandled) {

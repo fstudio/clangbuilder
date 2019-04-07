@@ -43,7 +43,9 @@ include(CPack)
 
 
 add_executable(ClangbuilderUI WIN32
+  main.cc
   appui.cc
+  apprun.cc
   apputils.cc
   vssearch.cc
 )
