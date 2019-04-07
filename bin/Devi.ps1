@@ -38,7 +38,7 @@ Function CMDSearch {
     Write-Host -ForegroundColor Green "devi portable package manager, found ports:"
     Get-ChildItem -Path "$Root/ports/*.json" |ForEach-Object {
         $cj = Get-Content $_.FullName  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
-        if ($null -eq $cj) {
+        if ($null -ne $cj) {
             "$($_.BaseName)".PadRight(20) + "$($cj.version)".PadRight(20) + $cj.description
         }
     }
@@ -392,7 +392,7 @@ switch ($subcmd) {
         exit 0
     }
     Default {
-        Write-Host -ForegroundColor Red "unsupported command '$subcmd' your can run devi help -a"
+        Write-Host -ForegroundColor Red "unsupported command '$subcmd' your can run devi help"
         exit 1
     }
 }

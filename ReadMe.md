@@ -37,8 +37,6 @@ Click the `script/InitializeEnv.bat`
 
 The installation script will compile ClangbuilderUI and create a shortcut, download required packages.
 
-If your need install `VisualCppTools.Community.Daily` ,click `script/VisualCppToolsFetch.bat`
-
 
 ## Use Powershell Core
 
@@ -63,12 +61,6 @@ You can run ClangbuilderUI, Modify Arch, Configuration and other options. after 
 
 ![clangbuilder](./docs/images/cbui.png)
 
-**Update 2017-08-19** Clangbuilder support **VisualCppTools.Community.Daily**:
-
-![visualcpptools](./docs/images/visualcpptools.png)
-
-**VisualCppTools.Community.Daily** current not support msbuild (becasue cmake ...)
-
 **Update 2017-09-17** ClangbuilderUI Support EWDK
 
 ![ewdk](./docs/images/ewdk.png)
@@ -76,7 +68,7 @@ You can run ClangbuilderUI, Modify Arch, Configuration and other options. after 
 **Branch**
 
 +  Mainline, master/trunk branch , git fetch from https://github.com/llvm-mirror/
-+  Stable, llvm stable branch, like release_60, git fetch from https://github.com/llvm-mirror/
++  Stable, llvm stable branch, like release_80, git fetch from https://github.com/llvm-mirror/
 +  Release, llvm release tag, download for https://releases.llvm.org/
 
 
@@ -244,28 +236,35 @@ Default installed tools:
 Current ported tools:
 
 ```txt
-7z                  18.05               7-Zip is a file archiver with a high compression ratio
-ag                  2018-04-24/2.1.0    A code-searching tool similar to ack, but faster.
-aria2               1.33.1              The ultra fast download utility
-cmake               3.11.1              CMake is an open-source, cross-platform family of tools designed to build, test and package software
-curl                7.59.0              Curl is a command-line tool for transferring data specified with URL syntax.
-git                 2.17.0              Git is a modern distributed version control system focused on speed
-gnuutils            1.0                 GNU utils for Windows
-hg                  4.5.2               Mercurial is a free, distributed source control management tool.
-nasm                2.13.03             NASM - The Netwide Assembler
-neovim              0.2.2               Neovim - Vim-fork focused on extensibility and usability
-ninja               1.8.2               Ninja is a small build system with a focus on speed.
-nsis                3.03                NSIS (Nullsoft Scriptable Install System) is a professional open source system to create Windows installers.
-nuget               4.6.2               NuGet is the package manager for .NET. The NuGet client tools provide the ability to produce and consume packages.
-openssh             v7.6.1.0p1-Beta     Portable OpenSSH
-perl5               5.26.1.1            Perl 5 is a highly capable, feature-rich programming language.
+7z                  19.00               7-Zip is a file archiver with a high compression ratio
+ag                  2019-03-23/2.2.0-19-g965f71dA code-searching tool similar to ack, but faster.
+aria2               1.34.0              The ultra fast download utility
+bat                 v0.10.0             A cat(1) clone with wings.
+cmake               3.14.1              CMake is an open-source, cross-platform family of tools designed to build, test and package software
+curl                7.64.1              Curl is a command-line tool for transferring data specified with URL syntax.
+fd                  v7.3.0              A simple, fast and user-friendly alternative to 'find'
+git                 2.21.0              Git is a modern distributed version control system focused on speed
+hg                  4.9.0               Mercurial is a free, distributed source control management tool.
+innoextract         1.7                 A tool to unpack installers created by Inno Setup.
+innounp             0.48                InnoUnp - Inno Setup Unpacker.
+jom                 1.1.3               jom is a clone of nmake
+mach2               0.3.0.0             Mach2 manages the Windows Feature Store, where Features (and associated on/off state) live.
+nasm                2.14.02             NASM - The Netwide Assembler
+neovim              0.3.4               Neovim - Vim-fork focused on extensibility and usability
+ninja               1.9.0               Ninja is a small build system with a focus on speed.
+nsis                3.04                NSIS (Nullsoft Scriptable Install System) is a professional open source system to create Windows installers.
+nuget               4.9.3               NuGet is the package manager for .NET. The NuGet client tools provide the ability to produce and consume packages.
+openssh             v7.9.0.0p1-Beta     Portable OpenSSH
+perl5               5.28.1.1            Perl 5 is a highly capable, feature-rich programming language.
+pijul               0.11.0              Pijul is a free and open source (GPL2) distributed version control system.
 putty               0.70                PuTTY: a free SSH and Telnet client.
 python3             3.5.4               Python is a programming language.
-radare              2.5.0               unix-like reverse engineering framework and commandline tools
-ripgrep             0.8.1               ripgrep recursively searches directories for a regex pattern.
+radare              3.2.1               unix-like reverse engineering framework and commandline tools
+ripgrep             0.10.0              ripgrep recursively searches directories for a regex pattern.
 swigwin             3.0.12              Simplified Wrapper and Interface Generator
-vswhere             2.4.1               Locate Visual Studio 2017 and newer installations.
-wget                1.19.4              A command-line utility for retrieving files using HTTP, HTTPS and FTP protocols.
+vswhere             2.6.7               Visual Studio Locator.
+watchexec           1.10.0              Execute commands in response to file modifications.
+wget                1.20.0              A command-line utility for retrieving files using HTTP, HTTPS and FTP protocols.
 ```
 
 **Extensions**:
