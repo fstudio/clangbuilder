@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include "Clangbuilder.h"
 #include "cmVSSetupHelper.h"
-#include "json.hpp"
+#include "inc/json.hpp"
 
 bool PutEnvironmentVariableW(const wchar_t *name, const wchar_t *va) {
   std::wstring buf(PATHCCH_MAX_CCH, L'\0');

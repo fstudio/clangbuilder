@@ -9,8 +9,9 @@
 #include <ShellScalingAPI.h>
 #include <array>
 #include "version.h"
-#include "MainWindow.h"
-#include "apputils.hpp"
+#include "inc/apphelp.hpp"
+#include "inc/apputils.hpp"
+#include "appui.hpp"
 
 #ifndef HINST_THISCOMPONENT
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
@@ -229,7 +230,7 @@ HRESULT MainWindow::InitializeControl() {
 #ifdef _M_X64
   ::SendMessage(hPlatformBox, CB_SETCURSEL, 1, 0);
 #else
-  if (KrIsWow64Process()) {
+  if (IsWow64Process()) {
     ::SendMessage(hPlatformBox, CB_SETCURSEL, 1, 0);
   } else {
     ::SendMessage(hPlatformBox, CB_SETCURSEL, 0, 0);
