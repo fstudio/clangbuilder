@@ -8,8 +8,9 @@
 #include <PathCch.h>
 #include <ShellScalingAPI.h>
 #include <array>
+#include "version.h"
 #include "MainWindow.h"
-#include "MessageWindow.h"
+#include "apputils.hpp"
 
 #ifndef HINST_THISCOMPONENT
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
@@ -421,12 +422,8 @@ LRESULT MainWindow::OnCtlColorStatic(UINT nMsg, WPARAM wParam, LPARAM lParam,
 
 LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                    BOOL &bHandled) {
-  MessageWindowEx(m_hWnd, L"About Clangbuilder",
-                  L"Prerelease: 3.2\nCopyright \xA9 2019, Force Charlie. "
-                  L"All Rights Reserved.",
-                  L"For more information about this tool.\nVisit: <a "
-                  L"href=\"http://forcemz.net/\">forcemz.net</a>",
-                  kAboutWindow);
+  utils::PrivMessageBox(m_hWnd, L"About Clangbuilder", CLANGBUILDER_APPVERSION,
+                        CLANGBUILDER_APPLINK, utils::kAboutWindow);
   return S_OK;
 }
 
@@ -585,8 +582,9 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   std::wstring Command;
   if (!IsPwshRequired(Command)) {
     if (!InitializeSearchPowershell(Command)) {
-      MessageWindowEx(m_hWnd, L"Search PowerShell Error",
-                      L"Please check PowerShell", nullptr, kFatalWindow);
+      utils::PrivMessageBox(m_hWnd, L"Search PowerShell Error",
+                            L"Please check PowerShell", nullptr,
+                            utils::kFatalWindow);
       return S_FALSE;
     }
   }
@@ -606,10 +604,11 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   wchar_t *mm = nullptr;
   xver = wcstoul(instances_[vsindex_].installversion.c_str(), &mm, 10);
   if (xver < 15 && archindex_ >= 3) {
-    MessageWindowEx(m_hWnd, L"This toolchain does not support ARM64",
-                    L"Please use Visual Studio 15.4 or Later (CppDailyTools "
-                    L"14.13.26310 or Later)",
-                    nullptr, kFatalWindow);
+    utils::PrivMessageBox(
+        m_hWnd, L"This toolchain does not support ARM64",
+        L"Please use Visual Studio 15.4 or Later (CppDailyTools "
+        L"14.13.26310 or Later)",
+        nullptr, utils::kFatalWindow);
     return S_FALSE;
   }
   auto flavor_ = ComboBox_GetCurSel(hConfigBox);
@@ -662,8 +661,8 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     ////
     auto errmsg = FormatMessageInternal();
     if (errmsg) {
-      MessageWindowEx(m_hWnd, L"CreateProcess failed", errmsg, nullptr,
-                      kFatalWindow);
+      utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", errmsg, nullptr,
+                            utils::kFatalWindow);
       LocalFree(errmsg);
     }
   }
@@ -675,8 +674,9 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   std::wstring Command;
   if (!IsPwshRequired(Command)) {
     if (!InitializeSearchPowershell(Command)) {
-      MessageWindowEx(m_hWnd, L"Search PowerShell Error",
-                      L"Please check PowerShell", nullptr, kFatalWindow);
+      utils::PrivMessageBox(m_hWnd, L"Search PowerShell Error",
+                            L"Please check PowerShell", nullptr,
+                            utils::kFatalWindow);
       return S_FALSE;
     }
   }
@@ -696,10 +696,11 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   wchar_t *mm = nullptr;
   xver = wcstoul(instances_[vsindex_].installversion.c_str(), &mm, 10);
   if (xver < 15 && archindex_ >= 3) {
-    MessageWindowEx(m_hWnd, L"This toolchain does not support ARM64",
-                    L"Please use Visual Studio 15.4 or Later (CppDailyTools "
-                    L"14.13.26310 or Later)",
-                    nullptr, kFatalWindow);
+    utils::PrivMessageBox(
+        m_hWnd, L"This toolchain does not support ARM64",
+        L"Please use Visual Studio 15.4 or Later (CppDailyTools "
+        L"14.13.26310 or Later)",
+        nullptr, utils::kFatalWindow);
     return S_FALSE;
   }
   Command.append(L" -Environment -InstanceId ")
@@ -717,8 +718,8 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   if (!PsCreateProcess(&Command[0])) {
     auto errmsg = FormatMessageInternal();
     if (errmsg) {
-      MessageWindowEx(m_hWnd, L"CreateProcess failed", errmsg, nullptr,
-                      kFatalWindow);
+      utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", errmsg, nullptr,
+                            utils::kFatalWindow);
       LocalFree(errmsg);
     }
   }
