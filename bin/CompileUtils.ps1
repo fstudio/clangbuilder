@@ -20,7 +20,7 @@ if ($ret -ne 0) {
 }
 ## Add environment
 InitializeEnv -ClangbuilderRoot $ClangbuilderRoot
-Set-Location "$ClangbuilderRoot\sources\ClangbuilderUI"
+Set-Location "$ClangbuilderRoot\sources\cbui"
 Write-Host "Building ClangbuilderUI ..."
 &nmake
 

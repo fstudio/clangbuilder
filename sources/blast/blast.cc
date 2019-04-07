@@ -1,6 +1,6 @@
+#include <stdexcept>
+#include <clocale>
 #include "blast.hpp"
-
-
 
 void usage() {
   const wchar_t *kusage = LR"(blast symbolic linker

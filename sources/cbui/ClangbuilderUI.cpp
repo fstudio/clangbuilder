@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include <stdexcept> // https://en.cppreference.com/w/cpp/error/runtime_error
 #include "ClangbuilderUI.h"
 #include "Clangbuilder.h"
 #include "MainWindow.h"
