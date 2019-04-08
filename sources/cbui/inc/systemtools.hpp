@@ -5,8 +5,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <wchar.h>
+#include <algorithm>
 #include <string>
 #include <string_view>
+#include <cctype>
 #include <fstream>
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -46,6 +48,53 @@ inline bool UnCaseEqual(std::wstring_view a, std::wstring_view b) {
     }
   }
   return true;
+}
+
+// Returns std::string_view with whitespace stripped from the beginning of the
+// given string_view.
+inline std::string_view StripLeadingAsciiWhitespace(
+    std::string_view str) {
+  auto it = std::find_if_not(str.begin(), str.end(), std::isspace);
+  return str.substr(it - str.begin());
+}
+
+// Returns std::string_view with whitespace stripped from the end of the given
+// string_view.
+inline std::string_view StripTrailingAsciiWhitespace(
+    std::string_view str) {
+  auto it = std::find_if_not(str.rbegin(), str.rend(), std::isspace);
+  return str.substr(0, str.rend() - it);
+}
+
+// Returns std::string_view with whitespace stripped from both ends of the
+// given string_view.
+inline std::string_view StripAsciiWhitespace(
+    std::string_view str) {
+  return StripTrailingAsciiWhitespace(StripLeadingAsciiWhitespace(str));
+}
+
+////////////// wstring_view
+// Returns std::wstring_view with whitespace stripped from the beginning of the
+// given string_view.
+inline std::wstring_view StripLeadingAsciiWhitespace(
+    std::wstring_view str) {
+  auto it = std::find_if_not(str.begin(), str.end(), std::isspace);
+  return str.substr(it - str.begin());
+}
+
+// Returns std::wstring_view with whitespace stripped from the end of the given
+// string_view.
+inline std::wstring_view StripTrailingAsciiWhitespace(
+    std::wstring_view str) {
+  auto it = std::find_if_not(str.rbegin(), str.rend(), std::isspace);
+  return str.substr(0, str.rend() - it);
+}
+
+// Returns std::wstring_view with whitespace stripped from both ends of the
+// given string_view.
+inline std::wstring_view StripAsciiWhitespace(
+    std::wstring_view str) {
+  return StripTrailingAsciiWhitespace(StripLeadingAsciiWhitespace(str));
 }
 
 inline std::wstring TrimWhitespace(const std::wstring &s) {
