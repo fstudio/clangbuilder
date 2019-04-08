@@ -52,106 +52,43 @@ inline bool UnCaseEqual(std::wstring_view a, std::wstring_view b) {
 
 // Returns std::string_view with whitespace stripped from the beginning of the
 // given string_view.
-inline std::string_view StripLeadingAsciiWhitespace(
-    std::string_view str) {
+inline std::string_view StripLeadingAsciiWhitespace(std::string_view str) {
   auto it = std::find_if_not(str.begin(), str.end(), std::isspace);
   return str.substr(it - str.begin());
 }
 
 // Returns std::string_view with whitespace stripped from the end of the given
 // string_view.
-inline std::string_view StripTrailingAsciiWhitespace(
-    std::string_view str) {
+inline std::string_view StripTrailingAsciiWhitespace(std::string_view str) {
   auto it = std::find_if_not(str.rbegin(), str.rend(), std::isspace);
   return str.substr(0, str.rend() - it);
 }
 
 // Returns std::string_view with whitespace stripped from both ends of the
 // given string_view.
-inline std::string_view StripAsciiWhitespace(
-    std::string_view str) {
+inline std::string_view StripAsciiWhitespace(std::string_view str) {
   return StripTrailingAsciiWhitespace(StripLeadingAsciiWhitespace(str));
 }
 
 ////////////// wstring_view
 // Returns std::wstring_view with whitespace stripped from the beginning of the
 // given string_view.
-inline std::wstring_view StripLeadingAsciiWhitespace(
-    std::wstring_view str) {
+inline std::wstring_view StripLeadingAsciiWhitespace(std::wstring_view str) {
   auto it = std::find_if_not(str.begin(), str.end(), std::isspace);
   return str.substr(it - str.begin());
 }
 
 // Returns std::wstring_view with whitespace stripped from the end of the given
 // string_view.
-inline std::wstring_view StripTrailingAsciiWhitespace(
-    std::wstring_view str) {
+inline std::wstring_view StripTrailingAsciiWhitespace(std::wstring_view str) {
   auto it = std::find_if_not(str.rbegin(), str.rend(), std::isspace);
   return str.substr(0, str.rend() - it);
 }
 
 // Returns std::wstring_view with whitespace stripped from both ends of the
 // given string_view.
-inline std::wstring_view StripAsciiWhitespace(
-    std::wstring_view str) {
+inline std::wstring_view StripAsciiWhitespace(std::wstring_view str) {
   return StripTrailingAsciiWhitespace(StripLeadingAsciiWhitespace(str));
-}
-
-inline std::wstring TrimWhitespace(const std::wstring &s) {
-  auto it = s.begin();
-  while (it != s.end() && isspace(*it)) {
-    ++it;
-  }
-  if (it == s.end()) {
-    return L"";
-  }
-  std::wstring::const_iterator stop = s.end() - 1;
-  while (isspace(*stop)) {
-    --stop;
-  }
-  return std::wstring(it, stop + 1);
-}
-
-inline bool ComparePath(std::wstring_view a, std::wstring_view b) {
-  return UnCaseEqual(a, b);
-}
-
-inline bool GetLineFromStream(std::istream &is, std::string &line,
-                              bool *has_newline = nullptr,
-                              long sizeLimit = -1) {
-  // Start with an empty line.
-  line = "";
-
-  // Early short circuit return if stream is no good. Just return
-  // false and the empty line. (Probably means caller tried to
-  // create a file stream with a non-existent file name...)
-  //
-  if (!is) {
-    if (has_newline) {
-      *has_newline = false;
-    }
-    return false;
-  }
-
-  std::getline(is, line);
-  bool haveData = !line.empty() || !is.eof();
-  if (!line.empty()) {
-    // Avoid storing a carriage return character.
-    if (line.back() == '\r') {
-      line.resize(line.size() - 1);
-    }
-
-    // if we read too much then truncate the buffer
-    if (sizeLimit >= 0 && line.size() >= static_cast<size_t>(sizeLimit)) {
-      line.resize(sizeLimit);
-    }
-  }
-
-  // Return the results.
-  if (has_newline) {
-    *has_newline = !is.eof();
-  }
-  return haveData;
 }
 
 inline bool FileIsDirectory(std::wstring_view dir) {
@@ -176,6 +113,6 @@ std::wstring utf8towide(std::string_view u8) {
   return wstr;
 }
 
-} // namespace cmsys
+} // namespace clangbuilder
 
 #endif

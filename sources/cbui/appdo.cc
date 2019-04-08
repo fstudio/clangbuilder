@@ -54,7 +54,7 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
       .append(targetFile)
       .push_back('"');
   auto vsindex_ = ComboBox_GetCurSel(hVisualStudioBox);
-  if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_) {
+  if (vsindex_ < 0 || search.Size() <= (size_t)vsindex_) {
     return S_FALSE;
   }
   auto archindex_ = ComboBox_GetCurSel(hPlatformBox);
@@ -63,7 +63,7 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   }
   int xver = 0;
   wchar_t *mm = nullptr;
-  xver = wcstoul(instances_[vsindex_].installversion.c_str(), &mm, 10);
+  xver = wcstoul(search.Version(vsindex_), &mm, 10);
   if (xver < 15 && archindex_ >= 3) {
     utils::PrivMessageBox(
         m_hWnd, L"This toolchain does not support ARM64",
@@ -87,9 +87,9 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return S_FALSE;
   }
 
-  Command.append(L" -InstanceId ").append(instances_[vsindex_].instanceId);
+  Command.append(L" -InstanceId ").append(search.InstanceId(vsindex_));
   Command.append(L" -InstallationVersion ")
-      .append(instances_[vsindex_].installversion);
+      .append(search.InstallVersion(vsindex_));
   Command.append(L" -Arch ").append(tables.Targets[archindex_]);
   Command.append(L" -Flavor ").append(tables.Configurations[flavor_]);
   Command.append(L" -Engine ").append(tables.Engines[be].Value);
@@ -146,7 +146,7 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
       .append(targetFile)
       .push_back('"');
   auto vsindex_ = ComboBox_GetCurSel(hVisualStudioBox);
-  if (vsindex_ < 0 || instances_.size() <= (size_t)vsindex_) {
+  if (vsindex_ < 0 || search.Size() <= (size_t)vsindex_) {
     return S_FALSE;
   }
   auto archindex_ = ComboBox_GetCurSel(hPlatformBox);
@@ -155,7 +155,7 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   }
   int xver = 0;
   wchar_t *mm = nullptr;
-  xver = wcstoul(instances_[vsindex_].installversion.c_str(), &mm, 10);
+  xver = wcstoul(search.Version(vsindex_), &mm, 10);
   if (xver < 15 && archindex_ >= 3) {
     utils::PrivMessageBox(
         m_hWnd, L"This toolchain does not support ARM64",
@@ -165,9 +165,9 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return S_FALSE;
   }
   Command.append(L" -Environment -InstanceId ")
-      .append(instances_[vsindex_].instanceId);
+      .append(search.InstanceId(vsindex_));
   Command.append(L" -InstallationVersion ")
-      .append(instances_[vsindex_].installversion);
+      .append(search.InstallVersion(vsindex_));
   Command.append(L" -Arch ").append(tables.Targets[archindex_]);
   if (Button_GetCheck(hCheckSdklow_) == BST_CHECKED) {
     Command.append(L" -Sdklow");

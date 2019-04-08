@@ -8,15 +8,15 @@
 namespace priv {
 template <class T> class comptr {
 public:
-  comptr() { ptr = NULL; }
+  comptr() { ptr = nullptr; }
   comptr(T *p) {
     ptr = p;
-    if (ptr != NULL)
+    if (ptr != nullptr)
       ptr->AddRef();
   }
   comptr(const comptr<T> &sptr) {
     ptr = sptr.ptr;
-    if (ptr != NULL)
+    if (ptr != nullptr)
       ptr->AddRef();
   }
   T **operator&() { return &ptr; }
@@ -24,14 +24,14 @@ public:
   T *operator=(T *p) {
     if (*this != p) {
       ptr = p;
-      if (ptr != NULL)
+      if (ptr != nullptr)
         ptr->AddRef();
     }
     return *this;
   }
   operator T *() const { return ptr; }
   template <class I> HRESULT QueryInterface(REFCLSID rclsid, I **pp) {
-    if (pp != NULL) {
+    if (pp != nullptr) {
       return ptr->QueryInterface(rclsid, (void **)pp);
     } else {
       return E_FAIL;
@@ -45,19 +45,19 @@ public:
     return hr;
   }
   ~comptr() {
-    if (ptr != NULL)
+    if (ptr != nullptr)
       ptr->Release();
   }
 
 private:
-  T *ptr;
+  T *ptr{nullptr};
 };
 
 class comstr {
 public:
   comstr() { str = nullptr; }
   comstr(const comstr &src) {
-    if (src.str != NULL) {
+    if (src.str != nullptr) {
       str = ::SysAllocStringByteLen((char *)str, ::SysStringByteLen(str));
     } else {
       str = ::SysAllocStringByteLen(NULL, 0);
@@ -66,7 +66,7 @@ public:
   comstr &operator=(const comstr &src) {
     if (str != src.str) {
       ::SysFreeString(str);
-      if (src.str != NULL) {
+      if (src.str != nullptr) {
         str = ::SysAllocStringByteLen((char *)str, ::SysStringByteLen(str));
       } else {
         str = ::SysAllocStringByteLen(NULL, 0);

@@ -13,9 +13,9 @@
 #include <wincodec.h>
 #include <vector>
 #include <string_view>
-#include "Clangbuilder.h"
 #include "res/appuires.h"
 #include "inc/comutils.hpp"
+#include "inc/vssearch.hpp"
 
 #ifndef SYSCOMMAND_ID_HANDLER
 #define SYSCOMMAND_ID_HANDLER(id, func)                                        \
@@ -129,9 +129,9 @@ private:
   HWND hButtonTask_;
   HWND hButtonEnv_;
   std::vector<KryceLabel> label_;
-  std::vector<VisualStudioInstance> instances_;
   std::wstring targetFile;
   std::wstring root;
   ClangbuilderTable tables;
+  VisualStudioSeacher search;
 };
 #endif

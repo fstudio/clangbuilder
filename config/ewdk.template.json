@@ -1,4 +1,6 @@
 {
 	"Path": "D:\\EWDK",
-	"Version": "10.0.18290.0"
+	"Version": "10.0.18290.0",
+	"VisualStudio": "2017",
+	"VisualStudioVersion": "15.0"
 }

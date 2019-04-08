@@ -203,15 +203,15 @@ HRESULT MainWindow::InitializeControl() {
     return S_FALSE;
   }
 
-  if (!VisualStudioSearch(root, instances_)) {
-    return S_FALSE;
+  if (!search.Execute(root)) {
+    return false;
   }
 
-  for (auto &i : instances_) {
+  for (const auto &i : search.Instances()) {
     ::SendMessage(hVisualStudioBox, CB_ADDSTRING, 0,
-                  (LPARAM)(i.description.c_str()));
+                  (LPARAM)(i.DisplayName.c_str()));
   }
-  int index = instances_.empty() ? 0 : (int)(instances_.size() - 1);
+  auto index = search.Index();
   ::SendMessage(hVisualStudioBox, CB_SETCURSEL, (WPARAM)(index), 0);
 
   for (const auto &a : tables.Targets) {
