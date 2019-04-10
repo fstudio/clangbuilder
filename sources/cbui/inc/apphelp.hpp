@@ -9,11 +9,22 @@
 namespace clangbuilder {
 
 #if defined(_M_AMD64) || defined(_M_ARM64)
+//#if defined(_X86_)
 inline bool IsWow64ProcessEx() { return false; } /// constexpr
 inline bool IsWow64Process() { return false; }   /// constexpr
 class FsRedirection {};
 #else
 //// Windows x86 or other
+
+/*
+The GetModuleHandle function returns a handle to a mapped module without
+incrementing its reference count. However, if this handle is passed to the
+FreeLibrary function, the reference count of the mapped module will be
+decremented. Therefore, do not pass a handle returned by GetModuleHandle to the
+FreeLibrary function. Doing so can cause a DLL module to be unmapped
+prematurely.
+*/
+
 class FsRedirection {
 public:
   typedef BOOL WINAPI fntype_Wow64DisableWow64FsRedirection(PVOID *OldValue);
@@ -75,6 +86,7 @@ inline bool IsWow64Process() {
   return (bIsWow64 == TRUE);
 }
 #endif
+
 constexpr size_t pathcchmax = 0x8000;
 inline bool LookupClangbuilderTarget(std::wstring &root,
                                      std::wstring &targetFile,
@@ -122,7 +134,7 @@ inline bool LookupPwshCore(std::wstring &ps) {
     }
   }
   WIN32_FIND_DATAW wfd;
-  auto findstr = psdir + L"\\*";
+  auto findstr = base::strcat(psdir, L"\\*");
   HANDLE hFind = FindFirstFileW(findstr.c_str(), &wfd);
   if (hFind == INVALID_HANDLE_VALUE) {
     return false; /// Not found

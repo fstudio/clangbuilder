@@ -9,10 +9,10 @@ Function Invoke-BatchFile {
     Set-StrictMode -Version Latest
     $tempFile = [IO.Path]::GetTempFileName()
 
-    cmd /c " `"$Path`" $argumentList && set > `"$tempFile`" "|Out-Host
+    cmd.exe /c " `"$Path`" $argumentList && set > `"$tempFile`" " | Out-Host
     ## Go through the environment variables in the temp file.
     ## For each of them, set the variable in our local environment.
-    Get-Content $tempFile | Foreach-Object {
+    Get-Content $tempFile | ForEach-Object {
         if ($_ -match "^(.*?)=(.*)$") {
             Set-Content "env:\$($matches[1])" $matches[2]
         }
@@ -62,6 +62,8 @@ Function Get-ArchBatchString {
     }
 }
 
+
+
 Function InitializeEnterpriseWDK {
     param(
         [String]$Arch = "ARM64",
@@ -76,26 +78,42 @@ Function InitializeEnterpriseWDK {
         Write-Host -ForegroundColor Red "Not Enterprise WDK config file`nDownload URL: https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewWDK"
         return 1
     }
-    $EWDKObj = Get-Content -Path "$EWDKFile" |ConvertFrom-Json
+    $EWDKObj = Get-Content -Path "$EWDKFile" | ConvertFrom-Json
     $EWDKPath = $EWDKObj.Path
-    $EWDKVersion = $EWDKObj.Version
     if (!(Test-Path $EWDKPath)) {
         Write-Error "Not Enterprise WDK directory !"
         return 1
     }
+    [xml]$ewdkmanifest = Get-Content -Path "$EWDKPath\Program Files\Windows Kits\10\SDKManifest.xml"
+
+    $EWDKVersion = $ewdkmanifest.FileList.PlatformIdentity.Split("=")[1]
+
     Write-Host "Initialize Windows 10 Enterprise WDK $Arch  Environment ..."
     Write-Host "Enterprise WDK Version: $EWDKVersion"
-    $BuildTools = "$EWDKPath\Program Files\Microsoft Visual Studio\2017\BuildTools"
+
+    $ewdkdirobj = Get-ChildItem -Path "$EWDKPath\Program Files\Microsoft Visual Studio\" -ErrorAction SilentlyContinue
+    if ($null -eq $ewdkdirobj) {
+        Write-Host "Enterprise WDK Visual Studio Not Found"
+        return 1
+    }
+    $VSProduct = $ewdkdirobj.BaseName
+    $BuildTools = "$EWDKPath\Program Files\Microsoft Visual Studio\${VSProduct}\BuildTools"
     $SdkBaseDir = "$EWDKPath\Program Files\Windows Kits\10"
     $xml = [xml](Get-Content -Path "$BuildTools\VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.props")
     $VCToolsVersion = $xml.Project.PropertyGroup.VCToolsVersion.'#text'
-    $env:VS150COMNTOOLS = "$BuildTools\Common7\Tools\"
-    Write-Host "Visual C++ Version: $VCToolsVersion`nUpdate `$env:VS150COMNTOOLS to: $env:VS150COMNTOOLS"
+    if ($VSProduct -eq "2019") {
+        $env:VS160COMNTOOLS = "$BuildTools\Common7\Tools\"
+        Write-Host "Visual C++ Version: $VCToolsVersion`nUpdate `$env:VS160COMNTOOLS to: $env:VS150COMNTOOLS"
+    }
+    if ($VSProduct -eq "2017") {
+        $env:VS150COMNTOOLS = "$BuildTools\Common7\Tools\"
+        Write-Host "Visual C++ Version: $VCToolsVersion`nUpdate `$env:VS150COMNTOOLS to: $env:VS150COMNTOOLS"
+    }
 
     $VisualCppPath = "$BuildTools\VC\Tools\MSVC\$VCToolsVersion"
     # Configuration Include Path
     $env:INCLUDE = "$VisualCppPath\include;$VisualCppPath\atlmfc\include"
-    $includedirs = Get-ChildItem -Path "$SdkBaseDir\include\$EWDKVersion" | Foreach-Object {$_.FullName}
+    $includedirs = Get-ChildItem -Path "$SdkBaseDir\include\$EWDKVersion" | ForEach-Object { $_.FullName }
     foreach ($_i in $includedirs) {
         $env:INCLUDE = "$env:INCLUDE;$_i"
     }
@@ -114,8 +132,13 @@ Function InitializeEnterpriseWDK {
     else {
         $env:PATH += ";$VisualCppPath\bin\Host$HostEnv\$Archlowpper"
     }
+    $sdkdirobj = Get-ChildItem -Path "$EWDKPath\Microsoft SDKs\Windows\v10.0A\bin\" -ErrorAction SilentlyContinue
+    $sdkdir = "NETFX 4.8 Tools"
+    if ($null -ne $sdkdirobj) {
+        $sdkdir = $sdkdirobj.BaseName
+    }
     $env:PATH += ";$SdkBaseDir\bin\$EWDKVersion\$HostEnv;"
-    $env:PATH += "$EWDKFile\Program Files\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools;$BuildTools\MSBuild\15.0\Bin"
+    $env:PATH += "$EWDKFile\Program Files\Microsoft SDKs\Windows\v10.0A\bin\${sdkdir};$BuildTools\MSBuild\15.0\Bin"
     $env:LIB = "$VisualCppPath\lib\$Archlowpper;$VisualCppPath\atlmfc\lib\$Archlowpper;"
     $env:LIB += "$SDKLIB\km\$Archlowpper;$SDKLIB\um\$Archlowpper;$SDKLIB\ucrt\$Archlowpper"
     $env:LIBPATH = "$VisualCppPath\lib\$Archlowpper;$VisualCppPath\atlmfc\lib\$Archlowpper;"
@@ -249,7 +272,7 @@ Function InitializeVisualCppTools {
         Please run '$ClangbuilderRoot\script\VisualCppToolsFetch.bat'"
         return 1
     }
-    $instlock = Get-Content -Path $LockFile |ConvertFrom-Json
+    $instlock = Get-Content -Path $LockFile | ConvertFrom-Json
     $HostEnv = "x86"
     if ([System.Environment]::Is64BitOperatingSystem) {
         $HostEnv = "x64"
@@ -282,7 +305,7 @@ Function Test-ExeCommnad {
         [String]$ExeName
     )
     $myErr = @()
-    Get-command -CommandType Application $ExeName -ErrorAction SilentlyContinue -ErrorVariable +myErr
+    Get-Command -CommandType Application $ExeName -ErrorAction SilentlyContinue -ErrorVariable +myErr
     if ($myErr.count -eq 0) {
         return $True
     }
@@ -334,20 +357,21 @@ Function InitializeVisualStudio {
     $vsinstances = $null
     #Write-Host "$InstallationVersion"
     if ($InstanceId.StartsWith("VisualStudio.")) {
-        $vsinstances = vswhere -products * -prerelease -legacy -format json|ConvertFrom-JSON
-    }elseif($null -ne $InstallationVersion -and $InstallationVersion.StartsWith("16.")){
+        $vsinstances = vswhere -products * -prerelease -legacy -format json | ConvertFrom-Json
+    }
+    elseif ($null -ne $InstallationVersion -and $InstallationVersion.StartsWith("16.")) {
         # FIXME. this is Visual Studio 2019's bug
-        $vsinstances = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json|ConvertFrom-JSON
+        $vsinstances = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json | ConvertFrom-Json
     }
     else {
-        $vsinstances = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -requires Microsoft.VisualStudio.Component.Windows10SDK  -format json|ConvertFrom-JSON
+        $vsinstances = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -requires Microsoft.VisualStudio.Component.Windows10SDK  -format json | ConvertFrom-Json
     }
     #Microsoft.VisualStudio.Component.VC.Tools.x86.x64
     if ($null -eq $vsinstances -or $vsinstances.Count -eq 0) {
         return 1
     }
-    $vsinstance = $vsinstances|Where-Object {$_.instanceId -eq $InstanceId}
-    if($null -eq $vsinstance){
+    $vsinstance = $vsinstances | Where-Object { $_.instanceId -eq $InstanceId }
+    if ($null -eq $vsinstance) {
         Write-Host -ForegroundColor Red "Please check Visual Studio Is Included Microsoft.VisualStudio.Component.Windows10SDK and Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
         return 1
     }
@@ -379,9 +403,9 @@ Function InitializeVisualStudio {
         return (InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch "ARM64")
     }
     $vcvarsall = "$($vsinstance.installationPath)\VC\Auxiliary\Build\vcvarsall.bat"
-    $vscommtools="VS$($ver.Major)0COMNTOOLS"
+    $vscommtools = "VS$($ver.Major)0COMNTOOLS"
     Set-Variable -Name "env:$vscommtools" -Value "$($vsinstance.installationPath)\Common7\Tools\"
-   $vscommdir=Get-Variable -Name "env:$vscommtools" -ValueOnly
+    $vscommdir = Get-Variable -Name "env:$vscommtools" -ValueOnly
     Write-Host "Update `$env:$vscommtools to: $vscommdir"
     if ($Sdklow) {
         Write-Host "Attention Please: Use Windows 8.1 SDK"
@@ -413,10 +437,10 @@ Function DefaultVisualStudio {
     }
     $vsinstalls = $null
     try {
-        $vsinstalls = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -requires Microsoft.VisualStudio.Component.Windows10SDK  -format json|ConvertFrom-JSON
+        $vsinstalls = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -requires Microsoft.VisualStudio.Component.Windows10SDK  -format json | ConvertFrom-Json
         if ($vsinstalls.Count -eq 0) {
             ### use fallback fules
-            $vsinstalls = vswhere -products * -prerelease -legacy -format json|ConvertFrom-JSON
+            $vsinstalls = vswhere -products * -prerelease -legacy -format json | ConvertFrom-Json
         }
     }
     catch {
