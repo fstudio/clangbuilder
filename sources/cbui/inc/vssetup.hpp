@@ -116,17 +116,12 @@ inline bool VisualStudioNativeSearcher::IsEWDKEnabled() {
 inline std::wstring LookupVCToolsetVersion(std::wstring_view vsdir) {
   auto vcfile = base::strcat(
       vsdir, L"/VC/Auxiliary/Build/Microsoft.VCToolsVersion.default.txt");
-  std::ifstream fin(vcfile);
-  if (!fin) {
+  std::wstring ver;
+  if (!clangbuilder::LookupVersionFromFile(vcfile, ver)) {
     return L"";
   }
-  std::string line; /// is utf8
-  std::getline(fin, line);
-  if (line.empty()) {
-    return L"";
-  }
-  auto sv = clangbuilder::StripAsciiWhitespace(line);
-  return clangbuilder::utf8towide(sv);
+  auto sv = clangbuilder::StripAsciiWhitespace(ver);
+  return std::wstring(sv);
 }
 
 inline bool VisualStudioNativeSearcher::CheckInstalledComponent(

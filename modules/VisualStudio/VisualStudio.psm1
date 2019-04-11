@@ -103,7 +103,7 @@ Function InitializeEnterpriseWDK {
     $VCToolsVersion = $xml.Project.PropertyGroup.VCToolsVersion.'#text'
     if ($VSProduct -eq "2019") {
         $env:VS160COMNTOOLS = "$BuildTools\Common7\Tools\"
-        Write-Host "Visual C++ Version: $VCToolsVersion`nUpdate `$env:VS160COMNTOOLS to: $env:VS150COMNTOOLS"
+        Write-Host "Visual C++ Version: $VCToolsVersion`nUpdate `$env:VS160COMNTOOLS to: $env:VS160COMNTOOLS"
     }
     if ($VSProduct -eq "2017") {
         $env:VS150COMNTOOLS = "$BuildTools\Common7\Tools\"

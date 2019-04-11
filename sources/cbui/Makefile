@@ -8,7 +8,7 @@ CXXFLAGS=-TP  -W3 -EHsc -Zc:forScope -Zc:wchar_t -std:c++17
 LDFLAGS=-NOLOGO -OPT:REF -LTCG
 LIBS=KERNEL32.lib ADVAPI32.lib Shell32.lib USER32.lib GDI32.lib comctl32.lib Shlwapi.lib \
 ComDlg32.lib d2d1.lib dwrite.lib shcore.lib Winmm.lib Pathcch.lib ole32.lib comsupp.lib
-OBJS=main.obj appui.obj appdo.obj apputils.obj vssearch.obj
+OBJS=main.obj appui.obj appdo.obj apputils.obj vssearch.obj settings.obj
 
 
 all:res/app.res $(OBJS)

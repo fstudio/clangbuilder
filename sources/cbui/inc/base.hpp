@@ -76,16 +76,12 @@ template <class F> inline final_act<F> finally(F &&f) noexcept {
 struct error_code {
   std::wstring message;
   long code{NO_ERROR};
-  const wchar_t *data()const{return message.data();}
+  const wchar_t *data() const { return message.data(); }
   explicit operator bool() const noexcept { return code != NO_ERROR; }
 };
 
-inline error_code make_error_code(int val, std::wstring_view msg) {
+inline error_code make_error_code(std::wstring_view msg, int val = -1) {
   return error_code{std::wstring(msg), val};
-}
-
-inline error_code make_error_code(std::wstring_view msg) {
-  return error_code{std::wstring(msg), -1};
 }
 
 template <typename... Args>
@@ -114,7 +110,6 @@ inline error_code make_system_error_code() {
   ec.message = system_error_dump(ec.code);
   return ec;
 }
-
 
 } // namespace base
 

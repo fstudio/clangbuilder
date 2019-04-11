@@ -68,6 +68,7 @@ LRESULT MainWindow::InitializeWindow() {
   }
   FLOAT dpiX_, dpiY_;
   m_pFactory->GetDesktopDpi(&dpiX_, &dpiY_);
+  //::GetDpiForWindow
   dpiX = static_cast<int>(dpiX_);
   dpiY = static_cast<int>(dpiY_);
 
@@ -185,9 +186,9 @@ void MainWindow::OnResize(UINT width, UINT height) {
   }
 }
 
-#define WINDOWEXSTYLE                                                          \
+#define WEXSTYLE                                                               \
   WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_NOPARENTNOTIFY
-#define COMBOBOXSTYLE                                                          \
+#define CBSTYLE                                                                \
   WS_CHILDWINDOW | WS_CLIPSIBLINGS | WS_VISIBLE | WS_TABSTOP |                 \
       CBS_DROPDOWNLIST | CBS_HASSTRINGS
 #define CHECKBOXSTYLE                                                          \
@@ -202,7 +203,7 @@ HRESULT MainWindow::InitializeControl() {
     MessageBoxW(ec.data(), L"Clangbuilder Error", MB_OK | MB_ICONERROR);
     return S_FALSE;
   }
-
+  settings.Initialize(root);
   if (!search.Execute(root)) {
     return false;
   }
@@ -248,6 +249,49 @@ HRESULT MainWindow::InitializeControl() {
   return S_OK;
 }
 
+/////
+struct ACCENTPOLICY {
+  int nAccentState;
+  int nFlags;
+  int nColor;
+  int nAnimationId;
+};
+struct WINCOMPATTRDATA {
+  int nAttribute;
+  PVOID pData;
+  ULONG ulDataSize;
+};
+
+enum AccentTypes {
+  ACCENT_DISABLED = 0,        // Black and solid background
+  ACCENT_ENABLE_GRADIENT = 1, // Custom-colored solid background
+  ACCENT_ENABLE_TRANSPARENTGRADIENT =
+      2, // Custom-colored transparent background
+  ACCENT_ENABLE_BLURBEHIND =
+      3,                    // Custom-colored and blurred transparent background
+  ACCENT_ENABLE_FLUENT = 4, // Custom-colored Fluent effect
+  ACCENT_INVALID_STATE = 5  // Completely transparent background
+};
+
+bool SetWindowCompositionAttributeImpl(HWND hWnd) {
+  typedef BOOL(WINAPI * pSetWindowCompositionAttribute)(HWND,
+                                                        WINCOMPATTRDATA *);
+  bool result = false;
+  const HINSTANCE hModule = LoadLibrary(TEXT("user32.dll"));
+  const pSetWindowCompositionAttribute SetWindowCompositionAttribute =
+      (pSetWindowCompositionAttribute)GetProcAddress(
+          hModule, "SetWindowCompositionAttribute");
+
+  // Only works on Win10
+  if (SetWindowCompositionAttribute) {
+    ACCENTPOLICY policy = {ACCENT_ENABLE_FLUENT, 0, 0, 0};
+    WINCOMPATTRDATA data = {19, &policy, sizeof(ACCENTPOLICY)};
+    result = SetWindowCompositionAttribute(hWnd, &data);
+  }
+  FreeLibrary(hModule);
+  return result;
+}
+
 /*
  *  Message Action Function
  */
@@ -255,6 +299,10 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
                              BOOL &bHandle) {
   HICON hIcon = LoadIconW(GetModuleHandleW(nullptr),
                           MAKEINTRESOURCEW(IDI_CLANGBUILDERUI));
+  // if (settings.SetWindowCompositionAttributeEnabled()) {
+  //   SetWindowCompositionAttributeImpl(m_hWnd);
+  // }
+
   SetIcon(hIcon, TRUE);
   hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
   LOGFONTW logFont = {0};
@@ -269,7 +317,7 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
                         DWORD dwStyle, int X, int Y, int nWidth, int nHeight,
                         HMENU hMenu) -> HWND {
     auto hw = CreateWindowExW(
-        WINDOWEXSTYLE, lpClassName, lpWindowName, dwStyle, MulDiv(X, dpiX, 96),
+        WEXSTYLE, lpClassName, lpWindowName, dwStyle, MulDiv(X, dpiX, 96),
         MulDiv(Y, dpiY, 96), MulDiv(nWidth, dpiX, 96),
         MulDiv(nHeight, dpiY, 96), m_hWnd, hMenu, HINST_THISCOMPONENT, nullptr);
     if (hw) {
@@ -278,11 +326,11 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
     return hw;
   };
   hVisualStudioBox =
-      MakeWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 20, 400, 30, nullptr);
+      MakeWindow(WC_COMBOBOXW, L"", CBSTYLE, 200, 20, 400, 30, nullptr);
   hPlatformBox =
-      MakeWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 60, 400, 30, nullptr);
+      MakeWindow(WC_COMBOBOXW, L"", CBSTYLE, 200, 60, 400, 30, nullptr);
   hConfigBox =
-      MakeWindow(WC_COMBOBOXW, L"", COMBOBOXSTYLE, 200, 100, 400, 30, nullptr);
+      MakeWindow(WC_COMBOBOXW, L"", CBSTYLE, 200, 100, 400, 30, nullptr);
   hBranchBox =
       MakeWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 140, 400, 30, nullptr);
   hBuildBox = MakeWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 180, 400, 30,

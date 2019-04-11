@@ -16,6 +16,7 @@
 #include "res/appuires.h"
 #include "inc/comutils.hpp"
 #include "inc/vssearch.hpp"
+#include "inc/settings.hpp"
 
 #ifndef SYSCOMMAND_ID_HANDLER
 #define SYSCOMMAND_ID_HANDLER(id, func)                                        \
@@ -54,8 +55,8 @@ struct ClangbuilderTable {
   std::vector<std::wstring> Configurations;
   std::vector<EngineItem> Engines;
   std::vector<std::wstring> Branches;
-  ClangbuilderTable &AddEngine(std::wstring_view d, std::wstring_view v){
-    Engines.push_back(EngineItem(d,v));
+  ClangbuilderTable &AddEngine(std::wstring_view d, std::wstring_view v) {
+    Engines.push_back(EngineItem(d, v));
     return *this;
   }
 };
@@ -128,6 +129,7 @@ private:
   HWND hCheckLLDB_;
   HWND hButtonTask_;
   HWND hButtonEnv_;
+  Settings settings;
   std::vector<KryceLabel> label_;
   std::wstring targetFile;
   std::wstring root;
