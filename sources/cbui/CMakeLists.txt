@@ -41,19 +41,61 @@ set(CPACK_PACKAGE_CONTACT "Force Charlie")
 
 include(CPack)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT lto_supported OUTPUT error)
+if(lto_supported)
+  message(STATUS "IPO/LTO enabled")
+else()
+  message(STATUS "IPO/LTO not supported: <${error}>")
+endif()
+
+if (MSVC)
+  add_compile_options("-D_CRT_SECURE_NO_WARNINGS=1")
+  add_compile_options("-Zc:__cplusplus") # C++ __cplusplus
+  set(WIN_COMPILER_FLAGS
+    CMAKE_CXX_FLAGS
+    CMAKE_CXX_FLAGS_DEBUG
+    CMAKE_CXX_FLAGS_RELEASE
+    CMAKE_C_FLAGS
+    CMAKE_C_FLAGS_DEBUG
+    CMAKE_C_FLAGS_RELEASE
+  )
+  foreach(WIN_COMPILER_FLAG ${WIN_COMPILER_FLAGS})
+    string(REPLACE "/MD" "/MT" ${WIN_COMPILER_FLAG} "${${WIN_COMPILER_FLAG}}")
+  endforeach()
+else()
+  add_compile_options("-g")
+  add_compile_options("-Wall")
+  add_compile_options("-Wextra")
+  if(USE_SANITIZE)
+    add_compile_options("-fsanitize=address")
+    add_compile_options("-fno-omit-frame-pointer")
+    set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=address ")
+  endif()
+endif()
 
 add_executable(ClangbuilderUI WIN32
   main.cc
+  appdo.cc
   appui.cc
-  apprun.cc
   apputils.cc
+  settings.cc
   vssearch.cc
+  res/app.rc
+  res/app.manifest
 )
 
 add_definitions(
   -D_UNICODE
   -DUNICODE
 )
+
+if(lto_supported)
+  set_property(TARGET ClangbuilderUI PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
 
 target_link_libraries(ClangbuilderUI
   d2d1

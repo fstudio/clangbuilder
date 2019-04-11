@@ -17,8 +17,8 @@ all:res/app.res $(OBJS)
 clean:
 	del /s /q *.res *.obj *.pdb *.exe >nul 2>nul
 	
-res/app.res:res/app.rc
-	rc res\app.rc
+app.res:res/app.rc
+	rc  /foapp.res res/app.rc
 	
 {.}.cpp.obj::
 	$(CC) $(CFLAGS) $(CXXFLAGS) -c $<
