@@ -11,7 +11,7 @@ d2d1.lib dwrite.lib shcore.lib Winmm.lib Pathcch.lib ole32.lib comsupp.lib
 OBJS=main.obj appui.obj appdo.obj apputils.obj vssearch.obj settings.obj
 
 
-all:res/app.res $(OBJS)
+all:app.res $(OBJS)
 	$(LD) $(LDFLAGS) $(OBJS) res/app.res /MANIFEST:EMBED -MANIFESTINPUT:res/app.manifest -OUT:ClangbuilderUI.exe $(LIBS)
 
 clean:
