@@ -6,10 +6,10 @@ Function CMakeInstallationFix {
         [String]$Configuration
     )
     ## Fix $(Configuration) to $Configuration
-    Get-ChildItem -Path $TargetDir  -Recurse *.cmake | Foreach-Object {
+    Get-ChildItem -Path $TargetDir  -Recurse *.cmake | ForEach-Object {
         $content = Get-Content $_.FullName
         $content = $content.Replace("`$(Configuration)", "$Configuration")
-        $content|Out-File -FilePath $_.FullName -Encoding utf8
+        $content | Out-File -FilePath $_.FullName -Encoding utf8
     }
 }
 
@@ -21,7 +21,7 @@ Function CMakeFileflags {
     if (Test-Path $File) {
         try {
             Write-Host "Find cmake flags file: $File"
-            $cmakeflags = Get-Content -Path $File|ConvertFrom-JSON
+            $cmakeflags = Get-Content -Path $File | ConvertFrom-Json
             foreach ($flag in $cmakeflags.CMake) {
                 $vv = $flag.Split("=")
                 if ($Table.Contains($vv[0])) {
@@ -48,7 +48,7 @@ Function CMakeCustomflags {
         [String]$Branch
     )
     $flags = ""
-    $vflags = @{}
+    $vflags = @{ }
     CMakeFileflags -File "$ClangbuilderRoot/out/cmakeflags.$Branch.json" -Table $vflags
     CMakeFileflags -File "$ClangbuilderRoot/out/cmakeflags.json" -Table $vflags
     foreach ($_ in $vflags.Keys) {

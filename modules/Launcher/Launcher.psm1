@@ -14,11 +14,11 @@ Function MakeLauncher {
     }
     $SrcFile = $Path.Replace("/", "\")
     $builddir = $env:TEMP + "\$Name.$pid"
-    New-Item -ItemType Directory $builddir -Force|Out-Null
+    New-Item -ItemType Directory $builddir -Force | Out-Null
     $origindir = Get-Location
     Set-Location $builddir
     $CCFile = "$Cbroot/sources/template/link.template.windows.cc"
-    $obj = &$BlastFile --dump $Path|ConvertFrom-Json
+    $obj = &$BlastFile --dump $Path | ConvertFrom-Json
     $IsConsole = $false
     if ($null -ne $obj -and ($null -ne $obj.Subsystem) -and $obj.Subsystem -eq "Windows CUI") {
         $IsConsole = $true
@@ -55,7 +55,7 @@ Function MakeLauncher {
         $rcontent = $rcontent.Replace("@FileBuildPart", $versioninfo.FileBuildPart)
         $rcontent = $rcontent.Replace("@FilePrivatePart", $versioninfo.FilePrivatePart)
 
-        $mtcmd = Get-command -CommandType Application "mt.exe" -ErrorAction SilentlyContinue
+        $mtcmd = Get-Command -CommandType Application "mt.exe" -ErrorAction SilentlyContinue
         if ($null -ne $mtcmd) {
             mt /nologo "-inputresource:$SrcFile" "-out:$Name.manifest"
             if ($LASTEXITCODE -eq 0 -and (Test-Path "$Name.manifest")) {
@@ -63,15 +63,15 @@ Function MakeLauncher {
                 $rcontent = $rcontent.Replace("//@MANIFEST", "1 RT_MANIFEST `"$Name.manifest`"")
             }
         }
-        $rcontent|Out-File -FilePath "$Name.rc" -Encoding unicode
-        rc /nologo "$Name.rc"|Out-Host
-        cl /nologo /Os "$Name.cc" /c|Out-Host
+        $rcontent | Out-File -FilePath "$Name.rc" -Encoding unicode
+        rc /nologo "$Name.rc" | Out-Host
+        cl /nologo /Os "$Name.cc" /c | Out-Host
         Write-Host "link $Name to exe"
         if ($IsConsole) {
-            link /nologo /NODEFAULTLIB /SUBSYSTEM:CONSOLE /ENTRY:wmain "$Name.obj" "$Name.res" Shell32.lib kernel32.lib user32.lib "/OUT:$Name.exe"|Out-Host
+            link /nologo /NODEFAULTLIB /SUBSYSTEM:CONSOLE /ENTRY:wmain "$Name.obj" "$Name.res" Shell32.lib kernel32.lib user32.lib "/OUT:$Name.exe" | Out-Host
         }
         else {
-            link /nologo /NODEFAULTLIB /SUBSYSTEM:WINDOWS /ENTRY:wWinMain "$Name.obj" "$Name.res" Shell32.lib kernel32.lib user32.lib  "/OUT:$Name.exe"|Out-Host
+            link /nologo /NODEFAULTLIB /SUBSYSTEM:WINDOWS /ENTRY:wWinMain "$Name.obj" "$Name.res" Shell32.lib kernel32.lib user32.lib  "/OUT:$Name.exe" | Out-Host
         }
         Move-Item "$Name.exe" -Force -Destination "$Cbroot/bin/pkgs/.linked/$Name.exe"
     }
@@ -79,14 +79,14 @@ Function MakeLauncher {
         Write-Host -ForegroundColor Red "$_"
         Set-Location $origindir
         if (Test-Path $builddir) {
-            Remove-Item -Force -Recurse $builddir  -ErrorAction SilentlyContinue |Out-Null
+            Remove-Item -Force -Recurse $builddir  -ErrorAction SilentlyContinue | Out-Null
         }
         return $false
     }
     #
     Set-Location $origindir
     if (Test-Path $builddir) {
-        Remove-Item -Force -Recurse $builddir  -ErrorAction SilentlyContinue |Out-Null
+        Remove-Item -Force -Recurse $builddir  -ErrorAction SilentlyContinue | Out-Null
     }
     return $true
 }

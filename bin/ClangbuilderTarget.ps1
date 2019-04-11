@@ -65,20 +65,15 @@ if ((Test-Path Alias:wget) -and (ExecuteExists "wget.exe")) {
 
 
 if ($InstanceId.Length -eq 0) {
-    $InstallationVersion = "15.0"
     $ret = DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
 }
 else {
     $ret = InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow -InstallationVersion $InstallationVersion
 }
 if ($InstallationVersion.Length -eq 0) {
-    if ($InstanceId.StartsWith("VisualStudio.")) {
-        $InstallationVersion = $InstanceId.Split("VisualStudio.".Length)
-    }
-    else {
-        $InstallationVersion = "15.0"
-    }
+    $InstallationVersion = $env:VSENV_VERSION
 }
+
 if ($ret -ne 0 -or $InstallationVersion.Length -lt 3) {
     Write-Host -ForegroundColor Red "Not found valid installed visual studio. $InstallationVersion"
     exit 1
@@ -92,20 +87,19 @@ if ($Environment) {
     Set-Location $ClangbuilderRoot
     return ;
 }
-else {
-    Update-Title -Title " [Build: $Branch]"
-}
+
+Update-Title -Title " [Build: $Branch]"
 
 # LLVM get from subversion
 Function ParseLLVMDir {
-    $obj = Get-Content -Path "$ClangbuilderRoot\config\revision.json" |ConvertFrom-Json
+    $obj = Get-Content -Path "$ClangbuilderRoot\config\revision.json" | ConvertFrom-Json
     switch ($Branch) {
-        {$_ -eq "Mainline"} {
+        { $_ -eq "Mainline" } {
             $src = "$ClangbuilderRoot\out\mainline"
-        } {$_ -eq "Stable"} {
+        } { $_ -eq "Stable" } {
             $currentstable = $obj.Stable
             $src = "$ClangbuilderRoot\out\$currentstable"
-        } {$_ -eq "Release"} {
+        } { $_ -eq "Release" } {
             $src = "$ClangbuilderRoot\out\rel\llvm"
         }
     }
@@ -168,7 +162,7 @@ Function Set-Workdir {
     if (Test-Path $Path) {
         Remove-Item -Force -Recurse "$Path"
     }
-    New-Item -ItemType Directory $Path |Out-Null
+    New-Item -ItemType Directory $Path | Out-Null
     Set-Location $Path
 }
 
@@ -183,6 +177,7 @@ Function Get-ClangArgument {
     }
     catch {
         $VisualCppVersionTable = @{
+            "16" = "19.20";
             "15" = "19.15";
             "14" = "19.00";
             "12" = "18.00";
@@ -291,7 +286,8 @@ Function Invoke-Ninja {
         Write-Host -ForegroundColor Yellow "Warning: Build LLVM Maybe failed."
         $Arguments += " -DCMAKE_C_FLAGS=`"/utf-8 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
         $Arguments += " -DCMAKE_CXX_FLAGS=`"/utf-8 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
-    } else {
+    }
+    else {
         $Arguments += " -DCMAKE_C_FLAGS=`"/utf-8`""
         $Arguments += " -DCMAKE_CXX_FLAGS=`"/utf-8`""
     }
@@ -317,7 +313,7 @@ Function Get-PrebuiltLLVM {
             return ""
         }
     }
-    $LLVMJSON = Get-Content -Path $PrebuiltJSON |ConvertFrom-Json
+    $LLVMJSON = Get-Content -Path $PrebuiltJSON | ConvertFrom-Json
     if ($null -eq $LLVMJSON.LLVM) {
         return ""
     }
@@ -385,7 +381,7 @@ $Libcxxbin = "$Global:LatestBuildDir\lib\c++.dll"
 $CMakeInstallFile = "$Global:LatestBuildDir\cmake_install.cmake"
 if (Test-Path $Libcxxbin) {
     $Libcxxbin = $Libcxxbin.Replace('\', '/')
-    "file(INSTALL DESTINATION `"`${CMAKE_INSTALL_PREFIX}/bin`" TYPE SHARED_LIBRARY OPTIONAL FILES `"$Libcxxbin`")"|Out-File -FilePath $CMakeInstallFile -Append -Encoding utf8
+    "file(INSTALL DESTINATION `"`${CMAKE_INSTALL_PREFIX}/bin`" TYPE SHARED_LIBRARY OPTIONAL FILES `"$Libcxxbin`")" | Out-File -FilePath $CMakeInstallFile -Append -Encoding utf8
 }
 
 if ($Package) {

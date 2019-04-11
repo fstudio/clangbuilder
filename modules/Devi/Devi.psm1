@@ -9,7 +9,7 @@ Function Devdownload {
     Write-Host "devdownload: $Uri ..."
     #$InternalUA = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
     $InternalUA = "Wget/4.0 (MSVC)" # TO Set UA as wget.
-    $xuri = [uri]$Uri
+    #$xuri = [uri]$Uri
     try {
         if (Test-Path $Path) {
             Remove-Item -Force $Path
@@ -92,8 +92,8 @@ Function DevinitializeEnv {
     )
     $pkgdir = "$ClangbuilderRoot\bin\pkgs"
     $paths = $env:PATH.Split(";")
-    Get-ChildItem "$Pkglocksdir\*.json" -ErrorAction SilentlyContinue|ForEach-Object {
-        $xobj = Get-Content $_.FullName  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+    Get-ChildItem "$Pkglocksdir\*.json" -ErrorAction SilentlyContinue | ForEach-Object {
+        $xobj = Get-Content $_.FullName  -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
         $pkgname = $_.BaseName
         $mount = "$($xobj.mount)"
         if ($xobj.linked -eq $true) {
@@ -119,7 +119,7 @@ Function DevinitializeEnv {
             $env:PATH = "$ClangbuilderRoot\bin\pkgs\.linked" + [System.IO.Path]::PathSeparator + $env:PATH
         }
     }
-    $cmd = Get-command -CommandType Application "git.exe" -ErrorAction SilentlyContinue
+    $cmd = Get-Command -CommandType Application "git.exe" -ErrorAction SilentlyContinue
     if ($null -eq $cmd) {
         $gitkey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
         $gitkey2 = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
@@ -166,7 +166,7 @@ Function Initialize-MsiArchive {
     param(
         [String]$Path
     )
-    Get-ChildItem -Path "$Path\*.msi"|ForEach-Object {
+    Get-ChildItem -Path "$Path\*.msi" | ForEach-Object {
         Remove-Item -Path $_.FullName
     }
     if (Test-Path "$Path\Windows") {

@@ -8,11 +8,11 @@ $vswherebin = "$Cbroot\bin\pkgs\vswhere\vswhere.exe"
 Function Fetchvswhere {
     try {
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        $json=Get-Content "$Cbroot\ports\vswhere.json"|ConvertFrom-Json
+        $json = Get-Content "$Cbroot\ports\vswhere.json" | ConvertFrom-Json
         $InternalUA = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
-        New-Item -ItemType Directory "$env:TEMP\vswhere.$PID"|Out-Null
+        New-Item -ItemType Directory "$env:TEMP\vswhere.$PID" | Out-Null
         Invoke-WebRequest -Uri $json.url -OutFile "$env:TEMP\vswhere.$PID\vswhere.exe" -UserAgent $InternalUA -UseBasicParsing
-        $env:PATH="$env:PATH;$env:TEMP\vswhere.$PID"
+        $env:PATH = "$env:PATH;$env:TEMP\vswhere.$PID"
     }
     catch {
         Write-Host "download vswhere error$_"
@@ -22,14 +22,15 @@ Function Fetchvswhere {
 
 
 if (Test-Path $vswherebin) {
-    $env:PATH="$env:PATH;$Cbroot\bin\pkgs\vshwere"
-}else{
+    $env:PATH = "$env:PATH;$Cbroot\bin\pkgs\vshwere"
+}
+else {
     Write-Host "try download vswhere $vswherebin"
     Fetchvswhere
 }
 
 Invoke-Expression "$Cbroot\bin\CompileUtils.ps1"
 
-if(Test-Path "$env:TEMP\vswhere.$PID"){
+if (Test-Path "$env:TEMP\vswhere.$PID") {
     Remove-Item -Force -Recurse "$env:TEMP\vswhere.$PID"
 }

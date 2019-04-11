@@ -84,7 +84,7 @@ Function InitializeEnterpriseWDK {
         Write-Error "Not Enterprise WDK directory !"
         return 1
     }
-    [xml]$ewdkmanifest = Get-Content -Path "$EWDKPath\Program Files\Windows Kits\10\SDKManifest.xml"
+    $ewdkmanifest = [xml](Get-Content -Path "$EWDKPath\Program Files\Windows Kits\10\SDKManifest.xml")
 
     $EWDKVersion = $ewdkmanifest.FileList.PlatformIdentity.Split("=")[1]
 
@@ -132,13 +132,13 @@ Function InitializeEnterpriseWDK {
     else {
         $env:PATH += ";$VisualCppPath\bin\Host$HostEnv\$Archlowpper"
     }
-    $sdkdirobj = Get-ChildItem -Path "$EWDKPath\Microsoft SDKs\Windows\v10.0A\bin\" -ErrorAction SilentlyContinue
-    $sdkdir = "NETFX 4.8 Tools"
-    if ($null -ne $sdkdirobj) {
-        $sdkdir = $sdkdirobj.BaseName
+    $netfxtoolsdirobj = Get-ChildItem -Path "$EWDKPath\Microsoft SDKs\Windows\v10.0A\bin\" -ErrorAction SilentlyContinue
+    $netfxtoolsdir = "NETFX 4.8 Tools"
+    if ($null -ne $netfxtoolsdirobj) {
+        $netfxtoolsdir = $netfxtoolsdirobj.BaseName
     }
     $env:PATH += ";$SdkBaseDir\bin\$EWDKVersion\$HostEnv;"
-    $env:PATH += "$EWDKFile\Program Files\Microsoft SDKs\Windows\v10.0A\bin\${sdkdir};$BuildTools\MSBuild\15.0\Bin"
+    $env:PATH += "$EWDKFile\Program Files\Microsoft SDKs\Windows\v10.0A\bin\${netfxtoolsdir};$BuildTools\MSBuild\15.0\Bin"
     $env:LIB = "$VisualCppPath\lib\$Archlowpper;$VisualCppPath\atlmfc\lib\$Archlowpper;"
     $env:LIB += "$SDKLIB\km\$Archlowpper;$SDKLIB\um\$Archlowpper;$SDKLIB\ucrt\$Archlowpper"
     $env:LIBPATH = "$VisualCppPath\lib\$Archlowpper;$VisualCppPath\atlmfc\lib\$Archlowpper;"
@@ -349,6 +349,7 @@ Function InitializeVisualStudio {
         return 1
     }
     if ($InstanceId -eq "VisualCppTools") {
+        Write-Host -ForegroundColor Red "VisualCppTools is deprecated"
         return (InitializeVisualCppTools -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -Sdklow:$Sdklow)
     }
     if ($InstanceId -eq "VisualStudio.EWDK") {
@@ -359,12 +360,8 @@ Function InitializeVisualStudio {
     if ($InstanceId.StartsWith("VisualStudio.")) {
         $vsinstances = vswhere -products * -prerelease -legacy -format json | ConvertFrom-Json
     }
-    elseif ($null -ne $InstallationVersion -and $InstallationVersion.StartsWith("16.")) {
-        # FIXME. this is Visual Studio 2019's bug
-        $vsinstances = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json | ConvertFrom-Json
-    }
     else {
-        $vsinstances = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -requires Microsoft.VisualStudio.Component.Windows10SDK  -format json | ConvertFrom-Json
+        $vsinstances = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64  -format json | ConvertFrom-Json
     }
     #Microsoft.VisualStudio.Component.VC.Tools.x86.x64
     if ($null -eq $vsinstances -or $vsinstances.Count -eq 0) {
@@ -372,10 +369,12 @@ Function InitializeVisualStudio {
     }
     $vsinstance = $vsinstances | Where-Object { $_.instanceId -eq $InstanceId }
     if ($null -eq $vsinstance) {
-        Write-Host -ForegroundColor Red "Please check Visual Studio Is Included Microsoft.VisualStudio.Component.Windows10SDK and Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+        Write-Host -ForegroundColor Red "Please check Visual Studio Is Included Microsoft.VisualStudio.Component.VC.Tools"
         return 1
     }
-    Write-Host "Use Visual Studio $($vsinstance.installationVersion) $Arch"
+    $vsversion = $vsinstance.installationVersion
+    [environment]::SetEnvironmentVariable("VSENV_VERSION", "$vsversion")
+    Write-Host "Use Visual Studio $vsversion $Arch"
     $ArgumentList = Get-ArchBatchString -InstanceId $InstanceId -Arch $Arch
     if ($vsinstance.instanceId.StartsWith("VisualStudio")) {
         $vcvarsall = "$($vsinstance.installationPath)\VC\vcvarsall.bat"
@@ -394,14 +393,8 @@ Function InitializeVisualStudio {
         [environment]::SetEnvironmentVariable("VSENV_INITIALIZED", "$InstanceId")
         return 0
     }
-    ## Now 15.4.26823.1 support Visual C++ for ARM64
-    $FixedVer = [System.Version]::Parse("15.4.26823.0")
+
     $ver = [System.Version]::Parse($vsinstance.installationVersion)
-    $vercmp = $ver.CompareTo($FixedVer)
-    if ($Arch -eq "ARM64" -and $vercmp -le 0) {
-        Write-Host "Use Enterprise WDK support ARM64"
-        return (InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch "ARM64")
-    }
     $vcvarsall = "$($vsinstance.installationPath)\VC\Auxiliary\Build\vcvarsall.bat"
     $vscommtools = "VS$($ver.Major)0COMNTOOLS"
     Set-Variable -Name "env:$vscommtools" -Value "$($vsinstance.installationPath)\Common7\Tools\"
@@ -417,7 +410,6 @@ Function InitializeVisualStudio {
     }
     Invoke-BatchFile -Path $vcvarsall -ArgumentList $ArgumentList
     [environment]::SetEnvironmentVariable("VSENV_INITIALIZED", "VisualStudio.$ver")
-    #Write-Host "call $vcvarsall"
     return 0
 }
 
@@ -437,7 +429,11 @@ Function DefaultVisualStudio {
     }
     $vsinstalls = $null
     try {
-        $vsinstalls = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -requires Microsoft.VisualStudio.Component.Windows10SDK  -format json | ConvertFrom-Json
+        # Found not preleased
+        $vsinstalls = vswhere -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json | ConvertFrom-Json
+        if ($vsinstalls.Count -eq 0) {
+            $vsinstalls = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json | ConvertFrom-Json
+        }
         if ($vsinstalls.Count -eq 0) {
             ### use fallback fules
             $vsinstalls = vswhere -products * -prerelease -legacy -format json | ConvertFrom-Json

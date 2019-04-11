@@ -76,7 +76,7 @@ $ClangbuilderRoot = Split-Path $PSScriptRoot
 Import-Module "$ClangbuilderRoot\modules\Devi"
 $ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot -Pkglocksdir "$ClangbuilderRoot\bin\pkgs\.locks"
 
-if($ret -ne $true){
+if ($ret -ne $true) {
     #TODO
 }
 
@@ -85,7 +85,7 @@ if ($UseVS2017) {
     $env:PATH = "$ClangbuilderRoot/pkgs/vswhere;$env:PATH"
     $vsinstalls = $null
     try {
-        $vsinstalls = vswhere -prerelease -legacy -format json|ConvertFrom-JSON
+        $vsinstalls = vswhere -prerelease -legacy -format json | ConvertFrom-Json
     }
     catch {
         Write-Error "$_"

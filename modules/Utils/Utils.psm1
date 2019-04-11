@@ -101,7 +101,7 @@ function TestTcpConnection {
             $tcpclient.Close()
         }
         else {
-            $tcpclient.EndConnect($tcpConnection) | out-Null
+            $tcpclient.EndConnect($tcpConnection) | Out-Null
             $tcpclient.Close()
         }
         return $ResponseTime
