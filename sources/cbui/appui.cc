@@ -299,9 +299,9 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
                              BOOL &bHandle) {
   HICON hIcon = LoadIconW(GetModuleHandleW(nullptr),
                           MAKEINTRESOURCEW(IDI_CLANGBUILDERUI));
-  // if (settings.SetWindowCompositionAttributeEnabled()) {
-  //   SetWindowCompositionAttributeImpl(m_hWnd);
-  // }
+  if (settings.SetWindowCompositionAttributeEnabled()) {
+    SetWindowCompositionAttributeImpl(m_hWnd);
+  }
 
   SetIcon(hIcon, TRUE);
   hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);

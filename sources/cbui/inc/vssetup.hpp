@@ -11,7 +11,7 @@
 #include "comutils.hpp"
 #include "systemtools.hpp"
 #include <vector>
-#include <fstream>
+#include <cstdlib>
 #include "vsinstance.hpp"
 
 #ifndef VSSetupConstants
@@ -202,6 +202,7 @@ inline bool VisualStudioNativeSearcher::GetVSInstanceInfo(
   vsi.Version = std::wstring(bstrVersion);
   if (SUCCEEDED(setupHelper->ParseVersion(bstrVersion, &ullVersion))) {
     vsi.ullVersion = ullVersion;
+    vsi.ullMainVersion = ullVersion >> 48;
   }
 
   // Reboot may have been required before the installation path was created.

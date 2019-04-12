@@ -17,7 +17,7 @@ bool Settings::Initialize(std::wstring_view root) {
           j["SetWindowCompositionAttribute"].get<bool>();
     }
   } catch (const std::exception &e) {
-    fprintf(stderr, "%s\n", e.what());
+    fprintf(stderr, "debug %s\n", e.what());
     return false;
   }
   return true;
