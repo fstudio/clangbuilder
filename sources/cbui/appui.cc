@@ -66,11 +66,13 @@ LRESULT MainWindow::InitializeWindow() {
   if (hr != S_OK) {
     return hr;
   }
-  FLOAT dpiX_, dpiY_;
-  m_pFactory->GetDesktopDpi(&dpiX_, &dpiY_);
+  // FLOAT dpiX_, dpiY_;
+  // m_pFactory->GetDesktopDpi(&dpiX_, &dpiY_);
+  dpiX = ::GetDpiForSystem();
+  dpiY = dpiX;
   //::GetDpiForWindow
-  dpiX = static_cast<int>(dpiX_);
-  dpiY = static_cast<int>(dpiY_);
+  // dpiX = static_cast<int>(dpiX_);
+  // dpiY = static_cast<int>(dpiY_);
 
   RECT layout = {CW_USEDEFAULT, CW_USEDEFAULT,
                  CW_USEDEFAULT + MulDiv(700, dpiX, 96),
@@ -395,13 +397,15 @@ LRESULT MainWindow::OnSize(UINT nMsg, WPARAM wParam, LPARAM lParam,
 LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
                                  BOOL &bHandle) {
   /// GET new dpi
-  FLOAT dpiX_, dpiY_;
+  // FLOAT dpiX_, dpiY_;
   // SEE:
   // https://msdn.microsoft.com/en-us/library/windows/desktop/dd371319(v=vs.85).aspx
-  m_pFactory->ReloadSystemMetrics();
-  m_pFactory->GetDesktopDpi(&dpiX_, &dpiY_);
-  dpiX = static_cast<int>(dpiX_);
-  dpiY = static_cast<int>(dpiY_);
+  //m_pFactory->ReloadSystemMetrics();
+  // m_pFactory->GetDesktopDpi(&dpiX_, &dpiY_);
+  // dpiX = static_cast<int>(dpiX_);
+  // dpiY = static_cast<int>(dpiY_);
+  dpiX = ::GetDpiForSystem();
+  dpiY = dpiX;
   RECT *const prcNewWindow = (RECT *)lParam;
   ::SetWindowPos(m_hWnd, NULL, prcNewWindow->left, prcNewWindow->top,
                  MulDiv(prcNewWindow->right - prcNewWindow->left, dpiX, 96),
