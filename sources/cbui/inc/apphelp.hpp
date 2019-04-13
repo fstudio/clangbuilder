@@ -2,9 +2,6 @@
 #ifndef CBUI_APPHELP_HPP
 #define CBUI_APPHELP_HPP
 #include "base.hpp"
-#include <Shlwapi.h>
-#include <Shellapi.h>
-#include <Shlobj.h>
 
 namespace clangbuilder {
 
@@ -88,6 +85,58 @@ inline bool IsWow64Process() {
 #endif
 
 constexpr size_t pathcchmax = 0x8000;
+
+inline bool PathExists(std::wstring_view p) {
+  auto dwAttr = GetFileAttributesW(p.data());
+  return dwAttr != INVALID_FILE_ATTRIBUTES;
+}
+
+inline bool PathAbsolute(std::wstring &dest, std::wstring_view src) {
+  if (src.empty()) {
+    return false;
+  }
+  std::wstring buffer;
+  auto L = GetFullPathNameW(src.data(), 0, nullptr, nullptr);
+  if (L <= 0) {
+    return false;
+  }
+  buffer.resize(L + 1);
+  L = GetFullPathNameW(src.data(), L + 1, buffer.data(), nullptr);
+  buffer.resize(L);
+  dest.assign(std::move(buffer));
+  return true;
+}
+
+inline bool PathRemoveFileSpecU(wchar_t *lpszPath) {
+  LPWSTR lpszFileSpec = lpszPath;
+  bool bModified = false;
+
+  if (lpszPath) {
+    /* Skip directory or UNC path */
+    if (*lpszPath == '\\')
+      lpszFileSpec = ++lpszPath;
+    if (*lpszPath == '\\')
+      lpszFileSpec = ++lpszPath;
+
+    while (*lpszPath) {
+      if (*lpszPath == '\\')
+        lpszFileSpec = lpszPath; /* Skip dir */
+      else if (*lpszPath == ':') {
+        lpszFileSpec = ++lpszPath; /* Skip drive */
+        if (*lpszPath == '\\') {
+          lpszFileSpec++;
+        }
+      }
+      lpszPath++;
+    }
+    if (*lpszFileSpec) {
+      *lpszFileSpec = '\0';
+      bModified = true;
+    }
+  }
+  return bModified;
+}
+
 inline bool LookupClangbuilderTarget(std::wstring &root,
                                      std::wstring &targetFile,
                                      base::error_code &ec) {
@@ -97,11 +146,11 @@ inline bool LookupClangbuilderTarget(std::wstring &root,
   // std::array<wchar_t, PATHCCH_MAX_CCH> engine_;
   GetModuleFileNameW(nullptr, buffer, pathcchmax);
   for (int i = 0; i < 5; i++) {
-    if (!PathRemoveFileSpecW(buffer)) {
+    if (!PathRemoveFileSpecU(buffer)) {
       return false;
     }
     auto tmpfile = base::StringCat(buffer, L"\\bin\\ClangbuilderTarget.ps1");
-    if (PathFileExistsW(tmpfile.c_str())) {
+    if (PathExists(tmpfile)) {
       root.assign(buffer);
       targetFile.assign(std::move(tmpfile));
       return true;
@@ -125,9 +174,9 @@ inline std::wstring ExpandEnv(std::wstring_view v) {
 inline bool LookupPwshCore(std::wstring &ps) {
   bool success = false;
   auto psdir = ExpandEnv(L"%ProgramFiles%\\Powershell");
-  if (!PathFileExistsW(psdir.c_str())) {
+  if (!PathExists(psdir)) {
     psdir = ExpandEnv(L"%ProgramW6432%\\Powershell");
-    if (!PathFileExistsW(psdir.c_str())) {
+    if (!PathExists(psdir)) {
       return false;
     }
   }
@@ -140,7 +189,7 @@ inline bool LookupPwshCore(std::wstring &ps) {
   do {
     if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
       auto pscore = base::StringCat(psdir, L"\\", wfd.cFileName, L"\\pwsh.exe");
-      if (PathFileExistsW(pscore.c_str())) {
+      if (PathExists(pscore)) {
         ps.assign(std::move(pscore));
         success = true;
         break;
@@ -153,9 +202,12 @@ inline bool LookupPwshCore(std::wstring &ps) {
 
 inline bool LookupPwshDesktop(std::wstring &ps) {
   WCHAR pszPath[MAX_PATH]; /// by default , System Dir Length <260
-  if (SHGetFolderPathW(nullptr, CSIDL_SYSTEM, nullptr, 0, pszPath) != S_OK) {
+  // https://docs.microsoft.com/en-us/windows/desktop/api/sysinfoapi/nf-sysinfoapi-getsystemdirectoryw
+  auto N = GetSystemDirectoryW(pszPath, MAX_PATH);
+  if (N == 0) {
     return false;
   }
+  pszPath[N] = 0;
   ps = base::StringCat(pszPath, L"\\WindowsPowerShell\\v1.0\\powershell.exe");
   return true;
 }

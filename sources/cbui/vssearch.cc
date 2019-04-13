@@ -3,6 +3,7 @@
 #include "inc/json.hpp"
 #include "inc/comutils.hpp"
 #include "inc/vssetup.hpp"
+#include "inc/apphelp.hpp"
 #include <cstdlib>
 #include <cstdio>
 #include <cctype>
@@ -66,9 +67,9 @@ std::wstring FsUniqueSubdirName(std::wstring_view dir) {
 bool VisualStudioSeacher::EnterpriseWDK(std::wstring_view root,
                                         vssetup::VSInstance &vsi) {
   auto ej = base::StringCat(root, L"\\config\\ewdk.json");
-  if (!PathFileExistsW(ej.data())) {
+  if (!clangbuilder::PathExists(ej)) {
     ej = base::StringCat(root, L"\\config\\ewdk.template.json");
-    if (!PathFileExistsW(ej.data())) {
+    if (!clangbuilder::PathExists(ej)) {
       return false;
     }
   }

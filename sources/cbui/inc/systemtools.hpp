@@ -100,15 +100,13 @@ inline bool UnCaseEqual(std::wstring_view a, std::wstring_view b) {
   return true;
 }
 
-inline bool FileIsDirectory(std::wstring_view dir) {
+inline bool IsDir(std::wstring_view dir) {
   if (dir.empty()) {
     return false;
   }
   auto attr = GetFileAttributesW(dir.data());
-  if (attr != INVALID_FILE_ATTRIBUTES) {
-    return (attr & FILE_ATTRIBUTE_DIRECTORY) != 0;
-  }
-  return false;
+  return attr != INVALID_FILE_ATTRIBUTES &&
+         ((attr & FILE_ATTRIBUTE_DIRECTORY) != 0);
 }
 
 inline bool LookupVersionFromFile(std::wstring_view file, std::wstring &ver) {

@@ -38,47 +38,22 @@ std::wstring PwshExePath() {
   return L"";
 }
 
-bool Executable(std::wstring &exe) {
-  constexpr size_t pathcchmax = 0x8000;
-  std::wstring engine_(pathcchmax, L'\0');
-  auto buffer = &engine_[0];
-  // std::array<wchar_t, PATHCCH_MAX_CCH> engine_;
-  // If the function succeeds, the return value is the length of the string that
-  // is copied to the buffer, in characters, not including the terminating null
-  // character. If the buffer is too small to hold the module name, the string
-  // is truncated to nSize characters including the terminating null character,
-  // the function returns nSize, and the function sets the last error to
-  // ERROR_INSUFFICIENT_BUFFER.
-  auto N = GetModuleFileNameW(nullptr, buffer, pathcchmax);
-  if (N <= 0) {
-    return false;
+std::wstring LauncherTarget(std::wstring_view Arg0) {
+  // --> Arg0 to fullpath, replace ".exe" to ".ps1"
+  std::wstring absArg0;
+  if (!clangbuilder::PathAbsolute(absArg0, Arg0)) {
+    return L"";
   }
-  exe.assign(buffer, N);
-  return true;
+  return base::StringCat(base::StripSuffix(absArg0, L".exe"), L".ps1");
 }
-
-// std::wstring_view LauncherAppName(std::wstring_view exe,
-//                                   std::wstring_view *exepath) {
-//   auto pos = exe.find_last_of(L"\\/");
-//   if (pos == std::wstring_view::npos) {
-//     return base::StripSuffix(exe, L".exe");
-//   }
-//   *exepath = exe.substr(0, pos);
-//   exe.remove_prefix(pos + 1);
-//   return base::StripSuffix(exe, L".exe");
-// }
 
 // rc /fo:cli.res ../cbui/res/cli.rc
 // cl cli.cc -std:c++17 -O2 Pathcch.lib shell32.lib Shlwapi.lib cli.res
 int wmain(int argc, wchar_t **argv) {
-  // --> get some
+  // --> launcher some ps1 file
   _wsetlocale(LC_ALL, L"");
-  std::wstring exe;
-  if (!Executable(exe)) {
-    return 1;
-  }
-  auto ps1 = base::StringCat(base::StripSuffix(exe, L".exe"), L".ps1");
-  if (!PathFileExistsW(ps1.data())) {
+  auto ps1 = LauncherTarget(argv[0]);
+  if (!clangbuilder::PathExists(ps1)) {
     wprintf_s(L"Powershell script '%s' not found\n", ps1.data());
     return 1;
   }
