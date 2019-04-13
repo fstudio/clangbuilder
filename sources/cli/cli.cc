@@ -6,11 +6,6 @@
 #include "../cbui/inc/systemtools.hpp"
 #include <cstdio>
 
-bool ConsoleHandler(int sig) {
-  //
-  return true;
-}
-
 bool IsPwshEnabled() {
   std::wstring target, root;
   base::error_code ec;
