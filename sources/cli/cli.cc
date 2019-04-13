@@ -6,6 +6,11 @@
 #include "../cbui/inc/systemtools.hpp"
 #include <cstdio>
 
+bool ConsoleHandler(int sig) {
+  //
+  return true;
+}
+
 bool IsPwshEnabled() {
   std::wstring target, root;
   base::error_code ec;
@@ -82,13 +87,16 @@ int wmain(int argc, wchar_t **argv) {
   clangbuilder::FsRedirection fsRedirection;
 #endif
   if (CreateProcessW(nullptr, ab.command(), NULL, NULL, FALSE,
-                     NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi) != TRUE) {
+                     CREATE_UNICODE_ENVIRONMENT, NULL, NULL, &si,
+                     &pi) != TRUE) {
     auto ec = base::make_system_error_code();
     wprintf_s(L"CreateProcessW error: %s", ec.message.data());
     return 1;
   }
   CloseHandle(pi.hThread);
+  SetConsoleCtrlHandler(nullptr, TRUE);
   WaitForSingleObject(pi.hProcess, INFINITE);
+  SetConsoleCtrlHandler(nullptr, FALSE);
   DWORD exitCode;
   GetExitCodeProcess(pi.hProcess, &exitCode);
   CloseHandle(pi.hProcess);

@@ -122,6 +122,9 @@ Function Test-BestSourcesURL {
         $u = $Urls[$i]
         $xuri = [uri]$u
         $resptime = TestTcpConnection -ServerName $xuri.Host -Port $xuri.Port
+        if ($xuri.Host -eq "github.com") {
+            $resptime += 1000 # Github AWS slow in china
+        }
         Write-Host "$u time: $resptime ms"
         if ($pretime -gt $resptime) {
             $index = $i

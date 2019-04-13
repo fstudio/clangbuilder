@@ -208,7 +208,9 @@ int LinkToApp(const wchar_t *target) {
     return -1;
   }
   CloseHandle(pi.hThread);
+  SetConsoleCtrlHandler(nullptr, TRUE);
   WaitForSingleObject(pi.hProcess, INFINITE);
+  SetConsoleCtrlHandler(nullptr, FALSE);
   DWORD exitCode;
   GetExitCodeProcess(pi.hProcess, &exitCode);
   CloseHandle(pi.hProcess);
