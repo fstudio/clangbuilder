@@ -1,6 +1,6 @@
 {
     "description": "CMake is an open-source, cross-platform family of tools designed to build, test and package software",
-    "version": "3.14.1",
+    "version": "3.14.2",
     "url": "https://github.com/Kitware/CMake/releases/download/v3.14.1/cmake-3.14.1-win32-x86.zip",
     "url64": "https://github.com/Kitware/CMake/releases/download/v3.14.1/cmake-3.14.1-win64-x64.zip",
     "extension": "zip",

@@ -16,7 +16,7 @@ bool Execute(std::vector<std::wstring_view> &Argv) {
     ab.append(Argv[i]);
   }
   PROCESS_INFORMATION pi;
-  STARTUPINFO si;
+  STARTUPINFOW si;
   ZeroMemory(&si, sizeof(si));
   ZeroMemory(&pi, sizeof(pi));
   si.cb = sizeof(si);
