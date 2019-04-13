@@ -171,6 +171,7 @@ inline std::string ToNarrow(std::wstring_view uw) {
   return ustr;
 }
 
+// ToWide UTF-8 to UTF-16
 inline std::wstring ToWide(std::string_view u8) {
   std::wstring wstr;
   auto N =

@@ -211,6 +211,7 @@ int LinkToApp(const wchar_t *target) {
   WaitForSingleObject(pi.hProcess, INFINITE);
   DWORD exitCode;
   GetExitCodeProcess(pi.hProcess, &exitCode);
+  CloseHandle(pi.hProcess);
   return exitCode;
 }
 

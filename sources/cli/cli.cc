@@ -20,7 +20,7 @@ bool IsPwshEnabled() {
   try {
     auto j = nlohmann::json::parse(fd.P());
     return j["PwshCoreEnabled"].get<bool>();
-  } catch (const std::exception &e) {
+  } catch (const std::exception &) {
     // fprintf(stderr, "debug %s\n", e.what());
     return false;
   }
@@ -50,6 +50,9 @@ bool Executable(std::wstring &exe) {
   // the function returns nSize, and the function sets the last error to
   // ERROR_INSUFFICIENT_BUFFER.
   auto N = GetModuleFileNameW(nullptr, buffer, pathcchmax);
+  if (N <= 0) {
+    return false;
+  }
   exe.assign(buffer, N);
   return true;
 }
@@ -65,15 +68,18 @@ bool Executable(std::wstring &exe) {
 //   return base::StripSuffix(exe, L".exe");
 // }
 
-// cl cli.cc -std:c++17 -O2 Pathcch.lib shell32.lib Shlwapi.lib
+// rc /fo:cli.res ../cbui/res/cli.rc
+// cl cli.cc -std:c++17 -O2 Pathcch.lib shell32.lib Shlwapi.lib cli.res
 int wmain(int argc, wchar_t **argv) {
   // --> get some
+  _wsetlocale(LC_ALL, L"");
   std::wstring exe;
   if (!Executable(exe)) {
     return 1;
   }
   auto ps1 = base::StringCat(base::StripSuffix(exe, L".exe"), L".ps1");
   if (!PathFileExistsW(ps1.data())) {
+    wprintf_s(L"Powershell script '%s' not found\n", ps1.data());
     return 1;
   }
   auto pwshexe = PwshExePath();
@@ -102,11 +108,14 @@ int wmain(int argc, wchar_t **argv) {
 #endif
   if (CreateProcessW(nullptr, ab.command(), NULL, NULL, FALSE,
                      NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi) != TRUE) {
+    auto ec = base::make_system_error_code();
+    wprintf_s(L"CreateProcessW error: %s", ec.message.data());
     return 1;
   }
   CloseHandle(pi.hThread);
   WaitForSingleObject(pi.hProcess, INFINITE);
   DWORD exitCode;
   GetExitCodeProcess(pi.hProcess, &exitCode);
+  CloseHandle(pi.hProcess);
   return exitCode;
 }

@@ -6,15 +6,7 @@
 #include <vector>
 #include "appui.hpp"
 
-bool Execute(std::vector<std::wstring_view> &Argv) {
-  if (Argv.empty()) {
-    return false;
-  }
-  clangbuilder::argvbuilder ab;
-  ab.assign(Argv[0]);
-  for (size_t i = 1; i < Argv.size(); i++) {
-    ab.append(Argv[i]);
-  }
+bool Execute(wchar_t *command) {
   PROCESS_INFORMATION pi;
   STARTUPINFOW si;
   ZeroMemory(&si, sizeof(si));
@@ -23,10 +15,10 @@ bool Execute(std::vector<std::wstring_view> &Argv) {
   si.dwFlags = STARTF_USESHOWWINDOW;
   si.wShowWindow = SW_SHOW;
 #if defined(_M_IX86) || defined(_M_ARM)
-  //// Only x86,ARM on Windows 64
+  //// Only x86,ARM on Windows 64/ARM64
   clangbuilder::FsRedirection fsRedirection;
 #endif
-  if (CreateProcessW(nullptr, ab.command(), NULL, NULL, FALSE,
+  if (CreateProcessW(nullptr, command, NULL, NULL, FALSE,
                      CREATE_NEW_CONSOLE | NORMAL_PRIORITY_CLASS, NULL, NULL,
                      &si, &pi) != TRUE) {
     return false;
@@ -83,49 +75,49 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return S_FALSE;
   }
 
-  std::vector<std::wstring_view> Argv;
-  Argv.push_back(pwshexe);
-  Argv.push_back(L"-NoLogo");
-  Argv.push_back(L"-NoExit");
-  Argv.push_back(L"-File");
-  Argv.push_back(targetFile);
-  Argv.push_back(L"-InstanceId");
-  Argv.push_back(search.InstanceId(vsindex_));
-  Argv.push_back(L"-InstallationVersion");
-  Argv.push_back(search.InstallVersion(vsindex_));
-  Argv.push_back(L"-Arch");
-  Argv.push_back(tables.Targets[archindex_]);
-  Argv.push_back(L"-Flavor");
-  Argv.push_back(tables.Configurations[flavor_]);
-  Argv.push_back(L"-Engine");
-  Argv.push_back(tables.Engines[be].Value);
-  Argv.push_back(L"-Branch");
-  Argv.push_back(tables.Branches[bs]);
+  clangbuilder::argvbuilder ab;
+  ab.assign(pwshexe)
+      .append(L"-NoLogo")
+      .append(L"-NoExit")
+      .append(L"-File")
+      .append(targetFile)
+      .append(L"-InstanceId")
+      .append(search.InstanceId(vsindex_))
+      .append(L"-InstallationVersion")
+      .append(search.InstallVersion(vsindex_))
+      .append(L"-Arch")
+      .append(tables.Targets[archindex_])
+      .append(L"-Flavor")
+      .append(tables.Configurations[flavor_])
+      .append(L"-Engine")
+      .append(tables.Engines[be].Value)
+      .append(L"-Branch")
+      .append(tables.Branches[bs]);
 
   if ((be == 1 || be == 3) && Button_GetCheck(hlibcxx) == BST_CHECKED) {
-    Argv.push_back(L"-Libcxx");
+    ab.append(L"-Libcxx");
   }
 
   if (Button_GetCheck(hlto) == BST_CHECKED) {
-    Argv.push_back(L"-LTO");
+    ab.append(L"-LTO");
   }
 
   if (Button_GetCheck(hsdklow) == BST_CHECKED) {
-    Argv.push_back(L"-Sdklow");
+    ab.append(L"-Sdklow");
   }
 
   if (Button_GetCheck(hcpack) == BST_CHECKED) {
-    Argv.push_back(L"-Package");
+    ab.append(L"-Package");
   }
 
   if (Button_GetCheck(hlldb) == BST_CHECKED) {
-    Argv.push_back(L"-LLDB");
+    ab.append(L"-LLDB");
   }
 
   if (Button_GetCheck(hcleanenv) == BST_CHECKED) {
-    Argv.push_back(L"-ClearEnv");
+    ab.append(L"-ClearEnv");
   }
-  if (!Execute(Argv)) {
+  if (!Execute(ab.command())) {
     auto ec = base::make_system_error_code();
     utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(),
                           nullptr, utils::kFatalWindow);
@@ -153,26 +145,26 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return S_FALSE;
   }
 
-  std::vector<std::wstring_view> Argv;
-  Argv.push_back(pwshexe);
-  Argv.push_back(L"-NoLogo");
-  Argv.push_back(L"-NoExit");
-  Argv.push_back(L"-File");
-  Argv.push_back(targetFile);
-  Argv.push_back(L"-Environment");
-  Argv.push_back(L"-InstanceId");
-  Argv.push_back(search.InstanceId(vsindex_));
-  Argv.push_back(L"-InstallationVersion");
-  Argv.push_back(search.InstallVersion(vsindex_));
-  Argv.push_back(L"-Arch");
-  Argv.push_back(tables.Targets[archindex_]);
+  clangbuilder::argvbuilder ab;
+  ab.assign(pwshexe)
+      .append(L"-NoLogo")
+      .append(L"-NoExit")
+      .append(L"-File")
+      .append(targetFile)
+      .append(L"-Environment")
+      .append(L"-InstanceId")
+      .append(search.InstanceId(vsindex_))
+      .append(L"-InstallationVersion")
+      .append(search.InstallVersion(vsindex_))
+      .append(L"-Arch")
+      .append(tables.Targets[archindex_]);
   if (Button_GetCheck(hsdklow) == BST_CHECKED) {
-    Argv.push_back(L"-Sdklow");
+    ab.append(L"-Sdklow");
   }
   if (Button_GetCheck(hcleanenv) == BST_CHECKED) {
-    Argv.push_back(L"-ClearEnv");
+    ab.append(L"-ClearEnv");
   }
-  if (!Execute(Argv)) {
+  if (!Execute(ab.command())) {
     auto ec = base::make_system_error_code();
     utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(),
                           nullptr, utils::kFatalWindow);
