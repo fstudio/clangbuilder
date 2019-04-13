@@ -114,13 +114,13 @@ inline bool VisualStudioNativeSearcher::IsEWDKEnabled() {
 }
 
 inline std::wstring LookupVCToolsetVersion(std::wstring_view vsdir) {
-  auto vcfile = base::strcat(
+  auto vcfile = base::StringCat(
       vsdir, L"/VC/Auxiliary/Build/Microsoft.VCToolsVersion.default.txt");
   std::wstring ver;
   if (!clangbuilder::LookupVersionFromFile(vcfile, ver)) {
     return L"";
   }
-  auto sv = clangbuilder::StripAsciiWhitespace(ver);
+  auto sv = base::StripAsciiWhitespace(ver);
   return std::wstring(sv);
 }
 
@@ -270,7 +270,7 @@ inline bool VisualStudioNativeSearcher::GetVSInstanceAll(
       item.VSInstallLocation = envVsInstallDir;
       item.Version = envVSVersion;
       item.DisplayName =
-          base::strcat(L"Visual Studio ", envVSVersion, L" (EnterpriseWDK)");
+          base::StringCat(L"Visual Studio ", envVSVersion, L" (EnterpriseWDK)");
       item.VCToolsetVersion = LookupVCToolsetVersion(item.VSInstallLocation);
       item.ullVersion = std::stoi(envVSVersion);
       item.IsWin10SDKInstalled = true;

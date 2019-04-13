@@ -16,5 +16,5 @@ public:
 private:
   bool SetWindowCompositionAttribute_{false};
 };
-
+bool SetWindowCompositionAttributeImpl(HWND hWnd);
 #endif

@@ -26,18 +26,6 @@ bool PsCreateProcess(LPWSTR pszCommand) {
   return false;
 }
 
-LPWSTR FormatMessageInternal() {
-  LPWSTR hlocal;
-  if (FormatMessageW(
-          FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
-              FORMAT_MESSAGE_ALLOCATE_BUFFER,
-          NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
-          (LPWSTR)&hlocal, 0, NULL)) {
-    return hlocal;
-  }
-  return nullptr;
-}
-
 LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                BOOL &bHandled) {
   std::wstring Command;
@@ -119,13 +107,9 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     Command.append(L" -ClearEnv");
   }
   if (!PsCreateProcess(&Command[0])) {
-    ////
-    auto errmsg = FormatMessageInternal();
-    if (errmsg) {
-      utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", errmsg, nullptr,
-                            utils::kFatalWindow);
-      LocalFree(errmsg);
-    }
+    auto ec = base::make_system_error_code();
+    utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(),
+                          nullptr, utils::kFatalWindow);
   }
   return S_OK;
 }
@@ -177,12 +161,9 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   }
 
   if (!PsCreateProcess(&Command[0])) {
-    auto errmsg = FormatMessageInternal();
-    if (errmsg) {
-      utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", errmsg, nullptr,
-                            utils::kFatalWindow);
-      LocalFree(errmsg);
-    }
+    auto ec = base::make_system_error_code();
+    utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(),
+                          nullptr, utils::kFatalWindow);
   }
   return S_OK;
 }

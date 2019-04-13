@@ -100,47 +100,6 @@ inline bool UnCaseEqual(std::wstring_view a, std::wstring_view b) {
   return true;
 }
 
-// Returns std::string_view with whitespace stripped from the beginning of the
-// given string_view.
-inline std::string_view StripLeadingAsciiWhitespace(std::string_view str) {
-  auto it = std::find_if_not(str.begin(), str.end(), std::isspace);
-  return str.substr(it - str.begin());
-}
-
-// Returns std::string_view with whitespace stripped from the end of the given
-// string_view.
-inline std::string_view StripTrailingAsciiWhitespace(std::string_view str) {
-  auto it = std::find_if_not(str.rbegin(), str.rend(), std::isspace);
-  return str.substr(0, str.rend() - it);
-}
-
-// Returns std::string_view with whitespace stripped from both ends of the
-// given string_view.
-inline std::string_view StripAsciiWhitespace(std::string_view str) {
-  return StripTrailingAsciiWhitespace(StripLeadingAsciiWhitespace(str));
-}
-
-////////////// wstring_view
-// Returns std::wstring_view with whitespace stripped from the beginning of the
-// given string_view.
-inline std::wstring_view StripLeadingAsciiWhitespace(std::wstring_view str) {
-  auto it = std::find_if_not(str.begin(), str.end(), std::isspace);
-  return str.substr(it - str.begin());
-}
-
-// Returns std::wstring_view with whitespace stripped from the end of the given
-// string_view.
-inline std::wstring_view StripTrailingAsciiWhitespace(std::wstring_view str) {
-  auto it = std::find_if_not(str.rbegin(), str.rend(), std::isspace);
-  return str.substr(0, str.rend() - it);
-}
-
-// Returns std::wstring_view with whitespace stripped from both ends of the
-// given string_view.
-inline std::wstring_view StripAsciiWhitespace(std::wstring_view str) {
-  return StripTrailingAsciiWhitespace(StripLeadingAsciiWhitespace(str));
-}
-
 inline bool FileIsDirectory(std::wstring_view dir) {
   if (dir.empty()) {
     return false;
@@ -150,18 +109,6 @@ inline bool FileIsDirectory(std::wstring_view dir) {
     return (attr & FILE_ATTRIBUTE_DIRECTORY) != 0;
   }
   return false;
-}
-// ToNarrow UTF-16 to UTF-8
-
-inline std::wstring ToWide(std::string_view u8) {
-  std::wstring wstr;
-  auto N =
-      MultiByteToWideChar(CP_UTF8, 0, u8.data(), (DWORD)u8.size(), nullptr, 0);
-  if (N > 0) {
-    wstr.resize(N);
-    MultiByteToWideChar(CP_UTF8, 0, u8.data(), (DWORD)u8.size(), &wstr[0], N);
-  }
-  return wstr;
 }
 
 inline bool LookupVersionFromFile(std::wstring_view file, std::wstring &ver) {
@@ -198,21 +145,14 @@ inline bool LookupVersionFromFile(std::wstring_view file, std::wstring &ver) {
   if (buf[0] == 0xEF && buf[1] == 0xBB && buf[2] == 0xBF) {
     auto p = reinterpret_cast<char *>(buf + 3);
     std::string_view s(p, dwr - 3);
-    ver = ToWide(s);
+    ver = base::ToWide(s);
     return true;
   }
   // UTF-8 (ASCII)
   auto p = reinterpret_cast<char *>(buf);
   std::string_view s(p, dwr);
-  ver = ToWide(s);
+  ver = base::ToWide(s);
   return true;
-}
-
-inline std::wstring_view TrimPrefix(std::wstring_view s, std::wstring_view p) {
-  if (s.size() > p.size() && s.compare(0, p.size(), p.data()) == 0) {
-    return s.substr(p.size());
-  }
-  return s;
 }
 
 } // namespace clangbuilder

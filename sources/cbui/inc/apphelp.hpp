@@ -96,13 +96,11 @@ inline bool LookupClangbuilderTarget(std::wstring &root,
   auto buffer = &engine_[0];
   // std::array<wchar_t, PATHCCH_MAX_CCH> engine_;
   GetModuleFileNameW(nullptr, buffer, pathcchmax);
-  std::wstring tmpfile;
   for (int i = 0; i < 5; i++) {
     if (!PathRemoveFileSpecW(buffer)) {
       return false;
     }
-    tmpfile.assign(buffer);
-    tmpfile.append(L"\\bin\\").append(L"ClangbuilderTarget.ps1");
+    auto tmpfile = base::StringCat(buffer, L"\\bin\\ClangbuilderTarget.ps1");
     if (PathFileExistsW(tmpfile.c_str())) {
       root.assign(buffer);
       targetFile.assign(std::move(tmpfile));
@@ -134,14 +132,14 @@ inline bool LookupPwshCore(std::wstring &ps) {
     }
   }
   WIN32_FIND_DATAW wfd;
-  auto findstr = base::strcat(psdir, L"\\*");
+  auto findstr = base::StringCat(psdir, L"\\*");
   HANDLE hFind = FindFirstFileW(findstr.c_str(), &wfd);
   if (hFind == INVALID_HANDLE_VALUE) {
     return false; /// Not found
   }
   do {
     if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-      auto pscore = base::strcat(psdir, L"\\", wfd.cFileName, L"\\pwsh.exe");
+      auto pscore = base::StringCat(psdir, L"\\", wfd.cFileName, L"\\pwsh.exe");
       if (PathFileExistsW(pscore.c_str())) {
         ps.assign(std::move(pscore));
         success = true;
@@ -154,7 +152,7 @@ inline bool LookupPwshCore(std::wstring &ps) {
 }
 
 inline bool IsPwshCoreEnable(std::wstring_view root, std::wstring &cmd) {
-  auto rp = base::strcat(root, L"\\bin\\required_pwsh");
+  auto rp = base::StringCat(root, L"\\bin\\required_pwsh");
   if (!PathFileExistsW(rp.c_str())) {
     return false;
   }
@@ -166,7 +164,7 @@ inline bool LookupPwshDesktop(std::wstring &ps) {
   if (SHGetFolderPathW(nullptr, CSIDL_SYSTEM, nullptr, 0, pszPath) != S_OK) {
     return false;
   }
-  ps = base::strcat(pszPath, L"\\WindowsPowerShell\\v1.0\\powershell.exe");
+  ps = base::StringCat(pszPath, L"\\WindowsPowerShell\\v1.0\\powershell.exe");
   return true;
 }
 

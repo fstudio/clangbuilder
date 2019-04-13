@@ -122,12 +122,14 @@ HRESULT MainWindow::CreateDeviceResources() {
   }
   return hr;
 }
+
 void MainWindow::DiscardDeviceResources() {
   ///
   SafeRelease(&m_pHwndRenderTarget);
   SafeRelease(&m_pBasicTextBrush);
   SafeRelease(&m_AreaBorderBrush);
 }
+
 HRESULT MainWindow::OnRender() {
   auto hr = CreateDeviceResources();
 
@@ -251,49 +253,6 @@ HRESULT MainWindow::InitializeControl() {
   return S_OK;
 }
 
-/////
-struct ACCENTPOLICY {
-  int nAccentState;
-  int nFlags;
-  int nColor;
-  int nAnimationId;
-};
-struct WINCOMPATTRDATA {
-  int nAttribute;
-  PVOID pData;
-  ULONG ulDataSize;
-};
-
-enum AccentTypes {
-  ACCENT_DISABLED = 0,        // Black and solid background
-  ACCENT_ENABLE_GRADIENT = 1, // Custom-colored solid background
-  ACCENT_ENABLE_TRANSPARENTGRADIENT =
-      2, // Custom-colored transparent background
-  ACCENT_ENABLE_BLURBEHIND =
-      3,                    // Custom-colored and blurred transparent background
-  ACCENT_ENABLE_FLUENT = 4, // Custom-colored Fluent effect
-  ACCENT_INVALID_STATE = 5  // Completely transparent background
-};
-
-bool SetWindowCompositionAttributeImpl(HWND hWnd) {
-  typedef BOOL(WINAPI * pSetWindowCompositionAttribute)(HWND,
-                                                        WINCOMPATTRDATA *);
-  bool result = false;
-  const HINSTANCE hModule = LoadLibrary(TEXT("user32.dll"));
-  const pSetWindowCompositionAttribute SetWindowCompositionAttribute =
-      (pSetWindowCompositionAttribute)GetProcAddress(
-          hModule, "SetWindowCompositionAttribute");
-
-  // Only works on Win10
-  if (SetWindowCompositionAttribute) {
-    ACCENTPOLICY policy = {ACCENT_ENABLE_FLUENT, 0, 0, 0};
-    WINCOMPATTRDATA data = {19, &policy, sizeof(ACCENTPOLICY)};
-    result = SetWindowCompositionAttribute(hWnd, &data);
-  }
-  FreeLibrary(hModule);
-  return result;
-}
-
 /*
  *  Message Action Function
  */
@@ -400,7 +359,7 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
   // FLOAT dpiX_, dpiY_;
   // SEE:
   // https://msdn.microsoft.com/en-us/library/windows/desktop/dd371319(v=vs.85).aspx
-  //m_pFactory->ReloadSystemMetrics();
+  // m_pFactory->ReloadSystemMetrics();
   // m_pFactory->GetDesktopDpi(&dpiX_, &dpiY_);
   // dpiX = static_cast<int>(dpiX_);
   // dpiY = static_cast<int>(dpiY_);
@@ -443,6 +402,7 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
   UpdateWindowPos(hButtonEnv_);
   return S_OK;
 }
+
 LRESULT MainWindow::OnPaint(UINT nMsg, WPARAM wParam, LPARAM lParam,
                             BOOL &bHandle) {
   LRESULT hr = S_OK;
@@ -474,11 +434,7 @@ LRESULT MainWindow::OnChangeEngine(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                    BOOL &bHandled) {
   if (wNotifyCode == CBN_SELCHANGE) {
     auto N = ComboBox_GetCurSel(hBuildBox);
-    if (N == 1 || N == 3) {
-      ::EnableWindow(hLibcxx_, TRUE);
-    } else {
-      ::EnableWindow(hLibcxx_, FALSE);
-    }
+    ::EnableWindow(hLibcxx_, (N == 1 || N == 3) ? TRUE : FALSE);
   }
   return S_OK;
 }
