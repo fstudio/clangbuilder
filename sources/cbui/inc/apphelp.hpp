@@ -151,14 +151,6 @@ inline bool LookupPwshCore(std::wstring &ps) {
   return success;
 }
 
-inline bool IsPwshCoreEnable(std::wstring_view root, std::wstring &cmd) {
-  auto rp = base::StringCat(root, L"\\bin\\required_pwsh");
-  if (!PathFileExistsW(rp.c_str())) {
-    return false;
-  }
-  return LookupPwshCore(cmd);
-}
-
 inline bool LookupPwshDesktop(std::wstring &ps) {
   WCHAR pszPath[MAX_PATH]; /// by default , System Dir Length <260
   if (SHGetFolderPathW(nullptr, CSIDL_SYSTEM, nullptr, 0, pszPath) != S_OK) {

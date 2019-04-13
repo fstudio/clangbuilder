@@ -12,9 +12,12 @@ public:
   bool SetWindowCompositionAttributeEnabled() const {
     return SetWindowCompositionAttribute_;
   }
+  bool IsPwshCoreEnabled() const { return PwshCoreEnabled_; }
+  std::wstring PwshExePath();
 
 private:
   bool SetWindowCompositionAttribute_{false};
+  bool PwshCoreEnabled_{false};
 };
 bool SetWindowCompositionAttributeImpl(HWND hWnd);
 #endif

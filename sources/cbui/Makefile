@@ -11,7 +11,7 @@ LDFLAGS=-NOLOGO -INCREMENTAL:NO -LTCG
 # inc/vsinstance.hpp inc/vssearch.hpp inc/vssetup.hpp
 LIBS=KERNEL32.lib ADVAPI32.lib Shell32.lib USER32.lib comctl32.lib Shlwapi.lib \
 d2d1.lib dwrite.lib shcore.lib Winmm.lib Pathcch.lib ole32.lib comsupp.lib
-OBJS=main.obj appui.obj appdo.obj apputils.obj vssearch.obj settings.obj
+OBJS=main.obj appui.obj appexec.obj apputils.obj vssearch.obj settings.obj
 
 
 all:app.res $(OBJS)

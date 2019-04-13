@@ -79,7 +79,7 @@ endif()
 
 add_executable(ClangbuilderUI WIN32
   main.cc
-  appdo.cc
+  appexec.cc
   appui.cc
   apputils.cc
   settings.cc

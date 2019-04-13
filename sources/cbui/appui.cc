@@ -18,53 +18,42 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #define HINST_THISCOMPONENT ((HINSTANCE)&__ImageBase)
 #endif
 
-#define WS_NORESIZEWINDOW                                                      \
-  (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN | WS_MINIMIZEBOX)
+constexpr const auto noresizewnd = (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU |
+                                    WS_CLIPCHILDREN | WS_MINIMIZEBOX);
+constexpr const auto wexstyle =
+    WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_NOPARENTNOTIFY;
 
-template <class Interface>
-inline void SafeRelease(Interface **ppInterfaceToRelease) {
-  if (*ppInterfaceToRelease != NULL) {
-    (*ppInterfaceToRelease)->Release();
+constexpr const auto cbstyle = WS_CHILDWINDOW | WS_CLIPSIBLINGS | WS_VISIBLE |
+                               WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS;
+constexpr const auto chboxstyle = BS_PUSHBUTTON | BS_TEXT | BS_DEFPUSHBUTTON |
+                                  BS_CHECKBOX | BS_AUTOCHECKBOX | WS_CHILD |
+                                  WS_OVERLAPPED | WS_VISIBLE;
+constexpr const auto pbstyle =
+    BS_PUSHBUTTON | BS_TEXT | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE;
 
-    (*ppInterfaceToRelease) = NULL;
+// Resources Safe Release
+template <typename I> inline void ReleaseT(I **i) {
+  if (*i != nullptr) {
+    (*i)->Release();
   }
+  *i = nullptr;
 }
 
-/*
- * Resources Initialize and Release
- */
-
-MainWindow::MainWindow()
-    : m_pFactory(nullptr), m_pHwndRenderTarget(nullptr),
-      m_pBasicTextBrush(nullptr), m_AreaBorderBrush(nullptr),
-      m_pWriteFactory(nullptr), m_pWriteTextFormat(nullptr) {
-  tables.Targets =
-      std::initializer_list<std::wstring>{L"x86", L"x64", L"ARM", L"ARM64"};
-  tables.Configurations = std::initializer_list<std::wstring>{
-      L"Release", L"MinSizeRel", L"RelWithDebInfo", L"Debug"};
-  tables.AddEngine(L"Ninja - MSVC", L"Ninja");
-  tables.AddEngine(L"Ninja - Clang", L"NinjaIterate");
-  tables.AddEngine(L"MSBuild - MSVC", L"MSBuild");
-  tables.AddEngine(L"Ninja - Bootstrap", L"NinjaBootstrap");
-  tables.Branches =
-      std::initializer_list<std::wstring>{L"Mainline", L"Stable", L"Release"};
-}
 MainWindow::~MainWindow() {
-  SafeRelease(&m_pWriteTextFormat);
-  SafeRelease(&m_pWriteFactory);
-  SafeRelease(&m_pBasicTextBrush);
-  SafeRelease(&m_AreaBorderBrush);
-  SafeRelease(&m_pHwndRenderTarget);
-  SafeRelease(&m_pFactory);
+  ReleaseT(&writeTextFormat);
+  ReleaseT(&writeFactory);
+  ReleaseT(&textBrush);
+  ReleaseT(&borderBrush);
+  ReleaseT(&renderTarget);
+  ReleaseT(&m_pFactory);
   if (hFont != nullptr) {
     DeleteFont(hFont);
   }
 }
 
 LRESULT MainWindow::InitializeWindow() {
-  auto hr = CreateDeviceIndependentResources();
-  if (hr != S_OK) {
-    return hr;
+  if (CreateDeviceIndependentResources() != S_OK) {
+    return S_FALSE;
   }
   // FLOAT dpiX_, dpiY_;
   // m_pFactory->GetDesktopDpi(&dpiX_, &dpiY_);
@@ -77,8 +66,8 @@ LRESULT MainWindow::InitializeWindow() {
   RECT layout = {CW_USEDEFAULT, CW_USEDEFAULT,
                  CW_USEDEFAULT + MulDiv(700, dpiX, 96),
                  CW_USEDEFAULT + MulDiv(540, dpiY, 96)};
-  Create(nullptr, layout, L"Clangbuilder Environment Utility",
-         WS_NORESIZEWINDOW, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE);
+  Create(nullptr, layout, L"Clangbuilder Environment Utility", noresizewnd,
+         WS_EX_APPWINDOW | WS_EX_WINDOWEDGE);
   return S_OK;
 }
 
@@ -86,86 +75,78 @@ LRESULT MainWindow::InitializeWindow() {
 HRESULT MainWindow::CreateDeviceIndependentResources() {
   HRESULT hr = S_OK;
   hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_pFactory);
-  if (hr != S_OK) {
+  if (FAILED(hr)) {
     return hr;
   }
   hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
-                           reinterpret_cast<IUnknown **>(&m_pWriteFactory));
-  if (hr != S_OK) {
+                           reinterpret_cast<IUnknown **>(&writeFactory));
+  if (FAILED(hr)) {
     return hr;
   }
-  hr = m_pWriteFactory->CreateTextFormat(
+  hr = writeFactory->CreateTextFormat(
       L"Segoe UI", NULL, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL,
       DWRITE_FONT_STRETCH_NORMAL, 12.0f * 96.0f / 72.0f, L"zh-CN",
-      &m_pWriteTextFormat);
+      &writeTextFormat);
   return hr;
 }
 
 HRESULT MainWindow::CreateDeviceResources() {
   HRESULT hr = S_OK;
-
-  if (!m_pHwndRenderTarget) {
-    RECT rc;
-    ::GetClientRect(m_hWnd, &rc);
-    D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top);
-    hr = m_pFactory->CreateHwndRenderTarget(
-        D2D1::RenderTargetProperties(),
-        D2D1::HwndRenderTargetProperties(m_hWnd, size), &m_pHwndRenderTarget);
-    if (SUCCEEDED(hr)) {
-      hr = m_pHwndRenderTarget->CreateSolidColorBrush(
-          D2D1::ColorF(D2D1::ColorF::Black), &m_pBasicTextBrush);
-    }
-    if (SUCCEEDED(hr)) {
-      hr = m_pHwndRenderTarget->CreateSolidColorBrush(D2D1::ColorF(0xFFC300),
-                                                      &m_AreaBorderBrush);
-    }
+  if (renderTarget != nullptr) {
+    return S_OK;
+  }
+  RECT rc;
+  ::GetClientRect(m_hWnd, &rc);
+  D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top);
+  hr = m_pFactory->CreateHwndRenderTarget(
+      D2D1::RenderTargetProperties(),
+      D2D1::HwndRenderTargetProperties(m_hWnd, size), &renderTarget);
+  if (SUCCEEDED(hr)) {
+    hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black),
+                                             &textBrush);
+  }
+  if (SUCCEEDED(hr)) {
+    hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(0xFFC300),
+                                             &borderBrush);
   }
   return hr;
 }
 
 void MainWindow::DiscardDeviceResources() {
   ///
-  SafeRelease(&m_pHwndRenderTarget);
-  SafeRelease(&m_pBasicTextBrush);
-  SafeRelease(&m_AreaBorderBrush);
+  ReleaseT(&renderTarget);
+  ReleaseT(&textBrush);
+  ReleaseT(&borderBrush);
 }
 
 HRESULT MainWindow::OnRender() {
   auto hr = CreateDeviceResources();
-
-  if (hr != S_OK)
+  if (FAILED(hr)) {
     return hr;
-#pragma warning(disable : 4244)
-#pragma warning(disable : 4267)
-  if (SUCCEEDED(hr)) {
-
-    auto dsz = m_pHwndRenderTarget->GetSize();
-    m_pHwndRenderTarget->BeginDraw();
-    m_pHwndRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-    m_pHwndRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
-
-    m_pHwndRenderTarget->DrawRectangle(
-        D2D1::RectF(20, 10, dsz.width - 20, dsz.height - 20), m_AreaBorderBrush,
-        1.0);
-    m_pHwndRenderTarget->DrawLine(D2D1::Point2F(20, 220),
-                                  D2D1::Point2F(dsz.width - 20, 220),
-                                  m_AreaBorderBrush, 1.0);
-
-    for (auto &label : label_) {
-      if (label.text.empty())
-        continue;
-      m_pHwndRenderTarget->DrawTextW(
-          label.text.c_str(), label.text.size(), m_pWriteTextFormat,
-          D2D1::RectF(label.layout.left, label.layout.top, label.layout.right,
-                      label.layout.bottom),
-          m_pBasicTextBrush, D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT,
-          DWRITE_MEASURING_MODE_NATURAL);
-    }
-    m_pWriteTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-    hr = m_pHwndRenderTarget->EndDraw();
   }
-#pragma warning(default : 4244)
-#pragma warning(default : 4267)
+  auto dsz = renderTarget->GetSize();
+  renderTarget->BeginDraw();
+  renderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
+  renderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
+
+  renderTarget->DrawRectangle(
+      D2D1::RectF(20, 10, dsz.width - 20, dsz.height - 20), borderBrush, 1.0);
+
+  renderTarget->DrawLine(D2D1::Point2F(20, 220),
+                         D2D1::Point2F(dsz.width - 20, 220), borderBrush, 1.0);
+
+  for (const auto &label : labels) {
+    if (label.empty()) {
+      continue;
+    }
+    renderTarget->DrawTextW(label.data(), label.length(), writeTextFormat,
+                            label.F(), textBrush,
+                            D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT,
+                            DWRITE_MEASURING_MODE_NATURAL);
+  }
+  writeTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+  hr = renderTarget->EndDraw();
+
   if (hr == D2DERR_RECREATE_TARGET) {
     hr = S_OK;
     DiscardDeviceResources();
@@ -185,21 +166,10 @@ D2D1_SIZE_U MainWindow::CalculateD2DWindowSize() {
 }
 
 void MainWindow::OnResize(UINT width, UINT height) {
-  if (m_pHwndRenderTarget) {
-    m_pHwndRenderTarget->Resize(D2D1::SizeU(width, height));
+  if (renderTarget) {
+    renderTarget->Resize(D2D1::SizeU(width, height));
   }
 }
-
-#define WEXSTYLE                                                               \
-  WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_NOPARENTNOTIFY
-#define CBSTYLE                                                                \
-  WS_CHILDWINDOW | WS_CLIPSIBLINGS | WS_VISIBLE | WS_TABSTOP |                 \
-      CBS_DROPDOWNLIST | CBS_HASSTRINGS
-#define CHECKBOXSTYLE                                                          \
-  BS_PUSHBUTTON | BS_TEXT | BS_DEFPUSHBUTTON | BS_CHECKBOX | BS_AUTOCHECKBOX | \
-      WS_CHILD | WS_OVERLAPPED | WS_VISIBLE
-#define PUSHBUTTONSTYLE                                                        \
-  BS_PUSHBUTTON | BS_TEXT | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE
 
 HRESULT MainWindow::InitializeControl() {
   base::error_code ec;
@@ -208,46 +178,48 @@ HRESULT MainWindow::InitializeControl() {
     return S_FALSE;
   }
   settings.Initialize(root);
-  if (!search.Execute(root)) {
-    return false;
+
+  if (!InitializeElemets()) {
+    utils::PrivMessageBox(m_hWnd, L"Not Found any Visual Studio",
+                          L"Please check visual studio is installed", nullptr,
+                          utils::kFatalWindow);
   }
 
   for (const auto &i : search.Instances()) {
-    ::SendMessage(hVisualStudioBox, CB_ADDSTRING, 0,
-                  (LPARAM)(i.DisplayName.c_str()));
+    ::SendMessage(hvsbox, CB_ADDSTRING, 0, (LPARAM)(i.DisplayName.c_str()));
   }
   auto index = search.Index();
-  ::SendMessage(hVisualStudioBox, CB_SETCURSEL, (WPARAM)(index), 0);
+  ::SendMessage(hvsbox, CB_SETCURSEL, (WPARAM)(index), 0);
 
   for (const auto &a : tables.Targets) {
-    ::SendMessage(hPlatformBox, CB_ADDSTRING, 0, (LPARAM)a.data());
+    ::SendMessage(htargetbox, CB_ADDSTRING, 0, (LPARAM)a.data());
   }
 #ifdef _M_X64
-  ::SendMessage(hPlatformBox, CB_SETCURSEL, 1, 0);
+  ::SendMessage(htargetbox, CB_SETCURSEL, 1, 0);
 #else
   if (clangbuilder::IsWow64Process()) {
-    ::SendMessage(hPlatformBox, CB_SETCURSEL, 1, 0);
+    ::SendMessage(htargetbox, CB_SETCURSEL, 1, 0);
   } else {
-    ::SendMessage(hPlatformBox, CB_SETCURSEL, 0, 0);
+    ::SendMessage(htargetbox, CB_SETCURSEL, 0, 0);
   }
 
 #endif
 
   for (const auto &f : tables.Configurations) {
-    ::SendMessage(hConfigBox, CB_ADDSTRING, 0, (LPARAM)f.data());
+    ::SendMessage(hconfigbox, CB_ADDSTRING, 0, (LPARAM)f.data());
   }
 
-  ::SendMessage(hConfigBox, CB_SETCURSEL, 0, 0);
+  ::SendMessage(hconfigbox, CB_SETCURSEL, 0, 0);
 
   for (const auto &e : tables.Engines) {
-    ::SendMessage(hBuildBox, CB_ADDSTRING, 0, (LPARAM)e.Desc.data());
+    ::SendMessage(hbuildbox, CB_ADDSTRING, 0, (LPARAM)e.Desc.data());
   }
-  ::SendMessage(hBuildBox, CB_SETCURSEL, 0, 0);
+  ::SendMessage(hbuildbox, CB_SETCURSEL, 0, 0);
 
   for (const auto &b : tables.Branches) {
-    ::SendMessage(hBranchBox, CB_ADDSTRING, 0, (LPARAM)b.data());
+    ::SendMessage(hbranchbox, CB_ADDSTRING, 0, (LPARAM)b.data());
   }
-  ::SendMessage(hBranchBox, CB_SETCURSEL, 0, 0);
+  ::SendMessage(hbranchbox, CB_SETCURSEL, 0, 0);
 
   // Button_SetCheck(hCheckLink_, 1);
   return S_OK;
@@ -278,7 +250,7 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
                         DWORD dwStyle, int X, int Y, int nWidth, int nHeight,
                         HMENU hMenu) -> HWND {
     auto hw = CreateWindowExW(
-        WEXSTYLE, lpClassName, lpWindowName, dwStyle, MulDiv(X, dpiX, 96),
+        wexstyle, lpClassName, lpWindowName, dwStyle, MulDiv(X, dpiX, 96),
         MulDiv(Y, dpiY, 96), MulDiv(nWidth, dpiX, 96),
         MulDiv(nHeight, dpiY, 96), m_hWnd, hMenu, HINST_THISCOMPONENT, nullptr);
     if (hw) {
@@ -286,51 +258,47 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
     }
     return hw;
   };
-  hVisualStudioBox =
-      MakeWindow(WC_COMBOBOXW, L"", CBSTYLE, 200, 20, 400, 30, nullptr);
-  hPlatformBox =
-      MakeWindow(WC_COMBOBOXW, L"", CBSTYLE, 200, 60, 400, 30, nullptr);
-  hConfigBox =
-      MakeWindow(WC_COMBOBOXW, L"", CBSTYLE, 200, 100, 400, 30, nullptr);
-  hBranchBox =
-      MakeWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 140, 400, 30, nullptr);
-  hBuildBox = MakeWindow(WC_COMBOBOXW, L"", CHECKBOXSTYLE, 200, 180, 400, 30,
+  hvsbox = MakeWindow(WC_COMBOBOXW, L"", cbstyle, 200, 20, 400, 30, nullptr);
+  htargetbox =
+      MakeWindow(WC_COMBOBOXW, L"", cbstyle, 200, 60, 400, 30, nullptr);
+  hconfigbox =
+      MakeWindow(WC_COMBOBOXW, L"", cbstyle, 200, 100, 400, 30, nullptr);
+  hbranchbox =
+      MakeWindow(WC_COMBOBOXW, L"", chboxstyle, 200, 140, 400, 30, nullptr);
+  hbuildbox = MakeWindow(WC_COMBOBOXW, L"", chboxstyle, 200, 180, 400, 30,
                          (HMENU)IDM_ENGINE_COMBOX);
 
-  hLibcxx_ = MakeWindow(WC_BUTTONW, L"Build Libcxx on Windows", CHECKBOXSTYLE,
-                        200, 230, 360, 27, nullptr);
-  ::EnableWindow(hLibcxx_, FALSE);
-  hCheckLTO_ = MakeWindow(WC_BUTTONW, L"Clang/LLVM bootstrap with ThinLTO",
-                          CHECKBOXSTYLE, 200, 260, 360, 27, nullptr);
+  hlibcxx = MakeWindow(WC_BUTTONW, L"Build Libcxx on Windows", chboxstyle, 200,
+                       230, 360, 27, nullptr);
+  ::EnableWindow(hlibcxx, FALSE);
+  hlto = MakeWindow(WC_BUTTONW, L"Clang/LLVM bootstrap with ThinLTO",
+                    chboxstyle, 200, 260, 360, 27, nullptr);
 
-  hCheckSdklow_ =
-      MakeWindow(WC_BUTTONW, L"SDK Compatibility (Windows 8.1 SDK) (Env)",
-                 CHECKBOXSTYLE, 200, 290, 360, 27, nullptr);
+  hsdklow = MakeWindow(WC_BUTTONW, L"SDK Compatibility (Windows 8.1 SDK) (Env)",
+                       chboxstyle, 200, 290, 360, 27, nullptr);
 
-  hCheckPackaged_ = MakeWindow(WC_BUTTONW, L"Create Installation Package",
-                               CHECKBOXSTYLE, 200, 320, 360, 27, nullptr);
-  hCheckCleanEnv_ = MakeWindow(WC_BUTTONW, L"Use Clean Environment (Env)",
-                               CHECKBOXSTYLE, 200, 350, 360, 27, nullptr);
-  hCheckLLDB_ =
-      MakeWindow(WC_BUTTONW, L"Build LLDB (Visual Studio 2015 or Later)",
-                 CHECKBOXSTYLE, 200, 380, 360, 27, nullptr);
+  hcpack = MakeWindow(WC_BUTTONW, L"Create Installation Package", chboxstyle,
+                      200, 320, 360, 27, nullptr);
+  hcleanenv = MakeWindow(WC_BUTTONW, L"Use Clean Environment (Env)", chboxstyle,
+                         200, 350, 360, 27, nullptr);
+  hlldb = MakeWindow(WC_BUTTONW, L"Build LLDB (Visual Studio 2015 or Later)",
+                     chboxstyle, 200, 380, 360, 27, nullptr);
   // Button_SetElevationRequiredState
-  hButtonTask_ = MakeWindow(WC_BUTTONW, L"Building", PUSHBUTTONSTYLE, 200, 430,
-                            195, 30, (HMENU)IDC_BUTTON_STARTTASK);
-  hButtonEnv_ =
-      MakeWindow(WC_BUTTONW, L"Environment Console", PUSHBUTTONSTYLE | BS_ICON,
-                 405, 430, 195, 30, (HMENU)IDC_BUTTON_STARTENV);
+  hbuildtask = MakeWindow(WC_BUTTONW, L"Building", pbstyle, 200, 430, 195, 30,
+                          (HMENU)IDC_BUTTON_STARTTASK);
+  hbuildenv = MakeWindow(WC_BUTTONW, L"Environment Console", pbstyle | BS_ICON,
+                         405, 430, 195, 30, (HMENU)IDC_BUTTON_STARTENV);
 
   HMENU hSystemMenu = ::GetSystemMenu(m_hWnd, FALSE);
   InsertMenuW(hSystemMenu, SC_CLOSE, MF_ENABLED, IDM_CLANGBUILDER_ABOUT,
               L"About ClangbuilderUI\tAlt+F1");
 
-  label_.push_back(KryceLabel(30, 20, 190, 50, L"Distribution\t\xD83C\xDD9A:"));
-  label_.push_back(KryceLabel(30, 60, 190, 90, L"Architecture\t\xD83D\xDCBB:"));
-  label_.push_back(KryceLabel(30, 100, 190, 130, L"Configuration\t\x2699:"));
-  label_.push_back(KryceLabel(30, 140, 190, 170, L"Branches\t\t\x26A1:"));
-  label_.push_back(KryceLabel(30, 180, 190, 210, L"Engine\t\t\xD83D\xDEE0:"));
-  label_.push_back(KryceLabel(30, 230, 190, 270, L"Build Options\t\x2611:"));
+  labels.push_back(KryceLabel(30, 20, 190, 50, L"Distribution\t\xD83C\xDD9A:"));
+  labels.push_back(KryceLabel(30, 60, 190, 90, L"Architecture\t\xD83D\xDCBB:"));
+  labels.push_back(KryceLabel(30, 100, 190, 130, L"Configuration\t\x2699:"));
+  labels.push_back(KryceLabel(30, 140, 190, 170, L"Branches\t\t\x26A1:"));
+  labels.push_back(KryceLabel(30, 180, 190, 210, L"Engine\t\t\xD83D\xDEE0:"));
+  labels.push_back(KryceLabel(30, 230, 190, 270, L"Build Options\t\x2611:"));
   ///
   if (FAILED(InitializeControl())) {
   }
@@ -388,18 +356,18 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
                    SWP_NOZORDER | SWP_NOACTIVATE);
     ::SendMessageW(hWnd, WM_SETFONT, (WPARAM)hFont, lParam);
   };
-  UpdateWindowPos(hVisualStudioBox);
-  UpdateWindowPos(hPlatformBox);
-  UpdateWindowPos(hConfigBox);
-  UpdateWindowPos(hBranchBox);
-  UpdateWindowPos(hBuildBox);
-  UpdateWindowPos(hCheckLTO_);
-  UpdateWindowPos(hCheckSdklow_);
-  UpdateWindowPos(hCheckPackaged_);
-  UpdateWindowPos(hCheckCleanEnv_);
-  UpdateWindowPos(hCheckLLDB_);
-  UpdateWindowPos(hButtonTask_);
-  UpdateWindowPos(hButtonEnv_);
+  UpdateWindowPos(hvsbox);
+  UpdateWindowPos(htargetbox);
+  UpdateWindowPos(hconfigbox);
+  UpdateWindowPos(hbranchbox);
+  UpdateWindowPos(hbuildbox);
+  UpdateWindowPos(hlto);
+  UpdateWindowPos(hsdklow);
+  UpdateWindowPos(hcpack);
+  UpdateWindowPos(hcleanenv);
+  UpdateWindowPos(hlldb);
+  UpdateWindowPos(hbuildtask);
+  UpdateWindowPos(hbuildenv);
   return S_OK;
 }
 
@@ -433,8 +401,8 @@ LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 LRESULT MainWindow::OnChangeEngine(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                    BOOL &bHandled) {
   if (wNotifyCode == CBN_SELCHANGE) {
-    auto N = ComboBox_GetCurSel(hBuildBox);
-    ::EnableWindow(hLibcxx_, (N == 1 || N == 3) ? TRUE : FALSE);
+    auto N = ComboBox_GetCurSel(hbuildbox);
+    ::EnableWindow(hlibcxx, (N == 1 || N == 3) ? TRUE : FALSE);
   }
   return S_OK;
 }

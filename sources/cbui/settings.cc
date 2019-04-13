@@ -2,7 +2,7 @@
 #include "inc/settings.hpp"
 #include "inc/json.hpp"
 #include "inc/systemtools.hpp"
-
+#include "inc/apphelp.hpp"
 /////
 struct ACCENTPOLICY {
   int nAccentState;
@@ -60,9 +60,24 @@ bool Settings::Initialize(std::wstring_view root) {
       SetWindowCompositionAttribute_ =
           j["SetWindowCompositionAttribute"].get<bool>();
     }
+    it = j.find("PwshCoreEnabled");
+    if (it != j.end()) {
+      PwshCoreEnabled_ = j["PwshCoreEnabled"].get<bool>();
+    }
   } catch (const std::exception &e) {
     fprintf(stderr, "debug %s\n", e.what());
     return false;
   }
   return true;
+}
+
+std::wstring Settings::PwshExePath() {
+  std::wstring pwshexe;
+  if (PwshCoreEnabled_ && clangbuilder::LookupPwshCore(pwshexe)) {
+    return pwshexe;
+  }
+  if (clangbuilder::LookupPwshDesktop(pwshexe)) {
+    return pwshexe;
+  }
+  return L"";
 }

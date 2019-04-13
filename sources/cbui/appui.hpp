@@ -28,9 +28,10 @@
   }
 #endif
 
-#define CLANGBUILDERUI_MAINWINDOW _T("Clangbuilder.Render.UI.Window")
-typedef CWinTraits<WS_OVERLAPPEDWINDOW, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE>
-    CMetroWindowTraits;
+constexpr const wchar_t *AppWindowName = L"Clangbuilder.Render.UI.Window";
+
+using WindowTraits =
+    CWinTraits<WS_OVERLAPPEDWINDOW, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE>;
 
 struct KryceLabel {
   KryceLabel(LONG left, LONG top, LONG right, LONG bottom, const wchar_t *text)
@@ -41,7 +42,14 @@ struct KryceLabel {
     layout.bottom = bottom;
   }
   RECT layout;
+  D2D1_RECT_F F() const {
+    return D2D1::RectF((float)layout.left, (float)layout.top,
+                       (float)layout.right, (float)layout.bottom);
+  }
   std::wstring text;
+  const wchar_t *data() const { return text.data(); }
+  UINT32 length() const { return static_cast<UINT32>(text.size()); }
+  bool empty() const { return text.empty(); }
 };
 
 struct EngineItem {
@@ -61,12 +69,12 @@ struct ClangbuilderTable {
   }
 };
 
-class MainWindow : public CWindowImpl<MainWindow, CWindow, CMetroWindowTraits> {
+class MainWindow : public CWindowImpl<MainWindow, CWindow, WindowTraits> {
 public:
-  MainWindow();
+  MainWindow() = default;
   ~MainWindow();
   LRESULT InitializeWindow();
-  DECLARE_WND_CLASS(CLANGBUILDERUI_MAINWINDOW)
+  DECLARE_WND_CLASS(AppWindowName)
   BEGIN_MSG_MAP(MainWindow)
   MESSAGE_HANDLER(WM_CREATE, OnCreate)
   MESSAGE_HANDLER(WM_CLOSE, OnClose)
@@ -97,16 +105,16 @@ public:
                          BOOL &bHandled);
   ////
 private:
-  ID2D1Factory *m_pFactory;
-  IDWriteTextFormat *m_pWriteTextFormat;
-  IDWriteFactory *m_pWriteFactory;
+  ID2D1Factory *m_pFactory{nullptr};
+  IDWriteTextFormat *writeTextFormat{nullptr};
+  IDWriteFactory *writeFactory{nullptr};
   //
-  ID2D1HwndRenderTarget *m_pHwndRenderTarget;
-  ID2D1SolidColorBrush *m_pBasicTextBrush;
-  ID2D1SolidColorBrush *m_AreaBorderBrush;
+  ID2D1HwndRenderTarget *renderTarget{nullptr};
+  ID2D1SolidColorBrush *textBrush{nullptr};
+  ID2D1SolidColorBrush *borderBrush{nullptr};
 
-  int dpiX;
-  int dpiY;
+  int dpiX{0};
+  int dpiY{0};
   HRESULT CreateDeviceIndependentResources();
   HRESULT InitializeControl();
   HRESULT CreateDeviceResources();
@@ -114,23 +122,28 @@ private:
   HRESULT OnRender();
   D2D1_SIZE_U CalculateD2DWindowSize();
   void OnResize(UINT width, UINT height);
+  ///////////
+  bool InitializeElemets();
   /// member
   HFONT hFont{nullptr};
-  HWND hVisualStudioBox;
-  HWND hPlatformBox;
-  HWND hConfigBox;
-  HWND hBranchBox;
-  HWND hBuildBox;
-  HWND hLibcxx_;
-  HWND hCheckLTO_;
-  HWND hCheckSdklow_;
-  HWND hCheckPackaged_;
-  HWND hCheckCleanEnv_;
-  HWND hCheckLLDB_;
-  HWND hButtonTask_;
-  HWND hButtonEnv_;
+  // combobox
+  HWND hvsbox;
+  HWND htargetbox;
+  HWND hconfigbox;
+  HWND hbranchbox;
+  HWND hbuildbox;
+  // checkbox
+  HWND hlibcxx;
+  HWND hlto;
+  HWND hsdklow;
+  HWND hcpack;
+  HWND hcleanenv;
+  HWND hlldb;
+  // button about
+  HWND hbuildtask;
+  HWND hbuildenv;
   Settings settings;
-  std::vector<KryceLabel> label_;
+  std::vector<KryceLabel> labels;
   std::wstring targetFile;
   std::wstring root;
   ClangbuilderTable tables;
