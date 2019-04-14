@@ -18,44 +18,46 @@ Function CMakeFileflags {
         [String]$File,
         [Hashtable]$Table
     )
-    if (Test-Path $File) {
-        try {
-            Write-Host "Find cmake flags file: $File"
-            $cmakeflags = Get-Content -Path $File | ConvertFrom-Json
-            foreach ($flag in $cmakeflags.CMake) {
-                $vv = $flag.Split("=")
-                if ($Table.Contains($vv[0])) {
-                    continue
-                }
-                if ($vv.Count -eq 2) {
-                    $Table[$vv[0]] = $flag
-                }
-                else {
-                    $Table[$flag] = $flag
-                }
-            }
+    if (!(Test-Path $File)) {
+        return 
+    }
+    Write-Host "Find cmake flags file: $File"
+    $cmakeflags = Get-Content -Path $File -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
+    if ($null -eq $cmakeflags) {
+        return 
+    }
+    foreach ($flag in $cmakeflags.CMake) {
+        $fv = $flag.Split("=")
+        $key = $fv[0]
+        if ($Table.Contains($key)) {
+            continue
         }
-        catch {
-            Write-Host -ForegroundColor Red "Parse error $_"
-            return
+        if ($vv.Count -eq 2) {
+            $Table[$key] = $flag
+        }
+        else {
+            $Table[$key] = $flag
         }
     }
 }
+
 
 Function CMakeCustomflags {
     param(
         [String]$ClangbuilderRoot,
         [String]$Branch
     )
-    $flags = ""
-    $vflags = @{ }
 
-    CMakeFileflags -File "$ClangbuilderRoot/out/cmakeflags.$Branch.json" -Table $vflags
-    CMakeFileflags -File "$ClangbuilderRoot/out/cmakeflags.json" -Table $vflags
-    foreach ($_ in $vflags.Keys) {
-        $flags += " " + $vflags.Item($_)
+    [System.Text.StringBuilder]$fb = ""
+    $flagtable = @{ }
+
+    CMakeFileflags -File "$ClangbuilderRoot/out/cmakeflags.$Branch.json" -Table $flagtable
+    CMakeFileflags -File "$ClangbuilderRoot/out/cmakeflags.json" -Table $flagtable
+    foreach ($_ in $flagtable.Keys) {
+        [void]$fb.Append(" ")
+        [void]$fb.Append($flagtable.Item($_))
     }
-
+    $flags = $fb.ToString()
     if ($flags.Length -gt 1) {
         Write-Host "New cmake flags: $flags"
     }

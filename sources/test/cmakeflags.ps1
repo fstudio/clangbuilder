@@ -7,4 +7,4 @@ $s1=CMakeCustomflags -ClangbuilderRoot $ClangbuilderRoot -Branch "Mainline"
 $s2=CMakeCustomflags -ClangbuilderRoot $ClangbuilderRoot -Branch "Release"
 $s3=CMakeCustomflags -ClangbuilderRoot $ClangbuilderRoot -Branch "Stable"
 
-Write-Host "[$s1][$s2][$s3]"
+Write-Host "[$s1]`n[$s2]`n[$s3]"
