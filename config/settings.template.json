@@ -1,3 +1,7 @@
 {
+  "EnterpriseWDK": "D:\\EWDK",
+  "LLVMRoot": "D:\\LLVM",
+  "LLVMArch": "x64",
+  "PwshCoreEnabled": true,
   "SetWindowCompositionAttribute": false
 }

@@ -7,26 +7,6 @@ Automated tools help developers on Windows platforms building LLVM and clang.
  
 ## Installation
 
-### PowerShell Policy
-
-Often you need to change the Power Shell execution policy
-
-```powershell
-Get-ExecutionPolicy
-```
-
-**Output**:
-
-> Restricted
-
-Please run PowerShell with administrator rights, and Enter:   
-
-```powershell
-Set-ExecutionPolicy RemoteSigned
-```
-
-### General Setup
-
 Clone clangbuilder on Github
 
 ```shell
@@ -37,15 +17,26 @@ Click the `script/InitializeEnv.bat`
 
 The installation script will compile ClangbuilderUI and create a shortcut, download required packages.
 
+## Settings
 
-## Use Powershell Core
+Your can modified settings.json to change your clangbuilder run mode. `settings.template.json` content like here:
 
-Your can install powershell core and use it as `Execution Engine`.
+```json
+{
+  "EnterpriseWDK": "D:\\EWDK",
+  "LLVMRoot": "D:\\LLVM",
+  "LLVMArch": "x64",
+  "PwshCoreEnabled": true,
+  "SetWindowCompositionAttribute": false
+}
+```
 
-**Step**
-1.  Download Powershell Core [https://github.com/PowerShell/PowerShell/releases](https://github.com/PowerShell/PowerShell/releases)
-2.  Install PowerShell Core, (Add to Environment)
-3.  Create `required_pwsh` in `$ClangbuilderRoot\bin`
++  `EnterpriseWDK` Set EWDK root path and enable Enterprise WDK.
++  `LLVMRoot` Pre-built llvm installation root directory.
++  `LLVMArch` Pre-built llvm default architecture
++  `PwshCoreEnabled` Enable Powershell Core, all script run use pwsh (when you install powershell core).
++  `SetWindowCompositionAttribute` Experimental UI features
+
 
 ## Build Clang on Windows
 
@@ -55,13 +46,13 @@ Best Visual Studio Version:
 
 >Visual Studio 2017 15.9 or later
 
-You can run ClangbuilderUI, Modify Arch, Configuration and other options. after click `Building`
+You can click to run ClangbuilderUI, Modified Arch, Configuration and other options. after click `Building`
 
 **ClangbuilderUI Snapshot**
 
 ![clangbuilder](./docs/images/cbui.png)
 
-**Update 2017-09-17** ClangbuilderUI Support EWDK
+**ClangbuilderUI EWDK Snapshot**
 
 ![ewdk](./docs/images/ewdk.png)
 
@@ -98,25 +89,12 @@ Flags configuration format is json:
 }
 ```
 
-
 **Engine**
 
 +   MSbuild use msbuild build llvm `MSBuild - MSVC`
 +   Ninja use ninja build llvm `Ninja - MSVC`
 +   NinjaBootstrap use ninja build and bootstrap llvm `Ninja - Bootstrap`
 +   NinjaIterate use ninja build llvm, but compile is prebuilt clang (config by `config\prebuilt.json`) `Ninja - Clang`
-
-[prebuilt.json template](./config/prebuilt.template.json):
-```json
-{
-    "LLVM": {
-        "Path": "D:/LLVM",
-        "Arch": "x64"
-    }
-}
-```
-Your can run `bin\prebuilt.bat` to install and config `portable` clang to bootstrap iterate bootstrap llvm..
-
 
 **LLDB**
 
@@ -134,26 +112,6 @@ clang-cl -std:c++14  -Iinclude\c++\v1 hello.cc c++.lib
 
 after copy `c++.dll` to your path(or exe self directory). 
 
-**Libcxx C++17(vcruntime)**: 7.0 support C++17; 6.0 please use [libcxx-msvc-cxx17.patch](https://github.com/fstudio/clangbuilder/blob/master/sources/patch/libcxx-msvc-cxx17.patch).
-
-
-**ARM64**
-
-Build LLVM for ARM64 is broken, But You can download **Enterprise WDK (EWDK) Insider Preview** from https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewWDK ,When you config `config/ewdk.json`, ClangbuilderUI able to start `ARM64 Environment Console`
-
-[ewdk.json template](./config/ewdk.template.json):
-```json
-{
-	"Path":"D:\\EWDK",
-	"Version":"10.0.16257.0"
-}
-```
-
-*Update*: Visual Studio 15.4 can install `Visual C++ compilers and libraries for ARM64`， CMake 3.10 start support ARM64. 
-
-See: [VS15: Adds ARM64 architecture support.](https://gitlab.kitware.com/cmake/cmake/merge_requests/1215)
-
-
 **Use Clean Environment**
 
 Clangbuilder support `Clean Environment`, When use `-ClearEnv` flag or enable check box `Use Clean Environment`, Clangbuilder will retset `$env:PATH`.
@@ -168,13 +126,6 @@ Function ReinitializePath {
     }
 }
 
-```
-
-
-## Commandline
-
-```cmd
-.\bin\clangbuilder
 ```
 
 ## Custom PATH
@@ -300,5 +251,5 @@ Function Parallel() {
 
 License: MIT  
 Author: Force.Charlie  
-Copyright © 2018 Force Charlie. All Rights Reserved.
+Copyright © 2019 Force Charlie. All Rights Reserved.
 

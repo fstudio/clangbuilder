@@ -47,7 +47,7 @@ bool SetWindowCompositionAttributeImpl(HWND hWnd) {
   return result;
 }
 
-bool Settings::Initialize(std::wstring_view root) {
+bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
   auto file = base::StringCat(root, L"\\config\\settings.json");
   clangbuilder::FD fd;
   if (_wfopen_s(&fd.fd, file.data(), L"rb") != 0) {
@@ -55,17 +55,21 @@ bool Settings::Initialize(std::wstring_view root) {
   }
   try {
     auto j = nlohmann::json::parse(fd.P());
-    auto it = j.find("SetWindowCompositionAttribute");
+    auto it = j.find("PwshCoreEnabled");
     if (it != j.end()) {
-      SetWindowCompositionAttribute_ =
-          j["SetWindowCompositionAttribute"].get<bool>();
+      PwshCoreEnabled_ = it.value().get<bool>();
     }
-    it = j.find("PwshCoreEnabled");
+    it = j.find("EnterpriseWDK");
     if (it != j.end()) {
-      PwshCoreEnabled_ = j["PwshCoreEnabled"].get<bool>();
+      ewdkroot = base::ToWide(it.value().get<std::string>());
     }
+    it = j.find("SetWindowCompositionAttribute");
+    if (it != j.end()) {
+      SetWindowCompositionAttribute_ = it.value().get<bool>();
+    }
+
   } catch (const std::exception &e) {
-    fprintf(stderr, "debug %s\n", e.what());
+    call(base::ToWide(e.what()));
     return false;
   }
   return true;

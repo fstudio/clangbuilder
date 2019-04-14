@@ -63,7 +63,6 @@ if ((Test-Path Alias:wget) -and (ExecuteExists "wget.exe")) {
     Remove-Item Alias:wget
 }
 
-
 if ($InstanceId.Length -eq 0) {
     $ret = DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
 }

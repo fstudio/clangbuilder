@@ -61,3 +61,28 @@ if (Test-Path "$ClangbuilderRoot\sources\blast\blast.exe") {
 &nmake clean
 
 Pop-Location
+
+Set-Location "$ClangbuilderRoot\sources\cli"
+&nmake
+if (Test-Path "$ClangbuilderRoot\sources\cli\cli.exe") {
+    Copy-Item -Path  "$ClangbuilderRoot\sources\cli\cli.exe" -Destination  "$ClangbuilderRoot\bin\utils"
+}
+&nmake clean
+
+Pop-Location
+
+$LauncherUtils = "$ClangbuilderRoot\bin\utils\cli.exe"
+$Blastexe = "$ClangbuilderRoot\bin\blast.exe"
+
+
+if (!(Test-Path "$ClangbuilderRoot\bin\ClangbuilderTarget.exe")) {
+    &$Blastexe --link $LauncherUtils "$ClangbuilderRoot\bin\ClangbuilderTarget.exe"
+}
+
+if (!(Test-Path "$ClangbuilderRoot\bin\mklauncher.exe")) {
+    &$Blastexe --link $LauncherUtils "$ClangbuilderRoot\bin\mklauncher.exe"
+}
+
+if (!(Test-Path "$ClangbuilderRoot\bin\devi.exe")) {
+    &$Blastexe --link $LauncherUtils "$ClangbuilderRoot\bin\devi.exe"
+}

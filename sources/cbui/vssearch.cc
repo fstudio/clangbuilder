@@ -1,6 +1,5 @@
 //////////
 #include "inc/vssearch.hpp"
-#include "inc/json.hpp"
 #include "inc/comutils.hpp"
 #include "inc/vssetup.hpp"
 #include "inc/apphelp.hpp"
@@ -64,43 +63,31 @@ std::wstring FsUniqueSubdirName(std::wstring_view dir) {
   return name;
 }
 
-bool VisualStudioSeacher::EnterpriseWDK(std::wstring_view root,
+bool VisualStudioSeacher::EnterpriseWDK(std::wstring_view ewdkroot,
                                         vssetup::VSInstance &vsi) {
-  auto ej = base::StringCat(root, L"\\config\\ewdk.json");
-  if (!clangbuilder::PathExists(ej)) {
-    ej = base::StringCat(root, L"\\config\\ewdk.template.json");
-    if (!clangbuilder::PathExists(ej)) {
-      return false;
-    }
-  }
-  try {
-    clangbuilder::FD fd;
-    if (_wfopen_s(&fd.fd, ej.data(), L"rb") != 0) {
-      return false;
-    }
-    auto j = nlohmann::json::parse(fd.P());
-    auto path = j["Path"].get<std::string>();
-    auto ewdkdir = base::ToWide(path);
-    auto vsdir =
-        base::StringCat(ewdkdir, L"\\Program Files\\Microsoft Visual Studio");
-    auto product = FsUniqueSubdirName(vsdir);
-    vsi.VSInstallLocation =
-        base::StringCat(vsdir, L"\\", product, L"\\BuildTools");
-    vsi.Version = FsVisualStudioVersion(vsi.VSInstallLocation);
-    auto incdir =
-        base::StringCat(ewdkdir, L"\\Program Files\\Windows Kits\\10\\include");
-    auto sdkver = FsUniqueSubdirName(incdir);
-    vsi.DisplayName = base::StringCat(L"Visual Studio BuildTools ", product,
-                                      L" (Enterprise WDK ", sdkver, L")");
-    vsi.InstanceId.assign(L"VisualStudio.EWDK");
-  } catch (const std::exception &e) {
-    fprintf(stderr, "%s\n", e.what());
+  if (ewdkroot.empty()) {
     return false;
   }
+  auto vsdir =
+      base::StringCat(ewdkroot, L"\\Program Files\\Microsoft Visual Studio");
+  if (!clangbuilder::PathExists(vsdir)) {
+    return false;
+  }
+  auto product = FsUniqueSubdirName(vsdir);
+  vsi.VSInstallLocation =
+      base::StringCat(vsdir, L"\\", product, L"\\BuildTools");
+  vsi.Version = FsVisualStudioVersion(vsi.VSInstallLocation);
+  auto incdir =
+      base::StringCat(ewdkroot, L"\\Program Files\\Windows Kits\\10\\include");
+  auto sdkver = FsUniqueSubdirName(incdir);
+  vsi.DisplayName = base::StringCat(L"Visual Studio BuildTools ", product,
+                                    L" (Enterprise WDK ", sdkver, L")");
+  vsi.InstanceId.assign(L"VisualStudio.EWDK");
   return true;
 }
 
-bool VisualStudioSeacher::Execute(std::wstring_view root) {
+bool VisualStudioSeacher::Execute(std::wstring_view root,
+                                  std::wstring_view ewdkroot) {
   vssetup::VisualStudioNativeSearcher vns;
 
   if (!vns.GetVSInstanceAll(instances)) {
@@ -112,7 +99,7 @@ bool VisualStudioSeacher::Execute(std::wstring_view root) {
     }
   }
   vssetup::VSInstance vsi;
-  if (EnterpriseWDK(root, vsi)) {
+  if (EnterpriseWDK(ewdkroot, vsi)) {
     instances.push_back(std::move(vsi));
     std::sort(instances.begin(), instances.end());
   }

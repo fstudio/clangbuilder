@@ -12,7 +12,7 @@ public:
   VisualStudioSeacher() = default;
   VisualStudioSeacher(const VisualStudioSeacher &) = delete;
   VisualStudioSeacher &operator=(const VisualStudioSeacher &) = delete;
-  bool Execute(std::wstring_view root);
+  bool Execute(std::wstring_view root,std::wstring_view ewdkroot);
   const container_t &Instances() const { return instances; }
   int Index() const {
     if (instances.empty()) {
@@ -43,7 +43,7 @@ public:
 
 private:
   container_t instances;
-  bool EnterpriseWDK(std::wstring_view root, vssetup::VSInstance &vsi);
+  bool EnterpriseWDK(std::wstring_view ewdkroot, vssetup::VSInstance &vsi);
 };
 
 #endif

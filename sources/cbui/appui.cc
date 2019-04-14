@@ -177,7 +177,10 @@ HRESULT MainWindow::InitializeControl() {
     MessageBoxW(ec.data(), L"Clangbuilder Error", MB_OK | MB_ICONERROR);
     return S_FALSE;
   }
-  settings.Initialize(root);
+  settings.Initialize(root, [this](const std::wstring &message) {
+    utils::PrivMessageBox(m_hWnd, L"Unable parse settings.json", message.data(),
+                          nullptr, utils::kFatalWindow);
+  });
 
   if (!InitializeElemets()) {
     utils::PrivMessageBox(m_hWnd, L"Not Found any Visual Studio",

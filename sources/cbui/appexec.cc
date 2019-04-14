@@ -38,7 +38,7 @@ bool MainWindow::InitializeElemets() {
       .AddEngine(L"MSBuild - MSVC", L"MSBuild")
       .AddEngine(L"Ninja - Bootstrap", L"NinjaBootstrap");
   tables.Branches = {L"Mainline", L"Stable", L"Release"};
-  return search.Execute(root);
+  return search.Execute(root, settings.EnterpriseWDK());
 }
 
 LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
