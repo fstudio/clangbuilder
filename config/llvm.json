@@ -1,0 +1,17 @@
+{
+    "Title": "The LLVM Compiler Infrastructure",
+    "Stable": "release_80",
+    "Release": "8.0.0",
+    "Url": "https://github.com/llvm/llvm-project.git",
+    "Download": "https://releases.llvm.org/",
+    "Binary": "https://releases.llvm.org/${version}/LLVM-${version}-${arch}.exe",
+    "Items": [
+        "llvm:llvm",
+        "cfe:llvm/tools/clang",
+        "clang-tools-extra:llvm/tools/clang/tools/clang-tools-extra",
+        "lld:llvm/tools/lld",
+        "lldb:llvm/tools/lldb",
+        "compiler-rt:llvm/projects/compiler-rt",
+        "libcxx:llvm/projects/libcxx"
+    ]
+}
