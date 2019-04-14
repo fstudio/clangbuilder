@@ -1,6 +1,6 @@
 #!/usr/bin/env pwsh
 # Clangbuilder compile clangbuilderui ...
-."$PSScriptRoot\ProfileEnv.ps1"
+."$PSScriptRoot\PreInitialize.ps1"
 Import-Module -Name "$ClangbuilderRoot\modules\Initialize"
 Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
 Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager

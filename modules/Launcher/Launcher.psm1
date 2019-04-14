@@ -8,8 +8,8 @@ Function MakeLauncher {
         [String]$Name,
         [String]$Path
     )
-    $BlastFile = "$Cbroot\bin\blast.exe"
-    if (!(Test-Path $BlastFile)) {
+    $Blastexe = "$Cbroot\bin\blast.exe"
+    if (!(Test-Path $Blastexe)) {
         return $false
     }
     $SrcFile = $Path.Replace("/", "\")
@@ -18,7 +18,7 @@ Function MakeLauncher {
     $origindir = Get-Location
     Set-Location $builddir
     $CCFile = "$Cbroot/sources/template/link.template.windows.cc"
-    $obj = &$BlastFile --dump $Path | ConvertFrom-Json
+    $obj = &$Blastexe --dump $Path | ConvertFrom-Json
     $IsConsole = $false
     if ($null -ne $obj -and ($null -ne $obj.Subsystem) -and $obj.Subsystem -eq "Windows CUI") {
         $IsConsole = $true

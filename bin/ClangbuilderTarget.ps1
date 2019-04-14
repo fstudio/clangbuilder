@@ -21,45 +21,38 @@ param (
     [Switch]$Package,
     [Switch]$ClearEnv
 )
-."$PSScriptRoot\ProfileEnv.ps1"
 
+## Load Profile
+."$PSScriptRoot\PreInitialize.ps1"
+
+# Cleanup $env:PATH, because, some tools modify Disrupt PATH
+if ($ClearEnv) {
+    # ReinitializePath
+    ReinitializePath
+}
+
+if(Test-Path "$ClangbuilderRoot/config/profile.ps1"){
+    ."$ClangbuilderRoot/config/profile.ps1"
+}
+
+# Load module
 Import-Module -Name "$ClangbuilderRoot\modules\Initialize"
 Import-Module -Name "$ClangbuilderRoot\modules\Utils"
 Import-Module -Name "$ClangbuilderRoot\modules\CMake"
 Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
 Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
 
-
-# Cleanup $env:PATH, because, some tools modify Disrupt PATH
-
-if ($ClearEnv) {
-    # ReinitializePath
-    ReinitializePath
-}
-
 $ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot -Pkglocksdir $Pkglocksdir
 if ($ret -ne 0) {
     exit 1
 }
 
-Function ExecuteExists {
-    param(
-        [Parameter(Position = 0, Mandatory = $True, HelpMessage = "Enter Execute Name")]
-        [ValidateNotNullorEmpty()]
-        [String]$Command
-    )
-    $cmd = Get-Command -CommandType Application $Command -ErrorAction SilentlyContinue
-    if ($null -eq $cmd) {
-        return $false
-    }
-    return $true
-}
-
-if ((Test-Path Alias:curl) -and (ExecuteExists "curl.exe")) {
+# remove curl/ wget alias
+if ((Test-Path Alias:curl) -and (Test-Executable "curl.exe")) {
     Remove-Item Alias:curl
 }
 
-if ((Test-Path Alias:wget) -and (ExecuteExists "wget.exe")) {
+if ((Test-Path Alias:wget) -and (Test-Executable "wget.exe")) {
     Remove-Item Alias:wget
 }
 
@@ -304,23 +297,19 @@ Function Invoke-Ninja {
 }
 
 Function Get-PrebuiltLLVM {
-    $PrebuiltJSON = "$ClangbuilderRoot\config\prebuilt.json"
-    if (!(Test-Path $PrebuiltJSON)) {
-        Write-Host "$PrebuiltJSON dose not exists, use prebuilt.template.json"
-        $PrebuiltJSON = "$ClangbuilderRoot\config\prebuilt.template.json"
-        if (!(Test-Path $PrebuiltJSON)) {
-            return ""
-        }
-    }
-    $LLVMJSON = Get-Content -Path $PrebuiltJSON | ConvertFrom-Json
-    if ($null -eq $LLVMJSON.LLVM) {
+    $settingfile = "$ClangbuilderRoot\config\settings.json"
+    if (!(Test-Path $settingfile)) {
+        Write-Host "$settingfile dose not exists"
         return ""
     }
-    $LLVMObj = $LLVMJSON.LLVM
-    if ($null -eq $LLVMObj.Path) {
+    $settingpbjs = Get-Content -Path $settingfile | ConvertFrom-Json
+    if ($null -eq $settingpbjs) {
         return ""
     }
-    return $LLVMObj.Path
+    if ($null -eq $settingpbjs.LLVMRoot) {
+        return ""
+    }
+    return $settingpbjs.LLVMRoot
 }
 
 # Need Set MSVC flags -fms-compatibility-version=xx.xx

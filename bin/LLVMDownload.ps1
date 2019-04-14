@@ -2,7 +2,7 @@ param(
     [Switch]$LLDB
 )
 
-."$PSScriptRoot\ProfileEnv.ps1"
+."$PSScriptRoot\PreInitialize.ps1"
 
 #$MainURL="https://releases.llvm.org/6.0.0/llvm-6.0.0.src.tar.xz"
 Function LLVMGet {

@@ -51,15 +51,6 @@ Function Update-Title {
     }
 }
 
-Function ReinitializePath {
-    if ($PSEdition -eq "Desktop" -or $IsWindows) {
-        $env:PATH += "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
-    }
-    else {
-        $env:PATH = "/usr/local/bin:/usr/bin:/bin"
-    }
-}
-
 #$result=Update-Language -Lang 65001 # initialize language
 Function Update-Language {
     param(
@@ -81,6 +72,20 @@ public static extern bool SetConsoleOutputCP(int wCodePageID);
     if (!$result) {
         Write-Host -ForegroundColor Red "Set Console Output Codepage error"
     }
+}
+
+function Test-Executable{
+    param(
+        [String]$Command
+    )
+    if(!(Test-Path $Command)){
+        return $FALSE
+    }
+    $cmd = Get-Command -CommandType Application $Command -ErrorAction SilentlyContinue
+    if ($null -eq $cmd) {
+        return $false
+    }
+    return $true
 }
 
 function TestTcpConnection {
