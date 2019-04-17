@@ -4,7 +4,6 @@
 ."$PSScriptRoot\PreInitialize.ps1"
 Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
 Import-Module -Name  "$ClangbuilderRoot\modules\Utils"
-."$PSScriptRoot\ProfileEnv.ps1"
 
 Function PrintUsage {
     Write-Host "devi portable package manager 1.0
