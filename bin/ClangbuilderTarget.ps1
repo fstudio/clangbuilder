@@ -162,7 +162,7 @@ Function Get-ClangArgument {
     # Parse clang args
     # $ver=(Get-Item $clexe|Select-Object -ExpandProperty VersionInfo|Select-Object -Property FileVersion)
     # https://github.com/llvm-mirror/clang/blob/6c57331175c84f06b8adbae858043ab5c782355f/lib/Driver/ToolChains/MSVC.cpp#L1269
-    $msvc = "19.15"
+    $msvc = "19.20"
     try {
         $clexe = (Get-Command -CommandType Application "cl.exe")[0]
         $msvc = "$($clexe.FileVersionInfo.FileMajorPart).$($clexe.FileVersionInfo.FileMinorPart)"
@@ -170,7 +170,7 @@ Function Get-ClangArgument {
     catch {
         $VisualCppVersionTable = @{
             "16" = "19.20";
-            "15" = "19.15";
+            "15" = "19.16";
             "14" = "19.00";
             "12" = "18.00";
             "11" = "17.00"

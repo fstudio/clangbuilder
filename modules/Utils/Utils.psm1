@@ -26,6 +26,7 @@ Function ProcessExec {
     else {
         $ProcessInfo.WorkingDirectory = $WorkingDirectory
     }
+    #0x00000000 WindowStyle
     $ProcessInfo.Arguments = $Arguments
     $ProcessInfo.UseShellExecute = $false ## use createprocess not shellexecute
     $Process = New-Object System.Diagnostics.Process
@@ -74,11 +75,11 @@ public static extern bool SetConsoleOutputCP(int wCodePageID);
     }
 }
 
-function Test-Executable{
+function Test-Executable {
     param(
         [String]$Command
     )
-    if(!(Test-Path $Command)){
+    if (!(Test-Path $Command)) {
         return $FALSE
     }
     $cmd = Get-Command -CommandType Application $Command -ErrorAction SilentlyContinue
