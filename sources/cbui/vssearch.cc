@@ -2,10 +2,14 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cctype>
-//#include <comutil.h>
+#include <strcat.hpp>
 #include <vssetup.hpp>
 #include <appfs.hpp>
 #include "app.hpp"
+
+#ifdef StrCat
+#undef StrCat
+#endif
 
 std::wstring FsVisualStudioVersion(std::wstring_view vsdir) {
   auto vsfile = base::StrCat(vsdir, L"\\Version.txt");
