@@ -65,8 +65,9 @@ inline error_code make_error_code(std::wstring_view msg, int val = -1) {
 template <typename... Args>
 inline error_code strcat_error_code(std::wstring_view v0,
                                     const Args &... args) {
-  auto msg = base::CatStringViews({v0, args...});
-  return error_code{std::move(msg), -1};
+  return error_code{
+      internal::CatPieces({static_cast<const AlphaNum &>(args).Piece()...}),
+      -1};
 }
 
 inline std::wstring system_error_dump(DWORD ec) {
