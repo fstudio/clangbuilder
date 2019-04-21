@@ -1,8 +1,8 @@
 /////
-#include "inc/settings.hpp"
-#include "inc/json.hpp"
-#include "inc/systemtools.hpp"
-#include "inc/apphelp.hpp"
+#include <json.hpp>
+#include <systemtools.hpp>
+#include <appfs.hpp>
+#include "app.hpp"
 /////
 struct ACCENTPOLICY {
   int nAccentState;
@@ -48,7 +48,7 @@ bool SetWindowCompositionAttributeImpl(HWND hWnd) {
 }
 
 bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
-  auto file = base::StringCat(root, L"\\config\\settings.json");
+  auto file = base::StrCat(root, L"\\config\\settings.json");
   clangbuilder::FD fd;
   if (_wfopen_s(&fd.fd, file.data(), L"rb") != 0) {
     return false;

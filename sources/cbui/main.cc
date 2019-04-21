@@ -1,6 +1,6 @@
 // main.cc : Defines the entry point for the application.
 //
-#include "inc/base.hpp"
+#include <base.hpp>
 #include "appui.hpp"
 
 class dot_global_initializer {
@@ -38,9 +38,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   window.InitializeWindow();
   window.ShowWindow(SW_SHOW);
   window.UpdateWindow();
-  while (GetMessage(&msg, nullptr, 0, 0) > 0) {
+  while (GetMessageW(&msg, nullptr, 0, 0) > 0) {
     TranslateMessage(&msg);
-    DispatchMessage(&msg);
+    DispatchMessageW(&msg);
   }
   return 0;
 }

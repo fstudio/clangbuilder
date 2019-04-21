@@ -1,36 +1,36 @@
 /// ArgvBuilder
-#ifndef CBUI_ARGV_BUILDER_HPP
-#define CBUI_ARGV_BUILDER_HPP
+#ifndef CLANGBUIDER_ARGVBD_HPP
+#define CLANGBUIDER_ARGVBD_HPP
 #include <string>
 #include <string_view>
 
 namespace clangbuilder {
-class argvbuilder {
+class ArgvBuilder {
 public:
-  argvbuilder() = default;
-  argvbuilder(const argvbuilder &) = delete;
-  argvbuilder &operator=(const argvbuilder &) = delete;
-  argvbuilder &assign(std::wstring_view a0) {
-    args_.assign(escape(a0));
+  ArgvBuilder() = default;
+  ArgvBuilder(const ArgvBuilder &) = delete;
+  ArgvBuilder &operator=(const ArgvBuilder &) = delete;
+  ArgvBuilder &Assign(std::wstring_view a0) {
+    args_.assign(Escape(a0));
     return *this;
   }
-  argvbuilder &assign_no_escape(std::wstring_view a0) {
+  ArgvBuilder &AssignNoEscape(std::wstring_view a0) {
     args_.assign(a0);
     return *this;
   }
-  argvbuilder &append(std::wstring_view a) {
-    args_.append(L" ").append(escape(a));
+  ArgvBuilder &Append(std::wstring_view a) {
+    args_.append(L" ").append(Escape(a));
     return *this;
   }
-  const std::wstring &args() const { return args_; }
-  wchar_t *command() { return args_.data(); }
+  const std::wstring &Args() const { return args_; }
+  wchar_t *Command() { return args_.data(); }
 
 private:
   std::wstring args_;
-  std::wstring escape(std::wstring_view ac);
+  std::wstring Escape(std::wstring_view ac);
 };
 
-inline std::wstring argvbuilder::escape(std::wstring_view ac) {
+inline std::wstring ArgvBuilder::Escape(std::wstring_view ac) {
   if (ac.empty()) {
     return L"\"\"";
   }

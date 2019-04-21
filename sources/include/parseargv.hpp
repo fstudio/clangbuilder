@@ -1,13 +1,11 @@
 ///////
 #ifndef CLANBUILDER_ARGV_HPP
 #define CLANBUILDER_ARGV_HPP
-#include "strcat.hpp"
 #include <functional>
-#include <string>
-#include <string_view>
 #include <vector>
+#include "strcat.hpp"
 
-namespace av {
+namespace clangbuilder {
 
 enum ParseError {
   SkipParse = -1,
@@ -195,6 +193,6 @@ inline bool ParseArgv::parse_internal(std::wstring_view a, const invoke_t &v,
   return parse_internal_short(a.substr(1), v, ec);
 }
 
-} // namespace av
+} // namespace clangbuilder
 
 #endif

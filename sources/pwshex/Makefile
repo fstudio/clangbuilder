@@ -30,5 +30,5 @@ pwshex.res:pwshex.rc
 powsh.res:powsh.rc
 	rc powsh.rc
 	
-{.}.cpp.obj::
+{.}.cc.obj::
 	$(CC) $(CFLAGS) $(CXXFLAGS) -c $<

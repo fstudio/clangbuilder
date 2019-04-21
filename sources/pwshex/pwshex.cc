@@ -159,12 +159,12 @@ bool PowershellDesktop(std::wstring &psdesktop) {
 bool PowershellSelect(std::wstring &psfile, bool selectcore = false) {
   if (GetEnvironmentVariableW(L"ENABLE_POWERSHELLCORE", nullptr, 0) <= 0 &&
       GetLastError() == ERROR_ENVVAR_NOT_FOUND && !selectcore) {
-    SetConsoleTitle(L"Windows PowerShell");
+    SetConsoleTitleW(L"Windows PowerShell");
     if (PowershellDesktop(psfile)) {
       return true;
     }
   }
-  SetConsoleTitle(L"Pwsh");
+  SetConsoleTitleW(L"Pwsh");
   return PowershellCore(psfile);
 }
 
@@ -180,18 +180,19 @@ bool EndsCaseWith(const wchar_t *s1, const wchar_t *s2) {
 }
 
 bool PathEndsCaseWith(const wchar_t *s1, const wchar_t *s2) {
-  if(EndsCaseWith(s1,L".exe")){
-	auto l = wcslen(s1) - 4;
-	auto l2 = wcslen(s2);
-	return (l > l2 ? (_wcsnicmp(s1 + (l - l2), s2, l2) == 0) : false);
+  if (EndsCaseWith(s1, L".exe")) {
+    auto l = wcslen(s1) - 4;
+    auto l2 = wcslen(s2);
+    return (l > l2 ? (_wcsnicmp(s1 + (l - l2), s2, l2) == 0) : false);
   }
-  return EndsCaseWith(s1,s2);
+  return EndsCaseWith(s1, s2);
 }
 
 int wmain(int argc, wchar_t **argv) {
   std::wstring psfile;
-  bool selectcore=PathEndsCaseWith(argv[0], L"pwsh")||PathEndsCaseWith(argv[0], L"pwshex");
-  if (!PowershellSelect(psfile,selectcore)) {
+  bool selectcore = PathEndsCaseWith(argv[0], L"pwsh") ||
+                    PathEndsCaseWith(argv[0], L"pwshex");
+  if (!PowershellSelect(psfile, selectcore)) {
     MessageBoxW(nullptr, L"Please install Powershell", L"Powershell Not Found",
                 MB_OK | MB_ICONERROR);
     return 1;

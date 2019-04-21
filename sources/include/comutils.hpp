@@ -1,11 +1,11 @@
 ///
-#ifndef PRIVEXEC_COMUTILS_HPP
-#define PRIVEXEC_COMUTILS_HPP
+#ifndef CLANGBUILDER_COMUTILS_HPP
+#define CLANGBUILDER_COMUTILS_HPP
 #include <comdef.h>
 #include <Sddl.h>
 #include <Shlwapi.h>
 
-namespace priv {
+namespace clangbuilder {
 template <class T> class comptr {
 public:
   comptr() { ptr = nullptr; }
@@ -82,6 +82,6 @@ private:
   BSTR str;
 };
 
-} // namespace priv
+} // namespace clangbuilder
 
 #endif

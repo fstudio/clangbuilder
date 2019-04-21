@@ -1,7 +1,8 @@
 ///////
-#ifndef CBUI_APPHELP_HPP
-#define CBUI_APPHELP_HPP
+#ifndef CLANGBUILDER_FS_HPP
+#define CLANGBUILDER_FS_HPP
 #include "base.hpp"
+#include "strcat.hpp"
 
 namespace clangbuilder {
 
@@ -149,7 +150,7 @@ inline bool LookupClangbuilderTarget(std::wstring &root,
     if (!PathRemoveFileSpecU(buffer)) {
       return false;
     }
-    auto tmpfile = base::StringCat(buffer, L"\\bin\\ClangbuilderTarget.ps1");
+    auto tmpfile = base::StrCat(buffer, L"\\bin\\ClangbuilderTarget.ps1");
     if (PathExists(tmpfile)) {
       root.assign(buffer);
       targetFile.assign(std::move(tmpfile));
@@ -181,14 +182,14 @@ inline bool LookupPwshCore(std::wstring &ps) {
     }
   }
   WIN32_FIND_DATAW wfd;
-  auto findstr = base::StringCat(psdir, L"\\*");
+  auto findstr = base::StrCat(psdir, L"\\*");
   HANDLE hFind = FindFirstFileW(findstr.c_str(), &wfd);
   if (hFind == INVALID_HANDLE_VALUE) {
     return false; /// Not found
   }
   do {
     if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-      auto pscore = base::StringCat(psdir, L"\\", wfd.cFileName, L"\\pwsh.exe");
+      auto pscore = base::StrCat(psdir, L"\\", wfd.cFileName, L"\\pwsh.exe");
       if (PathExists(pscore)) {
         ps.assign(std::move(pscore));
         success = true;
@@ -208,7 +209,7 @@ inline bool LookupPwshDesktop(std::wstring &ps) {
     return false;
   }
   pszPath[N] = 0;
-  ps = base::StringCat(pszPath, L"\\WindowsPowerShell\\v1.0\\powershell.exe");
+  ps = base::StrCat(pszPath, L"\\WindowsPowerShell\\v1.0\\powershell.exe");
   return true;
 }
 

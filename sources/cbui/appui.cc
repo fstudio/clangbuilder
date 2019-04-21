@@ -1,4 +1,4 @@
-#include "inc/base.hpp"
+#include <base.hpp>
 #include <Windowsx.h>
 #include <cassert>
 #include <Prsht.h>
@@ -9,8 +9,8 @@
 #include <PathCch.h>
 #include <ShellScalingAPI.h>
 #include <array>
-#include "inc/apphelp.hpp"
-#include "inc/apputils.hpp"
+#include <appfs.hpp>
+#include "apputils.hpp"
 #include "appui.hpp"
 
 #ifndef HINST_THISCOMPONENT

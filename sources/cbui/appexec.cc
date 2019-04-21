@@ -1,10 +1,10 @@
 ///////
-#include "inc/apphelp.hpp"
-#include "inc/apputils.hpp"
-#include "inc/argvbuilder.hpp"
+#include <argvbuilder.hpp>
+#include <base.hpp>
 #include <windowsx.h> // box help
 #include <vector>
 #include "appui.hpp"
+#include "apputils.hpp"
 
 bool Execute(wchar_t *command) {
   PROCESS_INFORMATION pi;
@@ -75,49 +75,49 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return S_FALSE;
   }
 
-  clangbuilder::argvbuilder ab;
-  ab.assign(pwshexe)
-      .append(L"-NoLogo")
-      .append(L"-NoExit")
-      .append(L"-File")
-      .append(targetFile)
-      .append(L"-InstanceId")
-      .append(search.InstanceId(vsindex_))
-      .append(L"-InstallationVersion")
-      .append(search.InstallVersion(vsindex_))
-      .append(L"-Arch")
-      .append(tables.Targets[archindex_])
-      .append(L"-Flavor")
-      .append(tables.Configurations[flavor_])
-      .append(L"-Engine")
-      .append(tables.Engines[be].Value)
-      .append(L"-Branch")
-      .append(tables.Branches[bs]);
+  clangbuilder::ArgvBuilder ab;
+  ab.Assign(pwshexe)
+      .Append(L"-NoLogo")
+      .Append(L"-NoExit")
+      .Append(L"-File")
+      .Append(targetFile)
+      .Append(L"-InstanceId")
+      .Append(search.InstanceId(vsindex_))
+      .Append(L"-InstallationVersion")
+      .Append(search.InstallVersion(vsindex_))
+      .Append(L"-Arch")
+      .Append(tables.Targets[archindex_])
+      .Append(L"-Flavor")
+      .Append(tables.Configurations[flavor_])
+      .Append(L"-Engine")
+      .Append(tables.Engines[be].Value)
+      .Append(L"-Branch")
+      .Append(tables.Branches[bs]);
 
   if ((be == 1 || be == 3) && Button_GetCheck(hlibcxx) == BST_CHECKED) {
-    ab.append(L"-Libcxx");
+    ab.Append(L"-Libcxx");
   }
 
   if (Button_GetCheck(hlto) == BST_CHECKED) {
-    ab.append(L"-LTO");
+    ab.Append(L"-LTO");
   }
 
   if (Button_GetCheck(hsdklow) == BST_CHECKED) {
-    ab.append(L"-Sdklow");
+    ab.Append(L"-Sdklow");
   }
 
   if (Button_GetCheck(hcpack) == BST_CHECKED) {
-    ab.append(L"-Package");
+    ab.Append(L"-Package");
   }
 
   if (Button_GetCheck(hlldb) == BST_CHECKED) {
-    ab.append(L"-LLDB");
+    ab.Append(L"-LLDB");
   }
 
   if (Button_GetCheck(hcleanenv) == BST_CHECKED) {
-    ab.append(L"-ClearEnv");
+    ab.Append(L"-ClearEnv");
   }
-  if (!Execute(ab.command())) {
+  if (!Execute(ab.Command())) {
     auto ec = base::make_system_error_code();
     utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(),
                           nullptr, utils::kFatalWindow);
@@ -145,26 +145,26 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return S_FALSE;
   }
 
-  clangbuilder::argvbuilder ab;
-  ab.assign(pwshexe)
-      .append(L"-NoLogo")
-      .append(L"-NoExit")
-      .append(L"-File")
-      .append(targetFile)
-      .append(L"-Environment")
-      .append(L"-InstanceId")
-      .append(search.InstanceId(vsindex_))
-      .append(L"-InstallationVersion")
-      .append(search.InstallVersion(vsindex_))
-      .append(L"-Arch")
-      .append(tables.Targets[archindex_]);
+  clangbuilder::ArgvBuilder ab;
+  ab.Assign(pwshexe)
+      .Append(L"-NoLogo")
+      .Append(L"-NoExit")
+      .Append(L"-File")
+      .Append(targetFile)
+      .Append(L"-Environment")
+      .Append(L"-InstanceId")
+      .Append(search.InstanceId(vsindex_))
+      .Append(L"-InstallationVersion")
+      .Append(search.InstallVersion(vsindex_))
+      .Append(L"-Arch")
+      .Append(tables.Targets[archindex_]);
   if (Button_GetCheck(hsdklow) == BST_CHECKED) {
-    ab.append(L"-Sdklow");
+    ab.Append(L"-Sdklow");
   }
   if (Button_GetCheck(hcleanenv) == BST_CHECKED) {
-    ab.append(L"-ClearEnv");
+    ab.Append(L"-ClearEnv");
   }
-  if (!Execute(ab.command())) {
+  if (!Execute(ab.Command())) {
     auto ec = base::make_system_error_code();
     utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(),
                           nullptr, utils::kFatalWindow);

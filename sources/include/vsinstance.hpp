@@ -1,11 +1,11 @@
 ////////
-#ifndef VSINSTANCE_HPP
-#define VSINSTANCE_HPP
+#ifndef CLANGBUILDER_VSINSTANCE_HPP
+#define CLANGBUILDER_VSINSTANCE_HPP
 #include <string>
 #include <string_view>
 #include <Windows.h>
 
-namespace vssetup {
+namespace clangbuilder {
 struct VSInstance {
   std::wstring InstanceId;
   std::wstring DisplayName;
@@ -31,6 +31,6 @@ struct VSInstance {
   }
 };
 
-} // namespace vssetup
+} // namespace clangbuilder
 
 #endif

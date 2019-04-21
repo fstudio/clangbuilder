@@ -13,10 +13,10 @@
 #include <wincodec.h>
 #include <vector>
 #include <string_view>
+#include <comutils.hpp>
 #include "res/appuires.h"
-#include "inc/comutils.hpp"
-#include "inc/vssearch.hpp"
-#include "inc/settings.hpp"
+#include "app.hpp"
+
 
 #ifndef SYSCOMMAND_ID_HANDLER
 #define SYSCOMMAND_ID_HANDLER(id, func)                                        \

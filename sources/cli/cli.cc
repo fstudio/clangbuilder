@@ -1,9 +1,9 @@
 /// clangbuiler lanucher script
-#include "../cbui/inc/apphelp.hpp"
-#include "../cbui/inc/argvbuilder.hpp"
-#include "../cbui/inc/json.hpp"
-#include "../cbui/inc/string.hpp"
-#include "../cbui/inc/systemtools.hpp"
+#include "../include/appfs.hpp"
+#include "../include/argvbuilder.hpp"
+#include "../include/json.hpp"
+#include "../include/string.hpp"
+#include "../include/systemtools.hpp"
 #include <cstdio>
 
 bool IsPwshEnabled() {
@@ -12,7 +12,7 @@ bool IsPwshEnabled() {
   if (!clangbuilder::LookupClangbuilderTarget(root, target, ec)) {
     return false;
   }
-  auto file = base::StringCat(root, L"\\config\\settings.json");
+  auto file = base::StrCat(root, L"\\config\\settings.json");
   clangbuilder::FD fd;
   if (_wfopen_s(&fd.fd, file.data(), L"rb") != 0) {
     return false;
@@ -44,7 +44,7 @@ std::wstring LauncherTarget(std::wstring_view Arg0) {
   if (!clangbuilder::PathAbsolute(absArg0, Arg0)) {
     return L"";
   }
-  return base::StringCat(base::StripSuffix(absArg0, L".exe"), L".ps1");
+  return base::StrCat(base::StripSuffix(absArg0, L".exe"), L".ps1");
 }
 
 // rc /fo:cli.res ../cbui/res/cli.rc
@@ -58,16 +58,16 @@ int wmain(int argc, wchar_t **argv) {
     return 1;
   }
   auto pwshexe = PwshExePath();
-  clangbuilder::argvbuilder ab;
-  ab.assign(pwshexe)
-      .append(L"-NoProfile")
-      .append(L"-NoLogo")
-      .append(L"-ExecutionPolicy")
-      .append(L"unrestricted")
-      .append(L"-File")
-      .append(ps1);
+  clangbuilder::ArgvBuilder ab;
+  ab.Assign(pwshexe)
+      .Append(L"-NoProfile")
+      .Append(L"-NoLogo")
+      .Append(L"-ExecutionPolicy")
+      .Append(L"unrestricted")
+      .Append(L"-File")
+      .Append(ps1);
   for (int i = 1; i < argc; i++) {
-    ab.append(argv[i]);
+    ab.Append(argv[i]);
   }
 
   PROCESS_INFORMATION pi;
@@ -81,7 +81,7 @@ int wmain(int argc, wchar_t **argv) {
   //// Only x86,ARM on Windows 64
   clangbuilder::FsRedirection fsRedirection;
 #endif
-  if (CreateProcessW(nullptr, ab.command(), NULL, NULL, FALSE,
+  if (CreateProcessW(nullptr, ab.Command(), NULL, NULL, FALSE,
                      CREATE_UNICODE_ENVIRONMENT, NULL, NULL, &si,
                      &pi) != TRUE) {
     auto ec = base::make_system_error_code();

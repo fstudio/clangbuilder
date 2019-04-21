@@ -77,6 +77,11 @@ else()
   endif()
 endif()
 
+
+include_directories(
+  ../include
+)
+
 add_executable(ClangbuilderUI WIN32
   main.cc
   appexec.cc

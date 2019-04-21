@@ -10,6 +10,7 @@
 #include "base.hpp"
 #include "comutils.hpp"
 #include "systemtools.hpp"
+#include "strcat.hpp"
 #include <vector>
 #include <cstdlib>
 #include "vsinstance.hpp"
@@ -52,7 +53,7 @@ const CLSID CLSID_SetupConfiguration = {
 /* clang-format on */
 #endif
 
-namespace vssetup {
+namespace clangbuilder {
 
 class VisualStudioNativeSearcher {
 public:
@@ -68,12 +69,12 @@ public:
 private:
   bool Initialize();
   bool IsEWDKEnabled();
-  bool GetVSInstanceInfo(priv::comptr<ISetupInstance2> inst, VSInstance &vsi);
-  bool CheckInstalledComponent(priv::comptr<ISetupPackageReference> package,
+  bool GetVSInstanceInfo(comptr<ISetupInstance2> inst, VSInstance &vsi);
+  bool CheckInstalledComponent(comptr<ISetupPackageReference> package,
                                bool &bWin10SDK, bool &bWin81SDK);
-  priv::comptr<ISetupConfiguration> setupConfig;
-  priv::comptr<ISetupConfiguration2> setupConfig2;
-  priv::comptr<ISetupHelper> setupHelper;
+  comptr<ISetupConfiguration> setupConfig;
+  comptr<ISetupConfiguration2> setupConfig2;
+  comptr<ISetupHelper> setupHelper;
   bool initializationFailure{false};
 };
 
@@ -114,7 +115,7 @@ inline bool VisualStudioNativeSearcher::IsEWDKEnabled() {
 }
 
 inline std::wstring LookupVCToolsetVersion(std::wstring_view vsdir) {
-  auto vcfile = base::StringCat(
+  auto vcfile = base::StrCat(
       vsdir, L"/VC/Auxiliary/Build/Microsoft.VCToolsVersion.default.txt");
   std::wstring ver;
   if (!clangbuilder::LookupVersionFromFile(vcfile, ver)) {
@@ -125,8 +126,7 @@ inline std::wstring LookupVCToolsetVersion(std::wstring_view vsdir) {
 }
 
 inline bool VisualStudioNativeSearcher::CheckInstalledComponent(
-    priv::comptr<ISetupPackageReference> package, bool &bWin10SDK,
-    bool &bWin81SDK) {
+    comptr<ISetupPackageReference> package, bool &bWin10SDK, bool &bWin81SDK) {
   constexpr const WCHAR *Win10SDKComponent =
       L"Microsoft.VisualStudio.Component.Windows10SDK";
   constexpr const WCHAR *Win81SDKComponent =
@@ -134,12 +134,12 @@ inline bool VisualStudioNativeSearcher::CheckInstalledComponent(
   constexpr const WCHAR *ComponentType = L"Component";
   bool ret = false;
   bWin10SDK = bWin81SDK = false;
-  priv::comstr bstrId;
+  comstr bstrId;
   if (FAILED(package->GetId(&bstrId))) {
     return ret;
   }
 
-  priv::comstr bstrType;
+  comstr bstrType;
   if (FAILED(package->GetType(&bstrType))) {
     return ret;
   }
@@ -164,13 +164,14 @@ inline bool VisualStudioNativeSearcher::CheckInstalledComponent(
   return ret;
 }
 
-inline bool VisualStudioNativeSearcher::GetVSInstanceInfo(
-    priv::comptr<ISetupInstance2> inst, VSInstance &vsi) {
+inline bool
+VisualStudioNativeSearcher::GetVSInstanceInfo(comptr<ISetupInstance2> inst,
+                                              VSInstance &vsi) {
   if (inst == nullptr) {
     return false;
   }
 
-  priv::comstr bstrId;
+  comstr bstrId;
   if (FAILED(inst->GetInstanceId(&bstrId))) {
     return false;
   }
@@ -180,11 +181,11 @@ inline bool VisualStudioNativeSearcher::GetVSInstanceInfo(
     return false;
   }
   auto lcid = GetUserDefaultLCID();
-  priv::comstr bstrName;
+  comstr bstrName;
   if (SUCCEEDED(inst->GetDisplayName(lcid, &bstrName))) {
     vsi.DisplayName = std::wstring(bstrName);
   }
-  priv::comptr<ISetupInstanceCatalog> catalog;
+  comptr<ISetupInstanceCatalog> catalog;
   if (SUCCEEDED(inst->QueryInterface(__uuidof(ISetupInstanceCatalog),
                                      (void **)&catalog)) &&
       catalog != nullptr) {
@@ -195,7 +196,7 @@ inline bool VisualStudioNativeSearcher::GetVSInstanceInfo(
   }
   vsi.DisplayName.append(vsi.IsPrerelease ? L" (Preview)" : L" (Release)");
   ULONGLONG ullVersion = 0;
-  priv::comstr bstrVersion;
+  comstr bstrVersion;
   if (FAILED(inst->GetInstallationVersion(&bstrVersion))) {
     return false;
   }
@@ -206,7 +207,7 @@ inline bool VisualStudioNativeSearcher::GetVSInstanceInfo(
   }
 
   // Reboot may have been required before the installation path was created.
-  priv::comstr bstrInstallationPath;
+  comstr bstrInstallationPath;
   if ((eLocal & state) == eLocal) {
     if (FAILED(inst->GetInstallationPath(&bstrInstallationPath))) {
       return false;
@@ -217,7 +218,7 @@ inline bool VisualStudioNativeSearcher::GetVSInstanceInfo(
   // Reboot may have been required before the product package was registered
   // (last).
   if ((eRegistered & state) == eRegistered) {
-    priv::comptr<ISetupPackageReference> product;
+    comptr<ISetupPackageReference> product;
     if (FAILED(inst->GetProduct(&product)) || !product) {
       return false;
     }
@@ -232,7 +233,7 @@ inline bool VisualStudioNativeSearcher::GetVSInstanceInfo(
 
     IUnknown **ppData = (IUnknown **)lpsaPackages->pvData;
     for (int i = lower; i < upper; i++) {
-      priv::comptr<ISetupPackageReference> package = NULL;
+      comptr<ISetupPackageReference> package = NULL;
       if (FAILED(ppData[i]->QueryInterface(IID_ISetupPackageReference,
                                            (void **)&package)) ||
           package == nullptr) {
@@ -270,7 +271,7 @@ inline bool VisualStudioNativeSearcher::GetVSInstanceAll(
       item.VSInstallLocation = envVsInstallDir;
       item.Version = envVSVersion;
       item.DisplayName =
-          base::StringCat(L"Visual Studio ", envVSVersion, L" (EnterpriseWDK)");
+          base::StrCat(L"Visual Studio ", envVSVersion, L" (EnterpriseWDK)");
       item.VCToolsetVersion = LookupVCToolsetVersion(item.VSInstallLocation);
       item.ullVersion = std::stoi(envVSVersion);
       item.IsWin10SDKInstalled = true;
@@ -279,13 +280,13 @@ inline bool VisualStudioNativeSearcher::GetVSInstanceAll(
     }
   }
   // resolve all instances.
-  priv::comptr<IEnumSetupInstances> es;
+  comptr<IEnumSetupInstances> es;
   if (FAILED(setupConfig2->EnumInstances((IEnumSetupInstances **)&es))) {
     return false;
   }
-  priv::comptr<ISetupInstance> instance;
+  comptr<ISetupInstance> instance;
   while (SUCCEEDED(es->Next(1, &instance, nullptr)) && instance) {
-    priv::comptr<ISetupInstance2> instance2 = nullptr;
+    comptr<ISetupInstance2> instance2 = nullptr;
     if (FAILED(instance->QueryInterface(IID_ISetupInstance2,
                                         (void **)&instance2)) ||
         instance2 == nullptr) {
@@ -303,6 +304,6 @@ inline bool VisualStudioNativeSearcher::GetVSInstanceAll(
   return true;
 }
 
-} // namespace vssetup
+} // namespace clangbuilder
 
 #endif

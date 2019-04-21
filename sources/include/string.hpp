@@ -7,11 +7,6 @@
 #include <cstring>
 #include <cctype>
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <Windows.h>
-
 namespace base {
 
 // StrContains()
@@ -90,34 +85,6 @@ inline std::wstring_view StripSuffix(std::wstring_view str,
   return str;
 }
 
-inline std::wstring
-CatStringViews(std::initializer_list<std::wstring_view> pieces) {
-  std::wstring result;
-  size_t total_size = 0;
-  for (const std::wstring_view piece : pieces) {
-    total_size += piece.size();
-  }
-  result.resize(total_size);
-
-  wchar_t *const begin = &*result.begin();
-  wchar_t *out = begin;
-  for (const std::wstring_view piece : pieces) {
-    const size_t this_size = piece.size();
-    wmemcpy(out, piece.data(), this_size);
-    out += this_size;
-  }
-  return result;
-}
-
-// Windows shlapi has StrCat
-inline std::wstring StringCat() { return std::wstring(); }
-inline std::wstring StringCat(std::wstring_view sv) { return std::wstring(sv); }
-
-template <typename... Args>
-std::wstring StringCat(std::wstring_view v0, const Args &... args) {
-  return CatStringViews({v0, args...});
-}
-
 // Returns std::string_view with whitespace stripped from the beginning of the
 // given string_view.
 inline std::string_view StripLeadingAsciiWhitespace(std::string_view str) {
@@ -157,30 +124,6 @@ inline std::wstring_view StripTrailingAsciiWhitespace(std::wstring_view str) {
 // given string_view.
 inline std::wstring_view StripAsciiWhitespace(std::wstring_view str) {
   return StripTrailingAsciiWhitespace(StripLeadingAsciiWhitespace(str));
-}
-
-// ToNarrow UTF-16 to UTF-8
-inline std::string ToNarrow(std::wstring_view uw) {
-  auto l = WideCharToMultiByte(CP_UTF8, 0, uw.data(), (int)uw.size(), nullptr,
-                               0, nullptr, nullptr);
-  std::string ustr;
-  ustr.resize(l + 1);
-  auto N = WideCharToMultiByte(CP_UTF8, 0, uw.data(), (int)uw.size(),
-                               ustr.data(), l + 1, nullptr, nullptr);
-  ustr.resize(N);
-  return ustr;
-}
-
-// ToWide UTF-8 to UTF-16
-inline std::wstring ToWide(std::string_view u8) {
-  std::wstring wstr;
-  auto N =
-      MultiByteToWideChar(CP_UTF8, 0, u8.data(), (DWORD)u8.size(), nullptr, 0);
-  if (N > 0) {
-    wstr.resize(N);
-    MultiByteToWideChar(CP_UTF8, 0, u8.data(), (DWORD)u8.size(), &wstr[0], N);
-  }
-  return wstr;
 }
 
 } // namespace base
