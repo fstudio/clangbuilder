@@ -71,10 +71,9 @@ include_directories(
 )
 
 add_executable(blast WIN32
-  blast.cc
-  readlink.cc
-  symlink.cc
-  dumpbin.cc
+  driver.cc
+  pe.cc
+  resolve.cc
   ../res/blast.rc
   ../res/cli.manifest
 )

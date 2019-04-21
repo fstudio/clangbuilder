@@ -181,38 +181,6 @@ struct pe_minutiae_t {
   pe_version_t linkver;
   pe_version_t imagever;
   bool isdll;
-  std::wstring dump() {
-    std::wstring s;
-    s.append(L"Machine:         ")
-        .append(machine)
-        .append(L"\nSubsystem:        ")
-        .append(subsystem)
-        .append(L"\nOS Version:       ")
-        .append(osver.strversion())
-        .append(L"\nLink Version:     ")
-        .append(linkver.strversion())
-        .append(L"\nImage Version:    ")
-        .append(imagever.strversion());
-    if (!clrmsg.empty()) {
-      s.append(L"\nCLR Details:      ").append(clrmsg);
-    }
-    if (!characteristics.empty()) {
-      s.append(L"\nCharacteristics:  ");
-      s.append(characteristics[0]);
-      for (size_t n = 1; n < characteristics.size(); n++) {
-        s.append(L"\n                  ").append(characteristics[n]);
-      }
-      s.append(L"\n");
-    }
-    if (!depends.empty()) {
-      s.append(L"\nDepends:          ");
-      s.append(depends[0]);
-      for (size_t n = 1; n < depends.size(); n++) {
-        s.append(L"\n                  ").append(depends[n]);
-      }
-    }
-    return s;
-  }
 };
 std::optional<pe_minutiae_t> inquisitive_pecoff(std::wstring_view sv,
                                                 base::error_code &ec);
