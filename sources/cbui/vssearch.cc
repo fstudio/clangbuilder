@@ -7,12 +7,8 @@
 #include <appfs.hpp>
 #include "app.hpp"
 
-#ifdef StrCat
-#undef StrCat
-#endif
-
 std::wstring FsVisualStudioVersion(std::wstring_view vsdir) {
-  auto vsfile = base::StrCat(vsdir, L"\\Version.txt");
+  auto vsfile = base::StringCat(vsdir, L"\\Version.txt");
   std::wstring ver;
   if (!clangbuilder::LookupVersionFromFile(vsfile, ver)) {
     return L"";
@@ -49,7 +45,7 @@ std::wstring FsUniqueSubdirName(std::wstring_view dir) {
   if (!dir.empty() && (dir.back() == L'\\' || dir.back() == L'/')) {
     dir.remove_suffix(1);
   }
-  auto findstr = base::StrCat(dir, L"\\*");
+  auto findstr = base::StringCat(dir, L"\\*");
   HANDLE hFind = FindFirstFileW(findstr.c_str(), &wfd);
   if (hFind == INVALID_HANDLE_VALUE) {
     return L""; /// Not found
@@ -73,18 +69,18 @@ bool VisualStudioSeacher::EnterpriseWDK(std::wstring_view ewdkroot,
     return false;
   }
   auto vsdir =
-      base::StrCat(ewdkroot, L"\\Program Files\\Microsoft Visual Studio");
+      base::StringCat(ewdkroot, L"\\Program Files\\Microsoft Visual Studio");
   if (!clangbuilder::PathExists(vsdir)) {
     return false;
   }
   auto product = FsUniqueSubdirName(vsdir);
   vsi.VSInstallLocation =
-      base::StrCat(vsdir, L"\\", product, L"\\BuildTools");
+      base::StringCat(vsdir, L"\\", product, L"\\BuildTools");
   vsi.Version = FsVisualStudioVersion(vsi.VSInstallLocation);
   auto incdir =
-      base::StrCat(ewdkroot, L"\\Program Files\\Windows Kits\\10\\include");
+      base::StringCat(ewdkroot, L"\\Program Files\\Windows Kits\\10\\include");
   auto sdkver = FsUniqueSubdirName(incdir);
-  vsi.DisplayName = base::StrCat(L"Visual Studio BuildTools ", product,
+  vsi.DisplayName = base::StringCat(L"Visual Studio BuildTools ", product,
                                     L" (Enterprise WDK ", sdkver, L")");
   vsi.InstanceId.assign(L"VisualStudio.EWDK");
   return true;

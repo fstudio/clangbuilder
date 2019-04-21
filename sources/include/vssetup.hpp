@@ -9,11 +9,11 @@
 #include "Setup.Configuration.h"
 #include "base.hpp"
 #include "comutils.hpp"
-#include "systemtools.hpp"
 #include "strcat.hpp"
-#include <vector>
-#include <cstdlib>
+#include "systemtools.hpp"
 #include "vsinstance.hpp"
+#include <cstdlib>
+#include <vector>
 
 #ifndef VSSetupConstants
 #define VSSetupConstants
@@ -115,7 +115,7 @@ inline bool VisualStudioNativeSearcher::IsEWDKEnabled() {
 }
 
 inline std::wstring LookupVCToolsetVersion(std::wstring_view vsdir) {
-  auto vcfile = base::StrCat(
+  auto vcfile = base::StringCat(
       vsdir, L"/VC/Auxiliary/Build/Microsoft.VCToolsVersion.default.txt");
   std::wstring ver;
   if (!clangbuilder::LookupVersionFromFile(vcfile, ver)) {
@@ -271,7 +271,7 @@ inline bool VisualStudioNativeSearcher::GetVSInstanceAll(
       item.VSInstallLocation = envVsInstallDir;
       item.Version = envVSVersion;
       item.DisplayName =
-          base::StrCat(L"Visual Studio ", envVSVersion, L" (EnterpriseWDK)");
+          base::StringCat(L"Visual Studio ", envVSVersion, L" (EnterpriseWDK)");
       item.VCToolsetVersion = LookupVCToolsetVersion(item.VSInstallLocation);
       item.ullVersion = std::stoi(envVSVersion);
       item.IsWin10SDKInstalled = true;

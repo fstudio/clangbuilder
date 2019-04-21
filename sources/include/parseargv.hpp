@@ -3,9 +3,10 @@
 #define CLANBUILDER_ARGV_HPP
 #include <functional>
 #include <vector>
+//
 #include "strcat.hpp"
 
-namespace clangbuilder {
+namespace base {
 
 enum ParseError {
   SkipParse = -1,
@@ -22,9 +23,8 @@ struct error_code {
   }
   template <typename... Args> void Assign(int val, Args... args) {
     ec = val;
-    std::initializer_list<std::wstring_view> as = {
-        static_cast<const AlphaNum &>(args).Piece()...};
-    message = internal::CatPieces(as);
+    message =
+        internal::CatPieces({static_cast<const AlphaNum &>(args).Piece()...});
   }
 };
 enum HasArgs {
@@ -193,6 +193,6 @@ inline bool ParseArgv::parse_internal(std::wstring_view a, const invoke_t &v,
   return parse_internal_short(a.substr(1), v, ec);
 }
 
-} // namespace clangbuilder
+} // namespace base
 
 #endif

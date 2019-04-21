@@ -12,7 +12,7 @@ bool IsPwshEnabled() {
   if (!clangbuilder::LookupClangbuilderTarget(root, target, ec)) {
     return false;
   }
-  auto file = base::StrCat(root, L"\\config\\settings.json");
+  auto file = base::StringCat(root, L"\\config\\settings.json");
   clangbuilder::FD fd;
   if (_wfopen_s(&fd.fd, file.data(), L"rb") != 0) {
     return false;
@@ -44,7 +44,7 @@ std::wstring LauncherTarget(std::wstring_view Arg0) {
   if (!clangbuilder::PathAbsolute(absArg0, Arg0)) {
     return L"";
   }
-  return base::StrCat(base::StripSuffix(absArg0, L".exe"), L".ps1");
+  return base::StringCat(base::StripSuffix(absArg0, L".exe"), L".ps1");
 }
 
 // rc /fo:cli.res ../cbui/res/cli.rc

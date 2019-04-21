@@ -3,7 +3,6 @@
 #define CLANGBUILDER_VSINSTANCE_HPP
 #include <string>
 #include <string_view>
-#include <Windows.h>
 
 namespace clangbuilder {
 struct VSInstance {
@@ -12,8 +11,8 @@ struct VSInstance {
   std::wstring VSInstallLocation;
   std::wstring Version;
   std::wstring VCToolsetVersion;
-  ULONGLONG ullVersion = 0;
-  ULONGLONG ullMainVersion = 0;
+  uint64_t ullVersion = 0;
+  uint64_t ullMainVersion = 0;
   bool IsWin10SDKInstalled = false;
   bool IsWin81SDKInstalled = false;
   bool IsEnterpriseWDK = false;

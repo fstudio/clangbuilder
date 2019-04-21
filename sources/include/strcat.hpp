@@ -94,13 +94,13 @@ static inline wchar_t *Append(wchar_t *out, const AlphaNum &x) {
 }
 
 } // namespace internal
-inline std::wstring StrCat() { return std::wstring(); }
+inline std::wstring StringCat() { return std::wstring(); }
 
-inline std::wstring StrCat(const AlphaNum &a) {
+inline std::wstring StringCat(const AlphaNum &a) {
   return std::wstring(a.Piece());
 }
 
-inline std::wstring StrCat(const AlphaNum &a, const AlphaNum &b) {
+inline std::wstring StringCat(const AlphaNum &a, const AlphaNum &b) {
   std::wstring result;
   result.resize(a.size() + b.size());
   wchar_t *const begin = &*result.begin();
@@ -109,7 +109,7 @@ inline std::wstring StrCat(const AlphaNum &a, const AlphaNum &b) {
   out = internal::Append(out, b);
   return result;
 }
-inline std::wstring StrCat(const AlphaNum &a, const AlphaNum &b,
+inline std::wstring StringCat(const AlphaNum &a, const AlphaNum &b,
                            const AlphaNum &c) {
   std::wstring result;
   result.resize(a.size() + b.size() + c.size());
@@ -120,7 +120,7 @@ inline std::wstring StrCat(const AlphaNum &a, const AlphaNum &b,
   out = internal::Append(out, c);
   return result;
 }
-inline std::wstring StrCat(const AlphaNum &a, const AlphaNum &b,
+inline std::wstring StringCat(const AlphaNum &a, const AlphaNum &b,
                            const AlphaNum &c, const AlphaNum &d) {
   std::wstring result;
   result.resize(a.size() + b.size() + c.size() + d.size());
@@ -135,7 +135,7 @@ inline std::wstring StrCat(const AlphaNum &a, const AlphaNum &b,
 
 // Support 5 or more arguments
 template <typename... AV>
-inline std::wstring StrCat(const AlphaNum &a, const AlphaNum &b,
+inline std::wstring StringCat(const AlphaNum &a, const AlphaNum &b,
                            const AlphaNum &c, const AlphaNum &d,
                            const AlphaNum &e, const AV &... args) {
   return internal::CatPieces({a.Piece(), b.Piece(), c.Piece(), d.Piece(),
