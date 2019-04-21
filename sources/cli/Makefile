@@ -16,8 +16,8 @@ all:cli.res $(OBJS)
 clean:
 	del /s /q *.res *.obj *.pdb *.exe >nul 2>nul
 	
-cli.res:../cbui/res/cli.rc
-	rc  /focli.res ../cbui/res/cli.rc
+cli.res:../res/cli.rc
+	rc  /focli.res ../res/cli.rc
 
 {.}.cc.obj::
 	$(CC) $(CFLAGS) $(CXXFLAGS) -c $<

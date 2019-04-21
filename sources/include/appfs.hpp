@@ -2,7 +2,6 @@
 #ifndef CLANGBUILDER_FS_HPP
 #define CLANGBUILDER_FS_HPP
 #include "base.hpp"
-#include "strcat.hpp"
 
 namespace clangbuilder {
 

@@ -14,7 +14,7 @@
 #include <vector>
 #include <string_view>
 #include <comutils.hpp>
-#include "res/appuires.h"
+#include "../res/appuires.h"
 #include "app.hpp"
 
 

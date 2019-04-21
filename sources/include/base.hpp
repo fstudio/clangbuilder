@@ -8,15 +8,18 @@
 #endif
 #include <windows.h>
 #endif
+#include <optional>
 #include <string>
 #include <string_view>
-#include <optional>
 #include <vector>
+//
+#include "strcat.hpp"
 #include "string.hpp"
 
 namespace base {
 // final_act
-// https://github.com/Microsoft/GSL/blob/ebe7ebfd855a95eb93783164ffb342dbd85cbc27/include/gsl/gsl_util#L85-L89
+// https://github.com/Microsoft/GSL/blob/ebe7ebfd855a95eb93783164ffb342dbd85cbc27\
+// /include/gsl/gsl_util#L85-L89
 
 template <class F> class final_act {
 public:
@@ -86,7 +89,6 @@ inline error_code make_system_error_code() {
   return ec;
 }
 
-
 // ToNarrow UTF-16 to UTF-8
 inline std::string ToNarrow(std::wstring_view uw) {
   auto l = WideCharToMultiByte(CP_UTF8, 0, uw.data(), (int)uw.size(), nullptr,
@@ -110,7 +112,6 @@ inline std::wstring ToWide(std::string_view u8) {
   }
   return wstr;
 }
-
 
 } // namespace base
 

@@ -16,13 +16,13 @@ OBJS=main.obj appui.obj appexec.obj apputils.obj vssearch.obj settings.obj
 
 
 all:app.res $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) app.res /MANIFEST:EMBED -MANIFESTINPUT:res/app.manifest -OUT:ClangbuilderUI.exe $(LIBS)
+	$(LD) $(LDFLAGS) $(OBJS) app.res /MANIFEST:EMBED -MANIFESTINPUT:../res/app.manifest -OUT:ClangbuilderUI.exe $(LIBS)
 
 clean:
 	del /s /q *.res *.obj *.pdb *.exe >nul 2>nul
 	
-app.res:res/app.rc
-	rc  /foapp.res res/app.rc
+app.res:../res/app.rc
+	rc  /foapp.res ../res/app.rc
 	
 {.}.cpp.obj::
 	$(CC) $(CFLAGS) $(CXXFLAGS) -c $<
