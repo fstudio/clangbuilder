@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
-  <assemblyIdentity version="1.0.0.0" name="Blast.Link.app"/>
-  <description>Basal Link</description>
+  <assemblyIdentity version="1.0.0.0" name="Clangbuilder.CLI.app"/>
+  <description>Clangbuilder.CLI</description>
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
     <security>
       <requestedPrivileges>
@@ -12,6 +12,11 @@
       </requestedPrivileges>
     </security>
   </trustInfo>
+  <dependency optional="yes">
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="Microsoft.Windows.Common-Controls" version="6.0.1.0" publicKeyToken="6595b64144ccf1df" language="*" processorArchitecture="*"></assemblyIdentity>
+    </dependentAssembly>
+  </dependency>
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
       <!-- Windows 10 -->

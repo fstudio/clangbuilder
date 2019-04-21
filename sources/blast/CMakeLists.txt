@@ -75,8 +75,8 @@ add_executable(blast WIN32
   readlink.cc
   symlink.cc
   dumpbin.cc
-  blast.rc
-  blast.manifest
+  ../res/blast.rc
+  ../res/cli.manifest
 )
 
 add_definitions(

@@ -6,13 +6,13 @@
 //
 #include "strcat.hpp"
 
-namespace base {
-
+namespace av {
 enum ParseError {
   SkipParse = -1,
   None = 0,
   ErrorNormal = 1 //
 };
+// not like base::error_code
 struct error_code {
   std::wstring message;
   int ec{0};
@@ -23,8 +23,8 @@ struct error_code {
   }
   template <typename... Args> void Assign(int val, Args... args) {
     ec = val;
-    message =
-        internal::CatPieces({static_cast<const AlphaNum &>(args).Piece()...});
+    message = base::internal::CatPieces(
+        {static_cast<const base::AlphaNum &>(args).Piece()...});
   }
 };
 enum HasArgs {
@@ -193,6 +193,6 @@ inline bool ParseArgv::parse_internal(std::wstring_view a, const invoke_t &v,
   return parse_internal_short(a.substr(1), v, ec);
 }
 
-} // namespace base
+} // namespace av
 
 #endif

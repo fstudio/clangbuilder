@@ -7,70 +7,29 @@
 #include "../include/systemtools.hpp"
 #include <cstdio>
 
-bool IsPwshEnabled() {
-  std::wstring target, root;
-  base::error_code ec;
-  if (!clangbuilder::LookupClangbuilderTarget(root, target, ec)) {
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
+
+inline bool enable_vt_mode(HANDLE hFile) {
+  DWORD dwMode = 0;
+  if (!GetConsoleMode(hFile, &dwMode)) {
     return false;
   }
-  auto file = base::StringCat(root, L"\\config\\settings.json");
-  clangbuilder::FD fd;
-  if (_wfopen_s(&fd.fd, file.data(), L"rb") != 0) {
+  dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+  if (!SetConsoleMode(hFile, dwMode)) {
     return false;
   }
-  try {
-    auto j = nlohmann::json::parse(fd.P());
-    return j["PwshCoreEnabled"].get<bool>();
-  } catch (const std::exception &) {
-    // fprintf(stderr, "debug %s\n", e.what());
-    return false;
-  }
-  return false;
+  return true;
 }
 
-std::wstring PwshExePath() {
-  std::wstring pwshexe;
-  if (IsPwshEnabled() && clangbuilder::LookupPwshCore(pwshexe)) {
-    return pwshexe;
-  }
-  if (clangbuilder::LookupPwshDesktop(pwshexe)) {
-    return pwshexe;
-  }
-  return L"";
+bool enable_vt_console() {
+  auto hStderr = GetStdHandle(STD_OUTPUT_HANDLE);
+  auto hStdout = GetStdHandle(STD_ERROR_HANDLE);
+  return enable_vt_mode(hStderr) && enable_vt_mode(hStdout);
 }
 
-std::wstring LauncherTarget(std::wstring_view Arg0) {
-  // --> Arg0 to fullpath, replace ".exe" to ".ps1"
-  std::wstring absArg0;
-  if (!clangbuilder::PathAbsolute(absArg0, Arg0)) {
-    return L"";
-  }
-  return base::StringCat(base::StripSuffix(absArg0, L".exe"), L".ps1");
-}
-
-// rc /fo:cli.res ../cbui/res/cli.rc
-// cl cli.cc -std:c++17 -O2 Pathcch.lib shell32.lib Shlwapi.lib cli.res
-int wmain(int argc, wchar_t **argv) {
-  // --> launcher some ps1 file
-  _wsetlocale(LC_ALL, L"");
-  auto ps1 = LauncherTarget(argv[0]);
-  if (!clangbuilder::PathExists(ps1)) {
-    wprintf_s(L"Powershell script '%s' not found\n", ps1.data());
-    return 1;
-  }
-  auto pwshexe = PwshExePath();
-  clangbuilder::ArgvBuilder ab;
-  ab.Assign(pwshexe)
-      .Append(L"-NoProfile")
-      .Append(L"-NoLogo")
-      .Append(L"-ExecutionPolicy")
-      .Append(L"unrestricted")
-      .Append(L"-File")
-      .Append(ps1);
-  for (int i = 1; i < argc; i++) {
-    ab.Append(argv[i]);
-  }
-
+int ExecuteWait(wchar_t *command) {
   PROCESS_INFORMATION pi;
   STARTUPINFOW si;
   ZeroMemory(&si, sizeof(si));
@@ -82,7 +41,7 @@ int wmain(int argc, wchar_t **argv) {
   //// Only x86,ARM on Windows 64
   clangbuilder::FsRedirection fsRedirection;
 #endif
-  if (CreateProcessW(nullptr, ab.Command(), NULL, NULL, FALSE,
+  if (CreateProcessW(nullptr, command, NULL, NULL, FALSE,
                      CREATE_UNICODE_ENVIRONMENT, NULL, NULL, &si,
                      &pi) != TRUE) {
     auto ec = base::make_system_error_code();
@@ -97,4 +56,41 @@ int wmain(int argc, wchar_t **argv) {
   GetExitCodeProcess(pi.hProcess, &exitCode);
   CloseHandle(pi.hProcess);
   return exitCode;
+}
+
+std::wstring LauncherTarget(std::wstring_view Arg0) {
+  // --> Arg0 to fullpath, replace ".exe" to ".bat"
+  std::wstring absArg0;
+  if (!clangbuilder::PathAbsolute(absArg0, Arg0)) {
+    return L"";
+  }
+  return base::StringCat(base::StripSuffix(absArg0, L".exe"), L".bat");
+}
+
+int simplifycmd(int argc, wchar_t **argv) {
+  clangbuilder::ArgvBuilder ab;
+  ab.Assign(L"cmd");
+  for (int i = 1; i < argc; i++) {
+    ab.Append(argv[i]);
+  }
+  return ExecuteWait(ab.Command());
+}
+
+int wmain(int argc, wchar_t **argv) {
+  enable_vt_console(); // to enable VT console
+  _wsetlocale(LC_ALL, L"");
+  if (base::EndsWith(argv[0], L"cmdex.exe")) {
+    return simplifycmd(argc--, argv++);
+  }
+  auto batfile = LauncherTarget(argv[0]);
+  if (!clangbuilder::PathExists(batfile)) {
+    wprintf_s(L"Batch file: %s not exists\n", batfile.data());
+    return 1;
+  }
+  clangbuilder::ArgvBuilder ab;
+  ab.Assign(L"cmd").Append(L"/k").Append(batfile);
+  for (int i = 1; i < argc; i++) {
+    ab.Append(argv[i]);
+  }
+  return ExecuteWait(ab.Command());
 }

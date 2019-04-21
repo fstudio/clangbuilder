@@ -9,13 +9,13 @@ LDFLAGS=/NOLOGO -OPT:REF  ole32.lib KERNEL32.lib ADVAPI32.lib Shell32.lib USER32
 OBJS=blast.obj symlink.obj readlink.obj dumpbin.obj
 
 all:blast.res $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) blast.res /MANIFEST:EMBED -MANIFESTINPUT:blast.manifest -OUT:blast.exe $(LIBS)
+	$(LD) $(LDFLAGS) $(OBJS) blast.res /MANIFEST:EMBED -MANIFESTINPUT:../res/cli.manifest -OUT:blast.exe $(LIBS)
 
 clean:
 	del /s /q *.res *.obj *.pdb *.exe >nul 2>nul
 
-blast.res:blast.rc
-	rc blast.rc
+blast.res:../res/blast.rc
+	rc  /foblast.res ../res/blast.rc
 
 {.}.cpp.obj::
 	$(CC) $(CFLAGS) $(CXXFLAGS) -c $<
