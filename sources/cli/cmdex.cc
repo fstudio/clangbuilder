@@ -67,9 +67,19 @@ std::wstring LauncherTarget(std::wstring_view Arg0) {
   return base::StringCat(base::StripSuffix(absArg0, L".exe"), L".bat");
 }
 
+std::wstring SystemCMD() {
+  std::wstring cmd;
+  if (clangbuilder::GetEnv(L"ComSpec", cmd)) {
+    SetConsoleTitleW(cmd.data());
+    return cmd;
+  }
+  return L"cmd";
+}
+
 int simplifycmd(int argc, wchar_t **argv) {
   clangbuilder::ArgvBuilder ab;
-  ab.Assign(L"cmd");
+  auto cmd = SystemCMD();
+  ab.Assign(cmd);
   for (int i = 1; i < argc; i++) {
     ab.Append(argv[i]);
   }
@@ -88,7 +98,8 @@ int wmain(int argc, wchar_t **argv) {
     return 1;
   }
   clangbuilder::ArgvBuilder ab;
-  ab.Assign(L"cmd").Append(L"/k").Append(batfile);
+  auto cmd = SystemCMD();
+  ab.Assign(cmd).Append(L"/k").Append(batfile);
   for (int i = 1; i < argc; i++) {
     ab.Append(argv[i]);
   }
