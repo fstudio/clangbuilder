@@ -6,7 +6,7 @@ param(
     [String]$Branch = "Mainline"
 )
 
-."$PSScriptRoot\ProfileEnv.ps1"
+."$PSScriptRoot\PreInitialize.ps1"
 
 Function Update-LLVM {
     param(
