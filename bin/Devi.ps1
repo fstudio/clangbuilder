@@ -10,7 +10,7 @@ Function PrintUsage {
 Usage: devi cmd package-name
     list         list installed package
     search       search ported package
-    install     install package
+    install      install package
     uninstall    uninstall package
     upgrade      upgrade all upgradeable packages
     help         print help message
