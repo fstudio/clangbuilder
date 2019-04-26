@@ -6,22 +6,23 @@ Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
 Import-Module -Name  "$ClangbuilderRoot\modules\Utils"
 
 Function PrintUsage {
-    Write-Host "devi portable package manager 1.0
-Usage: devi cmd tool_name
-       list        list installed tools
-       search      search ported tools
-       install     install tools
-       upgrade     upgrade tools
-       version     print devi version and exit
-       help        print help message
+    Write-Host "devi portable package manager 1.1
+Usage: devi cmd package-name
+    list         list installed package
+    search       search ported package
+    install     install package
+    uninstall    uninstall package
+    upgrade      upgrade all upgradeable packages
+    help         print help message
+    version      print devi version and exit
 "
 }
 Function CMDList {
     param(
         [String]$Pkglocksdir
     )
-    Get-ChildItem -Path "$Pkglocksdir/*.json"|ForEach-Object {
-        $obj = Get-Content -Path $_.FullName -ErrorAction SilentlyContinue |ConvertFrom-Json  -ErrorAction SilentlyContinue
+    Get-ChildItem -Path "$Pkglocksdir/*.json" | ForEach-Object {
+        $obj = Get-Content -Path $_.FullName -ErrorAction SilentlyContinue | ConvertFrom-Json  -ErrorAction SilentlyContinue
         if ($null -eq $obj -or ($null -eq $obj.version) ) {
             Write-Host -ForegroundColor Red "Invalid file locks: $($_.FullName)"
             return
@@ -30,19 +31,38 @@ Function CMDList {
     }
 }
 
+Function CMDSearchOne {
+    param(
+        [String]$Root,
+        [String]$Port
+    )
+    $Portfile = "$Root/ports/$Port.json"
+    $cj = Get-Content "$Portfile"  -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
+    if ($null -eq $cj) {
+        Write-Host -ForegroundColor Red "Port: $Port not found. path: $Portfile"
+        return
+    }
+    $xversion = $cj.version
+    "$Port".PadRight(20) + "$xversion".PadRight(20) + $cj.description
+}
+
+
 # search
 Function CMDSearch {
     param(
         [String]$Root
     )
     Write-Host -ForegroundColor Green "devi portable package manager, found ports:"
-    Get-ChildItem -Path "$Root/ports/*.json" |ForEach-Object {
-        $cj = Get-Content $_.FullName  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+    Get-ChildItem -Path "$Root/ports/*.json" | ForEach-Object {
+        $cj = Get-Content $_.FullName  -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
         if ($null -ne $cj) {
-            "$($_.BaseName)".PadRight(20) + "$($cj.version)".PadRight(20) + $cj.description
+            $xversion = $cj.version
+            "$($_.BaseName)".PadRight(20) + "$xversion".PadRight(20) + $cj.description
         }
     }
 }
+
+
 
 
 Function CMDUninstall {
@@ -55,7 +75,7 @@ Function CMDUninstall {
         Write-Host -ForegroundColor Red "not found $Name in $Pkglocksdir"
     }
     else {
-        $instmd = Get-Content $lockfile  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+        $instmd = Get-Content $lockfile  -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
         if ($null -ne $instmd.links) {
             foreach ($lkfile in $instmd.links) {
                 $xlinked = "$ClangbuilderRoot/bin/pkgs/.linked/$lkfile"
@@ -69,7 +89,7 @@ Function CMDUninstall {
 
     $pkgdir = "$ClangbuilderRoot/bin/pkgs/$Name"
     if (Test-Path $pkgdir) {
-        Remove-Item -Force -Recurse  $pkgdir  -ErrorAction SilentlyContinue |Out-Null
+        Remove-Item -Force -Recurse  $pkgdir  -ErrorAction SilentlyContinue | Out-Null
     }
     Write-Host -ForegroundColor Yellow "devi: uninstall $Name done."
 }
@@ -86,7 +106,7 @@ Function CMDInstall {
         Write-Host -ForegroundColor Red "devi: $Name not yet ported."
         return $false
     }
-    $devpkg = Get-Content "$ClangbuilderRoot/ports/$Name.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+    $devpkg = Get-Content "$ClangbuilderRoot/ports/$Name.json"  -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
     if ( $null -eq $devpkg) {
         Write-Host -ForegroundColor Red "`'$Name`' not yet ported."
         return $false
@@ -109,7 +129,7 @@ Function CMDInstall {
         }
     }
 
-    $oldtable = Get-Content "$Pkglocksdir/$Name.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+    $oldtable = Get-Content "$Pkglocksdir/$Name.json"  -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
     $pkversion = $devpkg.version
     if ($null -ne $oldtable -and $oldtable.version -eq $pkversion) {
         Write-Host -ForegroundColor Yellow "devi: $Name is up to date. version: $($oldtable.version)"
@@ -139,7 +159,7 @@ Function CMDInstall {
     }
     try {
         if ((Test-Path $installdir)) {
-            Move-Item -Force  $installdir $tempdir -ErrorAction SilentlyContinue |Out-Null
+            Move-Item -Force  $installdir $tempdir -ErrorAction SilentlyContinue | Out-Null
         }
         Switch ($ext) {
             "zip" {
@@ -155,7 +175,7 @@ Function CMDInstall {
             }
             "exe" {
                 if (!(Test-Path $installdir)) {
-                    mkdir $installdir|Out-Null
+                    mkdir $installdir | Out-Null
                 }
                 Copy-Item -Path $pkgfile -Destination $installdir -Force
             }
@@ -171,14 +191,14 @@ Function CMDInstall {
     catch {
         Write-Host -ForegroundColor Red "$_"
         if (!(Test-Path $installdir) -and (Test-Path $tempdir)) {
-            Move-Item -Force $tempdir $installdir -ErrorAction SilentlyContinue |Out-Null
+            Move-Item -Force $tempdir $installdir -ErrorAction SilentlyContinue | Out-Null
         }
         if (Test-Path $tempdir) {
-            Remove-Item -Force -Recurse  $tempdir  -ErrorAction SilentlyContinue |Out-Null
+            Remove-Item -Force -Recurse  $tempdir  -ErrorAction SilentlyContinue | Out-Null
         }
         return $false
     }
-    $versiontable = @{}
+    $versiontable = @{ }
     $versiontable["version"] = $pkversion
     [System.Collections.ArrayList]$mlinks = @()
     if ($null -ne $oldtable.links) {
@@ -186,13 +206,13 @@ Function CMDInstall {
         if ($null -ne $devpkg.launcher) {
             foreach ($l in $devpkg.launcher) {
                 $lna = Split-Path -Leaf $l
-                $lav.Add($lna)|Out-Null
+                $lav.Add($lna) | Out-Null
             }
         }
         foreach ($f in $oldtable.links) {
             if ($lav.Contains($f)) {
                 Write-Host -ForegroundColor Green "Keep launcher: $f, you can run mklauncher rebuild it."
-                $mlinks.Add($f)|Out-Null
+                $mlinks.Add($f) | Out-Null
                 continue
             }
             $launcherfile = "$ClangbuilderRoot/bin/pkgs/.linked/" + $f
@@ -204,7 +224,7 @@ Function CMDInstall {
 
     if ($null -ne $devpkg.links ) {
         if (!(Test-Path "$ClangbuilderRoot/bin/pkgs/.linked")) {
-            mkdir "$ClangbuilderRoot/bin/pkgs/.linked"|Out-Null
+            mkdir "$ClangbuilderRoot/bin/pkgs/.linked" | Out-Null
         }
         try {
             foreach ($i in $devpkg.links) {
@@ -224,7 +244,7 @@ Function CMDInstall {
                 if ($LASTEXITCODE -ne 0) {
                     throw "failed create symlink: $symlinkfile"
                 }
-                $mlinks.Add($item.Name)|Out-Null
+                $mlinks.Add($item.Name) | Out-Null
                 Write-Host -ForegroundColor Green "link $($item.FullName) to $symlinkfile success."
             }
         }
@@ -239,11 +259,11 @@ Function CMDInstall {
     if ($null -ne $devpkg.mount) {
         $versiontable["mount"] = $devpkg.mount
     }
-    ConvertTo-Json $versiontable |Out-File -Force -FilePath "$Pkglocksdir/$Name.json"
+    ConvertTo-Json $versiontable | Out-File -Force -FilePath "$Pkglocksdir/$Name.json"
     if (Test-Path $tempdir) {
-        Remove-Item -Force -Recurse $tempdir  -ErrorAction SilentlyContinue |Out-Null
+        Remove-Item -Force -Recurse $tempdir  -ErrorAction SilentlyContinue | Out-Null
     }
-    Remove-Item $pkgfile -Force -ErrorAction SilentlyContinue |Out-Null ##ignore remove-item return del/null
+    Remove-Item $pkgfile -Force -ErrorAction SilentlyContinue | Out-Null ##ignore remove-item return del/null
     Write-Host -ForegroundColor Green "devi: install $Name success, version: $pkversion"
     return $true
 }
@@ -255,9 +275,9 @@ Function CMDUpgrade {
         [String]$Pkglocksdir,
         [Switch]$Default
     )
-    $pkgtable = @{}
-    Get-ChildItem -Path "$Pkglocksdir/*.json"|ForEach-Object {
-        $obj = Get-Content -Path $_.FullName -ErrorAction SilentlyContinue |ConvertFrom-Json  -ErrorAction SilentlyContinue
+    $pkgtable = @{ }
+    Get-ChildItem -Path "$Pkglocksdir/*.json" | ForEach-Object {
+        $obj = Get-Content -Path $_.FullName -ErrorAction SilentlyContinue | ConvertFrom-Json  -ErrorAction SilentlyContinue
         if ( $null -eq $obj -or ( $null -eq $obj.version) ) {
             Write-Host -ForegroundColor Red "Invalid file locks: $($_.FullName)"
             return
@@ -271,18 +291,18 @@ Function CMDUpgrade {
             }
         }
         $pkgtable["$xname"] = $obj.version
-        CMDInstall -ClangbuilderRoot $ClangbuilderRoot -Name $xname -Pkglocksdir $Pkglocksdir|Out-Null
+        CMDInstall -ClangbuilderRoot $ClangbuilderRoot -Name $xname -Pkglocksdir $Pkglocksdir | Out-Null
     }
 
     if ($Default) {
-        $devcore = Get-Content "$ClangbuilderRoot/config/devi.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
+        $devcore = Get-Content "$ClangbuilderRoot/config/devi.json"  -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
         if ($null -eq $devcore.core) {
-            Write-Host -ForegroundColor Red "devi missing default core tools config, file: $ClangbuilderRoot/config/devi.json"
+            Write-Host -ForegroundColor Red "devi missing default core package config, file: $ClangbuilderRoot/config/devi.json"
             return $false
         }
         foreach ($t in $devcore.core) {
             if (!$pkgtable.ContainsKey($t)) {
-                CMDInstall -ClangbuilderRoot $ClangbuilderRoot -Name $t -Pkglocksdir $Pkglocksdir|Out-Null
+                CMDInstall -ClangbuilderRoot $ClangbuilderRoot -Name $t -Pkglocksdir $Pkglocksdir | Out-Null
             }
         }
     }
@@ -312,7 +332,15 @@ switch ($subcmd) {
         CMDList -Pkglocksdir $Pkglocksdir
     }
     "search" {
-        CMDSearch -Root $ClangbuilderRoot
+        if ($args.Count -ge 2) {
+            for ($i = 1; $i -lt $args.Count; $i++) {
+                $XPort = $args[$i]
+                CMDSearchOne -Root $ClangbuilderRoot -Port $XPort
+            }
+        }
+        else {
+            CMDSearch -Root $ClangbuilderRoot
+        }
     }
     "install" {
         if ($args.Count -lt 2) {
