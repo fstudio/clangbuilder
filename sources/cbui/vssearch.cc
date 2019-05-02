@@ -39,8 +39,6 @@ inline bool IsVersion(const wchar_t *dir) {
 }
 
 std::wstring FsUniqueSubdirName(std::wstring_view dir) {
-  bool success = false;
-
   WIN32_FIND_DATAW wfd;
   if (!dir.empty() && (dir.back() == L'\\' || dir.back() == L'/')) {
     dir.remove_suffix(1);
