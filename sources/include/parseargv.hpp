@@ -23,7 +23,7 @@ struct error_code {
   }
   template <typename... Args> void Assign(int val, Args... args) {
     ec = val;
-    message = base::internal::CatPieces(
+    message = base::strings_internal::CatPieces(
         {static_cast<const base::AlphaNum &>(args).Piece()...});
   }
 };
@@ -32,16 +32,20 @@ enum HasArgs {
   no_argument,
   optional_argument /// -s --long --long=xx
 };
+constexpr const int NoneVal = 0;
 struct option {
   std::wstring_view name;
   HasArgs has_args;
   int val;
 };
+
 using invoke_t = std::function<bool(int, const wchar_t *, const wchar_t *)>;
+// ParseArgv to resolve long or short argument
 class ParseArgv {
 public:
   using StringArray = std::vector<std::wstring_view>;
-  ParseArgv(int argc, wchar_t *const *argv) : argc_(argc), argv_(argv) {}
+  ParseArgv(int argc, wchar_t *const *argv, bool subcmdmode = false)
+      : argc_(argc), argv_(argv), subcmdmode_(subcmdmode) {}
   ParseArgv(const ParseArgv &) = delete;
   ParseArgv &operator=(const ParseArgv &) = delete;
   ParseArgv &Add(std::wstring_view name, HasArgs a, int val) {
@@ -55,6 +59,7 @@ private:
   int argc_;
   wchar_t *const *argv_;
   int index{0};
+  bool subcmdmode_{false};
   StringArray uargs;
   std::vector<option> options_;
   bool parse_internal(std::wstring_view a, const invoke_t &v, error_code &ec);
@@ -74,6 +79,12 @@ inline bool ParseArgv::Execute(const invoke_t &v, error_code &ec) {
   for (; index < argc_; index++) {
     std::wstring_view a = argv_[index];
     if (a.empty() || a.front() != '-') {
+      if (subcmdmode_) {
+        for (int i = index; i < argc_; i++) {
+          uargs.push_back(argv_[i]);
+        }
+        return true;
+      }
       uargs.push_back(a);
       continue;
     }
