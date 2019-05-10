@@ -30,7 +30,7 @@
 namespace base {
 namespace numbers_internal {
 
-template <typename T> void ArrayCopy(void *dest, T *src, size_t n) {
+template <typename T> void ArrayCopy(void *dest, const T *src, size_t n) {
   memcpy(dest, src, n * sizeof(T));
 }
 
