@@ -424,7 +424,10 @@ if ($ec -ne 0) {
 $BROTLIDEC_LIBRARY = Join-Path $Prefix "lib/brotlidec-static.lib"
 $BROTLICOMMON_LIBRARY = Join-Path $Prefix "lib/brotlicommon-static.lib"
 $BROTLI_INCLUDE_DIR = Join-Path $Prefix "include"
-
+# we now not use this!!!!
+[void]$BROTLIDEC_LIBRARY
+[void]$BROTLICOMMON_LIBRARY
+[void]$BROTLI_INCLUDE_DIR
 ## Use codepage 1252
 
 $curlflags = "-GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF " + `

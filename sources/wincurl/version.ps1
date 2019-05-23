@@ -15,8 +15,8 @@ $LIBSSH2_HASH = "39f34e2f6835f4b992cafe8625073a88e5a28ba78f83e8099610a7b3af4676d
 $NGHTTP2_VERSION = "1.38.0"
 $NGHTTP2_HASH = "fe9a75ec44e3a2e8f7f0cb83ad91e663bbc4c5085baf37b57ee2610846d7cf5d"
 
-$CURL_VERSION = "7.64.1"
-$CURL_HASH = "432d3f466644b9416bc5b649d344116a753aeaa520c8beaf024a90cba9d3d35d"
+$CURL_VERSION = "7.65.0"
+$CURL_HASH = "2a65f4f858a1fa949c79f926ddc2204c2be353ccbad014e95cd322d4a87d82ad"
 
 # Filename
 $ZLIB_FILENAME = "zlib-${ZLIB_VERSION}"
@@ -39,8 +39,17 @@ $CURL_URL = "https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz"
 $CURL_FILE = "curl-${CURL_VERSION}"
 
 #curl-ca-bundle
-$CA_BUNDLE_URL = "https://curl.haxx.se/ca/cacert-2019-01-23.pem"
+$CA_BUNDLE_URL = "https://curl.haxx.se/ca/cacert-2019-05-15.pem"
 
+Function DumpLocal {
+    $dumptext = $ZLIB_VERSION + $ZLIB_HASH + $ZLIB_FILENAME + $ZLIB_URL 
+    + $OPENSSL_HASH + $OPENSSL_URL + $OPENSSL_FILE
+    + $BROTLI_HASH + $BROTLI_URL + $BROTLI_FILE 
+    + $NGHTTP2_HASH + $NGHTTP2_URL + $NGHTTP2_FILE 
+    + $LIBSSH2_HASH + $LIBSSH2_URL + $LIBSSH2_FILE
+    + $CURL_HASH + $CURL_FILE + $CURL_URL + $CA_BUNDLE_URL
+    Write-Host $dumptext
+}
 
 Write-Host -ForegroundColor Cyan "zlib: $ZLIB_VERSION $ZLIB_HASH
 openssl: $OPENSSL_VERSION $OPENSSL_HASH
