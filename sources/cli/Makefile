@@ -4,7 +4,7 @@ CC=cl
 LD=link
 #-std:c++latest 
 CFLAGS=-nologo -DNODEBUG -DUNICODE -D_UNICODE -GR -O2 -Ob2 -MT -GL
-CXXFLAGS=-TP  -W3 -EHsc -Zc:forScope -Zc:wchar_t -std:c++17
+CXXFLAGS=-TP  -W3 -EHsc -Zc:forScope -Zc:wchar_t -std:c++latest
 LDFLAGS=-NOLOGO -INCREMENTAL:NO -LTCG
 LIBS=Kernel32.lib
 CLIOBJ=cli.obj

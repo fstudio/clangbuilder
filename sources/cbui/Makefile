@@ -5,7 +5,7 @@ LD=link
 #-std:c++latest 
 INCDIR=-I../include
 CFLAGS=-nologo -DNODEBUG -DUNICODE -D_UNICODE -GR -O2 -Ob2 -MT -GL
-CXXFLAGS=-TP  -W3 -EHsc -Zc:forScope -Zc:wchar_t -std:c++17 $(INCDIR)
+CXXFLAGS=-TP  -W3 -EHsc -Zc:forScope -Zc:wchar_t -std:c++latest $(INCDIR)
 LDFLAGS=-NOLOGO -INCREMENTAL:NO -LTCG
 # INCS=inc/apphelp.hpp inc/apputils.hpp inc/base.hpp inc/comutils.hpp inc/json.hpp \
 # inc/sdkver.hpp inc/settings.hpp inc/Setup.Configuration.h inc/string.hpp inc/systemtools.hpp \
