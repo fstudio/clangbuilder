@@ -13,7 +13,7 @@ $LIBSSH2_VERSION = "1.8.0"
 $LIBSSH2_HASH = "39f34e2f6835f4b992cafe8625073a88e5a28ba78f83e8099610a7b3af4676d4"
 
 $NGHTTP2_VERSION = "1.38.0"
-$NGHTTP2_HASH = "fe9a75ec44e3a2e8f7f0cb83ad91e663bbc4c5085baf37b57ee2610846d7cf5d"
+$NGHTTP2_HASH = "3d5f1642e571470bb23a2a58b3d26ea9612c4e65195b99e55fc76999d3a9d306"
 
 $CURL_VERSION = "7.65.1"
 $CURL_HASH = "821aeb78421375f70e55381c9ad2474bf279fc454b791b7e95fc83562951c690"
@@ -29,7 +29,7 @@ $OPENSSL_FILE = "openssl-${OPENSSL_VERSION}"
 $BROTLI_URL = "https://github.com/google/brotli/archive/v${BROTLI_VERSION}.tar.gz"
 $BROTLI_FILE = "brotli-${BROTLI_VERSION}"
 
-$NGHTTP2_URL = "https://github.com/nghttp2/nghttp2/releases/download/v${NGHTTP2_VERSION}/nghttp2-${NGHTTP2_VERSION}.tar.gz"
+$NGHTTP2_URL = "https://github.com/nghttp2/nghttp2/archive/v${NGHTTP2_VERSION}.tar.gz"
 $NGHTTP2_FILE = "nghttp2-${NGHTTP2_VERSION}"
 
 $LIBSSH2_URL = "https://www.libssh2.org/download/libssh2-${LIBSSH2_VERSION}.tar.gz"
