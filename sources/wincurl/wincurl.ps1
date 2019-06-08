@@ -87,23 +87,17 @@ Function DecompressTar {
             return $false
         }
     }
-    else {
-        if ((Get-FileHash -Algorithm SHA256 $File).Hash -ne $Hash) {
-            Write-Host -ForegroundColor Yellow "$File exists and hash not match $Hash."
-            Remove-Item -Force $File
-            if (!(WinGet -URL $URL -O $File)) {
-                return $false
-            }
-        }
-        else {
-            Write-Host -ForegroundColor Yellow "$File exists and hash is match. use it."
-        }
-    }
-    if ((Get-FileHash -Algorithm SHA256 $File).Hash -ne $Hash) {
+    Write-Host "Get-FileHash  $File"
+    $xhash = Get-FileHash -Algorithm SHA256 $File
+    if ($xhash.Hash -ne $Hash) {
         Remove-Item -Force $File
         if (!(WinGet -URL $URL -O $File)) {
             return $false
         }
+    }
+    $xhash = Get-FileHash -Algorithm SHA256 $File
+    if ($xhash.Hash -ne $Hash) {
+        return $false
     }
 
     if ((Exec -FilePath $tarexe -Argv "$decompress $File") -ne 0) {
