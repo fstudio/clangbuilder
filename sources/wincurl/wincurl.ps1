@@ -27,7 +27,7 @@ Import-Module -Name "$PSScriptRoot/Utility"
 
 $clexe = Get-Command -CommandType Application "cl" -ErrorAction SilentlyContinue
 if ($null -eq $clexe) {
-    Write-Host -ForegroundColor Red "Please install Visual Studio 2017 or BuildTools (C++) and Initialzie DevEnv"
+    Write-Host -ForegroundColor Red "Please install Visual Studio 2017(2019) or BuildTools (C++) and Initialzie DevEnv"
     exit 1
 }
 Write-Host "Find cl.exe: $($clexe.Version)"

@@ -1,8 +1,8 @@
 {
     "description": "unix-like reverse engineering framework and commandline tools",
-    "version": "3.4.1",
+    "version": "3.6.0",
     "url": null,
-    "url64": "http://radare.mikelloc.com/get/3.4.1/radare2-msvc_64-3.4.1.zip",
+    "url64": "http://radare.mikelloc.com/get/3.6.0/radare2-msvc_64-3.6.0.zip",
     "extension": "zip",
     "links": [
         "r2agent.exe",
