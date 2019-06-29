@@ -231,7 +231,7 @@ int wmain(int argc, wchar_t **argv) {
   }
   case PEDumper: {
     if (pa.UnresolvedArgs().empty()) {
-      fwprintf_s(stderr, L"--readlink missing argument\n");
+      fwprintf_s(stderr, L"--dump missing argument\n");
       return 1;
     }
     return dumpbin(pa.UnresolvedArgs()[0]);

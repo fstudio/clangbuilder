@@ -39,7 +39,7 @@ bool SetWindowCompositionAttributeImpl(HWND hWnd) {
 
   // Only works on Win10
   if (SetWindowCompositionAttribute) {
-    ACCENTPOLICY policy = {ACCENT_ENABLE_BLURBEHIND, 0, 0, 0};
+    ACCENTPOLICY policy = {ACCENT_ENABLE_FLUENT, 0, 0, 0};
     WINCOMPATTRDATA data = {19, &policy, sizeof(ACCENTPOLICY)};
     result = SetWindowCompositionAttribute(hWnd, &data);
   }
