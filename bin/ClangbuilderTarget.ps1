@@ -31,7 +31,7 @@ if ($ClearEnv) {
     ReinitializePath
 }
 
-if(Test-Path "$ClangbuilderRoot/config/profile.ps1"){
+if (Test-Path "$ClangbuilderRoot/config/profile.ps1") {
     ."$ClangbuilderRoot/config/profile.ps1"
 }
 
@@ -169,7 +169,7 @@ Function Get-ClangArgument {
     }
     catch {
         $VisualCppVersionTable = @{
-            "16" = "19.20";
+            "16" = "19.22";
             "15" = "19.16";
             "14" = "19.00";
             "12" = "18.00";

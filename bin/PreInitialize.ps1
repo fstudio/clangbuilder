@@ -3,7 +3,7 @@
 
 Function ReinitializePath {
     if ($PSEdition -eq "Desktop" -or $IsWindows) {
-        [System.Text.StringBuilder]$PathSb="";
+        [System.Text.StringBuilder]$PathSb = "";
         [void]$PathSb.Append($env:windir)
         [void]$PathSb.Append(";${env:windir}\System32")
         [void]$PathSb.Append(";${env:windir}\System32\Wbem")
