@@ -1,28 +1,11 @@
 # Clangbuilder
 
+<a href="LICENSE"><img src="https://img.shields.io/github/license/fstudio/clangbuilder.svg"></a>
+<a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg"></a>
+
 Automated tools help developers on Windows platforms building LLVM and clang.
  
 ## Installation
-
-### PowerShell Policy
-
-Often you need to change the Power Shell execution policy
-
-```powershell
-Get-ExecutionPolicy
-```
-
-**Output**:
-
-> Restricted
-
-Please run PowerShell with administrator rights, and Enter:   
-
-```powershell
-Set-ExecutionPolicy RemoteSigned
-```
-
-### General Setup
 
 Clone clangbuilder on Github
 
@@ -34,16 +17,26 @@ Click the `script/InitializeEnv.bat`
 
 The installation script will compile ClangbuilderUI and create a shortcut, download required packages.
 
-If your need install `VisualCppTools.Community.Daily` ,click `script/VisualCppToolsFetch.bat`
+## Settings
 
-## Use Powershell Core
+Your can modified settings.json to change your clangbuilder run mode. `settings.template.json` content like here:
 
-Your can install powershell core and use it as `Execution Engine`.
+```json
+{
+  "EnterpriseWDK": "D:\\EWDK",
+  "LLVMRoot": "D:\\LLVM",
+  "LLVMArch": "x64",
+  "PwshCoreEnabled": true,
+  "SetWindowCompositionAttribute": false
+}
+```
 
-**Step**
-1.  Download Powershell Core [https://github.com/PowerShell/PowerShell/releases](https://github.com/PowerShell/PowerShell/releases)
-2.  Install PowerShell Core, (Add to Environment)
-3.  Create `required_pwsh` in `$ClangbuilderRoot\bin`
++  `EnterpriseWDK` Set EWDK root path and enable Enterprise WDK.
++  `LLVMRoot` Pre-built llvm installation root directory.
++  `LLVMArch` Pre-built llvm default architecture
++  `PwshCoreEnabled` Enable Powershell Core, all script run use pwsh (when you install powershell core).
++  `SetWindowCompositionAttribute` Experimental UI features
+
 
 ## Build Clang on Windows
 
@@ -51,28 +44,22 @@ Clangbuilder Now Only support use Visual C++ build Clang LLVM LLDB.
 
 Best Visual Studio Version:
 
->Visual Studio 2017 15.5 or later
+>Visual Studio 2017 15.9 or later
 
-You can run ClangbuilderUI, Modify Arch, Configuration and other options. after click `Building`
+You can click to run ClangbuilderUI, Modified Arch, Configuration and other options. after click `Building`
 
 **ClangbuilderUI Snapshot**
 
 ![clangbuilder](./images/cbui.png)
 
-**Update 2017-08-19** Clangbuilder support **VisualCppTools.Community.Daily**:
-
-![visualcpptools](./images/visualcpptools.png)
-
-**VisualCppTools.Community.Daily** current not support msbuild (becasue cmake ...)
-
-**Update 2017-09-17** ClangbuilderUI Support EWDK
+**ClangbuilderUI EWDK Snapshot**
 
 ![ewdk](./images/ewdk.png)
 
 **Branch**
 
 +  Mainline, master/trunk branch , git fetch from https://github.com/llvm-mirror/
-+  Stable, llvm stable branch, like release_60, git fetch from https://github.com/llvm-mirror/
++  Stable, llvm stable branch, like release_80, git fetch from https://github.com/llvm-mirror/
 +  Release, llvm release tag, download for https://releases.llvm.org/
 
 
@@ -102,23 +89,12 @@ Flags configuration format is json:
 }
 ```
 
-
 **Engine**
 
-+   MSbuild use msbuild build llvm
-+   Ninja use ninja build llvm
-+   NinjaBootstrap use ninja build and bootstrap llvm
-+   NinjaIterate use ninja build llvm, but compile is prebuilt clang (config by `config\prebuilt.json`)
-
-[prebuilt.json template](https://github.com/fstudio/clangbuilder/blob/master/config/prebuilt.template.json):
-```json
-{
-    "LLVM": {
-        "Path": "D:/LLVM",
-        "Arch": "x64"
-    }
-}
-```
++   MSbuild use msbuild build llvm `MSBuild - MSVC`
++   Ninja use ninja build llvm `Ninja - MSVC`
++   NinjaBootstrap use ninja build and bootstrap llvm `Ninja - Bootstrap`
++   NinjaIterate use ninja build llvm, but compile is prebuilt clang (config by `config\prebuilt.json`) `Ninja - Clang`
 
 **LLDB**
 
@@ -136,26 +112,6 @@ clang-cl -std:c++14  -Iinclude\c++\v1 hello.cc c++.lib
 
 after copy `c++.dll` to your path(or exe self directory). 
 
-**Libcxx C++17(vcruntime)**: 7.0 support C++17; 6.0 please use [libcxx-msvc-cxx17.patch](https://github.com/fstudio/clangbuilder/blob/master/sources/patch/libcxx-msvc-cxx17.patch).
-
-
-**ARM64**
-
-Build LLVM for ARM64 is broken, But You can download **Enterprise WDK (EWDK) Insider Preview** from https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewWDK ,When you config `config/ewdk.json`, ClangbuilderUI able to start `ARM64 Environment Console`
-
-[ewdk.json template](https://github.com/fstudio/clangbuilder/blob/master/config/ewdk.template.json):
-```json
-{
-	"Path":"D:\\EWDK",
-	"Version":"10.0.16257.0"
-}
-```
-
-*Update*: Visual Studio 15.4 can install `Visual C++ compilers and libraries for ARM64`， CMake 3.10 start support ARM64. 
-
-See: [VS15: Adds ARM64 architecture support.](https://gitlab.kitware.com/cmake/cmake/merge_requests/1215)
-
-
 **Use Clean Environment**
 
 Clangbuilder support `Clean Environment`, When use `-ClearEnv` flag or enable check box `Use Clean Environment`, Clangbuilder will retset `$env:PATH`.
@@ -170,13 +126,6 @@ Function ReinitializePath {
     }
 }
 
-```
-
-
-## Commandline
-
-```cmd
-.\bin\clangbuilder
 ```
 
 ## Custom PATH
@@ -203,7 +152,7 @@ When you only need to start a console environment, you can click on the `Environ
 ## Add Portable Utilities
 
 You can port some tools to clangbuilder, see `ports`
-and then double-click `script/DevAll.bat` to the software you need as part of the Clangbuilder is added to the environment. Clangbuilder 6.0 support `devi` (alias devi), You can run devi under `Environment Console`, use `devi install $ToolName` to install your need tools.
+and then double-click `script/DevAll.bat` to the software you need as part of the Clangbuilder is added to the environment. Clangbuilder 6.0 support `devi`, You can run devi under `Environment Console`, use `devi install $ToolName` to install your need tools.
 
 Usage: 
 
@@ -238,28 +187,35 @@ Default installed tools:
 Current ported tools:
 
 ```txt
-7z                  18.05               7-Zip is a file archiver with a high compression ratio
-ag                  2018-04-24/2.1.0    A code-searching tool similar to ack, but faster.
-aria2               1.33.1              The ultra fast download utility
-cmake               3.11.1              CMake is an open-source, cross-platform family of tools designed to build, test and package software
-curl                7.59.0              Curl is a command-line tool for transferring data specified with URL syntax.
-git                 2.17.0              Git is a modern distributed version control system focused on speed
-gnuutils            1.0                 GNU utils for Windows
-hg                  4.5.2               Mercurial is a free, distributed source control management tool.
-nasm                2.13.03             NASM - The Netwide Assembler
-neovim              0.2.2               Neovim - Vim-fork focused on extensibility and usability
-ninja               1.8.2               Ninja is a small build system with a focus on speed.
-nsis                3.03                NSIS (Nullsoft Scriptable Install System) is a professional open source system to create Windows installers.
-nuget               4.6.2               NuGet is the package manager for .NET. The NuGet client tools provide the ability to produce and consume packages.
-openssh             v7.6.1.0p1-Beta     Portable OpenSSH
-perl5               5.26.1.1            Perl 5 is a highly capable, feature-rich programming language.
-putty               0.70                PuTTY: a free SSH and Telnet client.
+7z                  19.00               7-Zip is a file archiver with a high compression ratio
+ag                  2019-03-23/2.2.0-19-g965f71dA code-searching tool similar to ack, but faster.
+aria2               1.34.0              The ultra fast download utility
+bat                 v0.11.0             A cat(1) clone with wings.
+cmake               3.14.5              CMake is an open-source, cross-platform family of tools designed to build, test and package software
+curl                7.65.1_3            Curl is a command-line tool for transferring data specified with URL syntax.
+fd                  v7.3.0              A simple, fast and user-friendly alternative to 'find'
+git                 2.22.0              Git is a modern distributed version control system focused on speed
+hg                  5.0                 Mercurial is a free, distributed source control management tool.
+innoextract         1.7                 A tool to unpack installers created by Inno Setup.
+innounp             0.48                InnoUnp - Inno Setup Unpacker.
+jom                 1.1.3               jom is a clone of nmake
+mach2               0.3.0.0             Mach2 manages the Windows Feature Store, where Features (and associated on/off state) live.
+nasm                2.14.02             NASM - The Netwide Assembler
+neovim              0.3.8               Neovim - Vim-fork focused on extensibility and usability
+ninja               1.9.0               Ninja is a small build system with a focus on speed.
+nsis                3.04                NSIS (Nullsoft Scriptable Install System) is a professional open source system to create Windows installers.
+nuget               5.1.0               NuGet is the package manager for .NET. The NuGet client tools provide the ability to produce and consume packages. 
+openssh             v8.0.0.0p1-Beta     Portable OpenSSH
+perl5               5.30.0.1            Perl 5 is a highly capable, feature-rich programming language.
+pijul               0.11.0              Pijul is a free and open source (GPL2) distributed version control system.
+putty               0.71                PuTTY: a free SSH and Telnet client.
 python3             3.5.4               Python is a programming language.
-radare              2.5.0               unix-like reverse engineering framework and commandline tools
-ripgrep             0.8.1               ripgrep recursively searches directories for a regex pattern.
+radare              3.6.0               unix-like reverse engineering framework and commandline tools
+ripgrep             11.0.1              ripgrep recursively searches directories for a regex pattern.
 swigwin             3.0.12              Simplified Wrapper and Interface Generator
-vswhere             2.4.1               Locate Visual Studio 2017 and newer installations.
-wget                1.19.4              A command-line utility for retrieving files using HTTP, HTTPS and FTP protocols.
+vswhere             2.6.7               Visual Studio Locator.
+watchexec           1.10.2              Execute commands in response to file modifications.
+wget                1.20.3              A command-line utility for retrieving files using HTTP, HTTPS and FTP protocols.
 ```
 
 **Extensions**:
@@ -282,7 +238,7 @@ download extranl lib, unpack to `bin/external` , `bin/external/include` is inclu
 
 ```powershell
 Function Parallel() {
-    $MemSize = (Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory
+    $MemSize = (Get-CimInstance -Class Win32_ComputerSystem).TotalPhysicalMemory
     $ProcessorCount = $env:NUMBER_OF_PROCESSORS
     $MemParallelRaw = $MemSize / 1610612736 #1.5GB
     #[int]$MemParallel = [Math]::Floor($MemParallelRaw)
@@ -295,5 +251,5 @@ Function Parallel() {
 
 License: MIT  
 Author: Force.Charlie  
-Copyright © 2018 Force Charlie. All Rights Reserved.
+Copyright © 2019 Force Charlie. All Rights Reserved.
 
