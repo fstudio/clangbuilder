@@ -1,5 +1,5 @@
 diff --git a/CMake/FindLibSSH2.cmake b/CMake/FindLibSSH2.cmake
-index 84822dba7..0d6219425 100644
+index 84822db..0d62194 100644
 --- a/CMake/FindLibSSH2.cmake
 +++ b/CMake/FindLibSSH2.cmake
 @@ -12,7 +12,7 @@ endif()
@@ -12,10 +12,10 @@ index 84822dba7..0d6219425 100644
  
  if(LIBSSH2_INCLUDE_DIR)
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index e11f519c8..5ca7d9b8b 100644
+index 29cb5f5..406613a 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -323,7 +323,7 @@ if(CMAKE_USE_WINSSL)
+@@ -316,7 +316,7 @@ if(CMAKE_USE_WINSSL)
    set(SSL_ENABLED ON)
    set(USE_SCHANNEL ON) # Windows native SSL/TLS support
    set(USE_WINDOWS_SSPI ON) # CMAKE_USE_WINSSL implies CURL_WINDOWS_SSPI
@@ -24,13 +24,14 @@ index e11f519c8..5ca7d9b8b 100644
  endif()
  if(CURL_WINDOWS_SSPI)
    set(USE_WINDOWS_SSPI ON)
-@@ -530,16 +530,24 @@ if(CURL_ZLIB)
+@@ -527,17 +527,25 @@ if(CURL_ZLIB)
+   endif()
  endif()
  
- option(CURL_BROTLI "Set to ON to enable building curl with brotli support." OFF)
+-option(CURL_BROTLI "Set to ON to enable building curl with brotli support." OFF)
 -set(HAVE_BROTLI OFF)
 -if(CURL_BROTLI)
--  find_package(BROTLI QUIET)
+-  find_package(Brotli QUIET)
 -  if(BROTLI_FOUND)
 -    set(HAVE_BROTLI ON)
 -    list(APPEND CURL_LIBS ${BROTLI_LIBRARIES})
@@ -38,16 +39,17 @@ index e11f519c8..5ca7d9b8b 100644
 -    list(APPEND CMAKE_REQUIRED_INCLUDES ${BROTLI_INCLUDE_DIRS})
 -  endif()
 -endif()
-+#set(HAVE_BROTLI OFF)
-+#if(CURL_BROTLI)
-+#  find_package(BROTLI QUIET)
-+#  if(BROTLI_FOUND)
-+#    set(HAVE_BROTLI ON)
-+#    list(APPEND CURL_LIBS ${BROTLI_LIBRARIES})
-+#    include_directories(${BROTLI_INCLUDE_DIRS})
-+#    list(APPEND CMAKE_REQUIRED_INCLUDES ${BROTLI_INCLUDE_DIRS})
-+#  endif()
-+#endif()
++# option(CURL_BROTLI "Set to ON to enable building curl with brotli support." OFF)
++# set(HAVE_BROTLI OFF)
++# if(CURL_BROTLI)
++#   find_package(Brotli QUIET)
++#   if(BROTLI_FOUND)
++#     set(HAVE_BROTLI ON)
++#     list(APPEND CURL_LIBS ${BROTLI_LIBRARIES})
++#     include_directories(${BROTLI_INCLUDE_DIRS})
++#     list(APPEND CMAKE_REQUIRED_INCLUDES ${BROTLI_INCLUDE_DIRS})
++#   endif()
++# endif()
 +# Force enable brotli
 +set(BROTLI_LIBRARIES
 +    brotlicommon
@@ -59,7 +61,7 @@ index e11f519c8..5ca7d9b8b 100644
  
  #libSSH2
  option(CMAKE_USE_LIBSSH2 "Use libSSH2" ON)
-@@ -1160,6 +1168,22 @@ if(USE_MANUAL)
+@@ -1161,6 +1169,22 @@ if(USE_MANUAL)
    add_subdirectory(docs)
  endif()
  
@@ -82,7 +84,7 @@ index e11f519c8..5ca7d9b8b 100644
  add_subdirectory(lib)
  
  if(BUILD_CURL_EXE)
-@@ -1260,6 +1284,8 @@ else()
+@@ -1272,6 +1296,8 @@ else()
    set(ENABLE_SHARED         "no")
    set(ENABLE_STATIC         "yes")
  endif()
@@ -92,7 +94,7 @@ index e11f519c8..5ca7d9b8b 100644
  set(includedir              "\${prefix}/include")
  set(LDFLAGS                 "${CMAKE_SHARED_LINKER_FLAGS}")
 diff --git a/src/curl.rc b/src/curl.rc
-index 4dac2ae70..035f9c975 100644
+index 4dac2ae..035f9c9 100644
 --- a/src/curl.rc
 +++ b/src/curl.rc
 @@ -24,6 +24,8 @@
