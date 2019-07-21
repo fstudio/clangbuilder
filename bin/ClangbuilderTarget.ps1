@@ -167,24 +167,24 @@ Function GenCMakeArgs {
     }
 
     [void]$ca.Append("`"$SrcDir/llvm`" ")
-    [void]$ca.Append("-DCMAKE_BUILD_TYPE=$Flavor -DLLVM_ENABLE_ASSERTIONS=OFF")
+    [void]$ca.Append("-DCMAKE_BUILD_TYPE=$Flavor -DLLVM_ENABLE_ASSERTIONS=OFF ")
 
     if ($Bootstrap) {
-        [void]$ca.Append("-DLLVM_ENABLE_PROJECTS=clang;lld ")
-        [void]$ca.Append("-DLLVM_TARGETS_TO_BUILD=X86;AArch64 ")
+        [void]$ca.Append("`"-DLLVM_ENABLE_PROJECTS=clang;lld`" ")
+        [void]$ca.Append("`"-DLLVM_TARGETS_TO_BUILD=X86;AArch64`" ")
         [void]$ca.Append("`"-DCMAKE_C_FLAGS=/utf-8`" `"-DCMAKE_CXX_FLAGS=/utf-8`" ")
     }
     else {
-        [void]$ca.Append("-DLLVM_TARGETS_TO_BUILD=$AllowTargets ")
-        [void]$ca.Append("-DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=$ExpTargets ")
+        [void]$ca.Append("`"-DLLVM_TARGETS_TO_BUILD=$AllowTargets`" ")
+        [void]$ca.Append("`"-DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=$ExpTargets`" ")
         if ($EnableLIBCXX) {
-            [void]$ca.Append("-DLLVM_ENABLE_PROJECTS=$AllowProjects;libcxx ")
+            [void]$ca.Append("`"-DLLVM_ENABLE_PROJECTS=$AllowProjects;libcxx`" ")
             [void]$ca.Append("-DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES ")
             [void]$ca.Append("-DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=NO ")
             [void]$ca.Append("-DLIBCXX_HAS_WIN32_THREAD_API=ON ")
         }
         else {
-            [void]$ca.Append("-DLLVM_ENABLE_PROJECTS=$AllowProjects ")
+            [void]$ca.Append("`"-DLLVM_ENABLE_PROJECTS=$AllowProjects`" ")
         }
     }
 
