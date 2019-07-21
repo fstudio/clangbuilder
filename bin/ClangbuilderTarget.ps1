@@ -172,6 +172,7 @@ Function GenCMakeArgs {
     if ($Bootstrap) {
         [void]$ca.Append("-DLLVM_ENABLE_PROJECTS=clang;lld ")
         [void]$ca.Append("-DLLVM_TARGETS_TO_BUILD=X86;AArch64 ")
+        [void]$ca.Append("`"-DCMAKE_C_FLAGS=/utf-8`" `"-DCMAKE_CXX_FLAGS=/utf-8`" ")
     }
     else {
         [void]$ca.Append("-DLLVM_TARGETS_TO_BUILD=$AllowTargets ")
