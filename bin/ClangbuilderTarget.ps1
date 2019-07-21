@@ -82,303 +82,320 @@ if ($Environment) {
 
 Update-Title -Title " [Build: $Branch]"
 
-# LLVM get from subversion
-Function ParseLLVMDir {
-    $obj = Get-Content -Path "$ClangbuilderRoot\config\revision.json" | ConvertFrom-Json
-    switch ($Branch) {
-        { $_ -eq "Mainline" } {
-            $src = "$ClangbuilderRoot\out\mainline"
-        } { $_ -eq "Stable" } {
-            $currentstable = $obj.Stable
-            $src = "$ClangbuilderRoot\out\$currentstable"
-        } { $_ -eq "Release" } {
-            $src = "$ClangbuilderRoot\out\rel\llvm"
-        }
-    }
-    return $src
-}
-
-
-$LLVMSource = &ParseLLVMDir
-
-Write-Host "Select LLVM $Branch, sources dir: $LLVMSource"
-
-$LLVMScript = "$ClangbuilderRoot\bin\LLVMRemoteFetch.ps1"
-if ($Branch -eq "Release") {
-    $LLVMScript = "$ClangbuilderRoot\bin\LLVMDownload.ps1"
-}
-
-
-# Update LLVM sources
-Invoke-Expression "$LLVMScript -Branch $Branch -LLDB:`$LLDB"
-
 $ArchTable = @{
     "x86"   = "";
     "x64"   = "Win64";
     "ARM"   = "ARM";
     "ARM64" = "ARM64"
 }
-
+$MsvcVersionTable = @{
+    "16" = "19.22";
+    "15" = "19.16";
+    "14" = "19.00";
+    "12" = "18.00";
+    "11" = "17.00"
+};
 $ArchName = $ArchTable[$Arch];
-
-
-# Builder CMake Arguments
+$MSBuldGen = ""
+if ($ArchName.Length -eq 0) {
+    $MSBuldGen = "-G`"Visual Studio $Installation`" "
+}
+else {
+    $MSBuldGen = "-G`"Visual Studio $Installation $ArchName`" "
+}
+if ([System.Environment]::Is64BitOperatingSystem) {
+    $MSBuldGen += "-Thost=x64 ";
+}
 
 $Installation = $InstallationVersion.Substring(0, 2)
-$Global:LatestBuildDir = ""
-$CMakeArguments = "`"$LLVMSource`""
+$msvcversion = "19.20"
+try {
+    $clexe = (Get-Command -CommandType Application "cl.exe")[0]
+    $msvcversion = "$($clexe.FileVersionInfo.FileMajorPart).$($clexe.FileVersionInfo.FileMinorPart)"
+}
+catch {
+    if ($MsvcVersionTable.ContainsKey($Global:Installation)) {
+        $msvcversion = $MsvcVersionTable[$Installation]
+    }
+}
 
+$buildobj = Get-Content -Path "$ClangbuilderRoot/config/build.json" -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
+# Default build options
+$AllowTargets = "X86;AArch64;ARM"
+$ExpTargets = "RISCV;WebAssembly"
+$Prefix = ""
+if ($null -ne $buildobj) {
+    if ($null -ne $buildobj.AllowTargets) {
+        $AllowTargets = $buildobj.AllowTargets
+    }
+    if ($null -ne $buildobj.ExpTargets) {
+        $ExpTargets = $buildobj.ExpTargets
+    }
+    if ($null -ne $buildobj.Prefix.$Branch) {
+        $Prefix = $buildobj.Prefix.$Branch -replace "\\", "/"
+    }
+}
+
+Write-Host  "Enable targets: $AllowTargets;$ExpTargets"
+
+# clang;clang-tools-extra;compiler-rt;libcxx;libcxxabi;libunwind;lld;lldb
+$AllowProjects = "clang;clang-tools-extra;compiler-rt;lld"
 if ($LLDB) {
-    $CMakeArguments += " -DLLDB_RELOCATABLE_PYTHON=1 -DLLDB_DISABLE_PYTHON=1"
+    $AllowProjects += ";lldb"
 }
 
-$CMakeArguments += " -DCMAKE_BUILD_TYPE=$Flavor   -DLLVM_ENABLE_ASSERTIONS=OFF"
-$CMakeArguments += " -DCMAKE_INSTALL_UCRT_LIBRARIES=ON "
-
-if ($Branch -eq "Mainline") {
-    $CMakeArguments += " -DLLVM_APPEND_VC_REV=ON"
-}
-else {
-    $CMakeArguments += " -DLLVM_APPEND_VC_REV=OFF -DCLANG_REPOSITORY_STRING=`"clangbuilder.io`""
-}
-
-$CMakeArguments += CMakeCustomflags -ClangbuilderRoot $ClangbuilderRoot -Branch $Branch
-
-
-# -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_MODULES=ON -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
-
-Function Set-Workdir {
+Function GenCMakeArgs {
     param(
-        [String]$Path
+        [Switch]$EnableLIBCXX,
+        [Switch]$Bootstrap,
+        [String]$ClangDir,
+        [String]$SrcDir
     )
-    if (Test-Path $Path) {
-        Remove-Item -Force -Recurse "$Path"
-    }
-    New-Item -ItemType Directory $Path | Out-Null
-    Set-Location $Path
-}
-
-Function Get-ClangArgument {
-    # Parse clang args
-    # $ver=(Get-Item $clexe|Select-Object -ExpandProperty VersionInfo|Select-Object -Property FileVersion)
-    # https://github.com/llvm-mirror/clang/blob/6c57331175c84f06b8adbae858043ab5c782355f/lib/Driver/ToolChains/MSVC.cpp#L1269
-    $msvc = "19.20"
-    try {
-        $clexe = (Get-Command -CommandType Application "cl.exe")[0]
-        $msvc = "$($clexe.FileVersionInfo.FileMajorPart).$($clexe.FileVersionInfo.FileMinorPart)"
-    }
-    catch {
-        $VisualCppVersionTable = @{
-            "16" = "19.22";
-            "15" = "19.16";
-            "14" = "19.00";
-            "12" = "18.00";
-            "11" = "17.00"
-        };
-        if ($VisualCppVersionTable.ContainsKey($Global:Installation)) {
-            $msvc = $VisualCppVersionTable[$Installation]
+    [System.Text.StringBuilder]$ca = New-Object -TypeName System.Text.StringBuilder
+    if ($Engine -eq "MSBuild") {
+        [void]$ca.Append($MSBuldGen)
+        if ($Arch -eq "ARM") {
+            [void]$ca.Append("`"-DCMAKE_C_FLAGS=/utf-8 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`" `"-DCMAKE_CXX_FLAGS=/utf-8 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`" ")
         }
-    }
-
-    Write-Host "Detecting: -fms-compatibility-version=$msvc "
-    $ClangMarchArgument = @{
-        "x64"   = "-m64";
-        "x86"   = "-m32";
-        "ARM"   = "--target=arm-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1";
-        "ARM64" = "--target=arm64-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
-    }
-    $ClangArgs = $ClangMarchArgument[$Arch]
-    $Arguments = "-GNinja $Global:CMakeArguments"
-    $CompilerFlags = "-fms-compatibility-version=$msvc $ClangArgs"
-
-    $Arguments += " -DCMAKE_C_FLAGS=`"$CompilerFlags`""
-    $Arguments += " -DCMAKE_CXX_FLAGS=`"$CompilerFlags`""
-    if ($Libcxx) {
-        $Arguments += " -DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES"
-        $Arguments += " -DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=NO"
-        #$Arguments += " -DLIBCXX_ENABLE_FILESYSTEM=ON"
-        $Arguments += " -DLIBCXX_HAS_WIN32_THREAD_API=ON"
-    }
-    return $Arguments
-}
-
-Function ClangNinjaGenerator {
-    param(
-        [String]$ClangExe,
-        [String]$BuildDir
-    )
-    $env:CC = $ClangExe
-    $env:CXX = $ClangExe
-
-    Write-Host "Build llvm, Use: CC=$env:CC CXX=$env:CXX"
-
-    $Global:LatestBuildDir = $BuildDir
-    Set-Workdir $Global:LatestBuildDir
-    $Arguments = Get-ClangArgument
-    if ($LTO) {
-        try {
-            $ClangbinDir = (Split-Path  -Path (Get-Item $ClangExe).FullName).Replace("\", "/")
-            # https://clang.llvm.org/docs/ThinLTO.html#clang-bootstrap
-            $Arguments += " -DLLVM_ENABLE_LTO=Thin `"-DCMAKE_LINKER=$ClangbinDir/lld-link.exe`""
-            $Arguments += " `"-DCMAKE_AR=$ClangbinDir/llvm-ar.exe`" `"-DCMAKE_RANLIB=$ClangbinDir/llvm-ranlib.exe`""
+        else {
+            [void]$ca.Append("`"-DCMAKE_C_FLAGS=/utf-8`" `"-DCMAKE_CXX_FLAGS=/utf-8`" ")
         }
-        catch {
-            Write-Host "$_"
-        }
-        Write-Host -ForegroundColor Cyan "To bootstrap clang/LLVM with ThinLTO"
-    }
-    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments
-    if ($exitcode -ne 0) {
-        Write-Error "CMake exit: $exitcode"
-        return 1
-    }
-    $PN = & Parallel
-    $exitcode = ProcessExec -FilePath "ninja.exe" -Arguments "all -j $PN"
-    return $exitcode
-}
-
-
-# Please see: http://libcxx.llvm.org/docs/BuildingLibcxx.html#experimental-support-for-windows
-
-Function Invoke-MSBuild {
-    $Global:LatestBuildDir = "$ClangbuilderRoot\out\msbuild"
-    Set-Workdir $Global:LatestBuildDir
-    if ($LTO) {
-        #TODO
-    }
-    if ($ArchName.Length -eq 0) {
-        $Arguments = "-G`"Visual Studio $Installation`" "
+       
     }
     else {
-        $Arguments = "-G`"Visual Studio $Installation $ArchName`" "
+        [void]$ca.Append("-GNinja ")
     }
-    if ([System.Environment]::Is64BitOperatingSystem) {
-        $Arguments += "-Thost=x64 ";
-    }
-    # /utf-8
-    $Arguments += " -DCMAKE_C_FLAGS=`"/utf-8`""
-    $Arguments += " -DCMAKE_CXX_FLAGS=`"/utf-8`""
-    $Arguments += $CMakeArguments
-    $exitcode = ProcessExec  -FilePath "cmake" -Arguments $Arguments
-    if ($exitcode -ne 0) {
-        Write-Error "CMake exit: $exitcode"
-        return 1
-    }
-    $exitcode = ProcessExec -FilePath "cmake" -Arguments "--build . --config $Flavor"
-    return $exitcode
-}
 
-Function Invoke-Ninja {
-    $Global:LatestBuildDir = "$ClangbuilderRoot\out\ninja"
-    Set-Workdir $Global:LatestBuildDir
-    $Arguments = "-GNinja $CMakeArguments"
-    ### change oe
-    ## ARM64 can build Desktop App, but ARM not
-    if ($Arch -eq "ARM") {
-        Write-Host -ForegroundColor Yellow "Warning: Build LLVM Maybe failed."
-        $Arguments += " -DCMAKE_C_FLAGS=`"/utf-8 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
-        $Arguments += " -DCMAKE_CXX_FLAGS=`"/utf-8 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`""
+    [void]$ca.Append("`"$SrcDir/llvm`" ")
+    [void]$ca.Append("-DCMAKE_BUILD_TYPE=$Flavor -DLLVM_ENABLE_ASSERTIONS=OFF")
+
+    if ($Bootstrap) {
+        [void]$ca.Append("-DLLVM_ENABLE_PROJECTS=clang;lld ")
+        [void]$ca.Append("-DLLVM_TARGETS_TO_BUILD=X86;AArch64 ")
     }
     else {
-        $Arguments += " -DCMAKE_C_FLAGS=`"/utf-8`""
-        $Arguments += " -DCMAKE_CXX_FLAGS=`"/utf-8`""
+        [void]$ca.Append("-DLLVM_TARGETS_TO_BUILD=$AllowTargets ")
+        [void]$ca.Append("-DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=$ExpTargets ")
+        if ($EnableLIBCXX) {
+            [void]$ca.Append("-DLLVM_ENABLE_PROJECTS=$AllowProjects;libcxx ")
+            [void]$ca.Append("-DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES ")
+            [void]$ca.Append("-DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=NO ")
+            [void]$ca.Append("-DLIBCXX_HAS_WIN32_THREAD_API=ON ")
+        }
+        else {
+            [void]$ca.Append("-DLLVM_ENABLE_PROJECTS=$AllowProjects ")
+        }
     }
-    #$oe = [Console]::OutputEncoding
-    #[Console]::OutputEncoding = [System.Text.Encoding]::UTF8 ### Ninja need UTF8
-    $exitcode = ProcessExec  -FilePath "cmake.exe" -Arguments $Arguments
-    if ($exitcode -ne 0) {
-        Write-Error "CMake exit: $exitcode"
-        return 1
+
+    if (![String]::IsNullOrEmpty($Prefix)) {
+        [void]$ca.Append("`"-DCMAKE_INSTALL_PREFIX=$Prefix`" ")
     }
-    $PN = & Parallel
-    #[Console]::OutputEncoding = $oe
-    $exitcode = ProcessExec  -FilePath "ninja.exe" -Arguments "all -j $PN"
-    return $exitcode
+    if ($LLDB) {
+        [void]$ca.Append("-DLLDB_RELOCATABLE_PYTHON=1 -DLLDB_DISABLE_PYTHON=1 ")
+    }
+    if (![String]::IsNullOrEmpty($ClangDir) -and (Test-Path $ClangDir)) {
+        $ClangDir = $ClangDir.Replace("\", "/")
+        # Force Enable clang-cl
+        [void]$ca.Append("-DCMAKE_C_COMPILER=`"$ClangDir/clang-cl.exe`" -DCMAKE_CXX_COMPILER=`"$ClangDir/clang-cl.exe`" ")
+        $archtable = @{
+            "x64"   = "-m64";
+            "x86"   = "-m32";
+            "ARM"   = "--target=arm-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1";
+            "ARM64" = "--target=arm64-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
+        }
+        $curarch = $archtable[$Arch]
+        $ccxxflags = "-fms-compatibility-version=$msvcversion $curarch"
+        Write-Host "Detecting: $ccxxflags "
+        [void]$ca.Append("`"-DCMAKE_CXX_FLAGS=$ccxxflags`" ")
+        [void]$ca.Append("`"-DCMAKE_C_FLAGS=$ccxxflags`" ")
+        if ($LTO) {
+            [void]$ca.Append("-DLLVM_ENABLE_LTO=Thin ")
+            [void]$ca.Append("`"-DCMAKE_LINKER=$ClangDir/lld-link.exe`" ")
+            [void]$ca.Append("`"-DCMAKE_AR=$ClangDir/llvm-ar.exe`"")
+            [void]$ca.Append("`"-DCMAKE_RANLIB=$ClangDir/llvm-ranlib.exe`"")
+        }
+    }
+    return $ca.ToString()
+};
+
+
+Function GetLLVM {
+    param(
+        [string]$Branch,
+        [string]$OutDir
+    )
+    $cloneargs = "clone https://github.com/llvm/llvm-project.git --branch `"$Branch`" --single-branch --depth=1 `"$OutDir`""
+    if (Test-Path $OutDir) {
+        $ex = ProcessExec -FilePath "git" -Argv "checkout ." -WD "$OutDir"
+        if ($ex -ne 0) {
+            return $ex
+        }
+        $ex = ProcessExec  -FilePath "git" -Argv "pull" -WD "$OutDir"
+        return $ex
+    }
+    return  ProcessExec -FilePath "git" -Argv "$cloneargs" 
 }
 
-Function Get-PrebuiltLLVM {
-    $settingfile = "$ClangbuilderRoot\config\settings.json"
-    if (!(Test-Path $settingfile)) {
-        Write-Host "$settingfile dose not exists"
-        return ""
-    }
-    $settingpbjs = Get-Content -Path $settingfile | ConvertFrom-Json
-    if ($null -eq $settingpbjs) {
-        return ""
-    }
-    if ($null -eq $settingpbjs.LLVMRoot) {
-        return ""
-    }
-    return $settingpbjs.LLVMRoot
+$llvmout = "$ClangbuilderRoot/out" -replace "\\", "/"
+if (!(Test-Path $llvmout)) {
+    New-Item -ItemType Directory -Path $llvmout | Out-Null
 }
 
-# Need Set MSVC flags -fms-compatibility-version=xx.xx
-Function Invoke-NinjaIterate {
-    $PrebuiltLLVM = &Get-PrebuiltLLVM
-    if ($PrebuiltLLVM -eq "") {
-        return 1
-    }
-    if (!(Test-Path $PrebuiltLLVM)) {
-        Write-Host "$PrebuiltLLVM not exists"
-        return 1
-    }
-    $exitcode = ClangNinjaGenerator -ClangExe "$PrebuiltLLVM\bin\clang-cl.exe" -BuildDir "$ClangbuilderRoot\out\prebuilt"
-    return $exitcode
+$revobj = Get-Content -Path "$ClangbuilderRoot/config/llvm.json" -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
+if ($null -eq $revobj -or ($null -eq $revobj.Stable)) {
+    Write-Host -ForegroundColor Red "version.json format is incorrect"
+    exit 1
 }
 
-Function Invoke-NinjaBootstrap {
-    $result = &Invoke-Ninja
-    if ($result -ne 0) {
-        Write-Error "Prebuild llvm due to error terminated !"
-        return $result
-    }
-    $exitcode = ClangNinjaGenerator -ClangExe "$Global:LatestBuildDir\bin\clang-cl.exe" -BuildDir  "$ClangbuilderRoot\out\bootstrap"
+[char]$Esc = 0x1B
+[string]$stable = $revobj.Stable
+[string]$release = $revobj.Release
+[string]$releaseurl = $revobj.ReleaseUrl
+[string]$MV = $revobj.Mainline
+[string]$releasedir = "llvmorg-$release"
 
-    return $exitcode
-}
-
-Write-Host "Use llvm build engine: $Engine"
-$MyResult = -1
+Write-Host "LLVM master version $Esc[1;32m$MV$Esc[0m. stable branch is $Esc[1;32m$stable$Esc[0m. latest release is: $Esc[1;32m$release$Esc[0m
+Your select to build '$Esc[1;32m$Branch$Esc[0m' mode
+The prefix you chose is: $Esc[1;33m$Prefix$Esc[0m"
 
 
-switch ($Engine) {
-    "MSBuild" {
-        $MyResult = Invoke-MSBuild
-    }
-    "Ninja" {
-        $MyResult = Invoke-Ninja
-    }
-    "NinjaBootstrap" {
-        $MyResult = Invoke-NinjaBootstrap
-    }
-    "NinjaIterate" {
-        $MyResult = Invoke-NinjaIterate
+$sourcedir = "$llvmout/mainline"
+if ($Branch -eq "Stable") {
+    $s1 = $stable -replace "(\\|\/)", "_"
+    $sourcedir = "$llvmout/$s1"
+    $ex = GetLLVM -Branch $stable -OutDir $sourcedir
+    if ($ex -ne 0) {
+        exit $ex
     }
 }
-
-
-if ($MyResult -ne 0) {
-    Write-Host -ForegroundColor Red "Engine: $Engine, Result: $MyResult"
-    return ;
+elseif ($Branch -eq "Release") {
+    $curlcliv = Get-COmmand -CommandType Application -ErrorAction SilentlyContinue "curl"
+    if ($null -eq $curlcliv) {
+        Write-Host -ForegroundColor "Please install curl to allow download llvm"
+        exit 1
+    }
+    $curlcli = $curlcliv[0].Source
+    $outfile = "$releasedir.tar.gz"
+    Write-Host "Download file: $outfile"
+    $ex = ProcessExec -FilePath "$curlcli" -Argv "--progress-bar -fS --connect-timeout 15 --retry 3 -o `"$outfile`" -L --proto-redir =https $releaseurl" -WD $llvmout
+    if ($ex -ne 0) {
+        exit 1
+    }
+    tar -xvf "$outfile"
+    $sourcedir = "$llvmout/$releasedir"
 }
 else {
-    Write-Host "Build llvm completed, your can run cpack"
-}
-
-$Libcxxbin = "$Global:LatestBuildDir\lib\c++.dll"
-$CMakeInstallFile = "$Global:LatestBuildDir\cmake_install.cmake"
-if (Test-Path $Libcxxbin) {
-    $Libcxxbin = $Libcxxbin.Replace('\', '/')
-    "file(INSTALL DESTINATION `"`${CMAKE_INSTALL_PREFIX}/bin`" TYPE SHARED_LIBRARY OPTIONAL FILES `"$Libcxxbin`")" | Out-File -FilePath $CMakeInstallFile -Append -Encoding utf8
-}
-
-if ($Package) {
-    if (Test-Path "$PWD/LLVM.sln") {
-        CMakeInstallationFix -TargetDir "./projects/compiler-rt/lib" -Configuration $Flavor
+    $ex = GetLLVM -Branch "master" -OutDir $sourcedir
+    if ($ex -ne 0) {
+        exit $ex
     }
-    &cpack -C "$Flavor"
 }
 
+if ($Engine -eq "MSBuild") {
+    $cmakeargs = GenCMakeArgs -SrcDir $sourcedir
+    if ((Test-Path "$llvmout/msbuild")) {
+        Remove-Item  "$llvmout/msbuild"  -Force -Recurse
+    }
+    New-Item -ItemType Directory "$llvmout/msbuild" | Out-Null
+    $ec = ProcessExec -FilePath "cmake" -Argv "$cmakeargs" -WD "$llvmout/msbuild"
+    if ($ec -ne 0) {
+        exit $ec
+    }
+    $ec = ProcessExec -FilePath "cmake" -Argv "--build . --config $Flavor" -WD "$llvmout/msbuild"
+    if ($ec -ne 0) {
+        exit $ec
+    }
+    if (!$Package) {
+        return 
+    }
+    if (Test-Path "$llvmout/msbuild/LLVM.sln") {
+        CMakeInstallationFix -TargetDir "$llvmout/msbuild/projects/compiler-rt/lib" -Configuration $Flavor
+    }
+    $ec = ProcessExec -FilePath "cpack" -Argv "-C $Flavor" -WD "$llvmout/msbuild"
+    if ($ec -ne 0) {
+        exit $ec
+    }
+    return 
+}
+
+if ($Engine -eq "Ninja" -or $Engine -eq "NinjaBootstrap") {
+    $cmakeargs = GenCMakeArgs -SrcDir $sourcedir
+    if ($Engine -eq "NinjaBootstrap") {
+        $cmakeargs = GenCMakeArgs -SrcDir $sourcedir -Bootstrap
+    }
+    if ((Test-Path "$llvmout/msvcninja")) {
+        Remove-Item "$llvmout/msvcninja" -Force -Recurse
+    }
+    New-Item -ItemType Directory "$llvmout/msvcninja" | Out-Null
+    $ec = ProcessExec -FilePath "cmake" -Argv "$cmakeargs" -WD "$llvmout/msvcninja"
+    if ($ec -ne 0) {
+        exit $ec
+    }
+    $PN = & Parallel
+    $ec = ProcessExec -FilePath "ninja" -Argv "all -j $PN" -WD "$llvmout/msvcninja"
+    if ($ec -ne 0) {
+        exit $ec
+    }
+    if ($Package -and ($Engine -ne "NinjaBootstrap")) {
+        $ec = ProcessExec -FilePath "cpack" -Argv "-C $Flavor" -WD "$llvmout/msvcninja"
+        if ($ec -ne 0) {
+            exit $ec
+        }
+        return 
+    }
+    if ($Engine -ne "NinjaBootstrap") {
+        return 
+    }
+}
+
+$ClangDir = ""
+if ($Engine -eq "NinjaBootstrap") {
+    $ClangDir = "$llvmout/msvcninja/bin"
+}
+elseif ($Engine -eq "NinjaIterate") {
+    $llvmobj = Get-Content -Path "$ClangbuilderRoot/config/settings.json" -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
+    if ($null -eq $llvmobj.LLVMRoot) {
+        Write-Host -ForegroundColor Red "Please set your clang install prefix"
+        exit 1
+    }
+    $ClangDir = (Join-Path $llvmobj.LLVMRoot "bin") -replace "\\", "/"
+}
+
+if ([String]::IsNullOrEmpty($ClangDir)) {
+    Write-Host -ForegroundColor Red "Please set your clang install prefix"
+    exit 1
+}
+
+$cmakeargs = GenCMakeArgs -ClangDir $ClangDir -EnableLIBCXX:$Libcxx -SrcDir $sourcedir
+
+
+if ((Test-Path "$llvmout/clangninja")) {
+    Remove-Item -Force -Recurse "$llvmout/clangninja"
+}
+New-Item -ItemType Directory "$llvmout/clangninja" | Out-Null
+
+$ec = ProcessExec -FilePath "cmake" -Argv "$cmakeargs" -WD "$llvmout/clangninja"
+if ($ec -ne 0) {
+    exit $ec
+}
+$PN = & Parallel
+$ec = ProcessExec -FilePath "ninja" -Argv "all -j $PN" -WD "$llvmout/clangninja"
+if ($ec -ne 0) {
+    exit $ec
+}
+
+#$Libcxxbin = "$llvmout/clangninja/lib/c++.dll"
+#$CMakeInstallFile = "$llvmout/clangninja/cmake_install.cmake"
+#if (Test-Path $Libcxxbin) {
+#    "file(INSTALL DESTINATION `"`${CMAKE_INSTALL_PREFIX}/bin`" TYPE SHARED_LIBRARY OPTIONAL FILES `"$Libcxxbin`")" | Out-File -FilePath $CMakeInstallFile -Append -Encoding utf8
+#}
+
+if ($Package ) {
+    $ec = ProcessExec -FilePath "cpack" -Argv "-C $Flavor" -WD "$llvmout/clangninja"
+    if ($ec -ne 0) {
+        exit $ec
+    }
+}
 
 Write-Host "compile llvm done, you can use it"
 

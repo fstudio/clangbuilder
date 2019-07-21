@@ -180,7 +180,7 @@ Function CMDInstall {
                 Copy-Item -Path $pkgfile -Destination $installdir -Force
             }
             "7z" {
-                $ret = ProcessExec -FilePath $sevenzipbin -Arguments "e -spf -y `"$pkgfile`" `"-o$installdir`""
+                $ret = ProcessExec -FilePath $sevenzipbin -Args "e -spf -y `"$pkgfile`" `"-o$installdir`""
                 if ($ret -ne 0) {
                     throw "decompress $pkgfile by 7z failed"
                 }

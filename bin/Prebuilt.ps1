@@ -87,7 +87,7 @@ if (Test-Path "$wkdir\clang") {
 }
 
 
-$p7 = Start-Process -FilePath "7z.exe" -ArgumentList "e -spf -y $dlname -oclang"  -WorkingDirectory $wkdir  -PassThru -Wait -NoNewWindow
+$p7 = Start-Process -FilePath "7z.exe" -ArgumentList "e -spf -y $dlname -oclang"  -WD $wkdir  -PassThru -Wait -NoNewWindow
 
 if ($p7.ExitCode -ne 0) {
     Write-Host "7z decompress $dlname failed"

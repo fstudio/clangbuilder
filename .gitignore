@@ -5,6 +5,7 @@
 /bin/utils/
 /config/ewdk.json
 /config/prebuilt.json
+/config/build.json
 /config/pkinit.json
 /config/profile.ps1
 /config/settings.json
