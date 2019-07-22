@@ -191,7 +191,7 @@ Function GenCMakeArgs {
     if (![String]::IsNullOrEmpty($Prefix)) {
         [void]$ca.Append("`"-DCMAKE_INSTALL_PREFIX=$Prefix`" ")
     }
-    if ($LLDB) {
+    if ($LLDB -and !$Bootstrap) {
         [void]$ca.Append("-DLLDB_RELOCATABLE_PYTHON=1 -DLLDB_DISABLE_PYTHON=1 ")
     }
     if (![String]::IsNullOrEmpty($ClangDir) -and (Test-Path $ClangDir)) {

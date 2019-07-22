@@ -1,6 +1,22 @@
 ## PowerShell Dev install engine
 
 
+Function WinGet {
+    param(
+        [String]$URL,
+        [String]$O
+    )
+    # 
+    Write-Host "Download file: $O"
+    $ex = Exec -FilePath "curl.exe" -Argv "--progress-bar -fS --connect-timeout 15 --retry 3 -o `"$O`" -L --proto-redir =https $URL" -WD $PWD
+    if ($ex -ne 0) {
+        Remove-Item -Force $Path -ErrorAction SilentlyContinue
+        return $false
+    }
+    return $true
+}
+
+
 Function Devdownload {
     param(
         [String]$Uri, ### URI
@@ -11,16 +27,12 @@ Function Devdownload {
     $InternalUA = "Wget/4.0 (MSVC)" # TO Set UA as wget.
     #$xuri = [uri]$Uri
     try {
-        if (Test-Path $Path) {
-            Remove-Item -Force $Path
-        }
+        Remove-Item -Force $Path -ErrorAction SilentlyContinue
         Invoke-WebRequest -Uri $Uri -OutFile $Path -UserAgent $InternalUA -UseBasicParsing
     }
     catch {
         Write-Host -ForegroundColor Red "download failed: $_"
-        if (Test-Path $Path) {
-            Remove-Item $Path
-        }
+        Remove-Item -Force $Path -ErrorAction SilentlyContinue
         return $false
     }
     return $true
@@ -169,9 +181,7 @@ Function Initialize-MsiArchive {
     Get-ChildItem -Path "$Path\*.msi" | ForEach-Object {
         Remove-Item -Path $_.FullName
     }
-    if (Test-Path "$Path\Windows") {
-        Remove-Item -Path "$Path\Windows" -Recurse
-    }
+    Remove-Item -Path "$Path\Windows" -Recurse -ErrorAction SilentlyContinue
     $skipdirs = "Program Files", "ProgramFiles64", "PFiles", "Files"
     foreach ($d in $skipdirs) {
         $sd = "$Path/$d"
