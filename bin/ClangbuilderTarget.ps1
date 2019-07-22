@@ -212,7 +212,7 @@ Function GenCMakeArgs {
         if ($LTO) {
             [void]$ca.Append("-DLLVM_ENABLE_LTO=Thin ")
             [void]$ca.Append("`"-DCMAKE_LINKER=$ClangDir/lld-link.exe`" ")
-            [void]$ca.Append("`"-DCMAKE_AR=$ClangDir/llvm-ar.exe`"")
+            [void]$ca.Append("`"-DCMAKE_AR=$ClangDir/llvm-ar.exe`" ")
             [void]$ca.Append("`"-DCMAKE_RANLIB=$ClangDir/llvm-ranlib.exe`"")
         }
     }
@@ -238,9 +238,7 @@ Function GetLLVM {
 }
 
 $llvmout = "$ClangbuilderRoot/out" -replace "\\", "/"
-if (!(Test-Path $llvmout)) {
-    New-Item -ItemType Directory -Path $llvmout | Out-Null
-}
+New-Item -ItemType Directory -Path $llvmout  -Force -ErrorAction SilentlyContinue -Recurse | Out-Null
 
 $revobj = Get-Content -Path "$ClangbuilderRoot/config/llvm.json" -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
 if ($null -eq $revobj -or ($null -eq $revobj.Stable)) {
@@ -294,9 +292,7 @@ else {
 
 if ($Engine -eq "MSBuild") {
     $cmakeargs = GenCMakeArgs -SrcDir $sourcedir
-    if ((Test-Path "$llvmout/msbuild")) {
-        Remove-Item  "$llvmout/msbuild"  -Force -Recurse
-    }
+    Remove-Item  "$llvmout/msbuild"  -Force -Recurse -ErrorAction SilentlyContinue
     New-Item -ItemType Directory "$llvmout/msbuild" | Out-Null
     $ec = ProcessExec -FilePath "cmake" -Argv "$cmakeargs" -WD "$llvmout/msbuild"
     if ($ec -ne 0) {
@@ -324,9 +320,7 @@ if ($Engine -eq "Ninja" -or $Engine -eq "NinjaBootstrap") {
     if ($Engine -eq "NinjaBootstrap") {
         $cmakeargs = GenCMakeArgs -SrcDir $sourcedir -Bootstrap
     }
-    if ((Test-Path "$llvmout/msvcninja")) {
-        Remove-Item "$llvmout/msvcninja" -Force -Recurse
-    }
+    Remove-Item "$llvmout/msvcninja" -Force -Recurse -ErrorAction SilentlyContinue
     New-Item -ItemType Directory "$llvmout/msvcninja" | Out-Null
     $ec = ProcessExec -FilePath "cmake" -Argv "$cmakeargs" -WD "$llvmout/msvcninja"
     if ($ec -ne 0) {
@@ -370,9 +364,7 @@ if ([String]::IsNullOrEmpty($ClangDir)) {
 $cmakeargs = GenCMakeArgs -ClangDir $ClangDir -EnableLIBCXX:$Libcxx -SrcDir $sourcedir
 
 
-if ((Test-Path "$llvmout/clangninja")) {
-    Remove-Item -Force -Recurse "$llvmout/clangninja"
-}
+Remove-Item -Force -Recurse "$llvmout/clangninja" -ErrorAction SilentlyContinue
 New-Item -ItemType Directory "$llvmout/clangninja" | Out-Null
 
 $ec = ProcessExec -FilePath "cmake" -Argv "$cmakeargs" -WD "$llvmout/clangninja"
