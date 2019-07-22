@@ -238,7 +238,7 @@ Function GetLLVM {
 }
 
 $llvmout = "$ClangbuilderRoot/out" -replace "\\", "/"
-New-Item -ItemType Directory -Path $llvmout  -Force -ErrorAction SilentlyContinue -Recurse | Out-Null
+New-Item -ItemType Directory -Path $llvmout  -Force -ErrorAction SilentlyContinue | Out-Null
 
 $revobj = Get-Content -Path "$ClangbuilderRoot/config/llvm.json" -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
 if ($null -eq $revobj -or ($null -eq $revobj.Stable)) {
