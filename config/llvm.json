@@ -2,8 +2,8 @@
     "Title": "The LLVM Compiler Infrastructure",
     "Mainline": "10.0",
     "Stable": "release/9.x",
-    "Release": "8.0.1-rc4",
-    "ReleaseUrl": "https://github.com/llvm/llvm-project/archive/llvmorg-8.0.1-rc4.tar.gz",
+    "Release": "8.0.1",
+    "ReleaseUrl": "https://github.com/llvm/llvm-project/archive/llvmorg-8.0.1.tar.gz",
     "Url": "https://github.com/llvm/llvm-project.git",
     "Download": "https://releases.llvm.org/",
     "Binary": "https://releases.llvm.org/${version}/LLVM-${version}-${arch}.exe"
