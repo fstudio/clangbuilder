@@ -155,12 +155,12 @@ Function GenCMakeArgs {
     if ($Engine -eq "MSBuild") {
         [void]$ca.Append($MSBuldGen)
         if ($Arch -eq "ARM") {
-            [void]$ca.Append("`"-DCMAKE_C_FLAGS=/utf-8 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`" `"-DCMAKE_CXX_FLAGS=/utf-8 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`" ")
+            [void]$ca.Append("-DCMAKE_C_FLAGS=`"/utf-8 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`" ")
+            [void]$ca.Append("-DCMAKE_CXX_FLAGS=`"/utf-8 -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1`" ")
         }
         else {
-            [void]$ca.Append("`"-DCMAKE_C_FLAGS=/utf-8`" `"-DCMAKE_CXX_FLAGS=/utf-8`" ")
+            [void]$ca.Append("-DCMAKE_C_FLAGS=`"/utf-8`" -DCMAKE_CXX_FLAGS=`"/utf-8`" ")
         }
-       
     }
     else {
         [void]$ca.Append("-GNinja ")
@@ -168,28 +168,29 @@ Function GenCMakeArgs {
 
     [void]$ca.Append("`"$SrcDir/llvm`" ")
     [void]$ca.Append("-DCMAKE_BUILD_TYPE=$Flavor -DLLVM_ENABLE_ASSERTIONS=OFF ")
+    [void]$ca.Append("-DCMAKE_INSTALL_UCRT_LIBRARIES=ON ")
 
     if ($Bootstrap) {
-        [void]$ca.Append("`"-DLLVM_ENABLE_PROJECTS=clang;lld`" ")
-        [void]$ca.Append("`"-DLLVM_TARGETS_TO_BUILD=X86;AArch64`" ")
-        [void]$ca.Append("`"-DCMAKE_C_FLAGS=/utf-8`" `"-DCMAKE_CXX_FLAGS=/utf-8`" ")
+        [void]$ca.Append("-DLLVM_ENABLE_PROJECTS=`"clang;lld`" ")
+        [void]$ca.Append("-DLLVM_TARGETS_TO_BUILD=`"X86;AArch64`" ")
+        [void]$ca.Append("-DCMAKE_C_FLAGS=`"/utf-8`" -DCMAKE_CXX_FLAGS=`"/utf-8`" ")
     }
     else {
-        [void]$ca.Append("`"-DLLVM_TARGETS_TO_BUILD=$AllowTargets`" ")
-        [void]$ca.Append("`"-DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=$ExpTargets`" ")
+        [void]$ca.Append("-DLLVM_TARGETS_TO_BUILD=`"$AllowTargets`" ")
+        [void]$ca.Append("-DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=`"$ExpTargets`" ")
         if ($EnableLIBCXX) {
-            [void]$ca.Append("`"-DLLVM_ENABLE_PROJECTS=$AllowProjects;libcxx`" ")
+            [void]$ca.Append("-DLLVM_ENABLE_PROJECTS=`"$AllowProjects;libcxx`" ")
             [void]$ca.Append("-DLLVM_FORCE_BUILD_RUNTIME=ON -DLIBCXX_ENABLE_SHARED=YES ")
             [void]$ca.Append("-DLIBCXX_ENABLE_STATIC=YES -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=NO ")
-            [void]$ca.Append("-DLIBCXX_HAS_WIN32_THREAD_API=ON ")
+            [void]$ca.Append("-DLIBCXX_HAS_WIN32_THREAD_API=ON -DLIBCXX_STANDARD_VER=`"c++17`" ")
         }
         else {
-            [void]$ca.Append("`"-DLLVM_ENABLE_PROJECTS=$AllowProjects`" ")
+            [void]$ca.Append("-DLLVM_ENABLE_PROJECTS=`"$AllowProjects`" ")
         }
     }
 
     if (![String]::IsNullOrEmpty($Prefix)) {
-        [void]$ca.Append("`"-DCMAKE_INSTALL_PREFIX=$Prefix`" ")
+        [void]$ca.Append("-DCMAKE_INSTALL_PREFIX=`"$Prefix`" ")
     }
     if ($LLDB -and !$Bootstrap) {
         [void]$ca.Append("-DLLDB_RELOCATABLE_PYTHON=1 -DLLDB_DISABLE_PYTHON=1 ")
@@ -205,15 +206,19 @@ Function GenCMakeArgs {
             "ARM64" = "--target=arm64-pc-windows-msvc -D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1"
         }
         $curarch = $archtable[$Arch]
-        $ccxxflags = "-fms-compatibility-version=$msvcversion $curarch"
+        $ccxxflags = "-fms-compatibility-version=$msvcversion $curarch "
         Write-Host "Detecting: $ccxxflags "
-        [void]$ca.Append("`"-DCMAKE_CXX_FLAGS=$ccxxflags`" ")
-        [void]$ca.Append("`"-DCMAKE_C_FLAGS=$ccxxflags`" ")
+        #$cxxstd="-std:c++17"
+        #[void]$ca.Append("-DCLANG_DEFAULT_STD_CXX=cxx17 -DLLVM_CXX_STD=`"c++17`" ")
+        [void]$ca.Append("-DCMAKE_CXX_FLAGS=`"$ccxxflags $cxxstd`" ")
+        [void]$ca.Append("-DCMAKE_C_FLAGS=`"$ccxxflags`" ")
         if ($LTO) {
+            # LLVM LTO
             [void]$ca.Append("-DLLVM_ENABLE_LTO=Thin ")
-            [void]$ca.Append("`"-DCMAKE_LINKER=$ClangDir/lld-link.exe`" ")
-            [void]$ca.Append("`"-DCMAKE_AR=$ClangDir/llvm-ar.exe`" ")
-            [void]$ca.Append("`"-DCMAKE_RANLIB=$ClangDir/llvm-ranlib.exe`"")
+            [void]$ca.Append("-DCMAKE_LINKER=`"$ClangDir/lld-link.exe`" ")
+            # llvm-lib is a alias for llvm-lib
+            [void]$ca.Append("-DCMAKE_AR=`"$ClangDir/llvm-ar.exe`" ")
+            [void]$ca.Append("-DCMAKE_RANLIB=`"$ClangDir/llvm-ranlib.exe`"")
         }
     }
     return $ca.ToString()
