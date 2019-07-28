@@ -62,7 +62,7 @@ Function WinGet {
     )
     # 
     Write-Host "Download file: $O"
-    $ex = Exec -FilePath "curl.exe" -Argv "--progress-bar -fS --connect-timeout 15 --retry 3 -o $O -L --proto-redir =https $URL" -WD $PWD
+    $ex = Exec -FilePath "curl.exe" -Argv "--progress-bar -fS --connect-timeout 15 --retry 3 -o `"$O`" -L --proto-redir =https $URL" -WD $PWD
     if ($ex -ne 0) {
         return $false
     }

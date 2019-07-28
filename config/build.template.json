@@ -1,0 +1,8 @@
+{
+    "Prefix": {
+        "Release": "D:\\llvm",
+        "Mainline": "D:\\llvmdev"
+    },
+    "AllowTargets": "X86;AArch64;ARM",
+    "ExpTargets": "RISCV;WebAssembly"
+}

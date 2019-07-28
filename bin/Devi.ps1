@@ -79,18 +79,14 @@ Function CMDUninstall {
         if ($null -ne $instmd.links) {
             foreach ($lkfile in $instmd.links) {
                 $xlinked = "$ClangbuilderRoot/bin/pkgs/.linked/$lkfile"
-                if (Test-Path $xlinked) {
-                    Remove-Item -Force $xlinked
-                }
+                Remove-Item -Force $xlinked -ErrorAction SilentlyContinue
             }
         }
         Remove-Item $lockfile -Force
     }
 
     $pkgdir = "$ClangbuilderRoot/bin/pkgs/$Name"
-    if (Test-Path $pkgdir) {
-        Remove-Item -Force -Recurse  $pkgdir  -ErrorAction SilentlyContinue | Out-Null
-    }
+    Remove-Item -Force -Recurse  $pkgdir  -ErrorAction SilentlyContinue | Out-Null
     Write-Host -ForegroundColor Yellow "devi: uninstall $Name done."
 }
 
@@ -158,9 +154,7 @@ Function CMDInstall {
         return $false
     }
     try {
-        if ((Test-Path $installdir)) {
-            Move-Item -Force  $installdir $tempdir -ErrorAction SilentlyContinue | Out-Null
-        }
+        Move-Item -Force  $installdir $tempdir -ErrorAction SilentlyContinue | Out-Null
         Switch ($ext) {
             "zip" {
                 Expand-Archive -Path $pkgfile -DestinationPath $installdir
@@ -174,13 +168,11 @@ Function CMDInstall {
                 Initialize-MsiArchive -Path $installdir
             }
             "exe" {
-                if (!(Test-Path $installdir)) {
-                    mkdir $installdir | Out-Null
-                }
+                New-Item -ItemType Directory -Force -ErrorAction SilentlyContinue $installdir | Out-Null
                 Copy-Item -Path $pkgfile -Destination $installdir -Force
             }
             "7z" {
-                $ret = ProcessExec -FilePath $sevenzipbin -Arguments "e -spf -y `"$pkgfile`" `"-o$installdir`""
+                $ret = ProcessExec -FilePath $sevenzipbin -Args "e -spf -y `"$pkgfile`" `"-o$installdir`""
                 if ($ret -ne 0) {
                     throw "decompress $pkgfile by 7z failed"
                 }
@@ -190,12 +182,8 @@ Function CMDInstall {
     }
     catch {
         Write-Host -ForegroundColor Red "$_"
-        if (!(Test-Path $installdir) -and (Test-Path $tempdir)) {
-            Move-Item -Force $tempdir $installdir -ErrorAction SilentlyContinue | Out-Null
-        }
-        if (Test-Path $tempdir) {
-            Remove-Item -Force -Recurse  $tempdir  -ErrorAction SilentlyContinue | Out-Null
-        }
+        Move-Item -Force $tempdir $installdir -ErrorAction SilentlyContinue | Out-Null
+        Remove-Item -Force -Recurse  $tempdir  -ErrorAction SilentlyContinue | Out-Null
         return $false
     }
     $versiontable = @{ }
@@ -216,24 +204,18 @@ Function CMDInstall {
                 continue
             }
             $launcherfile = "$ClangbuilderRoot/bin/pkgs/.linked/" + $f
-            if (Test-Path $launcherfile) {
-                Remove-Item -Force -Recurse $launcherfile
-            }
+            Remove-Item -Force -Recurse $launcherfile -ErrorAction SilentlyContinue
         }
     }
 
     if ($null -ne $devpkg.links ) {
-        if (!(Test-Path "$ClangbuilderRoot/bin/pkgs/.linked")) {
-            mkdir "$ClangbuilderRoot/bin/pkgs/.linked" | Out-Null
-        }
+        New-Item -ItemType Directory -Force "$ClangbuilderRoot/bin/pkgs/.linked" -ErrorAction SilentlyContinue | Out-Null
         try {
             foreach ($i in $devpkg.links) {
                 $srcfile = "$installdir/$i"
                 $item = Get-Item $srcfile
                 $symlinkfile = "$ClangbuilderRoot/bin/pkgs/.linked/" + $item.Name
-                if (Test-Path $symlinkfile) {
-                    Remove-Item -Force -Recurse $symlinkfile
-                }
+                Remove-Item -Force -Recurse $symlinkfile -ErrorAction SilentlyContinue
                 if (Test-Path "$ClangbuilderRoot/bin/blast.exe" ) {
                     &"$ClangbuilderRoot/bin/blast.exe" --link  "$($item.FullName)" "$symlinkfile"
                 }
@@ -260,9 +242,7 @@ Function CMDInstall {
         $versiontable["mount"] = $devpkg.mount
     }
     ConvertTo-Json $versiontable | Out-File -Force -FilePath "$Pkglocksdir/$Name.json"
-    if (Test-Path $tempdir) {
-        Remove-Item -Force -Recurse $tempdir  -ErrorAction SilentlyContinue | Out-Null
-    }
+    Remove-Item -Force -Recurse $tempdir  -ErrorAction SilentlyContinue | Out-Null
     Remove-Item $pkgfile -Force -ErrorAction SilentlyContinue | Out-Null ##ignore remove-item return del/null
     Write-Host -ForegroundColor Green "devi: install $Name success, version: $pkversion"
     return $true
@@ -381,12 +361,7 @@ switch ($subcmd) {
         $mtx.ReleaseMutex()
     }
     "upgrade" {
-        if (!(Test-Path "$ClangbuilderRoot/bin/pkgs")) {
-            mkdir  "$ClangbuilderRoot/bin/pkgs"
-        }
-        if (!(Test-Path "$ClangbuilderRoot/bin/pkgs/.locks")) {
-            mkdir  "$ClangbuilderRoot/bin/pkgs/.locks"
-        }
+        New-Item -ItemType Directory -Force  "$ClangbuilderRoot/bin/pkgs/.locks" -ErrorAction SilentlyContinue | Out-Null
         $ret = $false
         $mtx = New-Object System.Threading.Mutex($false, $MutexName)
         $mtxresult = $mtx.WaitOne(1000)

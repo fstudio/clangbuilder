@@ -14,20 +14,20 @@ Function Parallel() {
 Function ProcessExec {
     param(
         [string]$FilePath,
-        [string]$Arguments,
-        [string]$WorkingDirectory
+        [string]$Argv,
+        [string]$WD
     )
     $ProcessInfo = New-Object System.Diagnostics.ProcessStartInfo
     $ProcessInfo.FileName = $FilePath
-    Write-Host "$FilePath $Arguments $PWD"
-    if ($WorkingDirectory.Length -eq 0) {
+    if ([String]::IsNullOrEmpty($WD)) {
         $ProcessInfo.WorkingDirectory = $PWD
     }
     else {
-        $ProcessInfo.WorkingDirectory = $WorkingDirectory
+        $ProcessInfo.WorkingDirectory = $WD
     }
+    Write-Host "$FilePath $Argv [$($ProcessInfo.WorkingDirectory)]"
     #0x00000000 WindowStyle
-    $ProcessInfo.Arguments = $Arguments
+    $ProcessInfo.Arguments = $Argv
     $ProcessInfo.UseShellExecute = $false ## use createprocess not shellexecute
     $Process = New-Object System.Diagnostics.Process
     $Process.StartInfo = $ProcessInfo
