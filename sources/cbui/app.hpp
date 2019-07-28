@@ -45,7 +45,6 @@ private:
   bool EnterpriseWDK(std::wstring_view ewdkroot, clangbuilder::VSInstance &vsi);
 };
 
-
 class Settings {
 public:
   using invoke_t = std::function<void(const std::wstring &)>;
@@ -59,9 +58,11 @@ public:
   bool IsPwshCoreEnabled() const { return PwshCoreEnabled_; }
   std::wstring PwshExePath();
   std::wstring_view EnterpriseWDK() const { return ewdkroot; }
+  std::wstring_view Conhost() const { return conhost; }
 
 private:
   std::wstring ewdkroot;
+  std::wstring conhost;
   bool SetWindowCompositionAttribute_{false};
   bool PwshCoreEnabled_{false};
 };

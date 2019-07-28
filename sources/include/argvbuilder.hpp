@@ -19,7 +19,10 @@ public:
     return *this;
   }
   ArgvBuilder &Append(std::wstring_view a) {
-    args_.append(L" ").append(Escape(a));
+    if (!args_.empty()) {
+      args_.append(L" ");
+    }
+    args_.append(Escape(a));
     return *this;
   }
   const std::wstring &Args() const { return args_; }

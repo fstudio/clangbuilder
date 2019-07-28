@@ -63,6 +63,10 @@ bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
     if (it != j.end()) {
       ewdkroot = base::ToWide(it.value().get<std::string>());
     }
+    it = j.find("Conhost");
+    if (it != j.end()) {
+      conhost = base::ToWide(it.value().get<std::string>());
+    }
     it = j.find("SetWindowCompositionAttribute");
     if (it != j.end()) {
       SetWindowCompositionAttribute_ = it.value().get<bool>();
