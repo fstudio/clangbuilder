@@ -208,8 +208,8 @@ Function GenCMakeArgs {
         $curarch = $archtable[$Arch]
         $ccxxflags = "-fms-compatibility-version=$msvcversion $curarch "
         Write-Host "Detecting: $ccxxflags "
-        $cxxstd="-std:c++17 -Zc:__cplusplus -permissive-"
-        [void]$ca.Append("-DCLANG_DEFAULT_STD_CXX=cxx17 -DLLVM_ENABLE_CXX1Z=ON -DLLVM_CXX_STD=`"c++17`" ")
+        #$cxxstd="-std:c++17 -Zc:__cplusplus -permissive-"
+        #[void]$ca.Append("-DCLANG_DEFAULT_STD_CXX=cxx17 -DLLVM_ENABLE_CXX1Z=ON -DLLVM_CXX_STD=`"c++17`" ")
         [void]$ca.Append("-DCMAKE_CXX_FLAGS=`"$ccxxflags $cxxstd`" ")
         [void]$ca.Append("-DCMAKE_C_FLAGS=`"$ccxxflags`" ")
         if ($LTO) {
