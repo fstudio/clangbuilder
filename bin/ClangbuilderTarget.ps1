@@ -216,7 +216,7 @@ Function GenCMakeArgs {
             # LLVM LTO
             [void]$ca.Append("-DLLVM_ENABLE_LTO=Thin ")
             [void]$ca.Append("-DCMAKE_LINKER=`"$ClangDir/lld-link.exe`" ")
-            # llvm-lib is a alias for llvm-lib
+            # llvm-lib is a alias for llvm-ar
             [void]$ca.Append("-DCMAKE_AR=`"$ClangDir/llvm-lib.exe`" ")
             [void]$ca.Append("-DCMAKE_RANLIB=`"$ClangDir/llvm-ranlib.exe`"")
         }
