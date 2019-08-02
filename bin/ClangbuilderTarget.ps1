@@ -173,7 +173,7 @@ Function GenCMakeArgs {
     if ($Bootstrap) {
         [void]$ca.Append("-DLLVM_ENABLE_PROJECTS=`"clang;lld`" ")
         [void]$ca.Append("-DLLVM_TARGETS_TO_BUILD=`"X86;AArch64`" ")
-        [void]$ca.Append("-DCMAKE_C_FLAGS=`"/utf-8`" -DCMAKE_CXX_FLAGS=`"/utf-8`" ")
+        [void]$ca.Append("-DCMAKE_C_FLAGS=`"-utf-8`" -DCMAKE_CXX_FLAGS=`"-utf-8`" ")
     }
     else {
         [void]$ca.Append("-DLLVM_TARGETS_TO_BUILD=`"$AllowTargets`" ")
@@ -208,8 +208,8 @@ Function GenCMakeArgs {
         $curarch = $archtable[$Arch]
         $ccxxflags = "-fms-compatibility-version=$msvcversion $curarch "
         Write-Host "Detecting: $ccxxflags "
-        #$cxxstd="-std:c++17"
-        #[void]$ca.Append("-DCLANG_DEFAULT_STD_CXX=cxx17 -DLLVM_CXX_STD=`"c++17`" ")
+        #$cxxstd="-std:c++17 -Zc:__cplusplus -permissive-"
+        #[void]$ca.Append("-DCLANG_DEFAULT_STD_CXX=cxx17 -DLLVM_ENABLE_CXX1Z=ON -DLLVM_CXX_STD=`"c++17`" ")
         [void]$ca.Append("-DCMAKE_CXX_FLAGS=`"$ccxxflags $cxxstd`" ")
         [void]$ca.Append("-DCMAKE_C_FLAGS=`"$ccxxflags`" ")
         if ($LTO) {
@@ -217,7 +217,7 @@ Function GenCMakeArgs {
             [void]$ca.Append("-DLLVM_ENABLE_LTO=Thin ")
             [void]$ca.Append("-DCMAKE_LINKER=`"$ClangDir/lld-link.exe`" ")
             # llvm-lib is a alias for llvm-lib
-            [void]$ca.Append("-DCMAKE_AR=`"$ClangDir/llvm-ar.exe`" ")
+            [void]$ca.Append("-DCMAKE_AR=`"$ClangDir/llvm-lib.exe`" ")
             [void]$ca.Append("-DCMAKE_RANLIB=`"$ClangDir/llvm-ranlib.exe`"")
         }
     }

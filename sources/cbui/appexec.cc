@@ -78,10 +78,10 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   clangbuilder::ArgvBuilder ab;
   if (!settings.Conhost().empty()) {
     ab.Assign(settings.Conhost());
-    ab.Append(L"--width");
-    ab.Append(L"90");
-    ab.Append(L"--height");
-    ab.Append(L"27");
+    //ab.Append(L"--width");
+    //ab.Append(L"90");
+    //ab.Append(L"--height");
+    //ab.Append(L"27");
   }
   ab.Append(pwshexe)
       .Append(L"-NoLogo")
@@ -155,10 +155,10 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   clangbuilder::ArgvBuilder ab;
   if (!settings.Conhost().empty()) {
     ab.Assign(settings.Conhost());
-    ab.Append(L"--width");
-    ab.Append(L"90");
-    ab.Append(L"--height");
-    ab.Append(L"27");
+    //ab.Append(L"--width");
+    //ab.Append(L"90");
+    //ab.Append(L"--height");
+    //ab.Append(L"27");
   }
   ab.Append(pwshexe)
       .Append(L"-NoLogo")
