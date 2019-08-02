@@ -1,7 +1,7 @@
 {
     "description": "Visual Studio Locator.",
-    "version": "2.6.7",
-    "url": "https://github.com/Microsoft/vswhere/releases/download/2.6.7/vswhere.exe",
+    "version": "2.7.1",
+    "url": "https://github.com/microsoft/vswhere/releases/download/2.7.1/vswhere.exe",
     "extension": "exe",
     "links": [
         "vswhere.exe"

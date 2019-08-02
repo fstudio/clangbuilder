@@ -1,7 +1,7 @@
 {
     "description": "InnoUnp - Inno Setup Unpacker.",
-    "version": "0.48",
-    "url": "https://sourceforge.net/projects/innounp/files/innounp/innounp%200.48/innounp048.rar",
+    "version": "0.49",
+    "url": "https://sourceforge.net/projects/innounp/files/innounp/innounp%200.49/innounp049.rar/download",
     "extension": "7z",
     "links": [
         "innounp.exe"

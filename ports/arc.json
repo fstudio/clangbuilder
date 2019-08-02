@@ -1,0 +1,10 @@
+{
+    "description": "Introducing Archiver - a cross-platform, multi-format archive utility",
+    "version": "3.2",
+    "url": null,
+    "url64": "https://github.com/mholt/archiver/releases/download/v3.2.0/arc_windows_amd64.exe",
+    "extension": "exe",
+    "launcher": [
+        "arc.exe"
+    ]
+}
