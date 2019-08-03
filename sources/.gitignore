@@ -10,7 +10,7 @@
 
 # User-specific folders
 *.sln.ide/
-
+out/
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
