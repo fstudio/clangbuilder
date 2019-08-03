@@ -33,3 +33,22 @@ target_link_libraries(cmdex
 install(TARGETS cmdex
 	DESTINATION bin
 )
+
+add_executable(blastex
+  blast.cc
+  ../res/cmdex.rc
+  ../res/cli.manifest
+)
+
+if(lto_supported)
+  set_property(TARGET blastex PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+
+target_link_libraries(blastex
+  belawin
+)
+
+install(TARGETS blastex
+	DESTINATION bin
+)
+
