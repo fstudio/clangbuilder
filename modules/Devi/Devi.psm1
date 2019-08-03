@@ -1,22 +1,5 @@
 ## PowerShell Dev install engine
 
-
-Function WinGet {
-    param(
-        [String]$URL,
-        [String]$O
-    )
-    # 
-    Write-Host "Download file: $O"
-    $ex = Exec -FilePath "curl.exe" -Argv "--progress-bar -fS --connect-timeout 15 --retry 3 -o `"$O`" -L --proto-redir =https $URL" -WD $PWD
-    if ($ex -ne 0) {
-        Remove-Item -Force $Path -ErrorAction SilentlyContinue
-        return $false
-    }
-    return $true
-}
-
-
 Function Devdownload {
     param(
         [String]$Uri, ### URI

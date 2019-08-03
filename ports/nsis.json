@@ -4,7 +4,6 @@
     "url": "https://sourceforge.net/projects/nsis/files/NSIS%203/3.04/nsis-3.04.zip/download",
     "extension": "zip",
     "launcher": [
-        "makensis.exe",
-        "makensisw.exe"
+        "makensis.exe"
     ]
 }
