@@ -410,9 +410,11 @@ if ($uninstallTable.Contains($subcmd)) {
         Write-Host -ForegroundColor Red "Another devi process is running, please try again later."
         exit 1
     }
-    if (!(Uninstall-Port -Name $pkgname )) {
-        $mtx.ReleaseMutex()
-        exit 1
+    for ($i = 1; $i -lt $args.Count; $i++) {
+        if (!(Uninstall-Port -Name $args[$i])) {
+            $mtx.ReleaseMutex()
+            exit 1
+        }
     }
     $mtx.ReleaseMutex()
     exit 0
@@ -433,6 +435,7 @@ if ($subcmd -eq "install" -or $subcmd -eq "--install" -or $subcmd -eq "-i") {
     }
     for ($i = 1; $i -lt $args.Count; $i++) {
         if (!(Install-Port -Name $args[$i])) {
+            $mtx.ReleaseMutex()
             exit 1
         }
     }
