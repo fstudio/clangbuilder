@@ -105,6 +105,66 @@ Function Get-Installed {
     }
 }
 
+
+Function Repair-Port{
+    param(
+        [String]$Name
+    )
+    Write-Host -ForegroundColor Yellow "Try to repair $Name"
+    $obj = Get-Content -Path "$LockDir/$Name.json" -ErrorAction SilentlyContinue | ConvertFrom-Json  -ErrorAction SilentlyContinue
+    $pkobj=Get-Content -Path "$ClangbuilderRoot/ports/$Name.json" -ErrorAction SilentlyContinue | ConvertFrom-Json  -ErrorAction SilentlyContinue
+    if ($null -eq $obj -or ($null -eq $pkobj)) {
+        Write-Host "unable parse $Name.json. please uninstall it and retry install"
+        return
+    }
+    if($null -ne $pkobj.launcher){
+        foreach($lnk in $pkobj.launcher){
+            $lnkfile=Get-Item "$ClangbuilderRoot/bin/pkgs/$Name/$lnk" -ErrorAction SilentlyContinue
+            if($null -eq $lnkfile){
+                continue
+            }
+            $lna = Split-Path -Leaf $lnkfile
+            $launcher="$LinkedDir\$lna"
+            if(Test-Path $launcher){
+                Write-Host -ForegroundColor Green "launcher: $launcher exists"
+                continue
+            }
+            Write-Host -ForegroundColor Yellow "Please run mklauncher install $Name"
+        }
+        return
+    }
+    foreach($lnk in $pkobj.links){
+        $lnkfile=Get-Item "$ClangbuilderRoot/bin/pkgs/$Name/$lnk" -ErrorAction SilentlyContinue
+        if($null -eq $lnkfile){
+            continue
+        }
+        $lna = Split-Path -Leaf $lnkfile
+        $symlinkfile="$LinkedDir\$lna"
+        if(Test-Path $symlinkfile){
+            Write-Host -ForegroundColor Green "link: $symlinkfile exists"
+            continue
+        }
+        if (Test-Path "$ClangbuilderRoot/bin/blast.exe" ) {
+            &"$ClangbuilderRoot/bin/blast.exe" --link  $lnkfile.FullName "$symlinkfile"
+        }
+        else {
+            $symlinkfile = $symlinkfile.Replace("/", "\")
+            cmd /c mklink "$symlinkfile" $lnkfile.FullName ## < Windows 10 need Admin
+        }
+        if ($LASTEXITCODE -ne 0) {
+            throw "failed create symlink: $($lnkfile.FullName)"
+        }
+        Write-Host -ForegroundColor Green "link $($lnkfile.FullName) to $symlinkfile success."
+    }
+}
+
+Function Repair-Ports{
+    Get-ChildItem -Path "$LockDir/*.json" | ForEach-Object {
+        Repair-Port -Name $_.BaseName        
+    }
+}
+
+
 # if failed return 1
 Function Search-Port {
     param(
@@ -329,6 +389,7 @@ Function Install-Port {
     return $true
 }
 
+
 # Update ports
 Function Update-Ports {
     param(
@@ -417,6 +478,11 @@ if ($uninstallTable.Contains($subcmd)) {
         }
     }
     $mtx.ReleaseMutex()
+    exit 0
+}
+
+if($subcmd -eq "repair"){
+    Repair-Ports
     exit 0
 }
 
