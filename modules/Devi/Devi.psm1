@@ -1,26 +1,5 @@
 ## PowerShell Dev install engine
 
-Function Devdownload {
-    param(
-        [String]$Uri, ### URI
-        [String]$Path ### save to path
-    )
-    Write-Host "devdownload: $Uri ..."
-    #$InternalUA = [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome
-    $InternalUA = "Wget/4.0 (MSVC)" # TO Set UA as wget.
-    #$xuri = [uri]$Uri
-    try {
-        Remove-Item -Force $Path -ErrorAction SilentlyContinue
-        Invoke-WebRequest -Uri $Uri -OutFile $Path -UserAgent $InternalUA -UseBasicParsing
-    }
-    catch {
-        Write-Host -ForegroundColor Red "download failed: $_"
-        Remove-Item -Force $Path -ErrorAction SilentlyContinue
-        return $false
-    }
-    return $true
-}
-
 Function Find-ExecutablePath {
     param(
         [String]$Path
@@ -86,6 +65,7 @@ Function DevinitializeEnv {
         [String]$Pkglocksdir
     )
     $pkgdir = "$ClangbuilderRoot\bin\pkgs"
+    $linkdir = "$ClangbuilderRoot\bin\pkgs\.linked"
     $paths = $env:PATH.Split(";")
     Get-ChildItem "$Pkglocksdir\*.json" -ErrorAction SilentlyContinue | ForEach-Object {
         $xobj = Get-Content $_.FullName  -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
@@ -109,9 +89,9 @@ Function DevinitializeEnv {
             }
         }
     }
-    if (!$paths.Contains("$ClangbuilderRoot\bin\pkgs\.linked")) {
-        if (Test-Path "$ClangbuilderRoot\bin\pkgs\.linked") {
-            $env:PATH = "$ClangbuilderRoot\bin\pkgs\.linked" + [System.IO.Path]::PathSeparator + $env:PATH
+    if (!$paths.Contains($linkdir)) {
+        if (Test-Path $linkdir) {
+            $env:PATH = $linkdir + [System.IO.Path]::PathSeparator + $env:PATH
         }
     }
     $cmd = Get-Command -CommandType Application "git.exe" -ErrorAction SilentlyContinue
