@@ -150,7 +150,7 @@ Function Uninstall-Port {
         $instmd = Get-Content $lockfile  -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
         if ($null -ne $instmd.links) {
             foreach ($link in $instmd.links) {
-                if ( ![System.String]::IsNullOrWhiteSpace($link)) {
+                if ( ![System.String]::IsNullOrEmpty($link)) {
                     Remove-Item -Force "$LinkedDir/$link" -ErrorAction SilentlyContinue
                 }
             }
@@ -220,7 +220,6 @@ Function Install-Port {
     }
     $outfile = "$CleanDir\$Name.$ext"
     $tempinstalldir = "$CleanDir\$Name"
-    Write-Host "$tempinstalldir"
     if (!(WinGet -URL $besturl -OutFile $outfile)) {
         return $false
     }
@@ -243,7 +242,7 @@ Function Install-Port {
                 Copy-Item -Path $outfile -Destination $tempinstalldir -Force
             }
             "7z" {
-                $ret = ProcessExec -FilePath $sevenzipbin -Args "e -spf -y `"$outfile`" `"-o$tempinstalldir`""
+                $ret = ProcessExec -FilePath $SzExe -Argv "e -spf -y `"$outfile`" `"-o$tempinstalldir`""
                 if ($ret -ne 0) {
                     throw "decompress $outfile by 7z failed"
                 }
@@ -288,7 +287,9 @@ Function Install-Port {
                 $mlinks.Add($olink) | Out-Null
                 continue
             }
-            Remove-Item -Force -Recurse "$LockDir/$olink" -ErrorAction SilentlyContinue
+            if (![System.String]::IsNullOrEmpty($olink)) {
+                Remove-Item -Force -Recurse "$LinkedDir/$olink" -ErrorAction SilentlyContinue
+            }
         }
     }
 
@@ -297,7 +298,7 @@ Function Install-Port {
             foreach ($lnfile in $pkobj.links) {
                 $item = Get-Item "$packDir/$lnfile"
                 $symlinkfile = Join-Path -Path $LinkedDir -ChildPath $item.Name
-                Remove-Item -Force -Recurse $symlinkfile -ErrorAction SilentlyContinue
+                Remove-Item -Force $symlinkfile -ErrorAction SilentlyContinue
                 if (Test-Path "$ClangbuilderRoot/bin/blast.exe" ) {
                     &"$ClangbuilderRoot/bin/blast.exe" --link  "$($item.FullName)" "$symlinkfile"
                 }
@@ -403,7 +404,6 @@ if ($uninstallTable.Contains($subcmd)) {
         Write-Host -ForegroundColor Red "devi uninstall missing argument`nexample: devi uninstall putty"
         exit 1
     }
-    $pkgname = $args[1]
     $mtx = New-Object System.Threading.Mutex($false, $MutexName)
     $mtxresult = $mtx.WaitOne(1000)
     if ($mtxresult -eq $false) {
@@ -425,8 +425,6 @@ if ($subcmd -eq "install" -or $subcmd -eq "--install" -or $subcmd -eq "-i") {
         Write-Host -ForegroundColor Red "devi install missing argument`nexample: devi install cmake"
         exit 1
     }
-
-    $pkgname = $args[1]
     $mtx = New-Object System.Threading.Mutex($false, $MutexName)
     $mtxresult = $mtx.WaitOne(1000)
     if ($mtxresult -eq $false) {
