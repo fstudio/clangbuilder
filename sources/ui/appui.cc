@@ -237,9 +237,6 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
                              BOOL &bHandle) {
   HICON hIcon = LoadIconW(GetModuleHandleW(nullptr),
                           MAKEINTRESOURCEW(IDI_CLANGBUILDERUI));
-  if (settings.SetWindowCompositionAttributeEnabled()) {
-    SetWindowCompositionAttributeImpl(m_hWnd);
-  }
 
   SetIcon(hIcon, TRUE);
   hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
@@ -298,13 +295,19 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   InsertMenuW(hSystemMenu, SC_CLOSE, MF_ENABLED, IDM_CLANGBUILDER_ABOUT,
               L"About ClangbuilderUI\tAlt+F1");
 
-  labels.push_back(KryceLabel(30, 20, 190, 50, L"Distribution\t\xD83C\xDD9A:"));
-  labels.push_back(KryceLabel(30, 60, 190, 90, L"Architecture\t\xD83D\xDCBB:"));
-  labels.push_back(KryceLabel(30, 100, 190, 130, L"Configuration\t\x2699:"));
-  labels.push_back(KryceLabel(30, 140, 190, 170, L"Branches\t\t\x26A1:"));
-  labels.push_back(KryceLabel(30, 180, 190, 210, L"Engine\t\t\xD83D\xDEE0:"));
-  labels.push_back(KryceLabel(30, 230, 190, 270, L"Build Options\t\x2611:"));
+  labels.emplace_back(30, 20, 190, 50, L"Distribution\t\U0001F19A:");//🆚
+  labels.emplace_back(30, 60, 190, 90, L"Architecture\t\U0001F4BB:");//💻
+  labels.emplace_back(30, 100, 190, 130, L"Configuration\t\u2699:");//⚙
+  labels.emplace_back(30, 140, 190, 170, L"Branches\t\t\u26A1:");//⚡
+  labels.emplace_back(30, 180, 190, 210, L"Engine\t\t\U0001f6e0:");//🛠
+  labels.emplace_back(30, 230, 190, 270, L"Build Options\t\u2611:");//☑
   ///
+  if (settings.SetWindowCompositionAttributeEnabled()) {
+    if (!SetWindowCompositionAttributeImpl(m_hWnd)) {
+      auto ec = bela::make_system_error_code();
+      ::MessageBoxW(m_hWnd, ec.data(), L"unable set composition", MB_OK);
+    }
+  }
   if (FAILED(InitializeControl())) {
   }
   return S_OK;

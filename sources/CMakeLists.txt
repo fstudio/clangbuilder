@@ -43,7 +43,11 @@ endif()
 
 if (MSVC)
   add_compile_options("-D_CRT_SECURE_NO_WARNINGS=1")
-  add_compile_options("-Zc:__cplusplus") # C++ __cplusplus
+  add_compile_options("-utf-8")
+  add_compile_options("-permissive-")
+  add_compile_options("-Zc:__cplusplus")
+  add_compile_options("-DUNICODE=1")
+  add_compile_options("-D_UNICODE=1")
   set(CMAKE_RC_FLAGS "${CMAKE_RC_FLAGS} -c65001")
   set(WIN_COMPILER_FLAGS
     CMAKE_CXX_FLAGS

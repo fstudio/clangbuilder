@@ -5,10 +5,10 @@
 #include "app.hpp"
 /////
 struct ACCENTPOLICY {
-  int nAccentState;
-  int nFlags;
-  int nColor;
-  int nAnimationId;
+  uint32_t nAccentState;
+  uint32_t nFlags;
+  uint32_t nColor;
+  uint32_t nAnimationId;
 };
 struct WINCOMPATTRDATA {
   int nAttribute;
@@ -39,7 +39,7 @@ bool SetWindowCompositionAttributeImpl(HWND hWnd) {
 
   // Only works on Win10
   if (SetWindowCompositionAttribute) {
-    ACCENTPOLICY policy = {ACCENT_ENABLE_FLUENT, 0, 0, 0};
+    ACCENTPOLICY policy = {ACCENT_ENABLE_BLURBEHIND, 2, 0xaa000000, 0};
     WINCOMPATTRDATA data = {19, &policy, sizeof(ACCENTPOLICY)};
     result = SetWindowCompositionAttribute(hWnd, &data);
   }
