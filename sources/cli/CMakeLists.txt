@@ -9,7 +9,7 @@ if(lto_supported)
 endif()
 
 target_link_libraries(cli
-  KERNEL32
+  belawin
 )
 
 install(TARGETS cli
@@ -27,7 +27,7 @@ if(lto_supported)
 endif()
 
 target_link_libraries(cmdex
-  KERNEL32
+  belawin
 )
 
 install(TARGETS cmdex

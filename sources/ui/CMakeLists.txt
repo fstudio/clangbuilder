@@ -5,7 +5,6 @@ add_executable(ClangbuilderUI WIN32
   main.cc
   appexec.cc
   appui.cc
-  apputils.cc
   settings.cc
   vssearch.cc
   ../res/app.rc
@@ -17,6 +16,7 @@ if(lto_supported)
 endif()
 
 target_link_libraries(ClangbuilderUI
+  belashl
   d2d1
   dwrite
   Pathcch

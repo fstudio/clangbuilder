@@ -5,7 +5,8 @@
 #include <cstdlib>
 #include <wchar.h>
 #include <algorithm>
-#include "base.hpp"
+#include <bela/base.hpp>
+#include <bela/codecvt.hpp>
 
 namespace clangbuilder {
 constexpr const size_t maxsize = 0x8000;
@@ -61,38 +62,6 @@ struct WidnowsFD {
   HANDLE hFile{INVALID_HANDLE_VALUE};
 };
 
-inline bool GetEnvString(const wchar_t *key, std::wstring &val) {
-  val.resize(maxsize);
-  auto size = maxsize;
-  if (_wgetenv_s(&size, val.data(), size, key) != 0) {
-    val.clear();
-    return false;
-  }
-  val.resize(size);
-  return true;
-}
-inline bool GetEnv(const wchar_t *key, std::wstring &val) {
-  val.resize(256);
-  auto size = maxpathsize;
-  if (_wgetenv_s(&size, val.data(), size, key) != 0) {
-    val.clear();
-    return false;
-  }
-  val.resize(size);
-  return true;
-}
-inline bool UnCaseEqual(std::wstring_view a, std::wstring_view b) {
-  if (a.size() != b.size()) {
-    return false;
-  }
-  for (size_t i = 0; i < a.size(); i++) {
-    if (_tolower(a[i]) != _tolower(b[i])) {
-      return false;
-    }
-  }
-  return true;
-}
-
 inline bool IsDir(std::wstring_view dir) {
   if (dir.empty()) {
     return false;
@@ -136,13 +105,13 @@ inline bool LookupVersionFromFile(std::wstring_view file, std::wstring &ver) {
   if (buf[0] == 0xEF && buf[1] == 0xBB && buf[2] == 0xBF) {
     auto p = reinterpret_cast<char *>(buf + 3);
     std::string_view s(p, dwr - 3);
-    ver = base::ToWide(s);
+    ver = bela::ToWide(s);
     return true;
   }
   // UTF-8 (ASCII)
   auto p = reinterpret_cast<char *>(buf);
   std::string_view s(p, dwr);
-  ver = base::ToWide(s);
+  ver = bela::ToWide(s);
   return true;
 }
 

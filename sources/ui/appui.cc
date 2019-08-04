@@ -1,4 +1,5 @@
-#include <base.hpp>
+///
+#include <bela/base.hpp>
 #include <Windowsx.h>
 #include <cassert>
 #include <Prsht.h>
@@ -10,7 +11,7 @@
 #include <ShellScalingAPI.h>
 #include <array>
 #include <appfs.hpp>
-#include "apputils.hpp"
+#include <bela/picker.hpp>
 #include "appui.hpp"
 
 #ifndef HINST_THISCOMPONENT
@@ -172,20 +173,21 @@ void MainWindow::OnResize(UINT width, UINT height) {
 }
 
 HRESULT MainWindow::InitializeControl() {
-  base::error_code ec;
+  bela::error_code ec;
   if (!clangbuilder::LookupClangbuilderTarget(root, targetFile, ec)) {
-    MessageBoxW(ec.data(), L"Clangbuilder Error", MB_OK | MB_ICONERROR);
+    bela::BelaMessageBox(m_hWnd, L"Clangbuilder Error", ec.message.data(),
+                         nullptr, bela::mbs_t::FATAL);
     return S_FALSE;
   }
   settings.Initialize(root, [this](const std::wstring &message) {
-    utils::PrivMessageBox(m_hWnd, L"Unable parse settings.json", message.data(),
-                          nullptr, utils::kFatalWindow);
+    bela::BelaMessageBox(m_hWnd, L"Unable parse settings.json", message.data(),
+                         nullptr, bela::mbs_t::FATAL);
   });
 
   if (!InitializeElemets()) {
-    utils::PrivMessageBox(m_hWnd, L"Not Found any Visual Studio",
-                          L"Please check visual studio is installed", nullptr,
-                          utils::kFatalWindow);
+    bela::BelaMessageBox(m_hWnd, L"Not Found any Visual Studio",
+                         L"Please check visual studio is installed", nullptr,
+                         bela::mbs_t::FATAL);
   }
 
   for (const auto &i : search.Instances()) {
@@ -392,8 +394,8 @@ LRESULT MainWindow::OnCtlColorStatic(UINT nMsg, WPARAM wParam, LPARAM lParam,
 
 LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                    BOOL &bHandled) {
-  utils::PrivMessageBox(m_hWnd, L"About Clangbuilder", CLANGBUILDER_APPVERSION,
-                        CLANGBUILDER_APPLINK, utils::kAboutWindow);
+  bela::BelaMessageBox(m_hWnd, L"About Clangbuilder", CLANGBUILDER_APPVERSION,
+                       CLANGBUILDER_APPLINK, bela::mbs_t::ABOUT);
   return S_OK;
 }
 

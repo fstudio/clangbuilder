@@ -48,7 +48,7 @@ bool SetWindowCompositionAttributeImpl(HWND hWnd) {
 }
 
 bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
-  auto file = base::StringCat(root, L"\\config\\settings.json");
+  auto file = bela::StringCat(root, L"\\config\\settings.json");
   clangbuilder::FD fd;
   if (_wfopen_s(&fd.fd, file.data(), L"rb") != 0) {
     return false;
@@ -61,11 +61,11 @@ bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
     }
     it = j.find("EnterpriseWDK");
     if (it != j.end()) {
-      ewdkroot = base::ToWide(it.value().get<std::string>());
+      ewdkroot = bela::ToWide(it.value().get<std::string>());
     }
     it = j.find("Conhost");
     if (it != j.end()) {
-      conhost = base::ToWide(it.value().get<std::string>());
+      conhost = bela::ToWide(it.value().get<std::string>());
     }
     it = j.find("SetWindowCompositionAttribute");
     if (it != j.end()) {
@@ -73,7 +73,7 @@ bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
     }
 
   } catch (const std::exception &e) {
-    call(base::ToWide(e.what()));
+    call(bela::ToWide(e.what()));
     return false;
   }
   return true;

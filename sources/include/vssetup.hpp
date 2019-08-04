@@ -7,11 +7,13 @@
 // Published by Visual Studio Setup team
 // Microsoft.VisualStudio.Setup.Configuration.Native
 #include "Setup.Configuration.h"
-#include "base.hpp"
 #include "comutils.hpp"
-#include "strcat.hpp"
 #include "systemtools.hpp"
 #include "vsinstance.hpp"
+#include <bela/strip.hpp>
+#include <bela/match.hpp>
+#include <bela/ascii.hpp>
+#include <bela/env.hpp>
 #include <cstdlib>
 #include <vector>
 
@@ -107,31 +109,27 @@ inline bool VisualStudioNativeSearcher::Initialize() {
 }
 
 inline bool VisualStudioNativeSearcher::IsEWDKEnabled() {
-  std::wstring envEnterpriseWDK, envDisableRegistryUse;
-  clangbuilder::GetEnv(L"EnterpriseWDK", envEnterpriseWDK);
-  clangbuilder::GetEnv(L"DisableRegistryUse", envDisableRegistryUse);
-  return (clangbuilder::UnCaseEqual(envEnterpriseWDK, L"True") &&
-          clangbuilder::UnCaseEqual(envDisableRegistryUse, L"True"));
+  return (bela::EqualsIgnoreCase(L"True", bela::GetEnv(L"EnterpriseWDK")) &&
+          bela::EqualsIgnoreCase(L"True", bela::GetEnv(L"DisableRegistryUse")));
 }
 
 inline std::wstring LookupVCToolsetVersion(std::wstring_view vsdir) {
-  auto vcfile = base::StringCat(
+  auto vcfile = bela::StringCat(
       vsdir, L"/VC/Auxiliary/Build/Microsoft.VCToolsVersion.default.txt");
   std::wstring ver;
   if (!clangbuilder::LookupVersionFromFile(vcfile, ver)) {
     return L"";
   }
-  auto sv = base::StripAsciiWhitespace(ver);
-  return std::wstring(sv);
+  return std::wstring(bela::StripAsciiWhitespace(ver));
 }
 
 inline bool VisualStudioNativeSearcher::CheckInstalledComponent(
     comptr<ISetupPackageReference> package, bool &bWin10SDK, bool &bWin81SDK) {
-  constexpr const WCHAR *Win10SDKComponent =
+  constexpr const std::wstring_view Win10SDKComponent =
       L"Microsoft.VisualStudio.Component.Windows10SDK";
-  constexpr const WCHAR *Win81SDKComponent =
+  constexpr const std::wstring_view Win81SDKComponent =
       L"Microsoft.VisualStudio.Component.Windows81SDK";
-  constexpr const WCHAR *ComponentType = L"Component";
+  constexpr const std::wstring_view ComponentType = L"Component";
   bool ret = false;
   bWin10SDK = bWin81SDK = false;
   comstr bstrId;
@@ -144,13 +142,13 @@ inline bool VisualStudioNativeSearcher::CheckInstalledComponent(
     return ret;
   }
 
-  std::wstring id = std::wstring(bstrId);
-  std::wstring type = std::wstring(bstrType);
+  std::wstring_view id{bstrId};
+  std::wstring_view type{bstrType};
 
   // Checks for any version of Win10 SDK. The version is appended at the end of
   // the
   // component name ex: Microsoft.VisualStudio.Component.Windows10SDK.10240
-  if (id.find(Win10SDKComponent) != std::wstring::npos &&
+  if (id.find(Win10SDKComponent) != std::wstring_view::npos &&
       type.compare(ComponentType) == 0) {
     bWin10SDK = true;
     ret = true;
@@ -160,7 +158,6 @@ inline bool VisualStudioNativeSearcher::CheckInstalledComponent(
     bWin81SDK = true;
     ret = true;
   }
-
   return ret;
 }
 
@@ -260,10 +257,9 @@ inline bool VisualStudioNativeSearcher::GetVSInstanceAll(
     return false;
   }
   if (IsEWDKEnabled()) {
-    std::wstring envWindowsSdkDir81, envVSVersion, envVsInstallDir;
-    clangbuilder::GetEnvString(L"WindowsSdkDir_81", envWindowsSdkDir81);
-    clangbuilder::GetEnvString(L"VisualStudioVersion", envVSVersion);
-    clangbuilder::GetEnvString(L"VSINSTALLDIR", envVsInstallDir);
+    auto envWindowsSdkDir81 = bela::GetEnv(L"WindowsSdkDir_81");
+    auto envVSVersion = bela::GetEnv(L"VisualStudioVersion");
+    auto envVsInstallDir = bela::GetEnv(L"VSINSTALLDIR");
     if (!envVSVersion.empty() && !envVsInstallDir.empty()) {
       // TODO allowed version
       VSInstance item;
@@ -271,12 +267,12 @@ inline bool VisualStudioNativeSearcher::GetVSInstanceAll(
       item.VSInstallLocation = envVsInstallDir;
       item.Version = envVSVersion;
       item.DisplayName =
-          base::StringCat(L"Visual Studio ", envVSVersion, L" (EnterpriseWDK)");
+          bela::StringCat(L"Visual Studio ", envVSVersion, L" (EnterpriseWDK)");
       item.VCToolsetVersion = LookupVCToolsetVersion(item.VSInstallLocation);
       item.ullVersion = std::stoi(envVSVersion);
       item.IsWin10SDKInstalled = true;
       item.IsWin81SDKInstalled = !envWindowsSdkDir81.empty();
-      instances.push_back(std::move(item));
+      instances.emplace_back(std::move(item));
     }
   }
   // resolve all instances.

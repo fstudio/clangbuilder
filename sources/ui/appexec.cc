@@ -1,10 +1,10 @@
 ///////
-#include <argvbuilder.hpp>
-#include <base.hpp>
+#include <bela/base.hpp>
+#include <bela/escapeargv.hpp>
+#include <bela/picker.hpp>
 #include <windowsx.h> // box help
 #include <vector>
 #include "appui.hpp"
-#include "apputils.hpp"
 
 bool Execute(wchar_t *command) {
   PROCESS_INFORMATION pi;
@@ -45,9 +45,10 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                BOOL &bHandled) {
   auto pwshexe = settings.PwshExePath();
   if (pwshexe.empty()) {
-    utils::PrivMessageBox(m_hWnd, L"Unable to find installed powershell",
-                          L"Please check if powershell is installed correctly",
-                          nullptr, utils::kFatalWindow);
+    bela::BelaMessageBox(m_hWnd, L"Unable to find installed powershell",
+                         L"Please check if powershell is installed correctly",
+                         nullptr, bela::mbs_t::FATAL);
+
     return S_FALSE;
   }
 
@@ -75,15 +76,15 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return S_FALSE;
   }
 
-  clangbuilder::ArgvBuilder ab;
+  bela::EscapeArgv ea;
   if (!settings.Conhost().empty()) {
-    ab.Assign(settings.Conhost());
-    //ab.Append(L"--width");
-    //ab.Append(L"90");
-    //ab.Append(L"--height");
-    //ab.Append(L"27");
+    ea.Assign(settings.Conhost());
+    // ea.Append(L"--width");
+    // ea.Append(L"90");
+    // ea.Append(L"--height");
+    // ea.Append(L"27");
   }
-  ab.Append(pwshexe)
+  ea.Append(pwshexe)
       .Append(L"-NoLogo")
       .Append(L"-NoExit")
       .Append(L"-File")
@@ -102,32 +103,32 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
       .Append(tables.Branches[bs]);
 
   if ((be == 1 || be == 3) && Button_GetCheck(hlibcxx) == BST_CHECKED) {
-    ab.Append(L"-Libcxx");
+    ea.Append(L"-Libcxx");
   }
 
   if (Button_GetCheck(hlto) == BST_CHECKED) {
-    ab.Append(L"-LTO");
+    ea.Append(L"-LTO");
   }
 
   if (Button_GetCheck(hsdklow) == BST_CHECKED) {
-    ab.Append(L"-Sdklow");
+    ea.Append(L"-Sdklow");
   }
 
   if (Button_GetCheck(hcpack) == BST_CHECKED) {
-    ab.Append(L"-Package");
+    ea.Append(L"-Package");
   }
 
   if (Button_GetCheck(hlldb) == BST_CHECKED) {
-    ab.Append(L"-LLDB");
+    ea.Append(L"-LLDB");
   }
 
   if (Button_GetCheck(hcleanenv) == BST_CHECKED) {
-    ab.Append(L"-ClearEnv");
+    ea.Append(L"-ClearEnv");
   }
-  if (!Execute(ab.Command())) {
-    auto ec = base::make_system_error_code();
-    utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(),
-                          nullptr, utils::kFatalWindow);
+  if (!Execute(ea.data())) {
+    auto ec = bela::make_system_error_code();
+    bela::BelaMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(),
+                         nullptr, bela::mbs_t::FATAL);
   }
   return S_OK;
 }
@@ -137,9 +138,9 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 
   auto pwshexe = settings.PwshExePath();
   if (pwshexe.empty()) {
-    utils::PrivMessageBox(m_hWnd, L"Unable to find installed powershell",
-                          L"Please check if powershell is installed correctly",
-                          nullptr, utils::kFatalWindow);
+    bela::BelaMessageBox(m_hWnd, L"Unable to find installed powershell",
+                         L"Please check if powershell is installed correctly",
+                         nullptr, bela::mbs_t::FATAL);
     return S_FALSE;
   }
 
@@ -152,15 +153,15 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return S_FALSE;
   }
 
-  clangbuilder::ArgvBuilder ab;
+  bela::EscapeArgv ea;
   if (!settings.Conhost().empty()) {
-    ab.Assign(settings.Conhost());
-    //ab.Append(L"--width");
-    //ab.Append(L"90");
-    //ab.Append(L"--height");
-    //ab.Append(L"27");
+    ea.Assign(settings.Conhost());
+    // ea.Append(L"--width");
+    // ea.Append(L"90");
+    // ea.Append(L"--height");
+    // ea.Append(L"27");
   }
-  ab.Append(pwshexe)
+  ea.Append(pwshexe)
       .Append(L"-NoLogo")
       .Append(L"-NoExit")
       .Append(L"-File")
@@ -173,15 +174,15 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
       .Append(L"-Arch")
       .Append(tables.Targets[archindex_]);
   if (Button_GetCheck(hsdklow) == BST_CHECKED) {
-    ab.Append(L"-Sdklow");
+    ea.Append(L"-Sdklow");
   }
   if (Button_GetCheck(hcleanenv) == BST_CHECKED) {
-    ab.Append(L"-ClearEnv");
+    ea.Append(L"-ClearEnv");
   }
-  if (!Execute(ab.Command())) {
-    auto ec = base::make_system_error_code();
-    utils::PrivMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(),
-                          nullptr, utils::kFatalWindow);
+  if (!Execute(ea.data())) {
+    auto ec = bela::make_system_error_code();
+    bela::BelaMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(),
+                         nullptr, bela::mbs_t::FATAL);
   }
   return S_OK;
 }

@@ -1,7 +1,8 @@
 ///////
 #ifndef CLANGBUILDER_FS_HPP
 #define CLANGBUILDER_FS_HPP
-#include "base.hpp"
+#include <bela/base.hpp>
+#include <bela/env.hpp>
 
 namespace clangbuilder {
 
@@ -139,7 +140,7 @@ inline bool PathRemoveFileSpecU(wchar_t *lpszPath) {
 
 inline bool LookupClangbuilderTarget(std::wstring &root,
                                      std::wstring &targetFile,
-                                     base::error_code &ec) {
+                                     bela::error_code &ec) {
 
   std::wstring engine_(pathcchmax, L'\0');
   auto buffer = &engine_[0];
@@ -149,46 +150,35 @@ inline bool LookupClangbuilderTarget(std::wstring &root,
     if (!PathRemoveFileSpecU(buffer)) {
       return false;
     }
-    auto tmpfile = base::StringCat(buffer, L"\\bin\\ClangbuilderTarget.ps1");
+    auto tmpfile = bela::StringCat(buffer, L"\\bin\\ClangbuilderTarget.ps1");
     if (PathExists(tmpfile)) {
       root.assign(buffer);
       targetFile.assign(std::move(tmpfile));
       return true;
     }
   }
-  ec = base::make_error_code(L"ClangbuilderTarget.ps1 not found");
+  ec = bela::make_error_code(1, L"ClangbuilderTarget.ps1 not found");
   return false;
-}
-
-inline std::wstring ExpandEnv(std::wstring_view v) {
-  std::wstring rstr(pathcchmax, L'\0');
-  auto N = ExpandEnvironmentStringsW(v.data(), &rstr[0], pathcchmax);
-  if (N >= 0) {
-    rstr.resize(N - 1);
-  } else {
-    rstr.clear();
-  }
-  return rstr;
 }
 
 inline bool LookupPwshCore(std::wstring &ps) {
   bool success = false;
-  auto psdir = ExpandEnv(L"%ProgramFiles%\\Powershell");
+  auto psdir = bela::ExpandEnv(L"%ProgramFiles%\\Powershell");
   if (!PathExists(psdir)) {
-    psdir = ExpandEnv(L"%ProgramW6432%\\Powershell");
+    psdir = bela::ExpandEnv(L"%ProgramW6432%\\Powershell");
     if (!PathExists(psdir)) {
       return false;
     }
   }
   WIN32_FIND_DATAW wfd;
-  auto findstr = base::StringCat(psdir, L"\\*");
+  auto findstr = bela::StringCat(psdir, L"\\*");
   HANDLE hFind = FindFirstFileW(findstr.c_str(), &wfd);
   if (hFind == INVALID_HANDLE_VALUE) {
     return false; /// Not found
   }
   do {
     if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-      auto pscore = base::StringCat(psdir, L"\\", wfd.cFileName, L"\\pwsh.exe");
+      auto pscore = bela::StringCat(psdir, L"\\", wfd.cFileName, L"\\pwsh.exe");
       if (PathExists(pscore)) {
         ps.assign(std::move(pscore));
         success = true;
@@ -208,7 +198,7 @@ inline bool LookupPwshDesktop(std::wstring &ps) {
     return false;
   }
   pszPath[N] = 0;
-  ps = base::StringCat(pszPath, L"\\WindowsPowerShell\\v1.0\\powershell.exe");
+  ps = bela::StringCat(pszPath, L"\\WindowsPowerShell\\v1.0\\powershell.exe");
   return true;
 }
 

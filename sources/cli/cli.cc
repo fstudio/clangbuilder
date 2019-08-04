@@ -1,18 +1,19 @@
 /// clangbuiler lanucher script
-#include "../include/appfs.hpp"
-#include "../include/argvbuilder.hpp"
-#include "../include/json.hpp"
-#include "../include/string.hpp"
-#include "../include/systemtools.hpp"
+#include <appfs.hpp>
+#include <json.hpp>
+#include <systemtools.hpp>
+#include <bela/escapeargv.hpp>
+#include <bela/stdwriter.hpp>
+#include <bela/strip.hpp>
 #include <cstdio>
 
 bool IsPwshEnabled() {
   std::wstring target, root;
-  base::error_code ec;
+  bela::error_code ec;
   if (!clangbuilder::LookupClangbuilderTarget(root, target, ec)) {
     return false;
   }
-  auto file = base::StringCat(root, L"\\config\\settings.json");
+  auto file = bela::StringCat(root, L"\\config\\settings.json");
   clangbuilder::FD fd;
   if (_wfopen_s(&fd.fd, file.data(), L"rb") != 0) {
     return false;
@@ -44,22 +45,21 @@ std::wstring LauncherTarget(std::wstring_view Arg0) {
   if (!clangbuilder::PathAbsolute(absArg0, Arg0)) {
     return L"";
   }
-  return base::StringCat(base::StripSuffix(absArg0, L".exe"), L".ps1");
+  return bela::StringCat(bela::StripSuffix(absArg0, L".exe"), L".ps1");
 }
 
 // rc /fo:cli.res ../cbui/res/cli.rc
 // cl cli.cc -std:c++17 -O2 Pathcch.lib shell32.lib Shlwapi.lib cli.res
 int wmain(int argc, wchar_t **argv) {
   // --> launcher some ps1 file
-  _wsetlocale(LC_ALL, L"");
   auto ps1 = LauncherTarget(argv[0]);
   if (!clangbuilder::PathExists(ps1)) {
-    wprintf_s(L"Powershell script '%s' not found\n", ps1.data());
+    bela::FPrintF(stderr, L"Powershell script '%s' not found\n", ps1);
     return 1;
   }
   auto pwshexe = PwshExePath();
-  clangbuilder::ArgvBuilder ab;
-  ab.Assign(pwshexe)
+  bela::EscapeArgv ea;
+  ea.Assign(pwshexe)
       .Append(L"-NoProfile")
       .Append(L"-NoLogo")
       .Append(L"-ExecutionPolicy")
@@ -67,7 +67,7 @@ int wmain(int argc, wchar_t **argv) {
       .Append(L"-File")
       .Append(ps1);
   for (int i = 1; i < argc; i++) {
-    ab.Append(argv[i]);
+    ea.Append(argv[i]);
   }
 
   PROCESS_INFORMATION pi;
@@ -81,11 +81,11 @@ int wmain(int argc, wchar_t **argv) {
   //// Only x86,ARM on Windows 64
   clangbuilder::FsRedirection fsRedirection;
 #endif
-  if (CreateProcessW(nullptr, ab.Command(), NULL, NULL, FALSE,
+  if (CreateProcessW(nullptr, ea.data(), NULL, NULL, FALSE,
                      CREATE_UNICODE_ENVIRONMENT, NULL, NULL, &si,
                      &pi) != TRUE) {
-    auto ec = base::make_system_error_code();
-    wprintf_s(L"CreateProcessW error: %s", ec.message.data());
+    auto ec = bela::make_system_error_code();
+    bela::FPrintF(stderr, L"CreateProcessW error: %s", ec.message);
     return 1;
   }
   CloseHandle(pi.hThread);

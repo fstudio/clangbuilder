@@ -1,10 +1,10 @@
 ///////
 /// clangbuiler lanucher script
-#include "../include/appfs.hpp"
-#include "../include/argvbuilder.hpp"
-#include "../include/json.hpp"
-#include "../include/string.hpp"
-#include "../include/systemtools.hpp"
+#include <appfs.hpp>
+#include <systemtools.hpp>
+#include <bela/escapeargv.hpp>
+#include <bela/stdwriter.hpp>
+#include <bela/strip.hpp>
 #include <cstdio>
 
 #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
@@ -44,8 +44,8 @@ int ExecuteWait(wchar_t *command) {
   if (CreateProcessW(nullptr, command, NULL, NULL, FALSE,
                      CREATE_UNICODE_ENVIRONMENT, NULL, NULL, &si,
                      &pi) != TRUE) {
-    auto ec = base::make_system_error_code();
-    wprintf_s(L"CreateProcessW error: %s", ec.message.data());
+    auto ec = bela::make_system_error_code();
+    bela::FPrintF(stderr, L"CreateProcessW error: %s", ec.message);
     return 1;
   }
   CloseHandle(pi.hThread);
@@ -64,44 +64,41 @@ std::wstring LauncherTarget(std::wstring_view Arg0) {
   if (!clangbuilder::PathAbsolute(absArg0, Arg0)) {
     return L"";
   }
-  return base::StringCat(base::StripSuffix(absArg0, L".exe"), L".bat");
+  return bela::StringCat(bela::StripSuffix(absArg0, L".exe"), L".bat");
 }
 
 std::wstring SystemCMD() {
-  std::wstring cmd;
-  if (clangbuilder::GetEnv(L"ComSpec", cmd)) {
+  auto cmd = bela::GetEnv(L"ComSpec");
+  if (!cmd.empty()) {
     SetConsoleTitleW(cmd.data());
     return cmd;
   }
-  return L"cmd";
+  return L"cmd.exe";
 }
 
 int simplifycmd(int argc, wchar_t **argv) {
-  clangbuilder::ArgvBuilder ab;
-  auto cmd = SystemCMD();
-  ab.Assign(cmd);
+  bela::EscapeArgv ea;
+  ea.Assign(SystemCMD());
   for (int i = 1; i < argc; i++) {
-    ab.Append(argv[i]);
+    ea.Append(argv[i]);
   }
-  return ExecuteWait(ab.Command());
+  return ExecuteWait(ea.data());
 }
 
 int wmain(int argc, wchar_t **argv) {
   enable_vt_console(); // to enable VT console
-  _wsetlocale(LC_ALL, L"");
-  if (base::EndsWith(argv[0], L"cmdex.exe")) {
+  if (bela::EndsWithIgnoreCase(argv[0], L"cmdex.exe")) {
     return simplifycmd(argc--, argv++);
   }
   auto batfile = LauncherTarget(argv[0]);
   if (!clangbuilder::PathExists(batfile)) {
-    wprintf_s(L"Batch file: %s not exists\n", batfile.data());
+    bela::FPrintF(stderr, L"Batch file: %s not exists\n", batfile);
     return 1;
   }
-  clangbuilder::ArgvBuilder ab;
-  auto cmd = SystemCMD();
-  ab.Assign(cmd).Append(L"/k").Append(batfile);
+  bela::EscapeArgv ea;
+  ea.Assign(SystemCMD()).Append(L"/k").Append(batfile);
   for (int i = 1; i < argc; i++) {
-    ab.Append(argv[i]);
+    ea.Append(argv[i]);
   }
-  return ExecuteWait(ab.Command());
+  return ExecuteWait(ea.data());
 }

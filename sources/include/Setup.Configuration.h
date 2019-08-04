@@ -121,6 +121,11 @@ typedef struct ISetupPackageReference ISetupPackageReference;
 typedef struct ISetupProductReference ISetupProductReference;
 #endif
 
+#ifndef __ISetupProductReference2_FWD_DEFINED__
+#define __ISetupProductReference2_FWD_DEFINED__
+typedef struct ISetupProductReference2 ISetupProductReference2;
+#endif
+
 #ifndef __ISetupHelper_FWD_DEFINED__
 #define __ISetupHelper_FWD_DEFINED__
 typedef struct ISetupHelper ISetupHelper;
@@ -169,6 +174,11 @@ typedef struct ISetupPropertyStore ISetupPropertyStore;
 #ifndef __ISetupLocalizedPropertyStore_FWD_DEFINED__
 #define __ISetupLocalizedPropertyStore_FWD_DEFINED__
 typedef struct ISetupLocalizedPropertyStore ISetupLocalizedPropertyStore;
+#endif
+
+#ifndef __ISetupPolicy_FWD_DEFINED__
+#define __ISetupPolicy_FWD_DEFINED__
+typedef struct ISetupPolicy ISetupPolicy;
 #endif
 
 // Forward class declarations
@@ -646,6 +656,25 @@ struct DECLSPEC_UUID("a170b5ef-223d-492b-b2d4-945032980685") DECLSPEC_NOVTABLE I
 };
 #endif
 
+EXTERN_C const IID IID_ISetupProductReference2;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+/// <summary>
+/// A reference to a product package.
+/// </summary>
+struct DECLSPEC_UUID("279a5db3-7503-444b-b34d-308f961b9a06") DECLSPEC_NOVTABLE ISetupProductReference2 : public ISetupProductReference
+{
+    /// <summary>
+    /// Gets a value indicating whether the product supports extensions.
+    /// </summary>
+    /// <param name="pfSupportsExtensions">A value indicating whether the product supports extensions.</param>
+    /// <returns>Standard HRESULT indicating success or failure, including E_NOTSUPPORTED if the reference is not to a product, or E_UNEXPECTED if the SupportsExtensions property is the wrong type.</returns>
+    STDMETHOD(GetSupportsExtensions)(
+        _Out_ VARIANT_BOOL* pfSupportsExtensions
+        ) = 0;
+};
+#endif
+
 EXTERN_C const IID IID_ISetupHelper;
 
 #if defined(__cplusplus) && !defined(CINTERFACE)
@@ -961,6 +990,40 @@ struct DECLSPEC_UUID("5BB53126-E0D5-43DF-80F1-6B161E5C6F6C") DECLSPEC_NOVTABLE I
     STDMETHOD(GetValue)(
         _In_ LPCOLESTR pwszName,
         _In_ LCID lcid,
+        _Out_ LPVARIANT pvtValue
+        ) = 0;
+};
+
+#endif
+
+EXTERN_C const IID IID_ISetupPolicy;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+/// <summary>
+/// Gets setup policy values.
+/// </summary>
+/// <remarks>
+/// You can get this from an <see cref="ISetupConfiguration"/>.
+/// </remarks>
+struct DECLSPEC_UUID("E1DA4CBD-64C4-4C44-821D-98FAB64C4DA7") DECLSPEC_NOVTABLE ISetupPolicy : public IUnknown
+{
+    /// <summary>
+    /// Gets the value of the SharedInstallationPath policy.
+    /// </summary>
+    /// <param name="pbstrSharedInstallationPath">The value of the SharedInstallationPath policy.</param>
+    /// <returns>Standard HRESULT indicating success or failure.</returns>
+    STDMETHOD(GetSharedInstallationPath)(
+        _Out_ BSTR* pbstrSharedInstallationPath
+        ) = 0;
+
+    /// <summary>
+    /// Gets the value of a named policy.
+    /// </summary>
+    /// <param name="pwszName">The name of the policy to get.</param>
+    /// <param name="pvtValue">The value of the named policy.</param>
+    /// <returns>Standard HRESULT indicating success or failure, including E_NOTSUPPORTED if the policy is not supported by this implementation.</returns>
+    STDMETHOD(GetValue)(
+        _In_ LPCOLESTR pwszName,
         _Out_ LPVARIANT pvtValue
         ) = 0;
 };

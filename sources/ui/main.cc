@@ -1,6 +1,5 @@
 // main.cc : Defines the entry point for the application.
 //
-#include <base.hpp>
 #include "appui.hpp"
 
 class dot_global_initializer {

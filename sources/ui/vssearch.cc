@@ -2,19 +2,18 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cctype>
-#include <strcat.hpp>
 #include <vssetup.hpp>
 #include <appfs.hpp>
 #include "app.hpp"
 
 std::wstring FsVisualStudioVersion(std::wstring_view vsdir) {
-  auto vsfile = base::StringCat(vsdir, L"\\Version.txt");
+  auto vsfile = bela::StringCat(vsdir, L"\\Version.txt");
   std::wstring ver;
   if (!clangbuilder::LookupVersionFromFile(vsfile, ver)) {
     return L"";
   }
   constexpr const std::wstring_view prefix = L"Visual Studio ";
-  auto vp = base::StripPrefix(ver, prefix);
+  auto vp = bela::StripPrefix(ver, prefix);
   auto pos = vp.find(' ');
   if (pos == std::wstring_view::npos) {
     return std::wstring(vp);
@@ -43,7 +42,7 @@ std::wstring FsUniqueSubdirName(std::wstring_view dir) {
   if (!dir.empty() && (dir.back() == L'\\' || dir.back() == L'/')) {
     dir.remove_suffix(1);
   }
-  auto findstr = base::StringCat(dir, L"\\*");
+  auto findstr = bela::StringCat(dir, L"\\*");
   HANDLE hFind = FindFirstFileW(findstr.c_str(), &wfd);
   if (hFind == INVALID_HANDLE_VALUE) {
     return L""; /// Not found
@@ -67,18 +66,18 @@ bool VisualStudioSeacher::EnterpriseWDK(std::wstring_view ewdkroot,
     return false;
   }
   auto vsdir =
-      base::StringCat(ewdkroot, L"\\Program Files\\Microsoft Visual Studio");
+      bela::StringCat(ewdkroot, L"\\Program Files\\Microsoft Visual Studio");
   if (!clangbuilder::PathExists(vsdir)) {
     return false;
   }
   auto product = FsUniqueSubdirName(vsdir);
   vsi.VSInstallLocation =
-      base::StringCat(vsdir, L"\\", product, L"\\BuildTools");
+      bela::StringCat(vsdir, L"\\", product, L"\\BuildTools");
   vsi.Version = FsVisualStudioVersion(vsi.VSInstallLocation);
   auto incdir =
-      base::StringCat(ewdkroot, L"\\Program Files\\Windows Kits\\10\\include");
+      bela::StringCat(ewdkroot, L"\\Program Files\\Windows Kits\\10\\include");
   auto sdkver = FsUniqueSubdirName(incdir);
-  vsi.DisplayName = base::StringCat(L"Visual Studio BuildTools ", product,
+  vsi.DisplayName = bela::StringCat(L"Visual Studio BuildTools ", product,
                                     L" (Enterprise WDK ", sdkver, L")");
   vsi.InstanceId.assign(L"VisualStudio.EWDK");
   return true;
