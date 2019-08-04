@@ -48,7 +48,7 @@ int dumpexejson(bela::PESimpleDetails &pe) {
     }
     j["DllCharacteristics"] = pe.dllcharacteristics;
     j["Characteristics"] = pe.characteristics;
-    bela::FPrintF(stdout, L"%s", j.dump(4)); /// output
+    bela::FPrintF(stdout, L"%s\n", j.dump(4)); /// output
   } catch (const std::exception &e) {
     bela::FPrintF(stderr, L"unable parse exe: %s\n", e.what());
     return -1;
@@ -98,7 +98,7 @@ bool analyzefile(std::wstring_view src, bool tojson) {
       for (const auto &e : rp.Attributes()) {
         j[bela::ToNarrow(e.name)] = bela::ToNarrow(e.value);
       }
-      bela::FPrintF(stdout, L"%s", j.dump(4)); /// output
+      bela::FPrintF(stdout, L"%s\n", j.dump(4)); /// output
     } catch (const std::exception &e) {
       bela::FPrintF(stderr, L"unable parse exe: %s\n", e.what());
       return false;

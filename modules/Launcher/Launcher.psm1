@@ -18,7 +18,8 @@ Function MakeLauncher {
     $origindir = Get-Location
     Set-Location $builddir
     $CCFile = "$Cbroot/sources/template/link.template.windows.cc"
-    $obj = &$Blastexe --dump $Path | ConvertFrom-Json
+    $obj = &$Blastexe -J --dump $Path | ConvertFrom-Json
+    Write-Host $obj
     $IsConsole = $false
     if ($null -ne $obj -and ($null -ne $obj.Subsystem) -and $obj.Subsystem -eq "Windows CUI") {
         $IsConsole = $true
@@ -64,14 +65,17 @@ Function MakeLauncher {
             }
         }
         $rcontent | Out-File -FilePath "$Name.rc" -Encoding unicode
-        rc /nologo "$Name.rc" | Out-Host
-        cl /nologo /Os "$Name.cc" /c | Out-Host
+        rc -nologo "$Name.rc" | Out-Host
+        cl -std:c++17 -nologo -Os "$Name.cc" -c | Out-Host
+        if ($LASTEXITCODE -ne 0) {
+        	return $false
+        }
         Write-Host "link $Name to exe"
         if ($IsConsole) {
-            link /nologo /NODEFAULTLIB /SUBSYSTEM:CONSOLE /ENTRY:wmain "$Name.obj" "$Name.res" Shell32.lib kernel32.lib user32.lib "/OUT:$Name.exe" | Out-Host
+            link -nologo -NODEFAULTLIB -SUBSYSTEM:CONSOLE -ENTRY:wmain "$Name.obj" "$Name.res" kernel32.lib user32.lib "-OUT:$Name.exe" | Out-Host
         }
         else {
-            link /nologo /NODEFAULTLIB /SUBSYSTEM:WINDOWS /ENTRY:wWinMain "$Name.obj" "$Name.res" Shell32.lib kernel32.lib user32.lib  "/OUT:$Name.exe" | Out-Host
+            link -nologo -NODEFAULTLIB -SUBSYSTEM:WINDOWS -ENTRY:wWinMain "$Name.obj" "$Name.res" kernel32.lib user32.lib  "-OUT:$Name.exe" | Out-Host
         }
         Move-Item "$Name.exe" -Force -Destination "$Cbroot/bin/pkgs/.linked/$Name.exe"
     }
