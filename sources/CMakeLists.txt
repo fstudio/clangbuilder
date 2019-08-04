@@ -78,6 +78,5 @@ include_directories(
 )
 
 add_subdirectory(bela)
-add_subdirectory(cbui)
-add_subdirectory(blast)
+add_subdirectory(ui)
 add_subdirectory(cli)

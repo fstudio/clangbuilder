@@ -34,21 +34,21 @@ install(TARGETS cmdex
 	DESTINATION bin
 )
 
-add_executable(blastex
+add_executable(blast
   blast.cc
-  ../res/cmdex.rc
+  ../res/blast.rc
   ../res/cli.manifest
 )
 
 if(lto_supported)
-  set_property(TARGET blastex PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+  set_property(TARGET blast PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif()
 
-target_link_libraries(blastex
+target_link_libraries(blast
   belawin
 )
 
-install(TARGETS blastex
+install(TARGETS blast
 	DESTINATION bin
 )
 
