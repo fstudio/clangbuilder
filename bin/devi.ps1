@@ -529,6 +529,7 @@ if ($upgradeTable.Contains($subcmd)) {
     }
     $mtx.ReleaseMutex()
     Write-Host "Update package completed."
+    exit 0
 }
 
 $versionTable = "-v", "--version", "version"
