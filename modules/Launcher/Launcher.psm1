@@ -19,7 +19,7 @@ Function MakeLauncher {
     Set-Location $builddir
     $CCFile = "$Cbroot/sources/template/link.template.windows.cc"
     $obj = &$Blastexe -J --dump $Path | ConvertFrom-Json
-    Write-Host $obj
+    #Write-Host $obj
     $IsConsole = $false
     if ($null -ne $obj -and ($null -ne $obj.Subsystem) -and $obj.Subsystem -eq "Windows CUI") {
         $IsConsole = $true
