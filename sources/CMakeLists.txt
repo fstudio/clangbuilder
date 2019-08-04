@@ -44,7 +44,7 @@ endif()
 if (MSVC)
   add_compile_options("-D_CRT_SECURE_NO_WARNINGS=1")
   add_compile_options("-Zc:__cplusplus") # C++ __cplusplus
-  
+  set(CMAKE_RC_FLAGS "${CMAKE_RC_FLAGS} -c65001")
   set(WIN_COMPILER_FLAGS
     CMAKE_CXX_FLAGS
     CMAKE_CXX_FLAGS_DEBUG
