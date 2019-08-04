@@ -4,7 +4,7 @@ Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
 Import-Module -Name "$ClangbuilderRoot\modules\Launcher"
 Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
 
-$ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot -Pkglocksdir "$ClangbuilderRoot\bin\pkgs\.locks"
+$ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot
 if ($ret -ne 0) {
     exit 1
 }

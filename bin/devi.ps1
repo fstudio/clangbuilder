@@ -420,9 +420,9 @@ Function Update-Ports {
             Write-Host -ForegroundColor Red "devi default ports config missing, file: $ClangbuilderRoot/config/devi.json"
             return $false
         }
-        foreach ($t in $devcore.core) {
-            if (!$pkgtable.ContainsKey($t)) {
-                Install-Port -ClangbuilderRoot $ClangbuilderRoot -Name $t -Pkglocksdir $Pkglocksdir | Out-Null
+        foreach ($n in $devcore.core) {
+            if (!$pkgtable.ContainsKey($n)) {
+                Install-Port -ClangbuilderRoot $ClangbuilderRoot -Name $n | Out-Null
             }
         }
     }

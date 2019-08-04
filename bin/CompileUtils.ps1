@@ -4,40 +4,61 @@
 Import-Module -Name "$ClangbuilderRoot\modules\Initialize"
 Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
 Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
+Import-Module -Name "$ClangbuilderRoot\modules\Utils" # Package Manager
 
-$ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot -Pkglocksdir $Pkglocksdir
+$ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot
 if ($ret -ne 0) {
     # Need vswhere
     exit 1
 }
 Push-Location $PWD
-Set-Location $PSScriptRoot
 
 $ret = DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot # initialize default visual studio
 if ($ret -ne 0) {
     Write-Host -ForegroundColor Red "Not found valid installed visual studio."
     exit 1
 }
+if (Test-Path "$ClangbuilderRoot/bin/pkgs/cmake/bin/cmake.exe") {
+    $cmakeexe = "$ClangbuilderRoot/bin/pkgs/cmake/bin/cmake.exe"
+}
+
+if ($null -eq $cmakeexe) {
+    $cmakeexes = Get-Command -Name "cmake.exe" -CommandType Application -ErrorAction SilentlyContinue
+    if ($null -eq $cmakeexes) {
+        Write-Host -ForegroundColor Red "You should be in VisualStudio select install cmake"
+        exit 1
+    }
+    $cmakeexe = $cmakeexes[0].Source
+}
+
+
+
 ## Add environment
 InitializeEnv -ClangbuilderRoot $ClangbuilderRoot
-Set-Location "$ClangbuilderRoot\sources\cbui"
-Write-Host "Building ClangbuilderUI ..."
-&nmake
-
-if (!(Test-Path "ClangbuilderUI.exe")) {
-    Write-Error "Build ClangbuilderUI.exe failed"
-    Pop-Location
-    return 1
+New-Item -ItemType Directory -Force -ErrorAction SilentlyContinue "$ClangbuilderRoot\bin\utils" | Out-Null
+$OutDir = "$ClangbuilderRoot\sources\out"
+New-Item -ItemType Directory -Force $OutDir -ErrorAction SilentlyContinue | Out-Null
+Remove-Item -Force "$OutDir\*" -Recurse -ErrorAction SilentlyContinue # remove build 
+Write-Host "Building Clangbuilder Utils ..."
+$ec = ProcessExec -FilePath $cmakeexe -Argv "-G`"NMake Makefiles`" -DCMAKE_BUILD_TYPE=Release .." -WD $OutDir
+if ($ec -ne 0) {
+    exit $ec
 }
 
-if (!(Test-Path "$ClangbuilderRoot\bin\utils")) {
-    mkdir -Force "$ClangbuilderRoot\bin\utils"
+$ec = ProcessExec -FilePath $cmakeexe -Argv "--build .  --config Release" -WD $OutDir
+if ($ec -ne 0) {
+    exit $ec
 }
 
-Copy-Item -Path "ClangbuilderUI.exe" -Destination "$ClangbuilderRoot\bin\utils"
-&nmake clean
-Set-Location $PSScriptRoot
+$Utils = "ClangbuilderUI.exe", "blast.exe", "cli.exe", "cmdex.exe"
 
+foreach ($e in $Utils) {
+    if (!(Test-Path "$OutDir\bin\$e")) {
+        Write-Host -ForegroundColor Red "File: $OutDir\bin\$e not exists"
+        exit 1
+    }
+    Copy-Item -Path "$OutDir\bin\$e" -Destination "$ClangbuilderRoot\bin\utils"
+}
 
 if (Test-Path "$ClangbuilderRoot\bin\utils\ClangbuilderUI.exe") {
     $cswshell = New-Object -ComObject WScript.Shell
@@ -50,39 +71,12 @@ if (Test-Path "$ClangbuilderRoot\bin\utils\ClangbuilderUI.exe") {
     # support overwrite
     $clangbuilderlnk.Save()
 }
-else {
-    Write-Error "Cannot found ClangbuilderUI.exe "
-}
-Set-Location "$ClangbuilderRoot\sources\blast"
-&nmake
-if (Test-Path "$ClangbuilderRoot\sources\blast\blast.exe") {
-    Copy-Item -Path  "$ClangbuilderRoot\sources\blast\blast.exe" -Destination  "$ClangbuilderRoot\bin"
-}
-&nmake clean
-
-Pop-Location
-
-Set-Location "$ClangbuilderRoot\sources\cli"
-&nmake
-if (Test-Path "$ClangbuilderRoot\sources\cli\cli.exe") {
-    Copy-Item -Path  "$ClangbuilderRoot\sources\cli\cli.exe" -Destination  "$ClangbuilderRoot\bin\utils"
-}
-&nmake clean
-
-Pop-Location
 
 $LauncherUtils = "$ClangbuilderRoot\bin\utils\cli.exe"
-$Blastexe = "$ClangbuilderRoot\bin\blast.exe"
+$Blastexe = "$ClangbuilderRoot\bin\utils\blast.exe"
+&$Blastexe --link $Blastexe "$ClangbuilderRoot\bin\blast.exe" -F # install self
+&$Blastexe --link $LauncherUtils "$ClangbuilderRoot\bin\ClangbuilderTarget.exe" -F
+&$Blastexe --link $LauncherUtils "$ClangbuilderRoot\bin\mklauncher.exe" -F
+&$Blastexe --link $LauncherUtils "$ClangbuilderRoot\bin\devi.exe" -F
 
-
-if (!(Test-Path "$ClangbuilderRoot\bin\ClangbuilderTarget.exe")) {
-    &$Blastexe --link $LauncherUtils "$ClangbuilderRoot\bin\ClangbuilderTarget.exe"
-}
-
-if (!(Test-Path "$ClangbuilderRoot\bin\mklauncher.exe")) {
-    &$Blastexe --link $LauncherUtils "$ClangbuilderRoot\bin\mklauncher.exe"
-}
-
-if (!(Test-Path "$ClangbuilderRoot\bin\devi.exe")) {
-    &$Blastexe --link $LauncherUtils "$ClangbuilderRoot\bin\devi.exe"
-}
+Remove-Item $OutDir -Force -Recurse -ErrorAction SilentlyContinue

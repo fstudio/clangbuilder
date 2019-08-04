@@ -61,13 +61,12 @@ Function IsAcceptPath {
 
 Function DevinitializeEnv {
     param(
-        [String]$ClangbuilderRoot,
-        [String]$Pkglocksdir
+        [String]$ClangbuilderRoot
     )
     $pkgdir = "$ClangbuilderRoot\bin\pkgs"
     $linkdir = "$ClangbuilderRoot\bin\pkgs\.linked"
     $paths = $env:PATH.Split(";")
-    Get-ChildItem "$Pkglocksdir\*.json" -ErrorAction SilentlyContinue | ForEach-Object {
+    Get-ChildItem "$ClangbuilderRoot\bin\pkgs\.locks\*.json" -ErrorAction SilentlyContinue | ForEach-Object {
         $xobj = Get-Content $_.FullName  -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
         $pkgname = $_.BaseName
         $mount = "$($xobj.mount)"

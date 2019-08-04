@@ -1,2 +1,2 @@
 @Echo off
-PowerShell -NoProfile -NoLogo -ExecutionPolicy unrestricted -File "%~dp0../bin/Devi.ps1" upgrade --default
+PowerShell -NoProfile -NoLogo -ExecutionPolicy unrestricted -File "%~dp0../bin/devi.ps1" upgrade --default

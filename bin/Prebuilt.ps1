@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 $ClangbuilderRoot = Split-Path $PSScriptRoot
 Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
-$ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot -Pkglocksdir "$ClangbuilderRoot\bin\pkgs\.locks"
+$ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot
 if ($ret -ne 0) {
     exit 1
 }

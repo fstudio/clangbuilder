@@ -16,5 +16,3 @@ Function ReinitializePath {
 }
 
 $ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
-$Pkglocksdir = "$ClangbuilderRoot/bin/pkgs/.locks"
-$Pkglocksdir | Out-Null

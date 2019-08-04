@@ -74,7 +74,7 @@ $Text = "Visual C++ 2015"
 
 $ClangbuilderRoot = Split-Path $PSScriptRoot
 Import-Module "$ClangbuilderRoot\modules\Devi"
-$ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot -Pkglocksdir "$ClangbuilderRoot\bin\pkgs\.locks"
+$ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot
 
 if ($ret -ne $true) {
     #TODO

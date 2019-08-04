@@ -42,7 +42,7 @@ Import-Module -Name "$ClangbuilderRoot\modules\CMake"
 Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
 Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
 
-$ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot -Pkglocksdir $Pkglocksdir
+$ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot
 if ($ret -ne 0) {
     exit 1
 }
