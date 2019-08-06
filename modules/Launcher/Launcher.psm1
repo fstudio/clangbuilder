@@ -72,10 +72,10 @@ Function MakeLauncher {
         }
         Write-Host "link $Name to exe"
         if ($IsConsole) {
-            link -nologo -NODEFAULTLIB -SUBSYSTEM:CONSOLE -ENTRY:wmain "$Name.obj" "$Name.res" kernel32.lib user32.lib "-OUT:$Name.exe" | Out-Host
+            link -nologo "-OPT:REF" "-OPT:ICF" -NODEFAULTLIB -SUBSYSTEM:CONSOLE -ENTRY:wmain "$Name.obj" "$Name.res" kernel32.lib user32.lib "-OUT:$Name.exe" | Out-Host
         }
         else {
-            link -nologo -NODEFAULTLIB -SUBSYSTEM:WINDOWS -ENTRY:wWinMain "$Name.obj" "$Name.res" kernel32.lib user32.lib  "-OUT:$Name.exe" | Out-Host
+            link -nologo "-OPT:REF" "-OPT:ICF" -NODEFAULTLIB -SUBSYSTEM:WINDOWS -ENTRY:wWinMain "$Name.obj" "$Name.res" kernel32.lib user32.lib  "-OUT:$Name.exe" | Out-Host
         }
         Move-Item "$Name.exe" -Force -Destination "$Cbroot/bin/pkgs/.linked/$Name.exe"
     }
