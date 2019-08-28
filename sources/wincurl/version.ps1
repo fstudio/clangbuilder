@@ -39,7 +39,7 @@ $CURL_URL = "https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz"
 $CURL_FILE = "curl-${CURL_VERSION}"
 
 #curl-ca-bundle
-$CA_BUNDLE_URL = "https://curl.haxx.se/ca/cacert-2019-05-15.pem"
+$CA_BUNDLE_URL = "https://curl.haxx.se/ca/cacert-2019-08-28.pem"
 
 Function DumpLocal {
     $dumptext = $ZLIB_VERSION + $ZLIB_HASH + $ZLIB_FILENAME + $ZLIB_URL 
