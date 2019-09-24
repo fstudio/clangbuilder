@@ -1,8 +1,8 @@
 {
     "description": "A simple, fast and user-friendly alternative to 'find'",
-    "version": "v7.3.0",
-    "url": "https://github.com/sharkdp/fd/releases/download/v7.3.0/fd-v7.3.0-i686-pc-windows-msvc.zip",
-    "url64": "https://github.com/sharkdp/fd/releases/download/v7.3.0/fd-v7.3.0-x86_64-pc-windows-msvc.zip",
+    "version": "v7.4.0",
+    "url": "https://github.com/sharkdp/fd/releases/download/v7.4.0/fd-v7.4.0-i686-pc-windows-msvc.zip",
+    "url64": "https://github.com/sharkdp/fd/releases/download/v7.4.0/fd-v7.4.0-x86_64-pc-windows-msvc.zip",
     "extension": "zip",
     "links": [
         "fd.exe"
