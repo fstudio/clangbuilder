@@ -1,8 +1,8 @@
 {
     "description": "Neovim - Vim-fork focused on extensibility and usability",
-    "version": "0.3.8",
-    "url": "https://github.com/neovim/neovim/releases/download/v0.3.8/nvim-win32.zip",
-    "url64": "https://github.com/neovim/neovim/releases/download/v0.3.8/nvim-win64.zip",
+    "version": "0.4.2",
+    "url": "https://github.com/neovim/neovim/releases/download/v0.4.2/nvim-win32.zip",
+    "url64": "https://github.com/neovim/neovim/releases/download/v0.4.2/nvim-win64.zip",
     "extension": "zip",
     "launcher": [
         "bin\\nvim.exe",
