@@ -1,8 +1,8 @@
 {
     "description": "The ultra fast download utility",
-    "version": "1.34.0",
-    "url": "https://github.com/aria2/aria2/releases/download/release-1.34.0/aria2-1.34.0-win-32bit-build1.zip",
-    "url64": "https://github.com/aria2/aria2/releases/download/release-1.34.0/aria2-1.34.0-win-64bit-build1.zip",
+    "version": "1.35.0",
+    "url": "https://github.com/aria2/aria2/releases/download/release-1.35.0/aria2-1.35.0-win-32bit-build1.zip",
+    "url64": "https://github.com/aria2/aria2/releases/download/release-1.35.0/aria2-1.35.0-win-64bit-build1.zip",
     "extension": "zip",
     "links": [
         "aria2c.exe"
