@@ -151,7 +151,6 @@ HRESULT MainWindow::OnRender() {
   if (hr == D2DERR_RECREATE_TARGET) {
     hr = S_OK;
     DiscardDeviceResources();
-    ::InvalidateRect(m_hWnd, nullptr, FALSE);
   }
   return hr;
 }
