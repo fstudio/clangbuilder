@@ -295,12 +295,12 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   InsertMenuW(hSystemMenu, SC_CLOSE, MF_ENABLED, IDM_CLANGBUILDER_ABOUT,
               L"About ClangbuilderUI\tAlt+F1");
 
-  labels.emplace_back(30, 20, 190, 50, L"Distribution\t\U0001F19A:");//🆚
-  labels.emplace_back(30, 60, 190, 90, L"Architecture\t\U0001F4BB:");//💻
-  labels.emplace_back(30, 100, 190, 130, L"Configuration\t\u2699:");//⚙
-  labels.emplace_back(30, 140, 190, 170, L"Branches\t\t\u26A1:");//⚡
-  labels.emplace_back(30, 180, 190, 210, L"Engine\t\t\U0001f6e0:");//🛠
-  labels.emplace_back(30, 230, 190, 270, L"Build Options\t\u2611:");//☑
+  labels.emplace_back(30, 20, 190, 50, L"Distribution\t\U0001F19A:"); //🆚
+  labels.emplace_back(30, 60, 190, 90, L"Architecture\t\U0001F4BB:"); //💻
+  labels.emplace_back(30, 100, 190, 130, L"Configuration\t\u2699:");  //⚙
+  labels.emplace_back(30, 140, 190, 170, L"Branches\t\t\u26A1:");     //⚡
+  labels.emplace_back(30, 180, 190, 210, L"Engine\t\t\U0001f6e0:");   //🛠
+  labels.emplace_back(30, 230, 190, 270, L"Build Options\t\u2611:");  //☑
   ///
   if (settings.SetWindowCompositionAttributeEnabled()) {
     if (!SetWindowCompositionAttributeImpl(m_hWnd)) {
@@ -341,10 +341,11 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
   // dpiY = static_cast<int>(dpiY_);
   dpiX = ::GetDpiForSystem();
   dpiY = dpiX;
-  RECT *const prcNewWindow = (RECT *)lParam;
-  ::SetWindowPos(m_hWnd, NULL, prcNewWindow->left, prcNewWindow->top,
-                 MulDiv(prcNewWindow->right - prcNewWindow->left, dpiX, 96),
-                 MulDiv(prcNewWindow->bottom - prcNewWindow->top, dpiY, 96),
+  auto prcNewWindow = reinterpret_cast<RECT *const>(lParam);
+  // resize window with new DPI
+  ::SetWindowPos(m_hWnd, nullptr, prcNewWindow->left, prcNewWindow->top,
+                 prcNewWindow->right - prcNewWindow->left,
+                 prcNewWindow->bottom - prcNewWindow->top,
                  SWP_NOZORDER | SWP_NOACTIVATE);
   LOGFONTW logFont = {0};
   GetObjectW(hFont, sizeof(logFont), &logFont);
