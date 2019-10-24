@@ -32,26 +32,27 @@ constexpr const wchar_t *AppWindowName = L"Clangbuilder.Render.UI.Window";
 using WindowTraits =
     CWinTraits<WS_OVERLAPPEDWINDOW, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE>;
 
-struct KryceLabel {
-  KryceLabel(LONG left, LONG top, LONG right, LONG bottom, const wchar_t *text)
+struct Label {
+  Label(LONG left, LONG top, LONG right, LONG bottom, const wchar_t *text)
       : text(text) {
     layout.left = left;
     layout.top = top;
     layout.right = right;
     layout.bottom = bottom;
   }
-  RECT layout;
   D2D1_RECT_F F() const {
     return D2D1::RectF((float)layout.left, (float)layout.top,
                        (float)layout.right, (float)layout.bottom);
   }
-  std::wstring text;
   const wchar_t *data() const { return text.data(); }
   UINT32 length() const { return static_cast<UINT32>(text.size()); }
   bool empty() const { return text.empty(); }
+  RECT layout;
+  std::wstring text;
 };
 
 struct EngineItem {
+  EngineItem() = default;
   EngineItem(std::wstring_view d, std::wstring_view v) : Desc(d), Value(v) {}
   std::wstring Desc;
   std::wstring Value;
@@ -63,7 +64,7 @@ struct ClangbuilderTable {
   std::vector<EngineItem> Engines;
   std::vector<std::wstring> Branches;
   ClangbuilderTable &AddEngine(std::wstring_view d, std::wstring_view v) {
-    Engines.push_back(EngineItem(d, v));
+    Engines.emplace_back(d, v);
     return *this;
   }
 };
@@ -151,7 +152,7 @@ private:
   Widget hbuildtask;
   Widget hbuildenv;
   Settings settings;
-  std::vector<KryceLabel> labels;
+  std::vector<Label> labels;
   std::wstring targetFile;
   std::wstring root;
   ClangbuilderTable tables;
