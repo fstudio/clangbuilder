@@ -383,6 +383,7 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
   UpdateWindowPos(hconfigbox);
   UpdateWindowPos(hbranchbox);
   UpdateWindowPos(hbuildbox);
+  UpdateWindowPos(hlibcxx);
   UpdateWindowPos(hlto);
   UpdateWindowPos(hsdklow);
   UpdateWindowPos(hcpack);
@@ -423,7 +424,7 @@ LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 LRESULT MainWindow::OnChangeEngine(WORD wNotifyCode, WORD wID, HWND hWndCtl,
                                    BOOL &bHandled) {
   if (wNotifyCode == CBN_SELCHANGE) {
-    auto N = ComboBox_GetCurSel(hbuildbox);
+    auto N = ComboBox_GetCurSel(hbuildbox.hWnd);
     hlibcxx.Enable(N == 1 || N == 3);
   }
   return S_OK;
