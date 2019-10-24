@@ -31,7 +31,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                                ICC_TREEVIEW_CLASSES | ICC_COOL_CLASSES |
                                    ICC_LISTVIEW_CLASSES};
   InitCommonControlsEx(&info);
-  SetProcessDPIAware(); // Enable DPI
+  // SetProcessDPIAware(); // Enable DPI
   MainWindow window;
   MSG msg;
   window.InitializeWindow();

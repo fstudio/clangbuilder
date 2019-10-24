@@ -17,7 +17,6 @@
 #include "../res/appuires.h"
 #include "app.hpp"
 
-
 #ifndef SYSCOMMAND_ID_HANDLER
 #define SYSCOMMAND_ID_HANDLER(id, func)                                        \
   if (uMsg == WM_SYSCOMMAND && id == LOWORD(wParam)) {                         \
@@ -69,9 +68,17 @@ struct ClangbuilderTable {
   }
 };
 
+struct Widget {
+  HWND hWnd{nullptr};
+  RECT layout;
+  bool Enable(bool enable) {
+    return ::EnableWindow(hWnd, enable ? TRUE : FALSE) == TRUE;
+  }
+};
+
 class MainWindow : public CWindowImpl<MainWindow, CWindow, WindowTraits> {
 public:
-  MainWindow() = default;
+  MainWindow();
   ~MainWindow();
   LRESULT InitializeWindow();
   DECLARE_WND_CLASS(AppWindowName)
@@ -125,23 +132,24 @@ private:
   ///////////
   bool InitializeElemets();
   /// member
+  HINSTANCE hInst{nullptr};
   HFONT hFont{nullptr};
   // combobox
-  HWND hvsbox;
-  HWND htargetbox;
-  HWND hconfigbox;
-  HWND hbranchbox;
-  HWND hbuildbox;
+  Widget hvsbox;
+  Widget htargetbox;
+  Widget hconfigbox;
+  Widget hbranchbox;
+  Widget hbuildbox;
   // checkbox
-  HWND hlibcxx;
-  HWND hlto;
-  HWND hsdklow;
-  HWND hcpack;
-  HWND hcleanenv;
-  HWND hlldb;
+  Widget hlibcxx;
+  Widget hlto;
+  Widget hsdklow;
+  Widget hcpack;
+  Widget hcleanenv;
+  Widget hlldb;
   // button about
-  HWND hbuildtask;
-  HWND hbuildenv;
+  Widget hbuildtask;
+  Widget hbuildenv;
   Settings settings;
   std::vector<KryceLabel> labels;
   std::wstring targetFile;

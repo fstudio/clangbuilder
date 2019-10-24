@@ -52,26 +52,26 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return S_FALSE;
   }
 
-  auto vsindex_ = ComboBox_GetCurSel(hvsbox);
+  auto vsindex_ = ComboBox_GetCurSel(hvsbox.hWnd);
   if (vsindex_ < 0 || search.Size() <= (size_t)vsindex_) {
     return S_FALSE;
   }
-  auto archindex_ = ComboBox_GetCurSel(htargetbox);
+  auto archindex_ = ComboBox_GetCurSel(htargetbox.hWnd);
   if (archindex_ < 0 || tables.Targets.size() <= archindex_) {
     return S_FALSE;
   }
 
-  auto flavor_ = ComboBox_GetCurSel(hconfigbox);
+  auto flavor_ = ComboBox_GetCurSel(hconfigbox.hWnd);
   if (flavor_ < 0 || tables.Configurations.size() <= flavor_) {
     return S_FALSE;
   }
 
-  auto be = ComboBox_GetCurSel(hbuildbox);
+  auto be = ComboBox_GetCurSel(hbuildbox.hWnd);
   if (be < 0 || tables.Engines.size() <= be) {
     return S_FALSE;
   }
 
-  auto bs = ComboBox_GetCurSel(hbranchbox);
+  auto bs = ComboBox_GetCurSel(hbranchbox.hWnd);
   if (bs < 0 || tables.Branches.size() <= bs) {
     return S_FALSE;
   }
@@ -102,27 +102,27 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
       .Append(L"-Branch")
       .Append(tables.Branches[bs]);
 
-  if ((be == 1 || be == 3) && Button_GetCheck(hlibcxx) == BST_CHECKED) {
+  if ((be == 1 || be == 3) && Button_GetCheck(hlibcxx.hWnd) == BST_CHECKED) {
     ea.Append(L"-Libcxx");
   }
 
-  if (Button_GetCheck(hlto) == BST_CHECKED) {
+  if (Button_GetCheck(hlto.hWnd) == BST_CHECKED) {
     ea.Append(L"-LTO");
   }
 
-  if (Button_GetCheck(hsdklow) == BST_CHECKED) {
+  if (Button_GetCheck(hsdklow.hWnd) == BST_CHECKED) {
     ea.Append(L"-Sdklow");
   }
 
-  if (Button_GetCheck(hcpack) == BST_CHECKED) {
+  if (Button_GetCheck(hcpack.hWnd) == BST_CHECKED) {
     ea.Append(L"-Package");
   }
 
-  if (Button_GetCheck(hlldb) == BST_CHECKED) {
+  if (Button_GetCheck(hlldb.hWnd) == BST_CHECKED) {
     ea.Append(L"-LLDB");
   }
 
-  if (Button_GetCheck(hcleanenv) == BST_CHECKED) {
+  if (Button_GetCheck(hcleanenv.hWnd) == BST_CHECKED) {
     ea.Append(L"-ClearEnv");
   }
   if (!Execute(ea.data())) {
@@ -144,11 +144,11 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     return S_FALSE;
   }
 
-  auto vsindex_ = ComboBox_GetCurSel(hvsbox);
+  auto vsindex_ = ComboBox_GetCurSel(hvsbox.hWnd);
   if (vsindex_ < 0 || search.Size() <= (size_t)vsindex_) {
     return S_FALSE;
   }
-  auto archindex_ = ComboBox_GetCurSel(htargetbox);
+  auto archindex_ = ComboBox_GetCurSel(htargetbox.hWnd);
   if (archindex_ < 0 || tables.Targets.size() <= archindex_) {
     return S_FALSE;
   }
@@ -173,10 +173,10 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
       .Append(search.InstallVersion(vsindex_))
       .Append(L"-Arch")
       .Append(tables.Targets[archindex_]);
-  if (Button_GetCheck(hsdklow) == BST_CHECKED) {
+  if (Button_GetCheck(hsdklow.hWnd) == BST_CHECKED) {
     ea.Append(L"-Sdklow");
   }
-  if (Button_GetCheck(hcleanenv) == BST_CHECKED) {
+  if (Button_GetCheck(hcleanenv.hWnd) == BST_CHECKED) {
     ea.Append(L"-ClearEnv");
   }
   if (!Execute(ea.data())) {
