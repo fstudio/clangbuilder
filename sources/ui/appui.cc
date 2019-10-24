@@ -369,15 +369,14 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
                  prcNewWindow->bottom - prcNewWindow->top,
                  SWP_NOZORDER | SWP_NOACTIVATE);
   UpdateFontWithNewDPI(hFont, dpiY);
-  renderTarget->SetDpi(static_cast<float>(dpiX), static_cast<float>(dpiX));
+  renderTarget->SetDpi(static_cast<float>(dpiX), static_cast<float>(dpiY));
   auto UpdateWindowPos = [&](const Widget &w) {
-    RECT rect;
-    ::SetWindowPos(hWnd, NULL, MulDiv(w.layout.left, dpiX, 96),
+    ::SetWindowPos(w.hWnd, NULL, MulDiv(w.layout.left, dpiX, 96),
                    MulDiv(w.layout.top, dpiY, 96),
                    MulDiv(w.layout.right - w.layout.left, dpiX, 96),
                    MulDiv(w.layout.bottom - w.layout.top, dpiY, 96),
                    SWP_NOZORDER | SWP_NOACTIVATE);
-    ::SendMessageW(hWnd, WM_SETFONT, (WPARAM)hFont, lParam);
+    ::SendMessageW(w.hWnd, WM_SETFONT, (WPARAM)hFont, lParam);
   };
   UpdateWindowPos(hvsbox);
   UpdateWindowPos(htargetbox);
