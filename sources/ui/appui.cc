@@ -282,7 +282,7 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
     w.layout.top = Y;
     w.layout.right = X + nWidth;
     w.layout.bottom = Y + nHeight;
-    ::SendMessageW(hw, WM_SETFONT, (WPARAM)hFont, lParam);
+    ::SendMessageW(hw, WM_SETFONT, (WPARAM)hFont, TRUE);
     return true;
   };
 
@@ -377,7 +377,7 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
                    MulDiv(w.layout.right - w.layout.left, dpiX, 96),
                    MulDiv(w.layout.bottom - w.layout.top, dpiY, 96),
                    SWP_NOZORDER | SWP_NOACTIVATE);
-    ::SendMessageW(w.hWnd, WM_SETFONT, (WPARAM)hFont, lParam);
+    ::SendMessageW(w.hWnd, WM_SETFONT, (WPARAM)hFont, TRUE);
   };
   UpdateWindowPos(hvsbox);
   UpdateWindowPos(htargetbox);
