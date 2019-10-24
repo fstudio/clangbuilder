@@ -62,8 +62,7 @@ LRESULT MainWindow::InitializeWindow() {
     return S_FALSE;
   }
 
-  RECT layout = {CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT + 700,
-                 CW_USEDEFAULT + 540};
+  RECT layout = { 100, 100, 800, 640};
   Create(nullptr, layout, L"Clangbuilder Environment Utility", noresizewnd,
          WS_EX_APPWINDOW | WS_EX_WINDOWEDGE);
   return S_OK;
@@ -257,8 +256,10 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   dpiX = GetDpiForWindow(m_hWnd);
   dpiY = dpiX;
   RECT rect;
-  ::GetClientRect(m_hWnd, &rect);
-  ::SetWindowPos(m_hWnd, nullptr, rect.left, rect.top, MulDiv(700, dpiX, 96),
+  SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
+  int cx = rect.right - rect.left;
+  
+  ::SetWindowPos(m_hWnd, nullptr, (cx - 700)/2, 100, MulDiv(700, dpiX, 96),
                  MulDiv(540, dpiX, 96), SWP_NOZORDER | SWP_NOACTIVATE);
   UpdateFontWithNewDPI(hFont, dpiY);
 
