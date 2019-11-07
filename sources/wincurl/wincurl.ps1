@@ -216,7 +216,7 @@ if ($ec -ne 0) {
     return 1
 }
 
-Rename-Item -Path "$Prefix/lib/zlibstatic.lib"   "$Prefix/lib/zlib.lib"  -Force -ErrorAction SilentlyContinue
+Move-Item -Path "$Prefix/lib/zlibstatic.lib"   "$Prefix/lib/zlib.lib"  -Force -ErrorAction SilentlyContinue
 #Copy-Item -Path "$ZLIBDIR/LICENSE" 
 
 ##################################################### OpenSSL
@@ -393,7 +393,7 @@ if ($ec -ne 0) {
 ############################################################## CURL
 
 Write-Host -ForegroundColor Yellow "Final build curl $CURL_VERSION"
-if (!(DecompressTar -URL $CURL_URL -File "$CURL_FILE.tar.xz" -Hash $CURL_HASH)) {
+if (!(DecompressTar -URL $CURL_URL -File "$CURL_FILE.tar.gz" -Hash $CURL_HASH)) {
     exit 1
 }
 

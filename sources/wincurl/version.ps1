@@ -17,7 +17,7 @@ $NGHTTP2_HASH = "485daaa0ada7da8b4d1c2c789e7ffbe7d037763f672efa0809699d4000db265
 
 # We use tar.xz
 $CURL_VERSION = "7.67.0"
-$CURL_HASH = "f5d2e7320379338c3952dcc7566a140abb49edb575f9f99272455785c40e536c"
+$CURL_HASH = "52af3361cf806330b88b4fe6f483b6844209d47ae196ac46da4de59bb361ab02"
 
 # Filename
 $ZLIB_FILENAME = "zlib-${ZLIB_VERSION}"
@@ -36,7 +36,7 @@ $NGHTTP2_FILE = "nghttp2-${NGHTTP2_VERSION}"
 $LIBSSH2_URL = "https://www.libssh2.org/download/libssh2-${LIBSSH2_VERSION}.tar.gz"
 $LIBSSH2_FILE = "libssh2-${LIBSSH2_VERSION}"
 
-$CURL_URL = "https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.xz"
+$CURL_URL = "https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz"
 $CURL_FILE = "curl-${CURL_VERSION}"
 
 #curl-ca-bundle
