@@ -1,0 +1,10 @@
+{
+    "description": "D is a general-purpose programming language with static typing, systems-level access, and C-like syntax",
+    "version": "2.089.0",
+    "url": "http://downloads.dlang.org/releases/2.x/2.089.0/dmd.2.089.0.windows.7z",
+    "extension": "7z",
+    "launcher": [
+        "windows\\bin\\dmd.exe",
+        "windows\\bin\\dub.exe"
+    ]
+}
