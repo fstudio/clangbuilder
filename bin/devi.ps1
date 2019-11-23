@@ -41,7 +41,11 @@ Function WinGet {
         [String]$URL,
         [String]$OutFile
     )
-    $curlargv = "-A `"$deviUA`" --progress-bar -fS --connect-timeout 15 --retry 3 -o `"$OutFile`" -L --proto-redir =https $URL"
+    $TlsArg = "--proto-redir =https"
+    if (!$URL.StartsWith("https://")) {
+        $TlsArg = ""
+    }
+    $curlargv = "-A `"$deviUA`" --progress-bar -fS --connect-timeout 15 --retry 3 -o `"$OutFile`" -L $TlsArg $URL"
     if (Test-Path $curlExe) {
         Write-Host "devdownload (curl-devi): $URL"
         $ex = ProcessExec -FilePath $curlExe -Argv $curlargv -WD $PWD
@@ -106,26 +110,26 @@ Function Get-Installed {
 }
 
 
-Function Repair-Port{
+Function Repair-Port {
     param(
         [String]$Name
     )
     Write-Host -ForegroundColor Yellow "Try to repair $Name"
     $obj = Get-Content -Path "$LockDir/$Name.json" -ErrorAction SilentlyContinue | ConvertFrom-Json  -ErrorAction SilentlyContinue
-    $pkobj=Get-Content -Path "$ClangbuilderRoot/ports/$Name.json" -ErrorAction SilentlyContinue | ConvertFrom-Json  -ErrorAction SilentlyContinue
+    $pkobj = Get-Content -Path "$ClangbuilderRoot/ports/$Name.json" -ErrorAction SilentlyContinue | ConvertFrom-Json  -ErrorAction SilentlyContinue
     if ($null -eq $obj -or ($null -eq $pkobj)) {
         Write-Host "unable parse $Name.json. please uninstall it and retry install"
         return
     }
-    if($null -ne $pkobj.launcher){
-        foreach($lnk in $pkobj.launcher){
-            $lnkfile=Get-Item "$ClangbuilderRoot/bin/pkgs/$Name/$lnk" -ErrorAction SilentlyContinue
-            if($null -eq $lnkfile){
+    if ($null -ne $pkobj.launcher) {
+        foreach ($lnk in $pkobj.launcher) {
+            $lnkfile = Get-Item "$ClangbuilderRoot/bin/pkgs/$Name/$lnk" -ErrorAction SilentlyContinue
+            if ($null -eq $lnkfile) {
                 continue
             }
             $lna = Split-Path -Leaf $lnkfile
-            $launcher="$LinkedDir\$lna"
-            if(Test-Path $launcher){
+            $launcher = "$LinkedDir\$lna"
+            if (Test-Path $launcher) {
                 Write-Host -ForegroundColor Green "launcher: $launcher exists"
                 continue
             }
@@ -133,14 +137,14 @@ Function Repair-Port{
         }
         return
     }
-    foreach($lnk in $pkobj.links){
-        $lnkfile=Get-Item "$ClangbuilderRoot/bin/pkgs/$Name/$lnk" -ErrorAction SilentlyContinue
-        if($null -eq $lnkfile){
+    foreach ($lnk in $pkobj.links) {
+        $lnkfile = Get-Item "$ClangbuilderRoot/bin/pkgs/$Name/$lnk" -ErrorAction SilentlyContinue
+        if ($null -eq $lnkfile) {
             continue
         }
         $lna = Split-Path -Leaf $lnkfile
-        $symlinkfile="$LinkedDir\$lna"
-        if(Test-Path $symlinkfile){
+        $symlinkfile = "$LinkedDir\$lna"
+        if (Test-Path $symlinkfile) {
             Write-Host -ForegroundColor Green "link: $symlinkfile exists"
             continue
         }
@@ -158,7 +162,7 @@ Function Repair-Port{
     }
 }
 
-Function Repair-Ports{
+Function Repair-Ports {
     Get-ChildItem -Path "$LockDir/*.json" | ForEach-Object {
         Repair-Port -Name $_.BaseName        
     }
@@ -481,7 +485,7 @@ if ($uninstallTable.Contains($subcmd)) {
     exit 0
 }
 
-if($subcmd -eq "repair"){
+if ($subcmd -eq "repair") {
     Repair-Ports
     exit 0
 }
