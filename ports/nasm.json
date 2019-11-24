@@ -4,7 +4,7 @@
     "url": "https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/win32/nasm-2.14.02-win32.zip",
     "url64": "https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/win64/nasm-2.14.02-win64.zip",
     "extension": "zip",
-    "links": [
+    "launcher": [
         "nasm.exe",
         "ndisasm.exe"
     ]
