@@ -348,6 +348,10 @@ if ($ec -ne 0) {
     return 1
 }
 
+if (Test-Item "$Prefix/lib/nghttp2_static.lib") {
+    Copy-Item -Path "$Prefix/lib/nghttp2_static.lib"   "$Prefix/lib/nghttp2.lib"  -Force -ErrorAction SilentlyContinue
+}
+
 ############################################################# Libssh2
 Write-Host -ForegroundColor Yellow "Build libssh2 $LIBSSH2_VERSION"
 if (!(DecompressTar -URL $LIBSSH2_URL -File "$LIBSSH2_FILE.tar.gz" -Hash $LIBSSH2_HASH)) {
