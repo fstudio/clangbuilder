@@ -348,7 +348,7 @@ if ($ec -ne 0) {
     return 1
 }
 
-if (Test-Item "$Prefix/lib/nghttp2_static.lib") {
+if (Test-Path "$Prefix/lib/nghttp2_static.lib") {
     Copy-Item -Path "$Prefix/lib/nghttp2_static.lib"   "$Prefix/lib/nghttp2.lib"  -Force -ErrorAction SilentlyContinue
 }
 
