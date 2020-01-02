@@ -4,7 +4,7 @@
 <a href="https://996.icu"><img src="https://img.shields.io/badge/link-996.icu-red.svg"></a>
 
 Automated tools help developers on Windows platforms building LLVM and clang.
- 
+
 ## Installation
 
 Clone clangbuilder on Github
@@ -31,16 +31,16 @@ Your can modified settings.json to change your clangbuilder run mode. `settings.
 }
 ```
 
-+  `EnterpriseWDK` Set EWDK root path and enable Enterprise WDK.
-+  `LLVMRoot` Pre-built llvm installation root directory.
-+  `LLVMArch` Pre-built llvm default architecture
-+  `PwshCoreEnabled` Enable Powershell Core, all script run use pwsh (when you install powershell core).
-+  `SetWindowCompositionAttribute` Experimental UI features
++   `EnterpriseWDK` Set EWDK root path and enable Enterprise WDK.
++   `LLVMRoot` Pre-built llvm installation root directory.
++   `LLVMArch` Pre-built llvm default architecture
++   `PwshCoreEnabled` Enable Powershell Core, all script run use pwsh (when you install powershell core).
++   `SetWindowCompositionAttribute` Experimental UI features
 
 
 ## Build Clang on Windows
 
-Clangbuilder Now Only support use Visual C++ build Clang LLVM LLDB. 
+Clangbuilder Now Only support use Visual C++ build Clang LLVM LLDB.
 
 Best Visual Studio Version:
 
@@ -58,9 +58,9 @@ You can click to run ClangbuilderUI, Modified Arch, Configuration and other opti
 
 **Branch**
 
-+  Mainline, master/trunk branch , git fetch from https://github.com/llvm-mirror/
-+  Stable, llvm stable branch, like release_80, git fetch from https://github.com/llvm-mirror/
-+  Release, llvm release tag, download for https://releases.llvm.org/
++   Mainline, master/trunk branch , git fetch from [https://github.com/llvm-mirror/](https://github.com/llvm-mirror/)
++   Stable, llvm stable branch, like release_80, git fetch from [https://github.com/llvm-mirror/](https://github.com/llvm-mirror/)
++   Release, llvm release tag, download for [https://releases.llvm.org/](https://releases.llvm.org/)
 
 
 **CMake Custom flags**
@@ -110,7 +110,7 @@ Only NinjaBootstrap and NinjaIterate will compile libc++ ,Because Visual C++ not
 clang-cl -std:c++14  -Iinclude\c++\v1 hello.cc c++.lib
 ```
 
-after copy `c++.dll` to your path(or exe self directory). 
+after copy `c++.dll` to your path(or exe self directory).
 
 **Use Clean Environment**
 
@@ -131,11 +131,11 @@ Function ReinitializePath {
 ## Custom PATH
 
 You can modify [config/initialize.json](https://github.com/fstudio/clangbuilder/blob/master/config/initialize.json) , add some directories to PATH. Note that directories have **higher priority** in PATH. (Insert Front)
- 
+
 
 ## Suggest
 
-+   Best Platform is Windows 10 x64 
++   Best Platform is Windows 10 x64
 +   Select `Use Clean Environment` will reset current process Environment PATH value, Resolve conflict environment variables
 +   If your will build lldb, your should install python3.
 
@@ -154,7 +154,7 @@ When you only need to start a console environment, you can click on the `Environ
 You can port some tools to clangbuilder, see `ports`
 and then double-click `script/DevAll.bat` to the software you need as part of the Clangbuilder is added to the environment. Clangbuilder 6.0 support `devi`, You can run devi under `Environment Console`, use `devi install $ToolName` to install your need tools.
 
-Usage: 
+Usage:
 
 ```txt
 devi portable package manager 1.0
@@ -204,7 +204,7 @@ nasm                2.14.02             NASM - The Netwide Assembler
 neovim              0.3.8               Neovim - Vim-fork focused on extensibility and usability
 ninja               1.9.0               Ninja is a small build system with a focus on speed.
 nsis                3.04                NSIS (Nullsoft Scriptable Install System) is a professional open source system to create Windows installers.
-nuget               5.1.0               NuGet is the package manager for .NET. The NuGet client tools provide the ability to produce and consume packages. 
+nuget               5.1.0               NuGet is the package manager for .NET. The NuGet client tools provide the ability to produce and consume packages.
 openssh             v8.0.0.0p1-Beta     Portable OpenSSH
 perl5               5.30.0.1            Perl 5 is a highly capable, feature-rich programming language.
 pijul               0.11.0              Pijul is a free and open source (GPL2) distributed version control system.
@@ -251,5 +251,4 @@ Function Parallel() {
 
 License: MIT  
 Author: Force.Charlie  
-Copyright © 2019 Force Charlie. All Rights Reserved.
-
+Copyright © 2020 Force Charlie. All Rights Reserved.

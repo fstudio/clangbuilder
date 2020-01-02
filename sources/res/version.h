@@ -49,7 +49,6 @@
   L"Charlie. All Rights Reserved."
 
 #define CLANGBUILDERUI_COPYRIGHT                                               \
-  L"\nCopyright \xA9 2019, Force Charlie. All Rights Reserved."
+  L"\nCopyright \xA9 2020, Force Charlie. All Rights Reserved."
 
 #endif
-
