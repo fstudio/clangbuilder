@@ -1,7 +1,7 @@
 {
     "description": "NSIS (Nullsoft Scriptable Install System) is a professional open source system to create Windows installers.",
-    "version": "3.04",
-    "url": "https://sourceforge.net/projects/nsis/files/NSIS%203/3.04/nsis-3.04.zip/download",
+    "version": "3.05",
+    "url": "https://sourceforge.net/projects/nsis/files/NSIS%203/3.05/nsis-3.05.zip/download",
     "extension": "zip",
     "launcher": [
         "makensis.exe"
