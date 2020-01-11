@@ -45,7 +45,7 @@
   L"Issues</a>"
 
 #define CLANGBUILDER_APPVERSION                                                \
-  L"Version: " CLANGBUILDER_VERSION_FULL L"\nCopyright \xA9 2019, Force "      \
+  L"Version: " CLANGBUILDER_VERSION_FULL L"\nCopyright \xA9 2020, Force "      \
   L"Charlie. All Rights Reserved."
 
 #define CLANGBUILDERUI_COPYRIGHT                                               \
