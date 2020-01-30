@@ -1,0 +1,9 @@
+{
+    "description": "Decompress RAR files.",
+    "version": "5.90",
+    "url": "https://www.rarlab.com/rar/unrarw32.exe",
+    "extension": "7z",
+    "links": [
+        "unrar.exe"
+    ]
+}
