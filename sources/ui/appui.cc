@@ -58,6 +58,16 @@ MainWindow::~MainWindow() {
 }
 
 LRESULT MainWindow::InitializeWindow() {
+  bela::error_code ec;
+  if (!clangbuilder::LookupClangbuilderTarget(root, targetFile, ec)) {
+    bela::BelaMessageBox(nullptr, L"Clangbuilder Error", ec.message.data(),
+                         nullptr, bela::mbs_t::FATAL);
+    return S_FALSE;
+  }
+  settings.Initialize(root, [this](const std::wstring &message) {
+    bela::BelaMessageBox(nullptr, L"Unable parse settings.json", message.data(),
+                         nullptr, bela::mbs_t::FATAL);
+  });
   if (CreateDeviceIndependentResources() != S_OK) {
     return S_FALSE;
   }
@@ -169,16 +179,6 @@ void MainWindow::OnResize(UINT width, UINT height) {
 }
 
 HRESULT MainWindow::InitializeControl() {
-  bela::error_code ec;
-  if (!clangbuilder::LookupClangbuilderTarget(root, targetFile, ec)) {
-    bela::BelaMessageBox(m_hWnd, L"Clangbuilder Error", ec.message.data(),
-                         nullptr, bela::mbs_t::FATAL);
-    return S_FALSE;
-  }
-  settings.Initialize(root, [this](const std::wstring &message) {
-    bela::BelaMessageBox(m_hWnd, L"Unable parse settings.json", message.data(),
-                         nullptr, bela::mbs_t::FATAL);
-  });
 
   if (!InitializeElemets()) {
     bela::BelaMessageBox(m_hWnd, L"Not Found any Visual Studio",
@@ -315,25 +315,39 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   // Button_SetElevationRequiredState
   MakeWindow(WC_BUTTONW, L"Building", pbstyle, 200, 430, 195, 30,
              (HMENU)IDC_BUTTON_STARTTASK, hbuildtask);
-  MakeWindow(WC_BUTTONW, L"Environment Console", pbstyle | BS_ICON, 405, 430,
-             195, 30, (HMENU)IDC_BUTTON_STARTENV, hbuildenv);
+  LPCWSTR terminal =
+      settings.UseWindowsTerminal() ? L"Windows Terminal" : L"Windows Console";
+  MakeWindow(WC_BUTTONW, terminal, pbstyle | BS_ICON, 405, 430, 195, 30,
+             (HMENU)IDC_BUTTON_STARTENV, hbuildenv);
 
   HMENU hSystemMenu = ::GetSystemMenu(m_hWnd, FALSE);
   InsertMenuW(hSystemMenu, SC_CLOSE, MF_ENABLED, IDM_CLANGBUILDER_ABOUT,
               L"About ClangbuilderUI\tAlt+F1");
-
+  //🦄 🦅
   labels.emplace_back(30, 20, 190, 50, L"Distribution\t\U0001F19A:"); //🆚
   labels.emplace_back(30, 60, 190, 90, L"Architecture\t\U0001F4BB:"); //💻
   labels.emplace_back(30, 100, 190, 130, L"Configuration\t\u2699:");  //⚙
   labels.emplace_back(30, 140, 190, 170, L"Branches\t\t\u26A1:");     //⚡
   labels.emplace_back(30, 180, 190, 210, L"Engine\t\t\U0001f6e0:");   //🛠
   labels.emplace_back(30, 230, 190, 270, L"Build Options\t\u2611:");  //☑
-  ///
   if (settings.SetWindowCompositionAttributeEnabled()) {
     if (!SetWindowCompositionAttributeImpl(m_hWnd)) {
       auto ec = bela::make_system_error_code();
       ::MessageBoxW(m_hWnd, ec.data(), L"unable set composition", MB_OK);
     }
+    // SetWindowCompositionAttributeImpl(hvsbox.hWnd);
+    // SetWindowCompositionAttributeImpl(htargetbox.hWnd);
+    // SetWindowCompositionAttributeImpl(hconfigbox.hWnd);
+    // SetWindowCompositionAttributeImpl(hbranchbox.hWnd);
+    // SetWindowCompositionAttributeImpl(hbuildbox.hWnd);
+    // SetWindowCompositionAttributeImpl(hlibcxx.hWnd);
+    // SetWindowCompositionAttributeImpl(hlto.hWnd);
+    // SetWindowCompositionAttributeImpl(hsdklow.hWnd);
+    // SetWindowCompositionAttributeImpl(hcpack.hWnd);
+    // SetWindowCompositionAttributeImpl(hcleanenv.hWnd);
+    // SetWindowCompositionAttributeImpl(hlldb.hWnd);
+    // SetWindowCompositionAttributeImpl(hbuildtask.hWnd);
+    // SetWindowCompositionAttributeImpl(hbuildenv.hWnd);
   }
   if (FAILED(InitializeControl())) {
   }

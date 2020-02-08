@@ -79,10 +79,6 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   bela::EscapeArgv ea;
   if (!settings.Terminal().empty()) {
     ea.Assign(settings.Terminal());
-    // ea.Append(L"--width");
-    // ea.Append(L"90");
-    // ea.Append(L"--height");
-    // ea.Append(L"27");
   }
   ea.Append(pwshexe)
       .Append(L"-NoLogo")
@@ -156,10 +152,6 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   bela::EscapeArgv ea;
   if (!settings.Terminal().empty()) {
     ea.Assign(settings.Terminal());
-    // ea.Append(L"--width");
-    // ea.Append(L"90");
-    // ea.Append(L"--height");
-    // ea.Append(L"27");
   }
   ea.Append(pwshexe)
       .Append(L"-NoLogo")
