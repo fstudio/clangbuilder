@@ -35,7 +35,7 @@ inline constexpr bool StringEqual(const wchar_t *a, const wchar_t *b,
 
 inline wchar_t *StringAllocate(size_t count) {
   return reinterpret_cast<wchar_t *>(
-      HeapAlloc(GetProcessHeap(), 0, sizeof(wchar_t) * n));
+      HeapAlloc(GetProcessHeap(), 0, sizeof(wchar_t) * count));
 }
 
 inline void StringFree(wchar_t *p) {
@@ -65,16 +65,16 @@ public:
   typedef const wchar_t &const_reference;
   typedef const wchar_t *const_iterator;
   typedef size_t size_type;
-  static constexpr size_type pos = size_type(-1);
-  StringView() : data_(nullptr), size_(0) noexcept {}
-  constexpr StringView(const wchar_t *str)
-      : data_(str), size_(str == nullptr ? 0 : StringLength(str)) noexcept {}
-  constexpr StringView(const wchar_t *str, size_type len)
-      : data_(str), size_(len) noexcept {}
+  static constexpr size_type npos = size_type(-1);
+  StringView() noexcept : data_(nullptr), size_(0) {}
+  constexpr StringView(const wchar_t *str) noexcept
+      : data_(str), size_(str == nullptr ? 0 : StringLength(str)) {}
+  constexpr StringView(const wchar_t *str, size_type len) noexcept
+      : data_(str), size_(len) {}
   constexpr const_iterator begin() const noexcept { return data_; }
-  constexpr end() const noexcept { return data_ + size_; }
-  constexpr size() const noexcept { return size_; }
-  constexpr length() const noexcept { return size_; }
+  constexpr auto end() const noexcept { return data_ + size_; }
+  constexpr auto size() const noexcept { return size_; }
+  constexpr auto length() const noexcept { return size_; }
   [[nodiscard]] constexpr bool empty() const noexcept { return size_ == 0; }
   constexpr const_reference operator[](size_type i) const { return data_[i]; }
   constexpr const_pointer data() const noexcept { return data_; }
@@ -93,7 +93,7 @@ public:
   constexpr const_reference back() const { return data_[size_ - 1]; }
 
   void remove_prefix(size_type n) {
-    data += n;
+    data_ += n;
     size_ -= n;
   }
   void remove_suffix(size_type n) { size_ -= n; }
@@ -113,7 +113,7 @@ public:
     if (size_ == 0 || pos >= size_) {
       return npos;
     }
-    for (size_t index = pos; index < size_; i++) {
+    for (size_t index = pos; index < size_; index++) {
       if (c == data_[index]) {
         return index;
       }
