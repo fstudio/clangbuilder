@@ -58,11 +58,12 @@ public:
   bool IsPwshCoreEnabled() const { return PwshCoreEnabled_; }
   std::wstring PwshExePath();
   std::wstring_view EnterpriseWDK() const { return ewdkroot; }
-  std::wstring_view Conhost() const { return conhost; }
+  std::wstring_view Terminal() const { return terminal; }
 
 private:
+  bool InitializeWindowsTerminal();
   std::wstring ewdkroot;
-  std::wstring conhost;
+  std::wstring terminal;
   bool SetWindowCompositionAttribute_{false};
   bool PwshCoreEnabled_{false};
 };

@@ -2,6 +2,8 @@
 #include <json.hpp>
 #include <systemtools.hpp>
 #include <appfs.hpp>
+#include <bela/env.hpp>
+#include <bela/path.hpp>
 #include "app.hpp"
 /////
 struct ACCENTPOLICY {
@@ -55,27 +57,44 @@ bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
   }
   try {
     auto j = nlohmann::json::parse(fd.P());
-    auto it = j.find("PwshCoreEnabled");
-    if (it != j.end()) {
+
+    if (auto it = j.find("PwshCoreEnabled"); it != j.end()) {
       PwshCoreEnabled_ = it.value().get<bool>();
     }
-    it = j.find("EnterpriseWDK");
-    if (it != j.end()) {
+    if (auto it = j.find("EnterpriseWDK"); it != j.end()) {
       ewdkroot = bela::ToWide(it.value().get<std::string>());
     }
-    it = j.find("Conhost");
-    if (it != j.end()) {
-      conhost = bela::ToWide(it.value().get<std::string>());
-    }
-    it = j.find("SetWindowCompositionAttribute");
-    if (it != j.end()) {
+
+    if (auto it = j.find("SetWindowCompositionAttribute"); it != j.end()) {
       SetWindowCompositionAttribute_ = it.value().get<bool>();
+    }
+    if (auto it = j.find("UseWindowsTerminal");
+        it != j.end() && it.value().get<bool>()) {
+      if (InitializeWindowsTerminal()) {
+        return true;
+      }
+    }
+    if (auto it = j.find("Conhost"); it != j.end()) {
+      auto conhost = bela::ToWide(it.value().get<std::string>());
+      if (bela::PathExists(conhost)) {
+        terminal.assign(std::move(conhost));
+      }
     }
 
   } catch (const std::exception &e) {
     call(bela::ToWide(e.what()));
     return false;
   }
+  return true;
+}
+
+// %LOCALAPPDATA%/Microsoft/WindowsApps
+bool Settings::InitializeWindowsTerminal() {
+  auto wt = bela::ExpandEnv(L"%LOCALAPPDATA%\\Microsoft\\WindowsApps\\wt.exe");
+  if (!bela::PathExists(wt)) {
+    return false;
+  }
+  terminal.assign(std::move(wt));
   return true;
 }
 

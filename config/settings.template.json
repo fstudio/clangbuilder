@@ -3,6 +3,7 @@
   "LLVMRoot": "D:\\LLVM",
   "LLVMArch": "x64",
   "PwshCoreEnabled": true,
+  "UseWindowsTerminal": true,
   "Conhost": "F:\\Clangbuilder\\bin\\utils\\OpenConsole.exe",
   "SetWindowCompositionAttribute": false
 }
