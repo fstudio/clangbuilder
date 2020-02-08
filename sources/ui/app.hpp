@@ -56,6 +56,7 @@ public:
     return SetWindowCompositionAttribute_;
   }
   bool IsPwshCoreEnabled() const { return PwshCoreEnabled_; }
+  bool UseWindowsTerminal() const { return UseWindowsTerminal_; }
   std::wstring PwshExePath();
   std::wstring_view EnterpriseWDK() const { return ewdkroot; }
   std::wstring_view Terminal() const { return terminal; }
@@ -66,6 +67,7 @@ private:
   std::wstring terminal;
   bool SetWindowCompositionAttribute_{false};
   bool PwshCoreEnabled_{false};
+  bool UseWindowsTerminal_{false};
 };
 bool SetWindowCompositionAttributeImpl(HWND hWnd);
 

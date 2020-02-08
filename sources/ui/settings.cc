@@ -95,6 +95,7 @@ bool Settings::InitializeWindowsTerminal() {
     return false;
   }
   terminal.assign(std::move(wt));
+  UseWindowsTerminal_ = true;
   return true;
 }
 
