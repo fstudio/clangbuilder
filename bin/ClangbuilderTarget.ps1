@@ -15,7 +15,6 @@ param (
     [Alias("e")]
     [Switch]$Environment, # start environment
     [Switch]$Libcxx, # build libcxx if can build
-    [Switch]$Sdklow, # low sdk support
     [Switch]$LLDB,
     [Switch]$LTO,
     [Switch]$Package,
@@ -60,7 +59,7 @@ if ($InstanceId.Length -eq 0) {
     $ret = DefaultVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
 }
 else {
-    $ret = InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -Sdklow:$Sdklow -InstallationVersion $InstallationVersion
+    $ret = InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $InstanceId -InstallationVersion $InstallationVersion
 }
 if ($InstallationVersion.Length -eq 0) {
     $InstallationVersion = $env:VSENV_VERSION

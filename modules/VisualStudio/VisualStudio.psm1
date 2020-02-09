@@ -121,7 +121,7 @@ Function InitializeEnterpriseWDK {
     [System.Text.StringBuilder]$Includedir = "$VisualCppPath\include;$VisualCppPath\atlmfc\include";
     Get-ChildItem -Path "$SdkBaseDir\include\$ewdkversion" | ForEach-Object { 
         [void]$Includedir.Append(";").Append($_.FullName)
-     }
+    }
     $env:INCLUDE = $Includedir.ToString()
     $HostEnv = "x86"
     if ([System.Environment]::Is64BitOperatingSystem) {
@@ -146,7 +146,7 @@ Function InitializeEnterpriseWDK {
 
     [void]$PathSb.Append(";$SdkBaseDir\bin\$EWDKVersion\$HostEnv")
     [void]$PathSb.Append(";$sdksbin\$netfxtoolsdir")
-    [void]$PathSb.Append(";$BuildTools\MSBuild\15.0\Bin")
+    [void]$PathSb.Append(";$BuildTools\MSBuild\Current\Bin")
     
     $env:PATH = $PathSb.Replace(";;", ";").ToString()
 
@@ -169,8 +169,7 @@ Function InitializeVisualStudio {
         [ValidateSet("x86", "x64", "ARM", "ARM64")]
         [String]$Arch = "x64",
         [String]$InstanceId,
-        [String]$InstallationVersion, # installationVersion
-        [Switch]$Sdklow
+        [String]$InstallationVersion # installationVersion
     )
     if ($null -ne $env:VSENV_INITIALIZED) {
         return 0
@@ -209,10 +208,6 @@ Function InitializeVisualStudio {
     Set-Variable -Name "env:$vscommtools" -Value "$($vsinstance.installationPath)\Common7\Tools\"
     $vscommdir = Get-Variable -Name "env:$vscommtools" -ValueOnly
     Write-Host "Update `$env:$vscommtools to: $vscommdir"
-    if ($Sdklow) {
-        Write-Host "Attention Please: Use Windows 8.1 SDK"
-        $ArgumentList += " 8.1"
-    }
     if (!(Test-Path $vcvarsall)) {
         Write-Host "$vcvarsall not found"
         return 1
