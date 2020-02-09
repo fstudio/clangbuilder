@@ -27,6 +27,8 @@ Your can modified settings.json to change your clangbuilder run mode. `settings.
   "LLVMRoot": "D:\\LLVM",
   "LLVMArch": "x64",
   "PwshCoreEnabled": true,
+  "UseWindowsTerminal": true,
+  "Conhost": "C:\\Path\\To\\OpenConsole.exe",
   "SetWindowCompositionAttribute": false
 }
 ```
@@ -35,7 +37,9 @@ Your can modified settings.json to change your clangbuilder run mode. `settings.
 +   `LLVMRoot` Pre-built llvm installation root directory.
 +   `LLVMArch` Pre-built llvm default architecture
 +   `PwshCoreEnabled` Enable Powershell Core, all script run use pwsh (when you install powershell core).
-+   `SetWindowCompositionAttribute` Experimental UI features
++   `UseWindowsTerminal` Use Windows Terminal (We need wt support commandline)
++   `Conhost` If Windows Termianl not exists, your can set OpenConsole path.
++   `SetWindowCompositionAttribute` Fluent UI features
 
 
 ## Build Clang on Windows
@@ -44,17 +48,13 @@ Clangbuilder Now Only support use Visual C++ build Clang LLVM LLDB.
 
 Best Visual Studio Version:
 
->Visual Studio 2017 15.9 or later
+>Visual Studio 2019 16.3 or later
 
 You can click to run ClangbuilderUI, Modified Arch, Configuration and other options. after click `Building`
 
 **ClangbuilderUI Snapshot**
 
 ![clangbuilder](./images/cbui.png)
-
-**ClangbuilderUI EWDK Snapshot**
-
-![ewdk](./images/ewdk.png)
 
 **Branch**
 
@@ -157,14 +157,15 @@ and then double-click `script/DevAll.bat` to the software you need as part of th
 Usage:
 
 ```txt
-devi portable package manager 1.0
-Usage: devi cmd tool_name
-       list        list installed tools
-       search      search ported tools
-       install     install tools
-       upgrade     upgrade tools
-       version     print devi version and exit
-       help        print help message
+devi 7.0 portable package manager
+Usage: devi cmd package-name
+    list         list installed package
+    search       search ported package
+    install      install package
+    uninstall    uninstall package
+    upgrade      upgrade all upgradeable packages
+    help         print help message
+    version      print devi version and exit
 ```
 
 Default installed tools:
@@ -188,33 +189,37 @@ Current ported tools:
 
 ```txt
 7z                  19.00               7-Zip is a file archiver with a high compression ratio
-ag                  2019-03-23/2.2.0-19-g965f71dA code-searching tool similar to ack, but faster.
-aria2               1.34.0              The ultra fast download utility
-bat                 v0.11.0             A cat(1) clone with wings.
-cmake               3.14.5              CMake is an open-source, cross-platform family of tools designed to build, test and package software
-curl                7.65.1_3            Curl is a command-line tool for transferring data specified with URL syntax.
-fd                  v7.3.0              A simple, fast and user-friendly alternative to 'find'
-git                 2.22.0              Git is a modern distributed version control system focused on speed
-hg                  5.0                 Mercurial is a free, distributed source control management tool.
-innoextract         1.7                 A tool to unpack installers created by Inno Setup.
-innounp             0.48                InnoUnp - Inno Setup Unpacker.
+ag                  2019-03-23/2.2....  A code-searching tool similar to ack, but faster.
+arc                 3.2                 Introducing Archiver - a cross-platform, multi-format archive utility
+aria2               1.35.0              The ultra fast download utility
+bat                 v0.12.1             A cat(1) clone with wings.
+cmake               3.16.4              CMake is an open-source, cross-platform family of tools designed to build, test and package software
+curl                7.68.0              Curl is a command-line tool for transferring data specified with URL syntax.
+dmd                 2.090.0             D is a general-purpose programming language with static typing, systems-level access, and C-like syntax
+fd                  v7.4.0              A simple, fast and user-friendly alternative to 'find'
+git                 2.25.0              Git is a modern distributed version control system focused on speed
+hg                  5.3                 Mercurial is a free, distributed source control management tool.
+innoextract         1.8                 A tool to unpack installers created by Inno Setup.
+innounp             0.49                InnoUnp - Inno Setup Unpacker.
 jom                 1.1.3               jom is a clone of nmake
 mach2               0.3.0.0             Mach2 manages the Windows Feature Store, where Features (and associated on/off state) live.
 nasm                2.14.02             NASM - The Netwide Assembler
-neovim              0.3.8               Neovim - Vim-fork focused on extensibility and usability
-ninja               1.9.0               Ninja is a small build system with a focus on speed.
-nsis                3.04                NSIS (Nullsoft Scriptable Install System) is a professional open source system to create Windows installers.
-nuget               5.1.0               NuGet is the package manager for .NET. The NuGet client tools provide the ability to produce and consume packages.
-openssh             v8.0.0.0p1-Beta     Portable OpenSSH
+neovim              0.4.2               Neovim - Vim-fork focused on extensibility and usability
+ninja               1.10.0              Ninja is a small build system with a focus on speed.
+nsis                3.05                NSIS (Nullsoft Scriptable Install System) is a professional open source system to create Windows installers.
+nuget               5.4.0               NuGet is the package manager for .NET. The NuGet client tools provide the ability to produce and consume packages.
+openssh             v8.1.0.0p1-Beta     Portable OpenSSH
 perl5               5.30.0.1            Perl 5 is a highly capable, feature-rich programming language.
 pijul               0.11.0              Pijul is a free and open source (GPL2) distributed version control system.
-putty               0.71                PuTTY: a free SSH and Telnet client.
+putty               0.73                PuTTY: a free SSH and Telnet client.
 python3             3.5.4               Python is a programming language.
-radare              3.6.0               unix-like reverse engineering framework and commandline tools
-ripgrep             11.0.1              ripgrep recursively searches directories for a regex pattern.
-swigwin             3.0.12              Simplified Wrapper and Interface Generator
-vswhere             2.6.7               Visual Studio Locator.
-watchexec           1.10.2              Execute commands in response to file modifications.
+radare              4.0.0               unix-like reverse engineering framework and commandline tools
+ripgrep             11.0.2              ripgrep recursively searches directories for a regex pattern.
+shfmt               3.0.1               A shell formatter.
+swigwin             4.0.1               Simplified Wrapper and Interface Generator
+unrar               5.90                Decompress RAR files.
+vswhere             2.8.4               Visual Studio Locator.
+watchexec           1.11.1              Execute commands in response to file modifications.
 wget                1.20.3              A command-line utility for retrieving files using HTTP, HTTPS and FTP protocols.
 ```
 
