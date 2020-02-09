@@ -4,6 +4,29 @@
 #include <vector>
 #include <functional>
 #include <vsinstance.hpp>
+#include <bela/endian.hpp>
+
+struct rgb {
+  constexpr rgb() : r(0), g(0), b(0) {}
+  constexpr rgb(uint8_t r_, uint8_t g_, uint8_t b_) : r(r_), g(g_), b(b_) {}
+  constexpr rgb(uint32_t hex)
+      : r((hex >> 16) & 0xFF), g((hex >> 8) & 0xFF), b(hex & 0xFF) {}
+  constexpr rgb(COLORREF hex)
+      : r((uint32_t(hex) >> 16) & 0xFF), g((uint32_t(hex) >> 8) & 0xFF),
+        b(uint32_t(hex) & 0xFF) {}
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+};
+
+// swap to LE
+inline COLORREF calcLuminance(UINT32 cr) {
+  cr = bela::swaple(cr);
+  int r = (cr & 0xff0000) >> 16;
+  int g = (cr & 0xff00) >> 8;
+  int b = (cr & 0xff);
+  return RGB(r, g, b);
+}
 
 class VisualStudioSeacher {
 public:

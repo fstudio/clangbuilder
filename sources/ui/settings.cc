@@ -8,9 +8,7 @@
 /////
 struct WINCOMPATTRDATA {
   DWORD attribute;
-
   PVOID pData;
-
   ULONG dataSize;
 };
 
@@ -48,18 +46,21 @@ typedef struct WINDOWCOMPOSITIONATTRIBDATA {
 } WINDOWCOMPOSITIONATTRIBDATA;
 
 typedef enum _ACCENT_STATE {
-  ACCENT_DISABLED = 0,
-  ACCENT_ENABLE_GRADIENT = 1,
-  ACCENT_ENABLE_TRANSPARENTGRADIENT = 2,
-  ACCENT_ENABLE_BLURBEHIND = 3,
-  ACCENT_INVALID_STATE = 4
+  ACCENT_DISABLED = 0,        // Black and solid background
+  ACCENT_ENABLE_GRADIENT = 1, // Custom-colored solid background
+  ACCENT_ENABLE_TRANSPARENTGRADIENT =
+      2, // Custom-colored transparent background
+  ACCENT_ENABLE_BLURBEHIND =
+      3,                    // Custom-colored and blurred transparent background
+  ACCENT_ENABLE_FLUENT = 4, // Custom-colored Fluent effect
+  ACCENT_INVALID_STATE = 5  // Completely transparent background
 } ACCENT_STATE;
 
 typedef struct _ACCENT_POLICY {
-  ACCENT_STATE AccentState;
-  DWORD AccentFlags;
-  DWORD GradientColor;
-  DWORD AnimationId;
+  ACCENT_STATE nAccentState; // Appearance
+  int32_t nFlags;            // Nobody knows how this value works
+  uint32_t nColor;           // A color in the hex format AABBGGRR
+  int32_t nAnimationId;      // Nobody knows how this value works
 } ACCENT_POLICY;
 
 bool SetWindowCompositionAttributeImpl(HWND hWnd) {
@@ -74,7 +75,8 @@ bool SetWindowCompositionAttributeImpl(HWND hWnd) {
 
   // Only works on Win10
   if (SetWindowCompositionAttribute) {
-    ACCENT_POLICY policy = {ACCENT_ENABLE_BLURBEHIND, 0, 0, 2};
+    ACCENT_POLICY policy = {ACCENT_ENABLE_FLUENT, 2, 0, 0};
+    policy.nColor = (0x01 << 24) + (calcLuminance(0x808080) & 0x00FFFFFF);
     WINDOWCOMPOSITIONATTRIBDATA data;
     data.Attrib = WCA_ACCENT_POLICY;
     data.pvData = &policy;
