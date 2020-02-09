@@ -144,9 +144,9 @@ $env:Path = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${
 ```
 `$evn:windir` is usually `C:\Windows`
 
-## Environment Console
+## Windows Terminal/Windows Console
 
-When you only need to start a console environment, you can click on the `Environment Console`.
+When you only need to start a console environment, you can click on the `Windows Terminal`/`Windows Console`.
 
 
 ## Add Portable Utilities
