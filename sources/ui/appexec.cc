@@ -106,10 +106,6 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
     ea.Append(L"-LTO");
   }
 
-  if (Button_GetCheck(hsdklow.hWnd) == BST_CHECKED) {
-    ea.Append(L"-Sdklow");
-  }
-
   if (Button_GetCheck(hcpack.hWnd) == BST_CHECKED) {
     ea.Append(L"-Package");
   }
@@ -165,9 +161,6 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
       .Append(search.InstallVersion(vsindex_))
       .Append(L"-Arch")
       .Append(tables.Targets[archindex_]);
-  if (Button_GetCheck(hsdklow.hWnd) == BST_CHECKED) {
-    ea.Append(L"-Sdklow");
-  }
   if (Button_GetCheck(hcleanenv.hWnd) == BST_CHECKED) {
     ea.Append(L"-ClearEnv");
   }

@@ -141,7 +141,7 @@ HRESULT MainWindow::OnRender() {
   renderTarget->BeginDraw();
   renderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
   if (settings.SetWindowCompositionAttributeEnabled()) {
-    //renderTarget->Clear();
+    // renderTarget->Clear();
   } else {
     renderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
   }
@@ -310,16 +310,12 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   hlibcxx.Enable(false); // disable libcxx by default
   MakeWindow(WC_BUTTONW, L"Clang/LLVM bootstrap with ThinLTO", chboxstyle, 200,
              260, 360, 27, nullptr, hlto);
-
-  MakeWindow(WC_BUTTONW, L"SDK Compatibility (Windows 8.1 SDK) (Env)",
-             chboxstyle, 200, 290, 360, 27, nullptr, hsdklow);
-
-  MakeWindow(WC_BUTTONW, L"Create Installation Package", chboxstyle, 200, 320,
+  MakeWindow(WC_BUTTONW, L"Create Installation Package", chboxstyle, 200, 290,
              360, 27, nullptr, hcpack);
-  MakeWindow(WC_BUTTONW, L"Use Clean Environment (Env)", chboxstyle, 200, 350,
+  MakeWindow(WC_BUTTONW, L"Use Clean Environment (Env)", chboxstyle, 200, 320,
              360, 27, nullptr, hcleanenv);
   MakeWindow(WC_BUTTONW, L"Build LLDB (Visual Studio 2017 or Later)",
-             chboxstyle, 200, 380, 360, 27, nullptr, hlldb);
+             chboxstyle, 200, 350, 360, 27, nullptr, hlldb);
   // Button_SetElevationRequiredState
   MakeWindow(WC_BUTTONW, L"Building", pbstyle, 200, 430, 195, 30,
              (HMENU)IDC_BUTTON_STARTTASK, hbuildtask);
@@ -350,7 +346,6 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
     SetWindowCompositionAttributeImpl(hbuildbox.hWnd);
     SetWindowCompositionAttributeImpl(hlibcxx.hWnd);
     SetWindowCompositionAttributeImpl(hlto.hWnd);
-    SetWindowCompositionAttributeImpl(hsdklow.hWnd);
     SetWindowCompositionAttributeImpl(hcpack.hWnd);
     SetWindowCompositionAttributeImpl(hcleanenv.hWnd);
     SetWindowCompositionAttributeImpl(hlldb.hWnd);
@@ -408,7 +403,6 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
   UpdateWindowPos(hbuildbox);
   UpdateWindowPos(hlibcxx);
   UpdateWindowPos(hlto);
-  UpdateWindowPos(hsdklow);
   UpdateWindowPos(hcpack);
   UpdateWindowPos(hcleanenv);
   UpdateWindowPos(hlldb);

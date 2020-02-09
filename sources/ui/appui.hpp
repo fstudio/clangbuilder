@@ -144,7 +144,6 @@ private:
   // checkbox
   Widget hlibcxx;
   Widget hlto;
-  Widget hsdklow;
   Widget hcpack;
   Widget hcleanenv;
   Widget hlldb;
