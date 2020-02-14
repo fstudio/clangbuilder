@@ -128,6 +128,13 @@ Function ReinitializePath {
 
 ```
 
+## Windows Terminal
+
+You can modify `UseWindowsTerminal` to enable or disable the use of Windows Terminal as the default terminal. When `UseWindowsTerminal` is set to true, you open the Clangbuilder terminal environment, the screenshot is as follows:
+
+
+![termianl](./docs/images/terminal.png)
+
 ## Custom PATH
 
 You can modify [config/initialize.json](./config/initialize.json) , add some directories to PATH. Note that directories have **higher priority** in PATH. (Insert Front)
@@ -143,10 +150,6 @@ You can modify [config/initialize.json](./config/initialize.json) , add some dir
 $env:Path = "${env:windir};${env:windir}\System32;${env:windir}\System32\Wbem;${env:windir}\System32\WindowsPowerShell\v1.0"
 ```
 `$evn:windir` is usually `C:\Windows`
-
-## Windows Terminal/Windows Console
-
-When you only need to start a console environment, you can click on the `Windows Terminal`/`Windows Console`.
 
 
 ## Add Portable Utilities
