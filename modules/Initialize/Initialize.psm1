@@ -41,10 +41,6 @@ Function InitializeEnv {
         return
     }
     $InitializeObj = Get-Content -Path $InitializeFile | ConvertFrom-Json
-    # Window Title
-    if ($null -ne $InitializeObj.Title) {
-        $Host.UI.RawUI.WindowTitle = $InitializeObj.Title
-    }
     # Welcome Message
     if ($null -ne $InitializeObj.Welcome) {
         Write-Host $InitializeObj.Welcome

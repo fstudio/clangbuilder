@@ -21,6 +21,14 @@ param (
     [Switch]$ClearEnv
 )
 
+if ($null -ne "$env:WT_SESSION") {
+    $Host.UI.RawUI.WindowTitle = "Clangbuilder 💘 Utility" 
+}
+else {
+    $Host.UI.RawUI.WindowTitle = "Clangbuilder Utility" 
+}
+ 
+
 ## Load Profile
 ."$PSScriptRoot\PreInitialize.ps1"
 
@@ -74,12 +82,17 @@ InitializeExtranl -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
 InitializeEnv -ClangbuilderRoot $ClangbuilderRoot
 
 if ($Environment) {
-    Update-Title -Title " [Environment]"
     Set-Location $ClangbuilderRoot
     return ;
 }
 
-Update-Title -Title " [Build: $Branch]"
+
+if ($null -ne "$env:WT_SESSION") {
+    $Host.UI.RawUI.WindowTitle = "Clangbuilder [🛠️: $Branch]" 
+}
+else {
+    $Host.UI.RawUI.WindowTitle = "Clangbuilder [Build: $Branch]" 
+}
 
 $ArchTable = @{
     "x86"   = "";
