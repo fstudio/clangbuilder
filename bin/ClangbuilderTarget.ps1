@@ -80,7 +80,7 @@ if ($ret -ne 0 -or $InstallationVersion.Length -lt 3) {
 
 InitializeExtranl -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch
 InitializeEnv -ClangbuilderRoot $ClangbuilderRoot
-
+ShuffleEnv
 if ($Environment) {
     Set-Location $ClangbuilderRoot
     return ;

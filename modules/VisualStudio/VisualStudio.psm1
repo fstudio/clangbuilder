@@ -205,8 +205,8 @@ Function InitializeVisualStudio {
     $ver = [System.Version]::Parse($vsinstance.installationVersion)
     $vcvarsall = "$($vsinstance.installationPath)\VC\Auxiliary\Build\vcvarsall.bat"
     $vscommtools = "VS$($ver.Major)0COMNTOOLS"
-    Set-Variable -Name "env:$vscommtools" -Value "$($vsinstance.installationPath)\Common7\Tools\"
-    $vscommdir = Get-Variable -Name "env:$vscommtools" -ValueOnly
+    [environment]::SetEnvironmentVariable($vscommtools, "$($vsinstance.installationPath)\Common7\Tools\")
+    $vscommdir = [environment]::GetEnvironmentVariable($vscommtools)
     Write-Host "Update `$env:$vscommtools to: $vscommdir"
     if (!(Test-Path $vcvarsall)) {
         Write-Host "$vcvarsall not found"
