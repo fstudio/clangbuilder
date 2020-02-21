@@ -7,6 +7,8 @@
 #include <bela/match.hpp>
 #include <bela/strcat.hpp>
 
+namespace baulk {
+
 bool IsExecutableSuffix(std::wstring_view name) {
   constexpr std::wstring_view suffixs[] = {L".exe", L".com", L".bat", L".cmd"};
   for (const auto s : suffixs) {
@@ -52,3 +54,4 @@ std::optional<std::wstring> FindExecutablePath(std::wstring_view p) {
   }
   return std::nullopt;
 }
+} // namespace baulk
