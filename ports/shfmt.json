@@ -1,8 +1,8 @@
 {
     "description": "A shell formatter.",
-    "version": "3.0.1",
-    "url": "https://github.com/mvdan/sh/releases/download/v3.0.1/shfmt_v3.0.1_windows_386.exe",
-    "url64": "https://github.com/mvdan/sh/releases/download/v3.0.1/shfmt_v3.0.1_windows_amd64.exe",
+    "version": "3.0.2",
+    "url": "https://github.com/mvdan/sh/releases/download/v3.0.2/shfmt_v3.0.2_windows_386.exe",
+    "url64": "https://github.com/mvdan/sh/releases/download/v3.0.2/shfmt_v3.0.2_windows_amd64.exe",
     "extension": "exe",
     "links": [
         "shfmt.exe"
