@@ -115,10 +115,6 @@ private:
     bela::FPrintF(stderr, L"\n");
   }
   void Draw() {
-    pos++;
-    if (pos == 100) {
-      pos = 0;
-    }
     auto w = bela::TerminalWidth();
     if (w != 0 && w <= MAX_BARLENGTH && w != width) {
       width = w;
@@ -133,6 +129,10 @@ private:
     wchar_t totalsuffix[64];
     wchar_t ratesuffix[64];
     auto total_ = static_cast<uint64_t>(total);
+    pos++;
+    if (pos == barwidth - 3) {
+      pos = 0;
+    }
     //' 1024.00K 1024.00K/s' 20
     auto delta = (total_ - previous) * 10; // cycle 50/1000 s
     previous = total_;
@@ -142,6 +142,11 @@ private:
       // file.tar.gz  [ <=> ] 1024.00K 1024.00K/s
       constexpr std::wstring_view bounce = L"<=>";
       // '<=>'
+      auto s0 = MakeSpace(pos);
+      auto s1 = MakeSpace(barwidth - pos);
+      bela::FPrintF(stderr, L"\r\x1b[01;%dm%s [%s%s%s] %s %s/s    \x1b[0m",
+                    (uint32_t)state, MakeFileName(), s0, bounce, s1,
+                    totalsuffix, ratesuffix);
       return;
     }
     //
