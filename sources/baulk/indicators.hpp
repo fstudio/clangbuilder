@@ -48,7 +48,13 @@ public:
   ProgressBar(const ProgressBar &) = delete;
   ProgressBar &operator=(const ProgressBar &) = delete;
   void Maximum(uint64_t mx) { maximum = mx; }
-  void FileName(std::wstring_view fn) { filename = fn; }
+  void FileName(std::wstring_view fn) {
+    filename = fn;
+    if (filename.size() >= 20) {
+      flen = filename.size();
+      filename.append(flen, L' ');
+    }
+  }
   void Update(uint64_t value) { total = value; }
   void Execute() {
     worker = std::make_shared<std::thread>([this] {
@@ -81,9 +87,10 @@ private:
   std::wstring scs;
   std::wstring filename;
   std::atomic_uint32_t state{ProgressState::Running};
+  uint32_t fnpos{0};
   uint32_t pos{0};
   uint32_t width{80};
-  uint32_t flen{20};
+  size_t flen{20};
   inline std::wstring_view MakeSpace(size_t n) {
     if (n > MAX_BARLENGTH) {
       return std::wstring_view{};
@@ -100,7 +107,12 @@ private:
     if (filename.size() <= 19) {
       return filename;
     }
-    return std::wstring_view{filename.data(), 19};
+    std::wstring_view sv{filename.data() + fnpos, 19};
+    fnpos++;
+    if (fnpos == flen) {
+      fnpos = 0;
+    }
+    return sv;
   }
 
   void Loop() {
@@ -149,8 +161,6 @@ private:
                     totalsuffix, ratesuffix);
       return;
     }
-    //
-    constexpr std::wstring_view half = L">";
     auto scale = total_ * 100 / maximum;
     auto progress = scale * barwidth / 100;
     auto ps = MakeRate(static_cast<size_t>(progress));
