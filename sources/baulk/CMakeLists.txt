@@ -14,3 +14,12 @@ target_link_libraries(baulk
   belawin
   winhttp
 )
+
+add_executable(indicators_test
+  indicators_test.cc
+)
+
+target_link_libraries(indicators_test
+  belawin
+  winhttp
+)
