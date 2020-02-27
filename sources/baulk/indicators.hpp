@@ -61,6 +61,7 @@ public:
       // Progress Loop
       space.resize(MAX_BARLENGTH + 4, L' ');
       scs.resize(MAX_BARLENGTH + 4, L'#');
+      memset(speed, 0, sizeof(speed));
       this->Loop();
     });
   }
@@ -87,9 +88,10 @@ private:
   std::wstring scs;
   std::wstring filename;
   std::atomic_uint32_t state{ProgressState::Running};
+  wchar_t speed[64];
+  uint32_t tick{0};
   uint32_t fnpos{0};
   uint32_t pos{0};
-  uint32_t tick{0};
   uint32_t width{80};
   size_t flen{20};
   inline std::wstring_view MakeSpace(size_t n) {
@@ -139,27 +141,30 @@ private:
     }
     // file.tar.gz 17%[###############>      ] 1024.00K 1024.00K/s
     auto barwidth = width - 50;
-    wchar_t totalsuffix[64];
-    wchar_t ratesuffix[64];
+    wchar_t strtotal[64];
     auto total_ = static_cast<uint64_t>(total);
-    pos++;
-    if (pos == barwidth - 3) {
-      pos = 0;
-    }
     //' 1024.00K 1024.00K/s' 20
-    auto delta = (total_ - previous) * 10; // cycle 50/1000 s
-    previous = total_;
-    EncodeRate(totalsuffix, total_);
-    EncodeRate(ratesuffix, delta);
+
+    EncodeRate(strtotal, total_);
+    if (tick % 10 == 0) {
+      auto delta = (total_ - previous); // cycle 50/1000 s
+      previous = total_;
+      EncodeRate(speed, delta);
+    }
+    tick++;
     if (maximum == 0) {
       // file.tar.gz  [ <=> ] 1024.00K 1024.00K/s
       constexpr std::wstring_view bounce = L"<=>";
+      pos++;
+      if (pos == barwidth - 3) {
+        pos = 0;
+      }
       // '<=>'
       auto s0 = MakeSpace(pos);
       auto s1 = MakeSpace(barwidth - pos);
       bela::FPrintF(stderr, L"\r\x1b[01;%dm%s [%s%s%s] %s %s/s    \x1b[0m",
-                    (uint32_t)state, MakeFileName(), s0, bounce, s1,
-                    totalsuffix, ratesuffix);
+                    (uint32_t)state, MakeFileName(), s0, bounce, s1, strtotal,
+                    speed);
       return;
     }
     auto scale = total_ * 100 / maximum;
@@ -167,8 +172,8 @@ private:
     auto ps = MakeRate(static_cast<size_t>(progress));
     auto sps = MakeSpace(static_cast<size_t>(barwidth - progress));
     bela::FPrintF(stderr, L"\r\x1b[01;%dm%s %d%% [%s%s] %s %s/s    \x1b[0m",
-                  (uint32_t)state, MakeFileName(), scale, ps, sps, totalsuffix,
-                  ratesuffix);
+                  (uint32_t)state, MakeFileName(), scale, ps, sps, strtotal,
+                  speed);
   }
 };
 } // namespace baulk
