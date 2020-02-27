@@ -36,4 +36,5 @@ int wmain(int argc, wchar_t **argv) {
   }
   Maximum(argv[1]);
   NoMaximum(argv[1]);
+  return 0;
 }

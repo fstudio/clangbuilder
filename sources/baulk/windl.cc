@@ -3,6 +3,7 @@
 #include <bela/env.hpp>
 #include <bela/finaly.hpp>
 #include <bela/path.hpp>
+#include <bela/strip.hpp>
 #include <winhttp.h>
 #include <cstdio>
 #include <cstdlib>
@@ -68,14 +69,6 @@ public:
     }
     return len == dwlen;
   }
-  std::wstring_view FileName() const {
-    auto sv = std::wstring_view(path);
-    auto pos = sv.rfind('\\');
-    if (pos == std::wstring::npos) {
-      return L"NONE";
-    }
-    return sv.substr(pos);
-  }
   static std::optional<File> MakeFile(std::wstring_view p,
                                       bela::error_code &ec) {
     File file;
@@ -96,10 +89,68 @@ private:
   std::wstring path;
 };
 
-// TODO progress
-bool WinGetInternal(std::wstring_view scheme, std::wstring_view hostname,
-                    std::wstring_view urlpath, std::wstring_view dest,
-                    bela::error_code ec) {
+inline std::wstring UrlPathName(std::wstring_view urlpath) {
+  std::vector<std::wstring_view> pv = bela::SplitPath(urlpath);
+  if (pv.empty()) {
+    return L"index.html";
+  }
+  return std::wstring(pv.back());
+}
+
+inline bool BodyLength(HINTERNET hReq, uint64_t &len) {
+  wchar_t conlen[32];
+  DWORD dwXsize = sizeof(conlen);
+  if (WinHttpQueryHeaders(hReq, WINHTTP_QUERY_CONTENT_LENGTH,
+                          WINHTTP_HEADER_NAME_BY_INDEX, conlen, &dwXsize,
+                          WINHTTP_NO_HEADER_INDEX) == TRUE) {
+    return bela::SimpleAtoi({conlen, dwXsize / 2}, &len);
+  }
+  return false;
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
+// update filename
+inline bool Disposition(HINTERNET hReq, std::wstring &fn) {
+  wchar_t diposition[MAX_PATH + 4];
+  DWORD dwXsize = sizeof(diposition);
+  if (WinHttpQueryHeaders(hReq, WINHTTP_QUERY_CUSTOM, L"Content-Disposition",
+                          diposition, &dwXsize,
+                          WINHTTP_NO_HEADER_INDEX) != TRUE) {
+    return false;
+  }
+  std::vector<std::wstring_view> pvv =
+      bela::StrSplit(diposition, bela::ByChar(';'), bela::SkipEmpty());
+  constexpr std::wstring_view fns = L"filename=";
+  for (auto e : pvv) {
+    auto s = bela::StripAsciiWhitespace(e);
+    if (bela::ConsumePrefix(&s, fns)) {
+      bela::ConsumePrefix(&s, L"\"");
+      bela::ConsumeSuffix(&s, L"\"");
+      fn = s;
+      return true;
+    }
+  }
+  return false;
+}
+
+std::optional<std::wstring> WinGetInternal(std::wstring_view url,
+                                           std::wstring_view workdir,
+                                           bool avoidoverwrite,
+                                           bela::error_code ec) {
+  URL_COMPONENTSW urlcomp;
+  ZeroMemory(&urlcomp, sizeof(urlcomp));
+  urlcomp.dwStructSize = sizeof(urlcomp);
+  urlcomp.dwSchemeLength = (DWORD)-1;
+  urlcomp.dwHostNameLength = (DWORD)-1;
+  urlcomp.dwUrlPathLength = (DWORD)-1;
+  urlcomp.dwExtraInfoLength = (DWORD)-1;
+  if (WinHttpCrackUrl(url.data(), static_cast<DWORD>(url.size()), 0,
+                      &urlcomp) != TRUE) {
+    ec = bela::make_system_error_code();
+    return std::nullopt;
+  }
+  std::wstring_view urlpath{urlcomp.lpszUrlPath, urlcomp.dwUrlPathLength};
+  auto filename = UrlPathName(urlpath);
   HINTERNET hSession = nullptr;
   HINTERNET hConnect = nullptr;
   HINTERNET hRequest = nullptr;
@@ -113,7 +164,7 @@ bool WinGetInternal(std::wstring_view scheme, std::wstring_view hostname,
                   WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
   if (hSession == nullptr) {
     ec = bela::make_system_error_code();
-    return false;
+    return std::nullopt;
   }
   auto https_proxy_env = bela::GetEnv(L"HTTPS_PROXY");
   if (!https_proxy_env.empty()) {
@@ -127,48 +178,59 @@ bool WinGetInternal(std::wstring_view scheme, std::wstring_view hostname,
                          WINHTTP_FLAG_SECURE_PROTOCOL_TLS1_3);
   WinHttpSetOption(hSession, WINHTTP_OPTION_SECURE_PROTOCOLS, &secure_protocols,
                    sizeof(secure_protocols));
+  std::wstring hn(urlcomp.lpszHostName, urlcomp.dwHostNameLength);
   hConnect =
-      WinHttpConnect(hSession, hostname.data(), INTERNET_DEFAULT_HTTPS_PORT, 0);
+      WinHttpConnect(hSession, hn.data(), INTERNET_DEFAULT_HTTPS_PORT, 0);
   if (hConnect == nullptr) {
     ec = bela::make_system_error_code();
-    return false;
+    return std::nullopt;
   }
+  auto qu =
+      bela::StringCat(urlpath, std::wstring_view{urlcomp.lpszExtraInfo,
+                                                 urlcomp.dwExtraInfoLength});
   hRequest = WinHttpOpenRequest(
-      hConnect, L"GET", urlpath.data(), nullptr, WINHTTP_NO_REFERER,
+      hConnect, L"GET", qu.data(), nullptr, WINHTTP_NO_REFERER,
       WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
   if (hRequest == nullptr) {
     ec = bela::make_system_error_code();
-    return false;
+    return std::nullopt;
   }
   if (WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0,
                          WINHTTP_NO_REQUEST_DATA, 0, 0, 0) != TRUE) {
     ec = bela::make_system_error_code();
-    return false;
+    return std::nullopt;
   }
   if (WinHttpReceiveResponse(hRequest, nullptr) != TRUE) {
     ec = bela::make_system_error_code();
-    return false;
+    return std::nullopt;
   }
   baulk::ProgressBar bar;
-  wchar_t conlen[32];
-  DWORD dwXsize = sizeof(conlen);
-  if (WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_CONTENT_LENGTH,
-                          WINHTTP_HEADER_NAME_BY_INDEX, conlen, &dwXsize,
-                          WINHTTP_NO_HEADER_INDEX) == TRUE) {
-    uint64_t blen = 0;
-    if (bela::SimpleAtoi({conlen, dwXsize}, &blen)) {
-      bar.Maximum(blen);
+  uint64_t blen = 0;
+  if (BodyLength(hRequest, blen)) {
+    bar.Maximum(blen);
+  }
+  Disposition(hRequest, filename);
+
+  auto dest = bela::PathCat(workdir, filename);
+  if (bela::PathExists(dest)) {
+    if (avoidoverwrite) {
+      ec = bela::make_error_code(ERROR_FILE_EXISTS, L"'", dest,
+                                 L"' already exists");
+      return std::nullopt;
+    }
+    if (DeleteFileW(dest.data()) != TRUE) {
+      ec = bela::make_system_error_code();
+      return std::nullopt;
     }
   }
-
   size_t total_downloaded_size = 0;
   DWORD dwSize = 0;
   std::vector<char> buf;
   buf.reserve(64 * 1024);
   auto file = File::MakeFile(dest, ec);
-  bar.FileName(file->FileName());
+  bar.FileName(filename);
   bar.Execute();
-  auto finally = bela::finally([&] {
+  auto finish = bela::finally([&] {
     // finish progressbar
     bar.Finish();
   });
@@ -177,7 +239,7 @@ bool WinGetInternal(std::wstring_view scheme, std::wstring_view hostname,
     if (WinHttpQueryDataAvailable(hRequest, &dwSize) != TRUE) {
       ec = bela::make_system_error_code();
       bar.MarkFault();
-      return false;
+      return std::nullopt;
     }
     if (buf.size() < dwSize) {
       buf.resize(static_cast<size_t>(dwSize) * 2);
@@ -186,7 +248,7 @@ bool WinGetInternal(std::wstring_view scheme, std::wstring_view hostname,
                         &downloaded_size) != TRUE) {
       ec = bela::make_system_error_code();
       bar.MarkFault();
-      return false;
+      return std::nullopt;
     }
     file->Write(buf.data(), downloaded_size);
     total_downloaded_size += downloaded_size;
@@ -194,28 +256,6 @@ bool WinGetInternal(std::wstring_view scheme, std::wstring_view hostname,
   } while (dwSize > 0);
   file->Finish();
   bar.MarkCompleted();
-  return true;
-}
-
-bool WinGetInternal(std::wstring_view url, std::wstring_view dest,
-                    bela::error_code ec) {
-  URL_COMPONENTSW urlcomp;
-  ZeroMemory(&urlcomp, sizeof(urlcomp));
-  urlcomp.dwStructSize = sizeof(urlcomp);
-  urlcomp.dwSchemeLength = (DWORD)-1;
-  urlcomp.dwHostNameLength = (DWORD)-1;
-  urlcomp.dwUrlPathLength = (DWORD)-1;
-  urlcomp.dwExtraInfoLength = (DWORD)-1;
-  if (WinHttpCrackUrl(url.data(), static_cast<DWORD>(url.size()), 0,
-                      &urlcomp) != TRUE) {
-    ec = bela::make_system_error_code();
-    return false;
-  }
-  std::wstring_view scheme{urlcomp.lpszScheme, urlcomp.dwSchemeLength};
-  std::wstring hostname{urlcomp.lpszHostName, urlcomp.dwHostNameLength};
-  std::wstring urlpath = bela::StringCat(
-      std::wstring_view{urlcomp.lpszUrlPath, urlcomp.dwUrlPathLength},
-      std::wstring_view{urlcomp.lpszExtraInfo, urlcomp.dwExtraInfoLength});
-  return WinGetInternal(scheme, hostname, urlpath, dest, ec);
+  return std::make_optional(std::move(dest));
 }
 } // namespace baulk

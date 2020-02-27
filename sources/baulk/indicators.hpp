@@ -89,6 +89,7 @@ private:
   std::atomic_uint32_t state{ProgressState::Running};
   uint32_t fnpos{0};
   uint32_t pos{0};
+  uint32_t tick{0};
   uint32_t width{80};
   size_t flen{20};
   inline std::wstring_view MakeSpace(size_t n) {

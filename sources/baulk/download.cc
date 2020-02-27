@@ -36,27 +36,4 @@ bool WebGet(std::wstring_view url, std::wstring_view dest,
   return true;
 }
 
-bool WinGet(std::wstring_view url, std::wstring_view dest, bool avoidoverwrite,
-            bela::error_code ec) {
-  if (bela::PathExists(dest)) {
-    if (avoidoverwrite) {
-      ec = bela::make_error_code(ERROR_FILE_EXISTS, L"'", dest,
-                                 L"' already exists");
-      return false;
-    }
-    if (DeleteFileW(dest.data()) != TRUE) {
-      ec = bela::make_system_error_code();
-      return false;
-    }
-  }
-
-  if (CURLGet(url, dest, ec)) {
-    return true;
-  }
-  if (WebGet(url, dest, ec)) {
-    return true;
-  }
-  return WinGetInternal(url, dest, ec);
-}
-
 } // namespace baulk
