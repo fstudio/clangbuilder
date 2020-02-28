@@ -153,15 +153,18 @@ private:
     }
     tick++;
     if (maximum == 0) {
+      barwidth += 5;
       // file.tar.gz  [ <=> ] 1024.00K 1024.00K/s
       constexpr std::wstring_view bounce = L"<=>";
       pos++;
       if (pos == barwidth - 3) {
         pos = 0;
       }
+      //[##############################]
+      //[      <=>                     ]
       // '<=>'
       auto s0 = MakeSpace(pos);
-      auto s1 = MakeSpace(barwidth - pos);
+      auto s1 = MakeSpace(barwidth - pos - 3);
       bela::FPrintF(stderr, L"\r\x1b[01;%dm%s [%s%s%s] %s %s/s    \x1b[0m",
                     (uint32_t)state, MakeFileName(), s0, bounce, s1, strtotal,
                     speed);
