@@ -2,10 +2,12 @@
 
 add_executable(baulk
   baulk.cc
-  cleanup.cc
+  fs.cc
   download.cc
   utils.cc
   windl.cc
+  msi.cc
+  zip.cc
   ../res/cli.rc
   ../res/cli.manifest
 )
@@ -13,6 +15,7 @@ add_executable(baulk
 target_link_libraries(baulk
   belawin
   winhttp
+  Msi
 )
 
 add_executable(indicators_test

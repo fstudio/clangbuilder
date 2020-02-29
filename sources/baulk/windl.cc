@@ -19,39 +19,16 @@ inline void Free(HINTERNET &h) {
 
 class File {
 public:
-  File() = default;
+  File() noexcept = default;
   File(const File &) = delete;
   File &operator=(const File &) = delete;
-  File(File &&o) {
-    if (FileHandle != INVALID_HANDLE_VALUE) {
-      CloseHandle(FileHandle);
-    }
-    FileHandle = o.FileHandle;
-    path = o.path;
-    o.FileHandle = INVALID_HANDLE_VALUE;
-    o.path.clear();
-  }
-  File &operator=(File &&o) {
-    if (FileHandle != INVALID_HANDLE_VALUE) {
-      CloseHandle(FileHandle);
-    }
-    FileHandle = o.FileHandle;
-    o.FileHandle = INVALID_HANDLE_VALUE;
-    path = o.path;
-    o.path.clear();
+  File(File &&o) noexcept { transfer_ownership(std::move(o)); }
+  File &operator=(File &&o) noexcept {
+    transfer_ownership(std::move(o));
     return *this;
   }
-  ~File() {
-    Rollback(); // rollback
-  }
-  void Rollback() {
-    if (FileHandle != INVALID_HANDLE_VALUE) {
-      CloseHandle(FileHandle);
-      FileHandle = INVALID_HANDLE_VALUE;
-      auto part = bela::StringCat(path, L".part");
-      DeleteFileW(part.data());
-    }
-  }
+  ~File() noexcept { rollback(); }
+
   bool Finish() {
     if (FileHandle == INVALID_HANDLE_VALUE) {
       SetLastError(ERROR_INVALID_HANDLE);
@@ -87,6 +64,23 @@ public:
 private:
   HANDLE FileHandle{INVALID_HANDLE_VALUE};
   std::wstring path;
+  void transfer_ownership(File &&other) {
+    if (FileHandle != INVALID_HANDLE_VALUE) {
+      CloseHandle(FileHandle);
+    }
+    FileHandle = other.FileHandle;
+    other.FileHandle = INVALID_HANDLE_VALUE;
+    path = other.path;
+    other.path.clear();
+  }
+  void rollback() noexcept {
+    if (FileHandle != INVALID_HANDLE_VALUE) {
+      CloseHandle(FileHandle);
+      FileHandle = INVALID_HANDLE_VALUE;
+      auto part = bela::StringCat(path, L".part");
+      DeleteFileW(part.data());
+    }
+  }
 };
 
 inline std::wstring UrlPathName(std::wstring_view urlpath) {
