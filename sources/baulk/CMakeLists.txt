@@ -6,6 +6,7 @@ add_executable(baulk
   download.cc
   utils.cc
   windl.cc
+  7z.cc
   msi.cc
   zip.cc
   ../res/cli.rc

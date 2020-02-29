@@ -75,7 +75,7 @@ INT WINAPI install_ui_callback(LPVOID ctx, UINT iMessageType,
   return 0;
 }
 
-bool Decompress(std::wstring_view msi, std::wstring_view outdir,
+bool decompress(std::wstring_view msi, std::wstring_view outdir,
                 bela::error_code &ec) {
   auto cmd = bela::StringCat(L"ACTION=ADMIN TARGETDIR=\"", outdir, L"\"");
   MsiSetInternalUI(
