@@ -10,8 +10,16 @@ inline std::optional<std::wstring> lookup_sevenzip() {
   if (bela::ExecutableExistsInPath(L"7z.exe", s7z)) {
     return std::make_optional(std::move(s7z));
   }
-  
-  return std::nullopt;
+  bela::error_code ec;
+  auto self = bela::ExecutablePath(ec);
+  if (!self) {
+    return std::nullopt;
+  }
+  s7z = bela::StringCat(*self, L"\\7z.exe");
+  if (!bela::PathExists(s7z)) {
+    return std::nullopt;
+  }
+  return std::make_optional(std::move(s7z));
 }
 
 bool decompress(std::wstring_view src, std::wstring_view outdir,
