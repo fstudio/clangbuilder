@@ -39,7 +39,7 @@ LookupHandler(std::wstring_view ext) {
       {L"exe", exe::Decompress, exe::Regularize},
       {L"msi", msi::Decompress, msi::Regularize},
       {L"zip", zip::Decompress, zip::Regularize},
-      {L"exe", sevenzip::Decompress, sevenzip::Regularize}
+      {L"7z", sevenzip::Decompress, sevenzip::Regularize}
       //
   };
   for (const auto &h : hs) {

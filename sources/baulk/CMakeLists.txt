@@ -8,6 +8,7 @@ add_executable(baulk
   7z.cc
   msi.cc
   zip.cc
+  decompress.cc
   ../res/cli.rc
   ../res/cli.manifest
 )

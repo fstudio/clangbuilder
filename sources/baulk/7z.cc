@@ -30,8 +30,8 @@ bool Decompress(std::wstring_view src, std::wstring_view outdir,
     return false;
   }
   baulk::Process process;
-  if (process.Execute(*s7z, L"e -spf -y \"", src, L"\" \"-o", outdir, L"\"") !=
-      0) {
+  if (process.Execute(*s7z, L"e", L"-spf", L"-y", src,
+                      bela::StringCat(L"-o", outdir)) != 0) {
     return false;
   }
   return true;
