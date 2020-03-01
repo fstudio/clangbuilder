@@ -32,12 +32,9 @@ bool Decompress(std::wstring_view src, std::wstring_view outdir,
   baulk::Process process;
   if (process.Execute(*s7z, L"e", L"-spf", L"-y", src,
                       bela::StringCat(L"-o", outdir)) != 0) {
+    ec = process.ErrorCode();
     return false;
   }
-  return true;
-}
-bool Regularize(std::wstring_view path) {
-  //
   return true;
 }
 } // namespace baulk::sevenzip

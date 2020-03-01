@@ -44,7 +44,7 @@ int FGetInteger(const wchar_t *&it, const wchar_t *end) {
   while (it < end && *it != ' ') {
     it++;
   }
-  std::wstring_view sv{pchPrev, it - pchPrev};
+  std::wstring_view sv{pchPrev, static_cast<size_t>(it - pchPrev)};
   int i = 0;
   bela::SimpleAtoi(sv, &i);
   return i;

@@ -2,9 +2,10 @@
 #include <bela/base.hpp>
 #include <bela/path.hpp>
 #include "process.hpp"
+#include "fs.hpp"
 
 namespace baulk::zip {
-inline std::optional<std::wstring> lookup_pwsh(bela::error_code &ec) {
+inline std::optional<std::wstring> LookupPwsh(bela::error_code &ec) {
   std::wstring pwsh;
   if (bela::ExecutableExistsInPath(L"pwsh.exe", pwsh)) {
     return std::make_optional(std::move(pwsh));
@@ -16,9 +17,9 @@ inline std::optional<std::wstring> lookup_pwsh(bela::error_code &ec) {
   return std::nullopt;
 }
 
-bool pwsh_decompress(std::wstring_view src, std::wstring_view outdir,
-                     bela::error_code &ec) {
-  auto pwsh = lookup_pwsh(ec);
+bool Decompress(std::wstring_view src, std::wstring_view outdir,
+                bela::error_code &ec) {
+  auto pwsh = LookupPwsh(ec);
   if (!pwsh) {
     return false;
   }
@@ -26,18 +27,10 @@ bool pwsh_decompress(std::wstring_view src, std::wstring_view outdir,
                                  L"\" -DestinationPath \"", outdir, L"\"");
   baulk::Process process;
   if (process.Execute(*pwsh, L"-Command", command) != 0) {
+    ec = process.ErrorCode();
     return false;
   }
   return true;
 }
 
-bool Decompress(std::wstring_view src, std::wstring_view outdir,
-                bela::error_code &ec) {
-
-  return true;
-}
-bool Regularize(std::wstring_view path) {
-  //
-  return true;
-}
 } // namespace baulk::zip

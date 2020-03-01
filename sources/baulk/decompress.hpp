@@ -4,6 +4,9 @@
 #include <bela/base.hpp>
 
 namespace baulk {
+namespace standard {
+bool Regularize(std::wstring_view path);
+}
 namespace exe {
 bool Decompress(std::wstring_view src, std::wstring_view outdir,
                 bela::error_code &ec);
@@ -18,13 +21,10 @@ bool Regularize(std::wstring_view path);
 namespace zip {
 bool Decompress(std::wstring_view src, std::wstring_view outdir,
                 bela::error_code &ec);
-bool Regularize(std::wstring_view path);
 } // namespace zip
 namespace sevenzip {
 bool Decompress(std::wstring_view src, std::wstring_view outdir,
                 bela::error_code &ec);
-bool Regularize(std::wstring_view path);
-
 } // namespace sevenzip
 
 struct decompress_handler_t {
@@ -38,8 +38,8 @@ LookupHandler(std::wstring_view ext) {
   static constexpr decompress_handler_t hs[] = {
       {L"exe", exe::Decompress, exe::Regularize},
       {L"msi", msi::Decompress, msi::Regularize},
-      {L"zip", zip::Decompress, zip::Regularize},
-      {L"7z", sevenzip::Decompress, sevenzip::Regularize}
+      {L"zip", zip::Decompress, standard::Regularize},
+      {L"7z", sevenzip::Decompress, standard::Regularize}
       //
   };
   for (const auto &h : hs) {

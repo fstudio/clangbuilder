@@ -4,7 +4,15 @@
 #include "fs.hpp"
 
 namespace baulk {
-//
+
+namespace standard {
+bool Regularize(std::wstring_view path) {
+  bela::error_code ec;
+  // TODO some zip code
+  return baulk::fs::MoveFromUniqueSubdir(path, path, ec);
+}
+} // namespace standard
+
 namespace exe {
 bool Decompress(std::wstring_view src, std::wstring_view outdir,
                 bela::error_code &ec) {
