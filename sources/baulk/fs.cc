@@ -1,6 +1,7 @@
 ///
 #include "fs.hpp"
 #include <bela/path.hpp>
+#include <bela/match.hpp>
 
 namespace baulk::fs {
 inline bool DirSkipFaster(const wchar_t *dir) {
@@ -40,7 +41,55 @@ private:
   WIN32_FIND_DATAW wfd;
 };
 
-bool recurse_remove(std::wstring_view dir, bela::error_code &ec) {
+bool IsExecutableSuffix(std::wstring_view name) {
+  constexpr std::wstring_view suffixs[] = {L".exe", L".com", L".bat", L".cmd"};
+  for (const auto s : suffixs) {
+    if (bela::EndsWithIgnoreCase(name, s)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool IsExecutablePath(std::wstring_view p) {
+  bela::error_code ec;
+  Finder finder;
+  if (!finder.First(p, L"*", ec)) {
+    return false;
+  }
+  do {
+    if (finder.Ignore()) {
+      continue;
+    }
+    if (finder.IsDir()) {
+      continue;
+    }
+    if (IsExecutableSuffix(finder.Name())) {
+      return true;
+    }
+  } while (finder.Next());
+  return false;
+}
+
+std::optional<std::wstring> FindExecutablePath(std::wstring_view p) {
+  if (!bela::PathExists(p, bela::FileAttribute::Dir)) {
+    return std::nullopt;
+  }
+  if (IsExecutablePath(p)) {
+    return std::make_optional<std::wstring>(p);
+  }
+  auto p2 = bela::StringCat(p, L"\\bin");
+  if (IsExecutablePath(p2)) {
+    return std::make_optional(std::move(p2));
+  }
+  p2 = bela::StringCat(p, L"\\cmd");
+  if (IsExecutablePath(p2)) {
+    return std::make_optional(std::move(p2));
+  }
+  return std::nullopt;
+}
+
+bool PathRecurseRemove(std::wstring_view dir, bela::error_code &ec) {
   Finder finder;
   if (!finder.First(dir, L"*", ec)) {
     return false;
@@ -57,7 +106,7 @@ bool recurse_remove(std::wstring_view dir, bela::error_code &ec) {
       }
       continue;
     }
-    if (!recurse_remove(p, ec)) {
+    if (!PathRecurseRemove(p, ec)) {
       return false;
     }
   } while (finder.Next());
@@ -68,8 +117,8 @@ bool recurse_remove(std::wstring_view dir, bela::error_code &ec) {
   return true;
 }
 
-bool matched_remove(std::wstring_view dir, std::wstring_view pattern,
-                    bela::error_code &ec) {
+bool PathRemove(std::wstring_view dir, std::wstring_view pattern,
+                bela::error_code &ec) {
   Finder finder;
   if (!finder.First(dir, pattern, ec)) {
     return false;
@@ -86,14 +135,14 @@ bool matched_remove(std::wstring_view dir, std::wstring_view pattern,
       }
       continue;
     }
-    if (!recurse_remove(p, ec)) {
+    if (!PathRecurseRemove(p, ec)) {
       return false;
     }
   } while (finder.Next());
   return true;
 }
 
-std::optional<std::wstring_view> unique_subdir(std::wstring_view dir) {
+std::optional<std::wstring_view> SearchUniqueSubdir(std::wstring_view dir) {
   Finder finder;
   bela::error_code ec;
   if (!finder.First(dir, L"*", ec)) {
@@ -120,8 +169,8 @@ std::optional<std::wstring_view> unique_subdir(std::wstring_view dir) {
   return std::nullopt;
 }
 
-bool childs_moveto(std::wstring_view dir, std::wstring_view dest,
-                   bela::error_code &ec) {
+bool ChildsMoveTo(std::wstring_view dir, std::wstring_view dest,
+                  bela::error_code &ec) {
   Finder finder;
   if (!finder.First(dir, L"*", ec)) {
     return false;
@@ -144,13 +193,13 @@ bool childs_moveto(std::wstring_view dir, std::wstring_view dest,
   return true;
 }
 
-bool movefrom_unique_subdir(std::wstring_view dir, std::wstring_view dest,
-                            bela::error_code &ec) {
-  auto subdir = unique_subdir(dir);
+bool MoveFromUniqueSubdir(std::wstring_view dir, std::wstring_view dest,
+                          bela::error_code &ec) {
+  auto subdir = SearchUniqueSubdir(dir);
   if (!subdir) {
     return true;
   }
-  if (!childs_moveto(*subdir, dest, ec)) {
+  if (!ChildsMoveTo(*subdir, dest, ec)) {
     return false;
   }
   RemoveDirectoryW(subdir->data());

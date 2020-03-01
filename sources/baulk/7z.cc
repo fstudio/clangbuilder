@@ -22,7 +22,7 @@ inline std::optional<std::wstring> lookup_sevenzip() {
   return std::make_optional(std::move(s7z));
 }
 
-bool decompress(std::wstring_view src, std::wstring_view outdir,
+bool Decompress(std::wstring_view src, std::wstring_view outdir,
                 bela::error_code &ec) {
   auto s7z = lookup_sevenzip();
   if (!s7z) {
@@ -36,7 +36,7 @@ bool decompress(std::wstring_view src, std::wstring_view outdir,
   }
   return true;
 }
-bool initialize(std::wstring_view path) {
+bool Regularize(std::wstring_view path) {
   //
   return true;
 }

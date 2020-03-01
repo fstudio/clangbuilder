@@ -75,7 +75,7 @@ INT WINAPI install_ui_callback(LPVOID ctx, UINT iMessageType,
   return 0;
 }
 
-bool decompress(std::wstring_view msi, std::wstring_view outdir,
+bool Decompress(std::wstring_view msi, std::wstring_view outdir,
                 bela::error_code &ec) {
   auto cmd = bela::StringCat(L"ACTION=ADMIN TARGETDIR=\"", outdir, L"\"");
   MsiSetInternalUI(
@@ -99,13 +99,13 @@ bool decompress(std::wstring_view msi, std::wstring_view outdir,
   return true;
 }
 
-bool initialize(std::wstring_view path) {
+bool Regularize(std::wstring_view path) {
   bela::error_code ec;
-  if (!baulk::fs::matched_remove(path, L"*.msi", ec)) {
+  if (!baulk::fs::PathRemove(path, L"*.msi", ec)) {
     //
     return false;
   }
-  baulk::fs::recurse_remove(bela::StringCat(path, L"\\Windows"), ec); //
+  baulk::fs::PathRecurseRemove(bela::StringCat(path, L"\\Windows"), ec); //
   constexpr std::wstring_view destdirs[] = {
       L"\\Program Files", L"\\ProgramFiles64", L"\\PFiles", L"\\Files"};
   for (auto d : destdirs) {
@@ -113,7 +113,7 @@ bool initialize(std::wstring_view path) {
     if (!bela::PathExists(sd)) {
       continue;
     }
-    if (baulk::fs::movefrom_unique_subdir(sd, path, ec)) {
+    if (baulk::fs::MoveFromUniqueSubdir(sd, path, ec)) {
       return !ec;
     }
   }

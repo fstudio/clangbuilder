@@ -31,12 +31,12 @@ bool pwsh_decompress(std::wstring_view src, std::wstring_view outdir,
   return true;
 }
 
-bool decompress(std::wstring_view src, std::wstring_view outdir,
+bool Decompress(std::wstring_view src, std::wstring_view outdir,
                 bela::error_code &ec) {
 
   return true;
 }
-bool initialize(std::wstring_view path) {
+bool Regularize(std::wstring_view path) {
   //
   return true;
 }

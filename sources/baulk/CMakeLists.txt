@@ -4,7 +4,6 @@ add_executable(baulk
   baulk.cc
   fs.cc
   download.cc
-  utils.cc
   windl.cc
   7z.cc
   msi.cc
