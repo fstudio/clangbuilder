@@ -8,6 +8,23 @@ inline bool DirSkipFaster(const wchar_t *dir) {
   return (dir[0] == L'.' &&
           (dir[1] == L'\0' || (dir[1] == L'.' && dir[2] == L'\0')));
 }
+
+std::wstring_view BaseNameView(std::wstring_view sv) {
+  if (sv.empty()) {
+    return L".";
+  }
+  auto pos = sv.find_last_not_of(bela::PathSeparator);
+  if (pos == std::wstring_view::npos) {
+    return L"/";
+  }
+  sv.remove_suffix(sv.size() - pos - 1);
+  pos = sv.rfind(bela::PathSeparator);
+  if (pos != std::wstring_view::npos) {
+    sv.remove_prefix(pos + 1);
+  }
+  return std::wstring_view(sv.empty() ? L"." : sv);
+}
+
 class Finder {
 public:
   Finder() noexcept = default;
@@ -201,9 +218,25 @@ Find_relative_path(const wchar_t *const _First, const wchar_t *const _Last) {
                           bela::IsPathSeparator);
 }
 
-[[nodiscard]] inline bool Is_file_not_found(const DWORD _Error) noexcept {
-  return _Error == ERROR_FILE_NOT_FOUND || _Error == ERROR_PATH_NOT_FOUND ||
-         _Error == ERROR_INVALID_NAME;
+[[nodiscard]] inline const wchar_t *Find_filename(const wchar_t *const _First,
+                                                  const wchar_t *_Last) {
+  // attempt to parse [_First, _Last) as a path and return the start of filename
+  // if it exists; otherwise, _Last
+  const auto _Relative_path = Find_relative_path(_First, _Last);
+  while (_Relative_path != _Last && !bela::IsPathSeparator(_Last[-1])) {
+    --_Last;
+  }
+
+  return _Last;
+}
+
+std::wstring_view ParseFilename(const std::wstring_view _Str) {
+  // attempt to parse _Str as a path and return the filename if it exists;
+  // otherwise, an empty view
+  const auto _First = _Str.data();
+  const auto _Last = _First + _Str.size();
+  const auto _Filename = Find_filename(_First, _Last);
+  return std::wstring_view(_Filename, static_cast<size_t>(_Last - _Filename));
 }
 
 bool RecurseMakeDir(std::wstring_view p) {

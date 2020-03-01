@@ -7,6 +7,8 @@
 namespace baulk::fs {
 bool IsExecutablePath(std::wstring_view p);
 std::optional<std::wstring> FindExecutablePath(std::wstring_view p);
+std::wstring_view ParseFilename(const std::wstring_view str);
+bool RecurseMakeDir(std::wstring_view p);
 bool PathRecurseRemove(std::wstring_view dir, bela::error_code &ec);
 bool PathRemove(std::wstring_view dir, std::wstring_view pattern,
                 bela::error_code &ec);
