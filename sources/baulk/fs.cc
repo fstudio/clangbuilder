@@ -88,6 +88,148 @@ std::optional<std::wstring> FindExecutablePath(std::wstring_view p) {
   }
   return std::nullopt;
 }
+template <typename T>
+[[nodiscard]] T unaligned_load(const void *_Ptr) { // load a _Ty from _Ptr
+  static_assert(std::is_trivial_v<T>, "Unaligned loads require trivial types");
+  T _Tmp;
+  std::memcpy(&_Tmp, _Ptr, sizeof(_Tmp));
+  return _Tmp;
+}
+    //
+
+    [[nodiscard]] inline bool IsDrivePrefix(const wchar_t *const first) {
+  auto _Value = unaligned_load<unsigned int>(first);
+  _Value &=
+      0xFFFF'FFDFu; // transform lowercase drive letters into uppercase ones
+  _Value -=
+      (static_cast<unsigned int>(L':') << (sizeof(wchar_t) * CHAR_BIT)) | L'A';
+  return _Value < 26;
+}
+
+[[nodiscard]] inline bool HasDriveLetterPrefix(const wchar_t *const _First,
+                                               const wchar_t *const _Last) {
+  // test if [_First, _Last) has a prefix of the form X:
+  return _Last - _First >= 2 && IsDrivePrefix(_First);
+}
+
+[[nodiscard]] inline const wchar_t *
+Find_root_name_end(const wchar_t *const _First, const wchar_t *const _Last) {
+  // attempt to parse [_First, _Last) as a path and return the end of root-name
+  // if it exists; otherwise, _First
+
+  // This is the place in the generic grammar where library implementations have
+  // the most freedom. Below are example Windows paths, and what we've decided
+  // to do with them:
+  // * X:DriveRelative, X:\DosAbsolute
+  //   We parse X: as root-name, if and only if \ is present we consider that
+  //   root-directory
+  // * \RootRelative
+  //   We parse no root-name, and \ as root-directory
+  // * \\server\share
+  //   We parse \\server as root-name, \ as root-directory, and share as the
+  //   first element in relative-path. Technically, Windows considers all of
+  //   \\server\share the logical "root", but for purposes of decomposition we
+  //   want those split, so that
+  //   path(R"(\\server\share)").replace_filename("other_share") is
+  //   \\server\other_share
+  // * \\?\device
+  // * \??\device
+  // * \\.\device
+  //   CreateFile appears to treat these as the same thing; we will set the
+  //   first three characters as root-name and the first \ as root-directory.
+  //   Support for these prefixes varies by particular Windows version, but for
+  //   the purposes of path decomposition we don't need to worry about that.
+  // * \\?\UNC\server\share
+  //   MSDN explicitly documents the \\?\UNC syntax as a special case. What
+  //   actually happens is that the device Mup, or "Multiple UNC provider", owns
+  //   the path \\?\UNC in the NT namespace, and is responsible for the network
+  //   file access. When the user says \\server\share, CreateFile translates
+  //   that into
+  //   \\?\UNC\server\share to get the remote server access behavior. Because NT
+  //   treats this like any other device, we have chosen to treat this as the
+  //   \\?\ case above.
+  if (_Last - _First < 2) {
+    return _First;
+  }
+
+  if (HasDriveLetterPrefix(_First, _Last)) {
+    // check for X: first because it's the most common root-name
+    return _First + 2;
+  }
+
+  if (!bela::IsPathSeparator(_First[0])) {
+    // all the other root-names start with a slash; check
+    // that first because
+    // we expect paths without a leading slash to be very common
+    return _First;
+  }
+
+  // $ means anything other than a slash, including potentially the end of the
+  // input
+  if (_Last - _First >= 4 && bela::IsPathSeparator(_First[3]) &&
+      (_Last - _First == 4 || !bela::IsPathSeparator(_First[4])) // \xx\$
+      && ((bela::IsPathSeparator(_First[1]) &&
+           (_First[2] == L'?' || _First[2] == L'.'))      // \\?\$ or \\.\$
+          || (_First[1] == L'?' && _First[2] == L'?'))) { // \??\$
+    return _First + 3;
+  }
+
+  if (_Last - _First >= 3 && bela::IsPathSeparator(_First[1]) &&
+      !bela::IsPathSeparator(_First[2])) { // \\server
+    return std::find_if(_First + 3, _Last, bela::IsPathSeparator);
+  }
+
+  // no match
+  return _First;
+}
+
+[[nodiscard]] inline std::wstring_view
+Parse_root_name(const std::wstring_view _Str) {
+  // attempt to parse _Str as a path and return the root-name if it exists;
+  // otherwise, an empty view
+  const auto _First = _Str.data();
+  const auto _Last = _First + _Str.size();
+  return std::wstring_view(
+      _First, static_cast<size_t>(Find_root_name_end(_First, _Last) - _First));
+}
+
+[[nodiscard]] inline const wchar_t *
+Find_relative_path(const wchar_t *const _First, const wchar_t *const _Last) {
+  // attempt to parse [_First, _Last) as a path and return the start of
+  // relative-path
+  return std::find_if_not(Find_root_name_end(_First, _Last), _Last,
+                          bela::IsPathSeparator);
+}
+
+[[nodiscard]] inline bool Is_file_not_found(const DWORD _Error) noexcept {
+  return _Error == ERROR_FILE_NOT_FOUND || _Error == ERROR_PATH_NOT_FOUND ||
+         _Error == ERROR_INVALID_NAME;
+}
+
+bool RecurseMakeDir(std::wstring_view p) {
+  std::wstring tmp;
+  tmp.reserve(p.size());
+  auto cursor = p.data();
+  const auto end = cursor + p.size();
+  auto re = Find_relative_path(cursor, end);
+  if (re != cursor && end - re >= 3 && IsDrivePrefix(re) &&
+      bela::IsPathSeparator(re[2])) {
+    re += 2;
+  }
+  tmp.append(cursor, re);
+  cursor = re;
+  bool createdlast = false;
+  DWORD error = 0;
+  while (cursor != end) {
+    const auto addedend =
+        std::find_if(std::find_if_not(cursor, end, bela::IsPathSeparator), end,
+                     bela::IsPathSeparator);
+    tmp.append(cursor, addedend);
+    CreateDirectoryW(tmp.data(), nullptr);
+    cursor = addedend;
+  }
+  return bela::PathExists(tmp, bela::FileAttribute::Dir);
+}
 
 bool PathRecurseRemove(std::wstring_view dir, bela::error_code &ec) {
   Finder finder;
@@ -175,11 +317,9 @@ bool ChildsMoveTo(std::wstring_view dir, std::wstring_view dest,
   if (!finder.First(dir, L"*", ec)) {
     return false;
   }
-  if (!bela::PathExists(dest)) {
-    if (CreateDirectoryW(dest.data(), nullptr) != TRUE) {
-      ec = bela::make_system_error_code();
-      return false;
-    }
+  if (!RecurseMakeDir(dest)) {
+    ec = bela::make_error_code(-1, L"unable recurse mkdir: ", dest);
+    return false;
   }
   do {
     if (finder.Ignore()) {
