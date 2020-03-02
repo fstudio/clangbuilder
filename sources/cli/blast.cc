@@ -28,7 +28,7 @@ example:
   bela::FPrintF(stderr, L"%s\n", kusage);
 }
 
-int dumpexejson(bela::PESimpleDetails &pe) {
+int dumpexejson(bela::pe::Attributes &pe) {
   try {
     nlohmann::json j;
     j["Machine"] = bela::ToNarrow(
@@ -58,7 +58,7 @@ int dumpexejson(bela::PESimpleDetails &pe) {
 
 int dumpexe(std::wstring_view exe, bool tojson) {
   bela::error_code ec;
-  auto pe = bela::PESimpleDetailsAze(exe, ec);
+  auto pe = bela::pe::Expose(exe, ec);
   if (!pe) {
     bela::FPrintF(stderr, L"unable parse exe: %s\n", ec.message);
     return -1;
