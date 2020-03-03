@@ -1,11 +1,10 @@
-//
 #include <bela/pe.hpp>
 #include <bela/subsitute.hpp>
-#include "baulk.hpp"
-#include "rcwriter.hpp"
+#include <bela/stdwriter.hpp>
+#include <cstdio>
 
 namespace baulk {
-// make launcher
+//
 namespace internal {
 constexpr std::wstring_view consoletemplete = LR"(#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -138,27 +137,27 @@ std::wstring GenerateLinkSource(std::wstring_view target,
   }
   return bela::Substitute(internal::windowstemplate, escapetarget);
 }
-
-bool MakeLaunchers(std::wstring_view root, const baulk::Package &pkg,
-                   bela::error_code &ec) {
-  auto pkgroot = bela::StringCat(root, L"\\pkg\\", pkg.name);
-  return false;
-}
-
-bool MakeSymlinks(std::wstring_view root, const baulk::Package &pkg,
-                  bela::error_code &ec) {
-  auto pkgroot = bela::StringCat(root, L"\\pkg\\", pkg.name);
-  return false;
-}
-
-bool MakeLinks(std::wstring_view root, const baulk::Package &pkg,
-               bela::error_code &ec) {
-  if (!pkg.links.empty() && !MakeSymlinks(root, pkg, ec)) {
-    return false;
-  }
-  if (!pkg.launchers.empty() && !MakeLaunchers(root, pkg, ec)) {
-    return false;
-  }
-  return true;
-}
 } // namespace baulk
+
+void FlushFile(std::wstring_view str, std::wstring_view fn) {
+  FILE *fd = nullptr;
+  errno_t e = 0;
+  if (_wfopen_s(&fd, fn.data(), L"w+") != 0) {
+    return;
+  }
+  auto us = bela::ToNarrow(str);
+  fwrite(us.data(), 1, us.size(), fd);
+  fclose(fd);
+}
+
+int wmain(int argc, wchar_t **argv) {
+  if (argc < 2) {
+    bela::FPrintF(stderr, L"usage: %s target\n", argv[0]);
+    return 1;
+  }
+  auto s1 = baulk::GenerateLinkSource(argv[1], bela::pe::Subsystem::CUI);
+  auto s2 = baulk::GenerateLinkSource(argv[1], bela::pe::Subsystem::GUI);
+  FlushFile(s1, L"genfile_console.cc");
+  FlushFile(s2, L"genfile_windows.cc");
+  return 0;
+}

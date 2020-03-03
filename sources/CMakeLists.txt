@@ -15,6 +15,8 @@ endif()
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+option(BUILD_TEST "build test" OFF)
+
 
 set(CLANGBUILDER_VERSION_MAJOR 7)
 set(CLANGBUILDER_VERSION_MINOR 0)
@@ -85,3 +87,7 @@ add_subdirectory(bela)
 add_subdirectory(ui)
 add_subdirectory(cli)
 add_subdirectory(baulk)
+
+if(BUILD_TEST)
+  add_subdirectory(test)
+endif()
