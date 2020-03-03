@@ -4,7 +4,7 @@
 #include "process.hpp"
 #include <bela/path.hpp>
 
-namespace baulk {
+namespace baulk::net {
 
 bool CURLGet(std::wstring_view url, std::wstring_view dest,
              bela::error_code ec) {
@@ -36,4 +36,4 @@ bool WebGet(std::wstring_view url, std::wstring_view dest,
   return true;
 }
 
-} // namespace baulk
+} // namespace baulk::net

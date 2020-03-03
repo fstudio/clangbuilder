@@ -8,7 +8,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include "indicators.hpp"
-#include "baulk.hpp"
 
 namespace baulk {
 inline void Free(HINTERNET &h) {

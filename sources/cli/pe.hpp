@@ -170,7 +170,7 @@ inline std::wstring_view Subsystem(uint32_t index) {
       {IMAGE_SUBSYSTEM_NATIVE, L"Device drivers and native Windows processes "},
       {IMAGE_SUBSYSTEM_WINDOWS_GUI, L"Windows GUI"},
       {IMAGE_SUBSYSTEM_WINDOWS_CUI, L"Windows CUI"},
-      {IMAGE_SUBSYSTEM_OS2_CUI, L"OS/2  character subsytem"},
+      {IMAGE_SUBSYSTEM_OS2_CUI, L"OS/2  character Subsystem"},
       {IMAGE_SUBSYSTEM_POSIX_CUI, L"Posix character subsystem"},
       {IMAGE_SUBSYSTEM_NATIVE_WINDOWS, L"Native Win9x driver"},
       {IMAGE_SUBSYSTEM_WINDOWS_CE_GUI, L"Windows CE"},

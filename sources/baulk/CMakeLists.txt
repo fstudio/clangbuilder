@@ -9,6 +9,7 @@ add_executable(baulk
   msi.cc
   zip.cc
   decompress.cc
+  launcher.cc
   ../res/cli.rc
   ../res/cli.manifest
 )
