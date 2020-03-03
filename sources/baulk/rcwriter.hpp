@@ -63,10 +63,8 @@ public:
   Writer(const Writer &) = delete;
   Writer &operator=(const Writer &) = delete;
   Writer &Prefix() {
-    constexpr std::wstring_view hd =
-        L"//Baulk generated resource script.\n#include "
-        L"\"windows.h\"\n\nVS_VERSION_INFO VERSIONINFO\n";
-    buffer.assign(hd);
+    buffer.assign(L"//Baulk generated resource script.\n#include "
+                  L"\"windows.h\"\n\nVS_VERSION_INFO VERSIONINFO\n");
     return *this;
   }
   Writer &FileVersion(int MajorPart, int MinorPart, int BuildPart,
