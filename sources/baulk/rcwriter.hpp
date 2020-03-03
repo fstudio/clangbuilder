@@ -3,6 +3,7 @@
 #include <string>
 #include <string_view>
 #include <bela/strcat.hpp>
+#include <bela/str_split.hpp>
 
 /*****
 //Microsoft Visual C++ generated resource script.
@@ -57,6 +58,33 @@ END
 ****/
 
 namespace baulk::rc {
+
+struct VersionPart {
+  int MajorPart{0};
+  int MinorPart{0};
+  int BuildPart{0};
+  int PrivatePart{0};
+};
+
+inline VersionPart MakeVersionPart(std::wstring_view vs) {
+  VersionPart vp;
+  std::vector<std::wstring_view> vsv =
+      bela::StrSplit(vs, bela::ByChar('.'), bela::SkipEmpty());
+  if (!vsv.empty()) {
+    bela::SimpleAtoi(vsv[0], &vp.MajorPart);
+  }
+  if (vsv.size() > 1) {
+    bela::SimpleAtoi(vsv[1], &vp.MinorPart);
+  }
+  if (vsv.size() > 2) {
+    bela::SimpleAtoi(vsv[2], &vp.BuildPart);
+  }
+  if (vsv.size() > 3) {
+    bela::SimpleAtoi(vsv[3], &vp.PrivatePart);
+  }
+  return vp;
+}
+
 class Writer {
 public:
   Writer() { buffer.reserve(4096); }
