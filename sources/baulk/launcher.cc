@@ -134,12 +134,22 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int) {
 )";
 } // namespace internal
 
+// GenerateLinkSource generate link sources
 std::wstring GenerateLinkSource(std::wstring_view target,
                                 bela::pe::Subsystem subs) {
-  if (subs == bela::pe::Subsystem::CUI) {
-    return bela::Substitute(internal::consoletemplete, target);
+  std::wstring escapetarget;
+  escapetarget.reserve(target.size() + 10);
+  for (auto c : target) {
+    if (c == '\\') {
+      escapetarget.append(L"\\\\");
+      continue;
+    }
+    escapetarget.push_back(c);
   }
-  return bela::Substitute(internal::windowstemplate);
+  if (subs == bela::pe::Subsystem::CUI) {
+    return bela::Substitute(internal::consoletemplete, escapetarget);
+  }
+  return bela::Substitute(internal::windowstemplate, escapetarget);
 }
 
 bool MakeLaunchers(std::wstring_view root, const baulk::Package &pkg,
