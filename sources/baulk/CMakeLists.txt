@@ -2,6 +2,7 @@
 
 add_executable(baulk
   baulk.cc
+  compiler.cc
   fs.cc
   download.cc
   windl.cc

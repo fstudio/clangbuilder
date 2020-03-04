@@ -185,7 +185,7 @@ public:
     //
   }
   bool Initialize(const baulk::Package &pkg, bela::error_code &ec);
-  bool Execute(std::wstring_view root, bela::error_code &ec);
+  bool Compile(std::wstring_view root, bela::error_code &ec);
 
 private:
   std::wstring baulktemp;
@@ -221,6 +221,11 @@ bool LinkExecutor::Initialize(const baulk::Package &pkg, bela::error_code &ec) {
     return false;
   }
   // --------------> write
+  return false;
+}
+
+bool LinkExecutor::Compile(std::wstring_view root, bela::error_code &ec){
+
   return false;
 }
 
