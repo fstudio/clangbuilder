@@ -2,7 +2,9 @@
 #include <bela/pe.hpp>
 #include <bela/subsitute.hpp>
 #include <bela/finaly.hpp>
+#include <bela/path.hpp>
 #include "baulk.hpp"
+#include "fs.hpp"
 #include "rcwriter.hpp"
 
 namespace baulk {
@@ -122,39 +124,6 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int) {
 )";
 } // namespace internal
 
-// write UTF8
-bool LinkSourceStore(std::wstring_view path, std::string_view source,
-                     bela::error_code &ec) {
-  auto FileHandle = ::CreateFileW(
-      path.data(), FILE_GENERIC_READ | FILE_GENERIC_WRITE, FILE_SHARE_READ,
-      nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-  if (FileHandle == INVALID_HANDLE_VALUE) {
-    ec = bela::make_system_error_code();
-    return false;
-  }
-  DWORD written = 0;
-  auto p = source.data();
-  auto size = source.size();
-  while (size > 0) {
-    auto len = (std::min)(size, static_cast<size_t>(4096));
-    if (WriteFile(FileHandle, p, len, &written, nullptr) != TRUE) {
-      ec = bela::make_system_error_code();
-      break;
-    }
-    size -= written;
-    p += written;
-  }
-  CloseHandle(FileHandle);
-  return size == 0;
-}
-
-// ConvertToUTF8
-bool LinkSourceStore(std::wstring_view path, std::wstring_view source,
-                     bela::error_code &ec) {
-  auto u8source = bela::ToNarrow(source);
-  return LinkSourceStore(path, u8source, ec);
-}
-
 // GenerateLinkSource generate link sources
 std::wstring GenerateLinkSource(std::wstring_view target,
                                 bela::pe::Subsystem subs) {
@@ -173,24 +142,73 @@ std::wstring GenerateLinkSource(std::wstring_view target,
   return bela::Substitute(internal::windowstemplate, escapetarget);
 }
 
+// write UTF8
+bool LinkSourceStore(std::wstring_view path, std::string_view source,
+                     bela::error_code &ec) {
+  auto FileHandle = ::CreateFileW(
+      path.data(), FILE_GENERIC_READ | FILE_GENERIC_WRITE, FILE_SHARE_READ,
+      nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+  if (FileHandle == INVALID_HANDLE_VALUE) {
+    ec = bela::make_system_error_code();
+    return false;
+  }
+  DWORD written = 0;
+  auto p = source.data();
+  auto size = source.size();
+  while (size > 0) {
+    auto len = (std::min)(size, static_cast<size_t>(4096));
+    if (WriteFile(FileHandle, p, static_cast<DWORD>(len), &written, nullptr) !=
+        TRUE) {
+      ec = bela::make_system_error_code();
+      break;
+    }
+    size -= written;
+    p += written;
+  }
+  CloseHandle(FileHandle);
+  return size == 0;
+}
+
+// ConvertToUTF8
+bool LinkSourceStore(std::wstring_view path, std::wstring_view source,
+                     bela::error_code &ec) {
+  auto u8source = bela::ToNarrow(source);
+  return LinkSourceStore(path, u8source, ec);
+}
+
 bool MakeLaunchers(std::wstring_view root, const baulk::Package &pkg,
-                   bela::error_code &ec) {
+                   bool forceoverwrite, bela::error_code &ec) {
   auto pkgroot = bela::StringCat(root, L"\\pkg\\", pkg.name);
   return false;
 }
 
+// create symlink
 bool MakeSymlinks(std::wstring_view root, const baulk::Package &pkg,
-                  bela::error_code &ec) {
-  auto pkgroot = bela::StringCat(root, L"\\pkg\\", pkg.name);
+                  bool forceoverwrite, bela::error_code &ec) {
+  auto pkgroot = bela::StringCat(root, L"\\bin\\pkg\\", pkg.name);
+  auto linked = bela::StringCat(root, L"\\bin\\pkg\\.linked\\");
+  for (const auto &lnk : pkg.links) {
+    auto src = bela::PathCat(pkgroot, lnk);
+    auto fn = baulk::fs::FileName(src);
+    auto lnk = bela::StringCat(linked, fn);
+    if (bela::PathExists(lnk)) {
+      if (forceoverwrite) {
+        baulk::fs::PathRemove(lnk, ec);
+      }
+    }
+    if (!baulk::fs::SymLink(src, lnk, ec)) {
+      return false;
+    }
+  }
   return false;
 }
 
 bool MakeLinks(std::wstring_view root, const baulk::Package &pkg,
-               bela::error_code &ec) {
-  if (!pkg.links.empty() && !MakeSymlinks(root, pkg, ec)) {
+               bool forceoverwrite, bela::error_code &ec) {
+  if (!pkg.links.empty() && !MakeSymlinks(root, pkg, forceoverwrite, ec)) {
     return false;
   }
-  if (!pkg.launchers.empty() && !MakeLaunchers(root, pkg, ec)) {
+  if (!pkg.launchers.empty() && !MakeLaunchers(root, pkg, forceoverwrite, ec)) {
     return false;
   }
   return true;

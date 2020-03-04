@@ -3,15 +3,51 @@
 #include <bela/base.hpp>
 #include <optional>
 #include <string_view>
+#include <filesystem>
 
 namespace baulk::fs {
 bool IsExecutablePath(std::wstring_view p);
 std::optional<std::wstring> FindExecutablePath(std::wstring_view p);
-std::wstring_view ParseFilename(const std::wstring_view str);
-bool RecurseMakeDir(std::wstring_view p);
-bool PathRecurseRemove(std::wstring_view dir, bela::error_code &ec);
-bool PathRemove(std::wstring_view dir, std::wstring_view pattern,
-                bela::error_code &ec);
+
+inline std::wstring BaseName(std::wstring_view p) {
+  return std::filesystem::path(p).parent_path().wstring();
+}
+
+inline std::wstring FileName(std::wstring_view p) {
+  return std::filesystem::path(p).filename().wstring();
+}
+
+inline bool PathRemove(std::wstring_view path, bela::error_code &ec) {
+  std::error_code e;
+  if (!std::filesystem::remove_all(path, e)) {
+    ec = bela::from_std_error_code(e);
+    return false;
+  }
+  return true;
+}
+
+inline bool MakeDir(std::wstring_view path, bela::error_code &ec) {
+  std::error_code e;
+  if (!std::filesystem::create_directories(path, e)) {
+    ec = bela::from_std_error_code(e);
+    return false;
+  }
+  return true;
+}
+
+inline bool SymLink(std::wstring_view _To, std::wstring_view NewLink,
+                    bela::error_code &ec) {
+  std::error_code e;
+  std::filesystem::create_symlink(_To, NewLink, e);
+  if (e) {
+    ec = bela::from_std_error_code(e);
+    return false;
+  }
+  return true;
+}
+
+bool PathPatternRemove(std::wstring_view dir, std::wstring_view pattern,
+                       bela::error_code &ec);
 std::optional<std::wstring_view> SearchUniqueSubdir(std::wstring_view dir);
 bool ChildsMoveTo(std::wstring_view dir, std::wstring_view dest,
                   bela::error_code &ec);

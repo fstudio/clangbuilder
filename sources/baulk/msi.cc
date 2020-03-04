@@ -11,7 +11,7 @@ namespace baulk::msi {
 class Progressor {
 public:
   Progressor(std::wstring_view msi) {
-    if (auto nv = baulk::fs::ParseFilename(msi); !nv.empty()) {
+    if (auto nv = baulk::fs::FileName(msi); !nv.empty()) {
       name = nv;
     }
   }
@@ -215,11 +215,11 @@ bool Decompress(std::wstring_view msi, std::wstring_view outdir,
 
 bool Regularize(std::wstring_view path) {
   bela::error_code ec;
-  if (!baulk::fs::PathRemove(path, L"*.msi", ec)) {
+  if (!baulk::fs::PathPatternRemove(path, L"*.msi", ec)) {
     //
     return false;
   }
-  baulk::fs::PathRecurseRemove(bela::StringCat(path, L"\\Windows"), ec); //
+  baulk::fs::PathRemove(bela::StringCat(path, L"\\Windows"), ec); //
   constexpr std::wstring_view destdirs[] = {
       L"\\Program Files", L"\\ProgramFiles64", L"\\PFiles", L"\\Files"};
   for (auto d : destdirs) {

@@ -46,7 +46,7 @@ public:
     return len == dwlen;
   }
   static std::optional<FilePart> MakeFilePart(std::wstring_view p,
-                                          bela::error_code &ec) {
+                                              bela::error_code &ec) {
     FilePart file;
     file.path = bela::PathCat(p); // Path cleanup
     auto part = bela::StringCat(file.path, L".part");
@@ -128,7 +128,7 @@ inline bool Disposition(HINTERNET hReq, std::wstring &fn) {
 
 std::optional<std::wstring> WinGetInternal(std::wstring_view url,
                                            std::wstring_view workdir,
-                                           bool avoidoverwrite,
+                                           bool forceoverwrite,
                                            bela::error_code ec) {
   URL_COMPONENTSW urlcomp;
   ZeroMemory(&urlcomp, sizeof(urlcomp));
@@ -206,7 +206,7 @@ std::optional<std::wstring> WinGetInternal(std::wstring_view url,
 
   auto dest = bela::PathCat(workdir, filename);
   if (bela::PathExists(dest)) {
-    if (avoidoverwrite) {
+    if (!forceoverwrite) {
       ec = bela::make_error_code(ERROR_FILE_EXISTS, L"'", dest,
                                  L"' already exists");
       return std::nullopt;

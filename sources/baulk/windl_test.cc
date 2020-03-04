@@ -4,7 +4,7 @@
 namespace baulk {
 std::optional<std::wstring> WinGetInternal(std::wstring_view url,
                                            std::wstring_view workdir,
-                                           bool avoidoverwrite,
+                                           bool forceoverwrite,
                                            bela::error_code ec);
 } // namespace baulk
 
@@ -14,7 +14,7 @@ int wmain(int argc, wchar_t **argv) {
     return 1;
   }
   bela::error_code ec;
-  auto file = baulk::WinGetInternal(argv[1], L".", false, ec);
+  auto file = baulk::WinGetInternal(argv[1], L".", true, ec);
   if (!file) {
     bela::FPrintF(stderr, L"download: %s error: %s\n", argv[1], ec.message);
     return 1;

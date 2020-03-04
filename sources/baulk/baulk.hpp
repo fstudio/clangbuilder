@@ -13,11 +13,11 @@ struct Package {
   std::vector<std::wstring> launchers;
 };
 bool MakeLinks(std::wstring_view root, const baulk::Package &pkg,
-               bela::error_code &ec);
+               bool forceoverwrite, bela::error_code &ec);
 
 std::optional<std::wstring> WinGetInternal(std::wstring_view url,
                                            std::wstring_view workdir,
-                                           bool avoidoverwrite,
+                                           bool forceoverwrite,
                                            bela::error_code ec);
 } // namespace baulk
 
