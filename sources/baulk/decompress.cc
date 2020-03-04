@@ -9,7 +9,7 @@ namespace standard {
 bool Regularize(std::wstring_view path) {
   bela::error_code ec;
   // TODO some zip code
-  return baulk::fs::MoveFromUniqueSubdir(path, path, ec);
+  return baulk::fs::UniqueSubdirMoveTo(path, path, ec);
 }
 } // namespace standard
 
@@ -34,9 +34,15 @@ bool Decompress(std::wstring_view src, std::wstring_view outdir,
   }
   return true;
 }
+
 bool Regularize(std::wstring_view path) {
-  bela::error_code ec;
-  baulk::fs::PathPatternRemove(path, L"*.old", ec);
+  std::error_code ec;
+  for (auto &p : std::filesystem::directory_iterator(path)) {
+    auto oldpath = p.path();
+    if (oldpath.extension() == L".old") {
+      std::filesystem::remove_all(oldpath, ec);
+    }
+  }
   return true;
 }
 } // namespace exe

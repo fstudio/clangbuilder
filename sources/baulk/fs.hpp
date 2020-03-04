@@ -46,13 +46,9 @@ inline bool SymLink(std::wstring_view _To, std::wstring_view NewLink,
   return true;
 }
 
-bool PathPatternRemove(std::wstring_view dir, std::wstring_view pattern,
-                       bela::error_code &ec);
-std::optional<std::wstring_view> SearchUniqueSubdir(std::wstring_view dir);
-bool ChildsMoveTo(std::wstring_view dir, std::wstring_view dest,
-                  bela::error_code &ec);
-bool MoveFromUniqueSubdir(std::wstring_view dir, std::wstring_view dest,
-                          bela::error_code &ec);
+std::optional<std::wstring> SearchUniqueSubdir(std::wstring_view dir);
+bool UniqueSubdirMoveTo(std::wstring_view dir, std::wstring_view dest,
+                        bela::error_code &ec);
 } // namespace baulk::fs
 
 #endif

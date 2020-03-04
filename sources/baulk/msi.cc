@@ -213,12 +213,19 @@ bool Decompress(std::wstring_view msi, std::wstring_view outdir,
   return true;
 }
 
-bool Regularize(std::wstring_view path) {
-  bela::error_code ec;
-  if (!baulk::fs::PathPatternRemove(path, L"*.msi", ec)) {
-    //
-    return false;
+inline void DecompressClear(std::wstring_view dir) {
+  std::error_code ec;
+  for (auto &p : std::filesystem::directory_iterator(dir)) {
+    auto path = p.path();
+    if (path.extension() == L".msi") {
+      std::filesystem::remove_all(path, ec);
+    }
   }
+}
+
+bool Regularize(std::wstring_view path) {
+  DecompressClear(path);
+  bela::error_code ec;
   baulk::fs::PathRemove(bela::StringCat(path, L"\\Windows"), ec); //
   constexpr std::wstring_view destdirs[] = {
       L"\\Program Files", L"\\ProgramFiles64", L"\\PFiles", L"\\Files"};
@@ -227,7 +234,7 @@ bool Regularize(std::wstring_view path) {
     if (!bela::PathExists(sd)) {
       continue;
     }
-    if (baulk::fs::MoveFromUniqueSubdir(sd, path, ec)) {
+    if (baulk::fs::UniqueSubdirMoveTo(sd, path, ec)) {
       return !ec;
     }
   }
