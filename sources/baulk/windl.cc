@@ -16,17 +16,17 @@ inline void Free(HINTERNET &h) {
   }
 }
 
-class File {
+class FilePart {
 public:
-  File() noexcept = default;
-  File(const File &) = delete;
-  File &operator=(const File &) = delete;
-  File(File &&o) noexcept { transfer_ownership(std::move(o)); }
-  File &operator=(File &&o) noexcept {
+  FilePart() noexcept = default;
+  FilePart(const FilePart &) = delete;
+  FilePart &operator=(const FilePart &) = delete;
+  FilePart(FilePart &&o) noexcept { transfer_ownership(std::move(o)); }
+  FilePart &operator=(FilePart &&o) noexcept {
     transfer_ownership(std::move(o));
     return *this;
   }
-  ~File() noexcept { rollback(); }
+  ~FilePart() noexcept { rollback(); }
 
   bool Finish() {
     if (FileHandle == INVALID_HANDLE_VALUE) {
@@ -45,9 +45,9 @@ public:
     }
     return len == dwlen;
   }
-  static std::optional<File> MakeFile(std::wstring_view p,
-                                      bela::error_code &ec) {
-    File file;
+  static std::optional<FilePart> MakeFilePart(std::wstring_view p,
+                                          bela::error_code &ec) {
+    FilePart file;
     file.path = bela::PathCat(p); // Path cleanup
     auto part = bela::StringCat(file.path, L".part");
     file.FileHandle = ::CreateFileW(
@@ -63,7 +63,7 @@ public:
 private:
   HANDLE FileHandle{INVALID_HANDLE_VALUE};
   std::wstring path;
-  void transfer_ownership(File &&other) {
+  void transfer_ownership(FilePart &&other) {
     if (FileHandle != INVALID_HANDLE_VALUE) {
       CloseHandle(FileHandle);
     }
@@ -220,7 +220,7 @@ std::optional<std::wstring> WinGetInternal(std::wstring_view url,
   DWORD dwSize = 0;
   std::vector<char> buf;
   buf.reserve(64 * 1024);
-  auto file = File::MakeFile(dest, ec);
+  auto file = FilePart::MakeFilePart(dest, ec);
   bar.FileName(filename);
   bar.Execute();
   auto finish = bela::finally([&] {

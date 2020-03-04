@@ -1,6 +1,7 @@
 //
 #include <bela/pe.hpp>
 #include <bela/subsitute.hpp>
+#include <bela/finaly.hpp>
 #include "baulk.hpp"
 #include "rcwriter.hpp"
 
@@ -120,6 +121,39 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int) {
 }
 )";
 } // namespace internal
+
+// write UTF8
+bool LinkSourceStore(std::wstring_view path, std::string_view source,
+                     bela::error_code &ec) {
+  auto FileHandle = ::CreateFileW(
+      path.data(), FILE_GENERIC_READ | FILE_GENERIC_WRITE, FILE_SHARE_READ,
+      nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+  if (FileHandle == INVALID_HANDLE_VALUE) {
+    ec = bela::make_system_error_code();
+    return false;
+  }
+  DWORD written = 0;
+  auto p = source.data();
+  auto size = source.size();
+  while (size > 0) {
+    auto len = (std::min)(size, static_cast<size_t>(4096));
+    if (WriteFile(FileHandle, p, len, &written, nullptr) != TRUE) {
+      ec = bela::make_system_error_code();
+      break;
+    }
+    size -= written;
+    p += written;
+  }
+  CloseHandle(FileHandle);
+  return size == 0;
+}
+
+// ConvertToUTF8
+bool LinkSourceStore(std::wstring_view path, std::wstring_view source,
+                     bela::error_code &ec) {
+  auto u8source = bela::ToNarrow(source);
+  return LinkSourceStore(path, u8source, ec);
+}
 
 // GenerateLinkSource generate link sources
 std::wstring GenerateLinkSource(std::wstring_view target,
