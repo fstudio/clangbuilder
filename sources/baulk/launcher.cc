@@ -176,6 +176,54 @@ bool LinkSourceStore(std::wstring_view path, std::wstring_view source,
   return LinkSourceStore(path, u8source, ec);
 }
 
+class LinkExecutor {
+public:
+  LinkExecutor() = default;
+  LinkExecutor(const LinkExecutor &) = delete;
+  LinkExecutor &operator=(const LinkExecutor &) = delete;
+  ~LinkExecutor() {
+    //
+  }
+  bool Initialize(const baulk::Package &pkg, bela::error_code &ec);
+  bool Execute(std::wstring_view root, bela::error_code &ec);
+
+private:
+  std::wstring baulktemp;
+};
+
+std::wstring MakeTempDir(bela::error_code ec) {
+  std::error_code e;
+  auto tmppath = std::filesystem::temp_directory_path(e);
+  if (e) {
+    ec = bela::from_std_error_code(e);
+    return L"";
+  }
+  auto tmpdir = tmppath.wstring();
+  auto len = tmpdir.size();
+  wchar_t X = 'A';
+  bela::AlphaNum an(GetCurrentThreadId());
+  for (wchar_t X = 'A'; X < 'Z'; X++) {
+    bela::StrAppend(&tmpdir, L"\\BaulkTemp", X, an);
+    if (std::filesystem::exists(tmpdir, e)) {
+      return tmpdir;
+    }
+    tmpdir.resize(len);
+  }
+  ec = bela::make_error_code(1, L"cannot create tempdir");
+  return L"";
+}
+
+bool LinkExecutor::Initialize(const baulk::Package &pkg, bela::error_code &ec) {
+  if (baulktemp = MakeTempDir(ec); baulktemp.empty()) {
+    return false;
+  }
+  if (!baulk::fs::MakeDir(baulktemp, ec)) {
+    return false;
+  }
+  // --------------> write
+  return false;
+}
+
 bool MakeLaunchers(std::wstring_view root, const baulk::Package &pkg,
                    bool forceoverwrite, bela::error_code &ec) {
   auto pkgroot = bela::StringCat(root, L"\\pkg\\", pkg.name);
