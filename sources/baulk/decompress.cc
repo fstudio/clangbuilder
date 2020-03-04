@@ -38,9 +38,8 @@ bool Decompress(std::wstring_view src, std::wstring_view outdir,
 bool Regularize(std::wstring_view path) {
   std::error_code ec;
   for (auto &p : std::filesystem::directory_iterator(path)) {
-    auto oldpath = p.path();
-    if (oldpath.extension() == L".old") {
-      std::filesystem::remove_all(oldpath, ec);
+    if (p.path().extension() == L".old") {
+      std::filesystem::remove_all(p.path(), ec);
     }
   }
   return true;

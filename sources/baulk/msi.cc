@@ -216,9 +216,8 @@ bool Decompress(std::wstring_view msi, std::wstring_view outdir,
 inline void DecompressClear(std::wstring_view dir) {
   std::error_code ec;
   for (auto &p : std::filesystem::directory_iterator(dir)) {
-    auto path = p.path();
-    if (path.extension() == L".msi") {
-      std::filesystem::remove_all(path, ec);
+    if (p.path().extension() == L".msi") {
+      std::filesystem::remove_all(p.path(), ec);
     }
   }
 }

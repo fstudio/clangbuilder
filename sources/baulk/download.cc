@@ -18,6 +18,7 @@ bool CURLGet(std::wstring_view url, std::wstring_view dest,
                             L"3", L"-o", dest, L"-L", url);
   if (exitcode != 0) {
     ec = bela::make_error_code(-1, L"curl exit code: ", exitcode);
+    return false;
   }
   return true;
 }
@@ -32,6 +33,7 @@ bool WebGet(std::wstring_view url, std::wstring_view dest,
   auto exitcode = p.Execute(wgetexe, url, L"-O", dest);
   if (exitcode != 0) {
     ec = bela::make_error_code(-1, L"wget exit code: ", exitcode);
+    return false;
   }
   return true;
 }

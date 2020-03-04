@@ -126,9 +126,8 @@ bool UniqueSubdirMoveTo(std::wstring_view dir, std::wstring_view dest,
   std::error_code e;
   std::filesystem::path destpath(dest);
   for (auto &p : std::filesystem::directory_iterator(*subdir)) {
-    auto path = p.path();
-    auto newpath = destpath / path.filename();
-    std::filesystem::rename(path, newpath, e);
+    auto newpath = destpath / p.path().filename();
+    std::filesystem::rename(p.path(), newpath, e);
   }
   if (!std::filesystem::remove_all(*subdir, e)) {
     ec = bela::from_std_error_code(e);
