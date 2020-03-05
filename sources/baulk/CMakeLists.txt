@@ -1,16 +1,22 @@
 ##
 
 add_executable(baulk
-  baulk.cc
-  compiler.cc
-  fs.cc
-  download.cc
-  windl.cc
   7z.cc
-  msi.cc
-  zip.cc
+  baulk.cc
+  commands.install.cc
+  commands.list.cc
+  commands.search.cc
+  commands.uninstall.cc
+  commands.upgrade.cc
+  compiler.cc
   decompress.cc
+  download.cc
+  fs.cc
   launcher.cc
+  msi.cc
+  process.cc
+  windl.cc
+  zip.cc
   ../res/cli.rc
   ../res/cli.manifest
 )

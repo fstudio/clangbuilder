@@ -224,8 +224,8 @@ bool LinkExecutor::Initialize(const baulk::Package &pkg, bela::error_code &ec) {
   return false;
 }
 
-bool LinkExecutor::Compile(std::wstring_view root, bela::error_code &ec){
-
+bool LinkExecutor::Compile(std::wstring_view root, bela::error_code &ec) {
+  //
   return false;
 }
 
