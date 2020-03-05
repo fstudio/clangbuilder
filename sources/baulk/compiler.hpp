@@ -15,7 +15,14 @@ public:
     baulk::Process process;
     process.SetEnv(L"LIB", bela::env::JoinEnv(libs));
     process.SetEnv(L"INCLUDE", bela::env::JoinEnv(includes));
+    process.SetEnv(L"LIBPATH", bela::env::JoinEnv(libpaths));
     process.SetEnv(L"Path", bela::env::InsertEnv(L"Path", paths));
+    process.Chdir(cwd);
+    if (auto exitcode = process.Execute(cmd, std::forward<Args>(args)...);
+        exitcode != 0) {
+      ec = process.ErrorCode();
+      return exitcode;
+    }
     return 0;
   }
 
@@ -23,7 +30,9 @@ private:
   std::vector<std::wstring> paths;
   std::vector<std::wstring> libs;
   std::vector<std::wstring> includes;
+  std::vector<std::wstring> libpaths;
   std::wstring cwd;
+  bela::error_code ec;
 };
 } // namespace baulk::compiler
 
