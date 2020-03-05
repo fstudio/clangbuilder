@@ -13,7 +13,9 @@ public:
   void Chdir(std::wstring_view dir) { cwd = dir; }
   template <typename... Args> int Execute(std::wstring_view cmd, Args... args) {
     baulk::Process process;
-
+    process.SetEnv(L"LIB", bela::env::JoinEnv(libs));
+    process.SetEnv(L"INCLUDE", bela::env::JoinEnv(includes));
+    process.SetEnv(L"Path", bela::env::InsertEnv(L"Path", paths));
     return 0;
   }
 
