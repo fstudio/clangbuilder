@@ -21,7 +21,7 @@ public:
   Process(const Process &) = delete;
   Process &operator=(const Process &) = delete;
   Process &Chdir(std::wstring_view dir) {
-    workdir = dir;
+    cwd = dir;
     return *this;
   }
   Process &SetEnv(std::wstring_view key, std::wstring_view val,
@@ -38,10 +38,41 @@ public:
 private:
   int ExecuteInternal(wchar_t *cmdline);
   DWORD pid{0};
-  std::wstring workdir;
+  std::wstring cwd;
   bela::env::Derivator derivator;
   bela::error_code ec;
 };
+
+class ProcessCapture {
+public:
+  ProcessCapture() = default;
+  ProcessCapture(const ProcessCapture &) = delete;
+  ProcessCapture &operator=(const ProcessCapture &) = delete;
+  ProcessCapture &Chdir(std::wstring_view dir) {
+    cwd = dir;
+    return *this;
+  }
+  ProcessCapture &SetEnv(std::wstring_view key, std::wstring_view val,
+                         bool force = false) {
+    derivator.SetEnv(key, val, force);
+    return *this;
+  }
+  template <typename... Args> int Execute(std::wstring_view cmd, Args... args) {
+    bela::EscapeArgv ea(cmd, args...);
+    return ExecuteInternal(ea.data());
+  }
+  const bela::error_code &ErrorCode() const { return ec; }
+  std::string_view Out() const { return out; }
+
+private:
+  int ExecuteInternal(wchar_t *cmdline);
+  DWORD pid{0};
+  std::wstring cwd;
+  std::string out;
+  bela::env::Derivator derivator;
+  bela::error_code ec;
+};
+
 } // namespace baulk
 
 #endif
