@@ -37,8 +37,8 @@ target_link_libraries(indicators_test
 )
 
 add_executable(windl_test
-windl_test.cc
-windl.cc
+  windl_test.cc
+  windl.cc
 )
 
 target_link_libraries(windl_test
