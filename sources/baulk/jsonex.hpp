@@ -15,16 +15,6 @@ inline bool BindTo(nlohmann::json &j, std::string_view name,
   return false;
 }
 
-template <typename Integer>
-inline bool BindToInteger(nlohmann::json &j, std::string_view name,
-                          Integer &i) {
-  if (auto it = j.find(name); it != j.end()) {
-    b = it->get<Integer>();
-    return true;
-  }
-  return false;
-}
-
 inline bool BindTo(nlohmann::json &j, std::string_view name, bool &b) {
   if (auto it = j.find(name); it != j.end()) {
     b = it->get<bool>();
@@ -32,6 +22,16 @@ inline bool BindTo(nlohmann::json &j, std::string_view name, bool &b) {
   }
   return false;
 }
+
+template <typename Integer>
+inline Integer Acquire(nlohmann::json &j, std::string_view name,
+                       const Integer di) {
+  if (auto it = j.find(name); it != j.end()) {
+    return it->get<Integer>();
+  }
+  return di;
+}
+
 } // namespace baulk::json
 
 #endif

@@ -6,6 +6,7 @@
 namespace baulk::compiler {
 class Executor {
 public:
+  using vector_t = std::vector<std::wstring>;
   Executor() = default;
   Executor(const Executor &) = delete;
   Executor &operator=(const Executor &) = delete;
@@ -33,6 +34,14 @@ private:
   std::vector<std::wstring> libpaths;
   std::wstring cwd;
   bela::error_code ec;
+  bool InitializeWindowsKitEnv(bela::error_code &ec);
+  bool TestJoin(std::wstring &&p, vector_t &vec) {
+    if (bela::PathExists(p)) {
+      vec.emplace_back(std::move(p));
+      return true;
+    }
+    return false;
+  }
 };
 } // namespace baulk::compiler
 

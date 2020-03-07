@@ -2,11 +2,20 @@
 #include <bela/path.hpp>
 #include "compiler.hpp"
 #include "fs.hpp"
-#include <json.hpp>
+#include "jsonex.hpp"
+#include "xml.hpp"
 
 // C:\Program Files (x86)\Microsoft Visual
 // Studio\2019\Community\VC\Auxiliary\Build
 namespace baulk::compiler {
+
+#ifdef _M_X64
+// Always build x64 binary
+[[maybe_unused]] constexpr std::wstring_view arch = L"x64"; // Hostx64 x64
+#else
+[[maybe_unused]] constexpr std::wstring_view arch = L"x86"; // Hostx86 x86
+#endif
+
 struct VisualStudioInstance {
   std::wstring installationPath;
   std::wstring installationVersion;
@@ -22,24 +31,12 @@ struct VisualStudioInstance {
         return false;
       }
       auto &j = j0[0];
-      if (auto it = j.find("installationPath"); it != j.end()) {
-        installationPath = bela::ToWide(it->get_ref<const std::string &>());
-      }
-      if (auto it = j.find("installationVersion"); it != j.end()) {
-        installationVersion = bela::ToWide(it->get_ref<const std::string &>());
-      }
-      if (auto it = j.find("instanceId"); it != j.end()) {
-        instanceId = bela::ToWide(it->get_ref<const std::string &>());
-      }
-      if (auto it = j.find("productId"); it != j.end()) {
-        productId = bela::ToWide(it->get_ref<const std::string &>());
-      }
-      if (auto it = j.find("isLaunchable"); it != j.end()) {
-        isLaunchable = it->get<bool>();
-      }
-      if (auto it = j.find("isPrerelease"); it != j.end()) {
-        isPrerelease = it->get<bool>();
-      }
+      baulk::json::BindTo(j, "installationPath", installationPath);
+      baulk::json::BindTo(j, "installationVersion", installationVersion);
+      baulk::json::BindTo(j, "instanceId", instanceId);
+      baulk::json::BindTo(j, "productId", productId);
+      baulk::json::BindTo(j, "isLaunchable", isLaunchable);
+      baulk::json::BindTo(j, "isLaunchable", isLaunchable);
     } catch (const std::exception &e) {
       ec = bela::make_error_code(1, bela::ToWide(e.what()));
       return false;
@@ -81,9 +78,49 @@ LookupVisualStudioInstance(bela::error_code &ec) {
   }
   return std::nullopt;
 }
+//
+
+bool Executor::InitializeWindowsKitEnv(bela::error_code &ec) {
+  std::wstring sdkroot =
+      bela::ExpandEnv(L"%ProgramFiles(x86)%\\Windows Kits\\10");
+  auto sdkmanifest = bela::StringCat(sdkroot, L"\\SDKManifest.xml");
+  if (!bela::PathExists(sdkmanifest)) {
+    std::wstring sdkroot = bela::ExpandEnv(L"%ProgramFiles%\\Windows Kits\\10");
+    sdkmanifest = bela::StringCat(sdkroot, L"\\SDKManifest.xml");
+    if (!bela::PathExists(sdkmanifest)) {
+      ec = bela::make_error_code(1, L"Windows Kit not installed");
+      return false;
+    }
+  }
+  std::wstring sdkversion;
+  if (!baulk::xml::ParseSdkVersion(sdkmanifest, sdkversion, ec)) {
+    return false;
+  }
+  constexpr std::wstring_view incs[] = {L"\\um", L"\\ucrt", L"\\cppwinrt",
+                                        L"\\shared", L"\\winrt"};
+  for (auto i : incs) {
+    TestJoin(bela::StringCat(sdkroot, L"\\Include\\", sdkversion, i), includes);
+  }
+  // libs
+  TestJoin(bela::StringCat(sdkroot, L"\\Lib\\", sdkversion, L"\\um\\", arch),
+           libs);
+  TestJoin(bela::StringCat(sdkroot, L"\\Lib\\", sdkversion, L"\\ucrt\\", arch),
+           libs);
+  // Paths
+  TestJoin(bela::StringCat(sdkroot, L"\\bin\\", arch), paths);
+  TestJoin(bela::StringCat(sdkroot, L"\\bin\\", sdkversion, L"\\", arch),
+           paths);
+  return true;
+}
+
+// $installationPath/VC/Auxiliary/Build/Microsoft.VCToolsVersion.default.txt
 
 bool Executor::Initialize(bela::error_code &ec) {
-  //
+  auto vsi = LookupVisualStudioInstance(ec);
+  if (!vsi) {
+    // Visual Studio not install
+    return false;
+  }
   return false;
 }
 } // namespace baulk::compiler
