@@ -9,7 +9,9 @@ int Process::ExecuteInternal(wchar_t *cmdline) {
   SecureZeroMemory(&si, sizeof(si));
   SecureZeroMemory(&pi, sizeof(pi));
   si.cb = sizeof(si);
-  auto env = derivator.Encode();
+  if (env.empty() && !derivator.Empty()) {
+    env = derivator.Encode();
+  }
   bela::FPrintF(stderr, L"baulk$ %s\n", cmdline);
   if (CreateProcessW(nullptr, cmdline, nullptr, nullptr, FALSE,
                      CREATE_UNICODE_ENVIRONMENT,
@@ -124,7 +126,9 @@ struct process_capture_helper {
 
 int ProcessCapture::ExecuteInternal(wchar_t *cmdline) {
   process_capture_helper helper;
-  auto env = derivator.Encode();
+  if (env.empty() && !derivator.Empty()) {
+    env = derivator.Encode();
+  }
   if (helper.create_process_redirect(cmdline, env, cwd, ec)) {
     return -1;
   }

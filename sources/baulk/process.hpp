@@ -29,6 +29,10 @@ public:
     derivator.SetEnv(key, val, force);
     return *this;
   }
+  Process &SetEnvStrings(std::wstring_view env_) {
+    env = env_;
+    return *this;
+  }
   template <typename... Args> int Execute(std::wstring_view cmd, Args... args) {
     bela::EscapeArgv ea(cmd, args...);
     return ExecuteInternal(ea.data());
@@ -39,6 +43,7 @@ private:
   int ExecuteInternal(wchar_t *cmdline);
   DWORD pid{0};
   std::wstring cwd;
+  std::wstring env;
   bela::env::Derivator derivator;
   bela::error_code ec;
 };
@@ -57,6 +62,10 @@ public:
     derivator.SetEnv(key, val, force);
     return *this;
   }
+  ProcessCapture &SetEnvStrings(std::wstring_view env_) {
+    env = env_;
+    return *this;
+  }
   template <typename... Args> int Execute(std::wstring_view cmd, Args... args) {
     bela::EscapeArgv ea(cmd, args...);
     return ExecuteInternal(ea.data());
@@ -68,6 +77,7 @@ private:
   int ExecuteInternal(wchar_t *cmdline);
   DWORD pid{0};
   std::wstring cwd;
+  std::wstring env;
   std::string out;
   bela::env::Derivator derivator;
   bela::error_code ec;

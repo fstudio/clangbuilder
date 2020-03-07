@@ -81,6 +81,31 @@ LookupVisualStudioInstance(bela::error_code &ec) {
 // HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Microsoft
 // SDKs\Windows\v10.0 InstallationFolder ProductVersion
 
+using vector_t = std::vector<std::wstring>;
+struct Searcher {
+  std::vector<std::wstring> paths;
+  std::vector<std::wstring> libs;
+  std::vector<std::wstring> includes;
+  std::vector<std::wstring> libpaths;
+  bool InitializeWindowsKitEnv(bela::error_code &ec);
+  bool InitializeVisualStudioEnv(bela::error_code &ec);
+  bool TestJoin(std::wstring &&p, vector_t &vec) {
+    if (bela::PathExists(p)) {
+      vec.emplace_back(std::move(p));
+      return true;
+    }
+    return false;
+  }
+  std::wstring CleanupEnv() const {
+    bela::env::Derivator dev;
+    dev.SetEnv(L"LIB", bela::env::JoinEnv(libs));
+    dev.SetEnv(L"INCLUDE", bela::env::JoinEnv(includes));
+    dev.SetEnv(L"LIBPATH", bela::env::JoinEnv(libpaths));
+    // dev.SetEnv(L"Path", bela::env::InsertEnv(L"Path", paths));
+    return dev.CleanupEnv(bela::env::JoinEnv(paths));
+  }
+};
+
 bool SDKSearchVersion(std::wstring_view sdkroot, std::wstring_view sdkver,
                       std::wstring &sdkversion) {
   auto dir = bela::StringCat(sdkroot, L"\\Include");
@@ -94,7 +119,12 @@ bool SDKSearchVersion(std::wstring_view sdkroot, std::wstring_view sdkver,
   return true;
 }
 
-bool Executor::InitializeWindowsKitEnv(bela::error_code &ec) {
+// process.SetEnv(L"LIB", bela::env::JoinEnv(libs));
+// process.SetEnv(L"INCLUDE", bela::env::JoinEnv(includes));
+// process.SetEnv(L"LIBPATH", bela::env::JoinEnv(libpaths));
+// process.SetEnv(L"Path", bela::env::InsertEnv(L"Path", paths));
+
+bool Searcher::InitializeWindowsKitEnv(bela::error_code &ec) {
   auto winsdk = baulk::regutils::LookupWindowsSDK(ec);
   if (!winsdk) {
     return false;
@@ -128,14 +158,26 @@ bool Executor::InitializeWindowsKitEnv(bela::error_code &ec) {
   return true;
 }
 
-// $installationPath/VC/Auxiliary/Build/Microsoft.VCToolsVersion.default.txt
-
-bool Executor::Initialize(bela::error_code &ec) {
+bool Searcher::InitializeVisualStudioEnv(bela::error_code &ec) {
   auto vsi = LookupVisualStudioInstance(ec);
   if (!vsi) {
     // Visual Studio not install
     return false;
   }
   return false;
+}
+
+// $installationPath/VC/Auxiliary/Build/Microsoft.VCToolsVersion.default.txt
+
+bool Executor::Initialize(bela::error_code &ec) {
+  Searcher searcher;
+  if (!searcher.InitializeVisualStudioEnv(ec)) {
+    return false;
+  }
+  if (!searcher.InitializeWindowsKitEnv(ec)) {
+    return false;
+  }
+  env = searcher.CleanupEnv();
+  return true;
 }
 } // namespace baulk::compiler
