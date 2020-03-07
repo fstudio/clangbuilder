@@ -81,12 +81,12 @@ LookupVisualStudioInstance(bela::error_code &ec) {
 // HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Microsoft
 // SDKs\Windows\v10.0 InstallationFolder ProductVersion
 
-using vector_t = std::vector<std::wstring>;
 struct Searcher {
-  std::vector<std::wstring> paths;
-  std::vector<std::wstring> libs;
-  std::vector<std::wstring> includes;
-  std::vector<std::wstring> libpaths;
+  using vector_t = std::vector<std::wstring>;
+  vector_t paths;
+  vector_t libs;
+  vector_t includes;
+  vector_t libpaths;
   bool InitializeWindowsKitEnv(bela::error_code &ec);
   bool InitializeVisualStudioEnv(bela::error_code &ec);
   bool TestJoin(std::wstring &&p, vector_t &vec) {
