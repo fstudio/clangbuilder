@@ -16,10 +16,10 @@ target_link_libraries(parsejson_test
   belawin
 )
 
-add_executable(xmlsdk_test
-  xmlsdk.cc
+add_executable(regsdk_test
+  regsdk.cc
 )
 
-target_link_libraries(xmlsdk_test
+target_link_libraries(regsdk_test
   belawin
 )

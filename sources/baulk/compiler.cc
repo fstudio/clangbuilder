@@ -3,7 +3,7 @@
 #include "compiler.hpp"
 #include "fs.hpp"
 #include "jsonex.hpp"
-#include "xml.hpp"
+#include "regutils.hpp"
 
 // C:\Program Files (x86)\Microsoft Visual
 // Studio\2019\Community\VC\Auxiliary\Build
@@ -78,37 +78,52 @@ LookupVisualStudioInstance(bela::error_code &ec) {
   }
   return std::nullopt;
 }
-//
+// HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Microsoft
+// SDKs\Windows\v10.0 InstallationFolder ProductVersion
 
-bool Executor::InitializeWindowsKitEnv(bela::error_code &ec) {
-  std::wstring sdkroot =
-      bela::ExpandEnv(L"%ProgramFiles(x86)%\\Windows Kits\\10");
-  auto sdkmanifest = bela::StringCat(sdkroot, L"\\SDKManifest.xml");
-  if (!bela::PathExists(sdkmanifest)) {
-    std::wstring sdkroot = bela::ExpandEnv(L"%ProgramFiles%\\Windows Kits\\10");
-    sdkmanifest = bela::StringCat(sdkroot, L"\\SDKManifest.xml");
-    if (!bela::PathExists(sdkmanifest)) {
-      ec = bela::make_error_code(1, L"Windows Kit not installed");
-      return false;
+bool SDKSearchVersion(std::wstring_view sdkroot, std::wstring_view sdkver,
+                      std::wstring &sdkversion) {
+  auto dir = bela::StringCat(sdkroot, L"\\Include");
+  for (auto &p : std::filesystem::directory_iterator(dir)) {
+    auto filename = p.path().filename().wstring();
+    if (bela::StartsWith(filename, sdkver)) {
+      sdkversion = filename;
+      return true;
     }
   }
+  return true;
+}
+
+bool Executor::InitializeWindowsKitEnv(bela::error_code &ec) {
+  auto winsdk = baulk::regutils::LookupWindowsSDK(ec);
+  if (!winsdk) {
+    return false;
+  }
   std::wstring sdkversion;
-  if (!baulk::xml::ParseSdkVersion(sdkmanifest, sdkversion, ec)) {
+  if (!SDKSearchVersion(winsdk->InstallationFolder, winsdk->ProductVersion,
+                        sdkversion)) {
+    ec = bela::make_error_code(1, L"invalid sdk version");
     return false;
   }
   constexpr std::wstring_view incs[] = {L"\\um", L"\\ucrt", L"\\cppwinrt",
                                         L"\\shared", L"\\winrt"};
   for (auto i : incs) {
-    TestJoin(bela::StringCat(sdkroot, L"\\Include\\", sdkversion, i), includes);
+    TestJoin(bela::StringCat(winsdk->InstallationFolder, L"\\Include\\",
+                             sdkversion, i),
+             includes);
   }
   // libs
-  TestJoin(bela::StringCat(sdkroot, L"\\Lib\\", sdkversion, L"\\um\\", arch),
+  TestJoin(bela::StringCat(winsdk->InstallationFolder, L"\\Lib\\", sdkversion,
+                           L"\\um\\", arch),
            libs);
-  TestJoin(bela::StringCat(sdkroot, L"\\Lib\\", sdkversion, L"\\ucrt\\", arch),
+  TestJoin(bela::StringCat(winsdk->InstallationFolder, L"\\Lib\\", sdkversion,
+                           L"\\ucrt\\", arch),
            libs);
   // Paths
-  TestJoin(bela::StringCat(sdkroot, L"\\bin\\", arch), paths);
-  TestJoin(bela::StringCat(sdkroot, L"\\bin\\", sdkversion, L"\\", arch),
+  TestJoin(bela::StringCat(winsdk->InstallationFolder, L"\\bin\\", arch),
+           paths);
+  TestJoin(bela::StringCat(winsdk->InstallationFolder, L"\\bin\\", sdkversion,
+                           L"\\", arch),
            paths);
   return true;
 }
