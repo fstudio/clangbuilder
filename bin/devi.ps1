@@ -19,6 +19,8 @@ Function MakeDirReturnFatat {
 ."$PSScriptRoot\PreInitialize.ps1"
 Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
 Import-Module -Name "$ClangbuilderRoot\modules\Utils"
+# pre initialize
+PreInitializeEnv
 $LinkedDir = "$ClangbuilderRoot\bin\pkgs\.linked"
 MakeDirReturnFatat -Dir $LinkedDir
 $LockDir = "$ClangbuilderRoot\bin\pkgs\.locks"
@@ -429,6 +431,13 @@ Function Update-Ports {
                 Install-Port -ClangbuilderRoot $ClangbuilderRoot -Name $n | Out-Null
             }
         }
+        $git = Get-Command -CommandType Application -Name "git.exe" -ErrorAction SilentlyContinue
+        if ($null -eq $git) {
+            if (!(Test-Path "$ClangbuilderRoot/bin/pkgs/git/cmd/git.exe")) {
+                Write-Host -ForegroundColor Yellow "git not installed, please run devi install git"
+            }
+        }
+        # Test git
     }
     return $true
 }

@@ -27,7 +27,6 @@ if ($null -ne "$env:WT_SESSION") {
 else {
     $Host.UI.RawUI.WindowTitle = "Clangbuilder Utility" 
 }
- 
 
 ## Load Profile
 ."$PSScriptRoot\PreInitialize.ps1"

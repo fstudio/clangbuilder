@@ -59,6 +59,23 @@ Function IsAcceptPath {
     return $true
 }
 
+
+Function PreInitializeEnv {
+    $cmd = Get-Command -CommandType Application "git.exe" -ErrorAction SilentlyContinue
+    if ($null -eq $cmd) {
+        $gitkey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
+        $gitkey2 = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
+        if (Test-Path $gitkey) {
+            $gitinstall = Get-RegistryValueEx $gitkey "InstallLocation"
+            Test-AddPath "${gitinstall}bin"
+        }
+        elseif (Test-Path $gitkey2) {
+            $gitinstall = Get-RegistryValueEx $gitkey2 "InstallLocation"
+            Test-AddPath "${gitinstall}bin"
+        }
+    }
+}
+
 Function DevinitializeEnv {
     param(
         [String]$ClangbuilderRoot

@@ -26,8 +26,6 @@ Function Add-AbstractPath {
     }
     Test-AddPathEx -Path $FullDir
 }
-
-
 Function InitializeEnv {
     param(
         [String]$ClangbuilderRoot
