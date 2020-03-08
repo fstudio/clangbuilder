@@ -35,17 +35,20 @@ public:
   }
   template <typename... Args> int Execute(std::wstring_view cmd, Args... args) {
     bela::EscapeArgv ea(cmd, args...);
-    return ExecuteInternal(ea.data());
+    exitcode = ExecuteInternal(ea.data());
+    return exitcode;
   }
   const bela::error_code &ErrorCode() const { return ec; }
+  const DWORD ExitCode() const { return exitcode; }
 
 private:
   int ExecuteInternal(wchar_t *cmdline);
-  DWORD pid{0};
   std::wstring cwd;
   std::wstring env;
   bela::env::Derivator derivator;
   bela::error_code ec;
+  DWORD pid{0};
+  DWORD exitcode{0};
 };
 
 class ProcessCapture {
@@ -68,19 +71,22 @@ public:
   }
   template <typename... Args> int Execute(std::wstring_view cmd, Args... args) {
     bela::EscapeArgv ea(cmd, args...);
-    return ExecuteInternal(ea.data());
+    exitcode = ExecuteInternal(ea.data());
+    return exitcode;
   }
   const bela::error_code &ErrorCode() const { return ec; }
+  const DWORD ExitCode() const { return exitcode; }
   std::string_view Out() const { return out; }
 
 private:
   int ExecuteInternal(wchar_t *cmdline);
-  DWORD pid{0};
   std::wstring cwd;
   std::wstring env;
   std::string out;
   bela::env::Derivator derivator;
   bela::error_code ec;
+  DWORD pid{0};
+  DWORD exitcode{0};
 };
 
 } // namespace baulk

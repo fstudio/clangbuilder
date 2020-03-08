@@ -84,11 +84,19 @@ LookupVisualStudioInstance(bela::error_code &ec) {
     return std::nullopt;
   }
   baulk::ProcessCapture process;
-  if (process.Execute(*vswhere_exe, L"-format", L"json") != 0) {
-    ec = process.ErrorCode();
+  // Force -utf8 convert to UTF8
+  if (process.Execute(*vswhere_exe, L"-format", L"json", L"-utf8") != 0) {
+    if (ec = process.ErrorCode(); !ec) {
+      ec = bela::make_error_code(process.ExitCode(), L"vswhere exit with: ",
+                                 process.ExitCode());
+    }
     return std::nullopt;
   }
-  return std::nullopt;
+  VisualStudioInstance vsi;
+  if (!vsi.Encode(process.Out(), ec)) {
+    return std::nullopt;
+  }
+  return std::make_optional(std::move(vsi));
 }
 // HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Microsoft
 // SDKs\Windows\v10.0 InstallationFolder ProductVersion
@@ -180,7 +188,41 @@ bool Searcher::InitializeVisualStudioEnv(bela::error_code &ec) {
   if (!vcver) {
     return false;
   }
-  return false;
+  // Libs
+  TestJoin(bela::StringCat(vsi->installationPath, LR"(\VC\Tools\MSVC\)", *vcver,
+                           LR"(\ATLMFC\include)"),
+           includes);
+  TestJoin(bela::StringCat(vsi->installationPath, LR"(\VC\Tools\MSVC\)", *vcver,
+                           LR"(\include)"),
+           includes);
+  // Libs
+  TestJoin(bela::StringCat(vsi->installationPath, LR"(\VC\Tools\MSVC\)", *vcver,
+                           LR"(\ATLMFC\lib\)", arch),
+           libs);
+  TestJoin(bela::StringCat(vsi->installationPath, LR"(\VC\Tools\MSVC\)", *vcver,
+                           LR"(\lib\)", arch),
+           libs);
+  // Paths
+  TestJoin(bela::StringCat(vsi->installationPath, LR"(\VC\Tools\MSVC\)", *vcver,
+                           LR"(\bin\Host)", arch, L"\\", arch),
+           paths);
+  if constexpr (arch == L"x64") {
+  } else {
+  }
+  // IDE tools
+  TestJoin(bela::StringCat(vsi->installationPath, LR"(\Common7\IDE)"), paths);
+  TestJoin(bela::StringCat(vsi->installationPath, LR"(\Common7\IDE\Tools)"),
+           paths);
+  // Extension
+  TestJoin(bela::StringCat(
+               vsi->installationPath,
+               LR"(\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin)"),
+           paths);
+  TestJoin(bela::StringCat(
+               vsi->installationPath,
+               LR"(\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja)"),
+           paths);
+  return true;
 }
 
 // $installationPath/VC/Auxiliary/Build/Microsoft.VCToolsVersion.default.txt

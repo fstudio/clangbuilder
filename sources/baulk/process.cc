@@ -9,8 +9,8 @@ int Process::ExecuteInternal(wchar_t *cmdline) {
   SecureZeroMemory(&si, sizeof(si));
   SecureZeroMemory(&pi, sizeof(pi));
   si.cb = sizeof(si);
-  if (env.empty() && !derivator.Empty()) {
-    env = derivator.Encode();
+  if (env.empty() && derivator.Size() != 0) {
+    env = derivator.MakeEnv();
   }
   bela::FPrintF(stderr, L"baulk$ %s\n", cmdline);
   if (CreateProcessW(nullptr, cmdline, nullptr, nullptr, FALSE,
@@ -67,6 +67,7 @@ struct process_capture_helper {
     }
     // Create a pipe for the child process's STDIN.
     if (CreatePipe(&si.hStdInput, &child_stdin, &saAttr, 0) != TRUE) {
+      ec = bela::make_system_error_code();
       CloseHandle(child_stdout);
       CloseHandle(si.hStdOutput);
       return false;
@@ -126,11 +127,11 @@ struct process_capture_helper {
 
 int ProcessCapture::ExecuteInternal(wchar_t *cmdline) {
   process_capture_helper helper;
-  if (env.empty() && !derivator.Empty()) {
-    env = derivator.Encode();
+  if (env.empty() && derivator.Size() != 0) {
+    env = derivator.MakeEnv();
   }
-  if (helper.create_process_redirect(cmdline, env, cwd, ec)) {
-    return -1;
+  if (!helper.create_process_redirect(cmdline, env, cwd, ec)) {
+    return 1;
   }
   return helper.wait_and_stream_output(out);
 }
