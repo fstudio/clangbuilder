@@ -1,15 +1,11 @@
 #include <bela/parseargv.hpp>
 #include "baulk.hpp"
 #include "commands.hpp"
+#include "version.h"
 
 namespace baulk {
 bool IsDebugMode = false;
 }
-
-// baulk command package manager for C++
-// install
-// search
-// uninstall
 
 int cmd_uninitialized(const baulk::commands::argv_t &argv) {
   bela::FPrintF(stderr, L"baulk uninitialized command\n");
@@ -27,6 +23,30 @@ struct command_map_t {
   decltype(baulk::commands::cmd_install) *cmd;
 };
 
+void Usage() {
+  constexpr std::wstring_view usage =
+      LR"(baulk - Minimal Package Manager for Windows
+Usage: baulk [option] command pkg ...
+  -h|--help      Show usage text and quit
+  -v|--version   Show version number and quit
+  -V|--verbose   Make the operation more talkative
+  --https-proxy  Use this proxy. Equivalent to setting the environment variable 'HTTPS_PROXY'
+
+Command:
+  list           List all installed packages
+  search         Search for available packages, or specify package details
+  install        Install one or more packages
+  uninstall      Uninstall one or more packages
+  update         Update ports metadata
+  upgrade        Upgrade all upgradeable packages
+)";
+  bela::FPrintF(stderr, L"%s\n", usage);
+}
+void Version() {
+  //
+  bela::FPrintF(stderr, L"baulk %s\n", BAULK_VERSION_STRING);
+}
+
 bool ParseArgv(int argc, wchar_t **argv, baulkcommand_t &cmd) {
   bela::ParseArgv pa(argc, argv);
   pa.Add(L"help", bela::no_argument, 'h')
@@ -39,9 +59,11 @@ bool ParseArgv(int argc, wchar_t **argv, baulkcommand_t &cmd) {
       [&](int val, const wchar_t *oa, const wchar_t *) {
         switch (val) {
         case 'h':
-          break;
+          Usage();
+          exit(0);
         case 'v':
-          break;
+          Version();
+          exit(0);
         case 'V':
           baulk::IsDebugMode = true;
           break;
