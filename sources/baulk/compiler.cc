@@ -175,6 +175,13 @@ bool Searcher::InitializeWindowsKitEnv(bela::error_code &ec) {
   TestJoin(bela::StringCat(winsdk->InstallationFolder, L"\\bin\\", sdkversion,
                            L"\\", arch),
            paths);
+  // LIBPATHS
+  TestJoin(bela::StringCat(winsdk->InstallationFolder, L"\\UnionMetadata\\",
+                           sdkversion),
+           libpaths);
+  TestJoin(bela::StringCat(winsdk->InstallationFolder, L"\\References\\",
+                           sdkversion),
+           libpaths);
   return true;
 }
 
@@ -222,6 +229,16 @@ bool Searcher::InitializeVisualStudioEnv(bela::error_code &ec) {
                vsi->installationPath,
                LR"(\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja)"),
            paths);
+  // add libpaths
+  TestJoin(bela::StringCat(vsi->installationPath, LR"(\VC\Tools\MSVC\)", *vcver,
+                           LR"(\ATLMFC\lib\)", arch),
+           libpaths);
+  TestJoin(bela::StringCat(vsi->installationPath, LR"(\VC\Tools\MSVC\)", *vcver,
+                           LR"(\lib\)", arch),
+           libpaths);
+  TestJoin(bela::StringCat(vsi->installationPath, LR"(\VC\Tools\MSVC\)", *vcver,
+                           LR"(\lib\x86\store\references)"),
+           libpaths);
   return true;
 }
 
