@@ -15,6 +15,13 @@ Function MakeDirReturnFatat {
     }
 } 
 
+Function InitializeWebProxy {
+    $proxyobj = Get-ItemProperty -Path "Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings"
+    if ($proxyobj.ProxyEnable -ne 0 -and ![System.String]::IsNullOrEmpty($proxyobj.ProxyServer)) {
+        [environment]::SetEnvironmentVariable("HTTPS_PROXY", $proxyobj.ProxyServer)
+    }
+}
+
 ## global values
 ."$PSScriptRoot\PreInitialize.ps1"
 Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
@@ -35,6 +42,7 @@ $IsWindows64 = [System.Environment]::Is64BitOperatingSystem
 $curlCommand = Get-Command -CommandType Application curl -ErrorAction SilentlyContinue
 if ($null -ne $curlCommand) {
     $curlExeFallback = $curlCommand[0].Source
+    InitializeWebProxy
 }
 $MutexName = "Clangbuilder.devi.lock"
 
