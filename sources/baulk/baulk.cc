@@ -11,9 +11,14 @@ bool IsDebugMode = false;
 // search
 // uninstall
 
+int cmd_uninitialized(const baulk::commands::argv_t &argv) {
+  bela::FPrintF(stderr, L"baulk uninitialized command\n");
+  return 1;
+}
+
 struct baulkcommand_t {
   baulk::commands::argv_t argv;
-  decltype(baulk::commands::cmd_install) *cmd;
+  decltype(baulk::commands::cmd_install) *cmd{cmd_uninitialized};
   int operator()() const { return this->cmd(this->argv); }
 };
 
