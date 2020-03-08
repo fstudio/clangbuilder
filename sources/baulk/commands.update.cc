@@ -1,9 +1,9 @@
-//
+///
 #include "commands.hpp"
 
 namespace baulk::commands {
-int cmd_uninstall(const argv_t &argv) {
+int cmd_update(const argv_t &argv) {
   //
-  return false;
+  return 0;
 }
 } // namespace baulk::commands

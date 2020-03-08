@@ -7,6 +7,7 @@ add_executable(baulk
   commands.list.cc
   commands.search.cc
   commands.uninstall.cc
+  commands.update.cc
   commands.upgrade.cc
   compiler.cc
   decompress.cc
