@@ -1,4 +1,9 @@
 #include <bela/parseargv.hpp>
+#include "baulk.hpp"
+
+namespace baulk {
+bool IsDebugMode = false;
+}
 
 // baulk command package manager for C++
 // install
