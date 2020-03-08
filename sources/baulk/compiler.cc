@@ -4,6 +4,7 @@
 #include "fs.hpp"
 #include "jsonex.hpp"
 #include "regutils.hpp"
+#include "io.hpp"
 
 // C:\Program Files (x86)\Microsoft Visual
 // Studio\2019\Community\VC\Auxiliary\Build
@@ -44,6 +45,17 @@ struct VisualStudioInstance {
     return true;
   }
 };
+
+std::optional<std::wstring> LookupVisualCppVersion(std::wstring_view vsdir,
+                                                   bela::error_code &ec) {
+  auto file = bela::StringCat(
+      vsdir, L"/VC/Auxiliary/Build/Microsoft.VCToolsVersion.default.txt");
+  auto line = baulk::io::ReadLine(file, ec);
+  if (!line) {
+    return std::nullopt;
+  }
+  return std::make_optional(std::move(*line));
+}
 
 // const fs::path vswhere_exe = program_files_32_bit / "Microsoft Visual Studio"
 // / "Installer" / "vswhere.exe";
@@ -162,6 +174,10 @@ bool Searcher::InitializeVisualStudioEnv(bela::error_code &ec) {
   auto vsi = LookupVisualStudioInstance(ec);
   if (!vsi) {
     // Visual Studio not install
+    return false;
+  }
+  auto vcver = LookupVisualCppVersion(vsi->installationPath, ec);
+  if (!vcver) {
     return false;
   }
   return false;

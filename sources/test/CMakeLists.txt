@@ -18,6 +18,7 @@ target_link_libraries(parsejson_test
 
 add_executable(regsdk_test
   regsdk.cc
+  ../baulk/io.cc
 )
 
 target_link_libraries(regsdk_test

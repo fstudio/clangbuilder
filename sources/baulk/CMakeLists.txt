@@ -12,6 +12,7 @@ add_executable(baulk
   decompress.cc
   download.cc
   fs.cc
+  io.cc
   launcher.cc
   msi.cc
   process.cc
