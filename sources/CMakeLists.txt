@@ -86,8 +86,3 @@ include_directories(
 add_subdirectory(bela)
 add_subdirectory(ui)
 add_subdirectory(cli)
-add_subdirectory(baulk)
-
-if(BUILD_TEST)
-  add_subdirectory(test)
-endif()
