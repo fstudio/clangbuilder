@@ -62,17 +62,23 @@ Function IsAcceptPath {
 
 Function PreInitializeEnv {
     $cmd = Get-Command -CommandType Application "git.exe" -ErrorAction SilentlyContinue
-    if ($null -eq $cmd) {
-        $gitkey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
-        $gitkey2 = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
-        if (Test-Path $gitkey) {
-            $gitinstall = Get-RegistryValueEx $gitkey "InstallLocation"
-            Test-AddPath "${gitinstall}bin"
-        }
-        elseif (Test-Path $gitkey2) {
-            $gitinstall = Get-RegistryValueEx $gitkey2 "InstallLocation"
-            Test-AddPath "${gitinstall}bin"
-        }
+    if ($null -ne $cmd) {
+        # find git in path
+        return 
+    }
+    $NativeKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
+    $WOW6432NodeKey = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
+    if (Test-Path $NativeKey) {
+        $installdir = Get-RegistryValueEx $NativeKey "InstallLocation"
+        $gitpath = Join-Path $installdir "cmd"
+        Test-AddPath $gitpath
+        return 
+    }
+    if (Test-Path $WOW6432NodeKey) {
+        $installdir = Get-RegistryValueEx $WOW6432NodeKey "InstallLocation"
+        $gitpath = Join-Path $installdir "cmd"
+        Test-AddPath $gitpath
+        return
     }
 }
 
@@ -110,19 +116,7 @@ Function DevinitializeEnv {
             $env:PATH = $linkdir + [System.IO.Path]::PathSeparator + $env:PATH
         }
     }
-    $cmd = Get-Command -CommandType Application "git.exe" -ErrorAction SilentlyContinue
-    if ($null -eq $cmd) {
-        $gitkey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
-        $gitkey2 = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1"
-        if (Test-Path $gitkey) {
-            $gitinstall = Get-RegistryValueEx $gitkey "InstallLocation"
-            Test-AddPath "${gitinstall}bin"
-        }
-        elseif (Test-Path $gitkey2) {
-            $gitinstall = Get-RegistryValueEx $gitkey2 "InstallLocation"
-            Test-AddPath "${gitinstall}bin"
-        }
-    }
+    PreInitializeEnv
     return 0
 }
 
