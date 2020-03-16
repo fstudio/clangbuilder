@@ -78,17 +78,19 @@ function ShuffleEnv {
     )
     foreach ($k in $Keys) {
         $Value = [environment]::GetEnvironmentVariable($k)
-        $vv = $Value.Split(";")
-        [System.Text.StringBuilder]$newValue = New-Object -TypeName System.Text.StringBuilder
-        $newValue.Capacity = $Value.Length
-        foreach ($p in $vv) {
-            if (![String]::IsNullOrEmpty($p)) {
-                if ($newValue.Length -ne 0) {
-                    [void]$newValue.Append(";")
+        if ($null -ne $Value) {
+            $vv = $Value.Split(";")
+            [System.Text.StringBuilder]$newValue = New-Object -TypeName System.Text.StringBuilder
+            $newValue.Capacity = $Value.Length
+            foreach ($p in $vv) {
+                if (![String]::IsNullOrEmpty($p)) {
+                    if ($newValue.Length -ne 0) {
+                        [void]$newValue.Append(";")
+                    }
+                    [void]$newValue.Append($p)
                 }
-                [void]$newValue.Append($p)
             }
+            [environment]::SetEnvironmentVariable($k, $newValue.ToString())
         }
-        [environment]::SetEnvironmentVariable($k, $newValue.ToString())
     }
 }
