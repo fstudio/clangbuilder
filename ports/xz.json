@@ -4,13 +4,13 @@
     "url": "https://tukaani.org/xz/xz-5.2.5-windows.zip",
     "url.hash": "SHA256:d83b82ca75dfab39a13dda364367b34970c781a9df4d41264db922ac3a8f622d",
     "extension": "zip",
-    "launcher": [
+    "launchers": [
         "bin_i686\\lzmadec.exe",
         "bin_i686\\lzmainfo.exe",
         "bin_i686\\xz.exe",
         "bin_i686\\xzdec.exe"
     ],
-    "launcher64": [
+    "launchers64": [
         "bin_x86_64\\lzmadec.exe",
         "bin_x86_64\\lzmainfo.exe",
         "bin_x86_64\\xz.exe",

@@ -3,7 +3,7 @@
     "version": "3.05",
     "url": "https://sourceforge.net/projects/nsis/files/NSIS%203/3.05/nsis-3.05.zip/download",
     "extension": "zip",
-    "launcher": [
+    "launchers": [
         "makensis.exe"
     ]
 }

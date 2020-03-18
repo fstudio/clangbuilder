@@ -3,7 +3,7 @@
     "version": "2.091.0",
     "url": "http://downloads.dlang.org/releases/2.x/2.091.0/dmd.2.091.0.windows.7z",
     "extension": "7z",
-    "launcher": [
+    "launchers": [
         "windows\\bin\\dmd.exe",
         "windows\\bin\\dub.exe"
     ]

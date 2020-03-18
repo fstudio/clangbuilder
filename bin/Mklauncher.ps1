@@ -3,6 +3,7 @@ $ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
 Import-Module -Name "$ClangbuilderRoot\modules\Devi" # Package Manager
 Import-Module -Name "$ClangbuilderRoot\modules\Launcher"
 Import-Module -Name "$ClangbuilderRoot\modules\VisualStudio"
+$IsWindows64 = [System.Environment]::Is64BitOperatingSystem
 
 $ret = DevinitializeEnv -ClangbuilderRoot $ClangbuilderRoot
 if ($ret -ne 0) {
@@ -29,13 +30,17 @@ Function Mklauncher {
         return $false
     }
     try {
-        $portobj = Get-Content "$ClangbuilderRoot\ports\$Name.json"|ConvertFrom-Json
-        if ($null -eq $portobj.launcher) {
+        $portobj = Get-Content "$ClangbuilderRoot\ports\$Name.json" | ConvertFrom-Json
+        $launchers = $portobj.launchers
+        if ($IsWindows64 -and $null -ne $portobj.launchers64) {
+            $launchers = $portobj.launchers64
+        }
+        if ($null -eq $launchers) {
             Write-Host -ForegroundColor Red "$Name not support launcher"
             return $false
         }
         [System.Collections.ArrayList]$mlinks = @()
-        foreach ($o in $portobj.launcher) {
+        foreach ($o in $launchers) {
             $srcfile = "$ClangbuilderRoot\bin\pkgs\$Name\$o"
             $basename = (Get-Item $srcfile).BaseName
             if (!(MakeLauncher -Cbroot $ClangbuilderRoot -Name $basename -Path $srcfile)) {
@@ -44,8 +49,8 @@ Function Mklauncher {
             Write-Host -ForegroundColor Green "link $srcfile to $ClangbuilderRoot/bin/pkgs/.linked/$basename.exe"
             $mlinks.Add("$basename.exe")
         }
-        $instmd = Get-Content "$ClangbuilderRoot/bin/pkgs/.locks/$Name.json"  -ErrorAction SilentlyContinue |ConvertFrom-Json -ErrorAction SilentlyContinue
-        $obj = @{}
+        $instmd = Get-Content "$ClangbuilderRoot/bin/pkgs/.locks/$Name.json"  -ErrorAction SilentlyContinue | ConvertFrom-Json -ErrorAction SilentlyContinue
+        $obj = @{ }
         $obj["version"] = $instmd.version
         if ($null -eq $instmd.links) {
             foreach ($lk in $instmd.links) {
@@ -56,7 +61,7 @@ Function Mklauncher {
         }
         $obj["links"] = $mlinks
         $obj["linked"] = $true
-        ConvertTo-Json $obj |Out-File -Force -FilePath "$ClangbuilderRoot/bin/pkgs/.locks/$Name.json"
+        ConvertTo-Json $obj | Out-File -Force -FilePath "$ClangbuilderRoot/bin/pkgs/.locks/$Name.json"
     }
     catch {
         Write-Host "mklauncher error $_"

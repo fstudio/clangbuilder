@@ -4,7 +4,7 @@
     "url": "http://strawberryperl.com/download/5.30.2.1/strawberry-perl-5.30.2.1-32bit-portable.zip",
     "url64": "http://strawberryperl.com/download/5.30.2.1/strawberry-perl-5.30.2.1-64bit-portable.zip",
     "extension": "zip",
-    "launcher": [
+    "launchers": [
         "perl\\bin\\perl.exe"
     ]
 }

@@ -4,7 +4,7 @@
     "url": "https://7-zip.org/a/7z1900.msi",
     "url64": "https://7-zip.org/a/7z1900-x64.msi",
     "extension": "msi",
-    "launcher": [
+    "launchers": [
         "7z.exe"
     ]
 }

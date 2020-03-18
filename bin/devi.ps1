@@ -131,8 +131,12 @@ Function Repair-Port {
         Write-Host "unable parse $Name.json. please uninstall it and retry install"
         return
     }
-    if ($null -ne $pkobj.launcher) {
-        foreach ($lnk in $pkobj.launcher) {
+    $launchers = $pkobj.launchers
+    if ($IsWindows64 -and $null -ne $pkobj.launchers64) {
+        $launchers = $pkobj.launchers64
+    }
+    if ($null -ne $launchers) {
+        foreach ($lnk in $launchers) {
             $lnkfile = Get-Item "$ClangbuilderRoot/bin/pkgs/$Name/$lnk" -ErrorAction SilentlyContinue
             if ($null -eq $lnkfile) {
                 continue
@@ -147,7 +151,12 @@ Function Repair-Port {
         }
         return
     }
-    foreach ($lnk in $pkobj.links) {
+
+    $links = $pkobj.links
+    if ($IsWindows64 -and $null -ne $pkobj.links64) {
+        links$links=$pkobj.links64
+    }
+    foreach ($lnk in $links) {
         $lnkfile = Get-Item "$ClangbuilderRoot/bin/pkgs/$Name/$lnk" -ErrorAction SilentlyContinue
         if ($null -eq $lnkfile) {
             continue
@@ -346,18 +355,22 @@ Function Install-Port {
 
     $versiontable = @{ }
     $versiontable["version"] = $pkversion
+    $launchers = $portobj.launchers
+    if ($IsWindows64 -and $null -ne $portobj.launchers64) {
+        $launchers = $portobj.launchers64
+    }
     [System.Collections.ArrayList]$mlinks = @()
     if ($null -ne $oldtable.links) {
         [System.Collections.ArrayList]$lav = @()
-        if ($null -ne $pkobj.launcher) {
-            foreach ($l in $pkobj.launcher) {
+        if ($null -ne $launchers) {
+            foreach ($l in $launchers) {
                 $lna = Split-Path -Leaf $l
                 $lav.Add($lna) | Out-Null
             }
         }
         foreach ($olink in $oldtable.links) {
             if ($lav.Contains($olink)) {
-                Write-Host -ForegroundColor Green "Keep launcher: $olink, you can run mklauncher rebuild it."
+                Write-Host -ForegroundColor Green "Find the old launcher '$olink', Please run mklauncher to rebuild it."
                 $mlinks.Add($olink) | Out-Null
                 continue
             }
@@ -366,10 +379,13 @@ Function Install-Port {
             }
         }
     }
-
-    if ($null -ne $pkobj.links ) {
+    $links = $pkobj.links
+    if ($IsWindows64 -and $null -ne $pkobj.links64) {
+        links$links=$pkobj.links64
+    }
+    if ($null -ne $links) {
         try {
-            foreach ($lnfile in $pkobj.links) {
+            foreach ($lnfile in $links) {
                 $item = Get-Item "$packDir/$lnfile"
                 $symlinkfile = Join-Path -Path $LinkedDir -ChildPath $item.Name
                 Remove-Item -Force $symlinkfile -ErrorAction SilentlyContinue

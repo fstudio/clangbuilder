@@ -16,3 +16,6 @@ Function ReinitializePath {
 }
 
 $ClangbuilderRoot = Split-Path -Parent $PSScriptRoot
+if (Test-Path $ClangbuilderRoot) {
+    
+}
