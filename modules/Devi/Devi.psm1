@@ -120,6 +120,32 @@ Function DevinitializeEnv {
     return 0
 }
 
+Function Initialize-FlatTarget {
+    param(
+        [String]$TopDir,
+        [String]$MoveTo
+    )
+    $items = Get-ChildItem -Path $TopDir
+    if ($items.Count -ne 1) {
+        return 
+    }
+    if ($items[0] -isnot [System.IO.DirectoryInfo]) {
+        return ;
+    }
+    $childdel = $items[0].FullName
+    $checkdir = $childdel
+    for ($i = 0; $i -lt 10; $i++) {
+        $childs = Get-ChildItem $checkdir
+        if ($childs.Count -eq 1 -and $childs[0] -is [System.IO.DirectoryInfo]) {
+            $checkdir = $childs[0].FullName
+            continue;
+        }
+        Move-Item -Force -Path "$checkdir/*" -Destination $MoveTo
+        Remove-Item -Force -Recurse $childdel
+        return 
+    }
+}
+
 Function Expand-Msi {
     param(
         [String]$Path,
@@ -130,21 +156,6 @@ Function Expand-Msi {
         Write-Host -ForegroundColor Red "Expand-Msi: $Path failed. $($process.ExitCode)"
     }
     return $process.ExitCode
-}
-
-Function Initialize-ZipArchive {
-    param(
-        [String]$Path
-    )
-    $Item_ = Get-ChildItem -Path $Path
-    if ($Item_.Count -eq 1) {
-        if ($Item_[0] -isnot [System.IO.DirectoryInfo]) {
-            return ;
-        }
-        $SubFile = $Item_[0].FullName
-        Move-Item -Force -Path "$SubFile/*" -Destination $Path
-        Remove-Item -Force -Recurse $SubFile
-    }
 }
 
 Function Initialize-MsiArchive {
@@ -159,16 +170,7 @@ Function Initialize-MsiArchive {
     foreach ($d in $skipdirs) {
         $sd = "$Path/$d"
         if (Test-Path $sd) {
-            $ssdir = Get-ChildItem -Path $sd
-            if ($ssdir.Count -eq 1) {
-                if ($ssdir[0] -isnot [System.IO.DirectoryInfo]) {
-                    Move-Item -Path $ssdir[0].FullName -Destination $Path
-                    return
-                }
-                $xsubdir = $ssdir[0].FullName
-                Move-Item -Force -Path "$xsubdir/*" -Destination $Path
-                Remove-Item -Force -Recurse $sd
-            }
+            Initialize-FlatTarget -TopDir $sd -MoveTo $Path
         }
     }
 }

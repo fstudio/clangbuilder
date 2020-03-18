@@ -311,7 +311,7 @@ Function Install-Port {
         Switch ($ext) {
             "zip" {
                 Expand-Archive -Path $outfile -DestinationPath $tempinstalldir
-                Initialize-ZipArchive -Path $tempinstalldir
+                Initialize-FlatTarget -TopDir $tempinstalldir -MoveTo $tempinstalldir
             }
             "msi" {
                 $ret = Expand-Msi -Path $outfile -DestinationPath  $tempinstalldir
@@ -329,7 +329,7 @@ Function Install-Port {
                 if ($ret -ne 0) {
                     throw "decompress $outfile by 7z failed"
                 }
-                Initialize-ZipArchive -Path $tempinstalldir
+                Initialize-FlatTarget -TopDir $tempinstalldir -MoveTo $tempinstalldir
             }
         }
     }

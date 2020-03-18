@@ -5,6 +5,6 @@
     "url64": "https://github.com/dalance/procs/releases/download/v0.9.20/procs-v0.9.20-x86_64-win.zip",
     "extension": "zip",
     "links": [
-        "x86_64-pc-windows-msvc\\release\\procs.exe"
+        "procs.exe"
     ]
 }
