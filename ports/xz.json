@@ -11,9 +11,9 @@
         "bin_i686\\xzdec.exe"
     ],
     "launchers64": [
-        "bin_x86_64\\lzmadec.exe",
-        "bin_x86_64\\lzmainfo.exe",
-        "bin_x86_64\\xz.exe",
-        "bin_x86_64\\xzdec.exe"
+        "bin_x86-64\\lzmadec.exe",
+        "bin_x86-64\\lzmainfo.exe",
+        "bin_x86-64\\xz.exe",
+        "bin_x86-64\\xzdec.exe"
     ]
 }

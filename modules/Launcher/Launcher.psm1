@@ -4,11 +4,11 @@
 # create launcher
 Function MakeLauncher {
     param(
-        [String]$Cbroot,
+        [String]$Root,
         [String]$Name,
         [String]$Path
     )
-    $Blastexe = "$Cbroot\bin\blast.exe"
+    $Blastexe = "$Root\bin\blast.exe"
     if (!(Test-Path $Blastexe)) {
         return $false
     }
@@ -17,13 +17,13 @@ Function MakeLauncher {
     New-Item -ItemType Directory $builddir -Force | Out-Null
     $origindir = Get-Location
     Set-Location $builddir
-    $CCFile = "$Cbroot/sources/template/link.template.windows.cc"
+    $CCFile = "$Root/sources/template/link.template.windows.cc"
     $obj = &$Blastexe -J --dump $Path | ConvertFrom-Json
     #Write-Host $obj
     $IsConsole = $false
     if ($null -ne $obj -and ($null -ne $obj.Subsystem) -and $obj.Subsystem -eq "Windows CUI") {
         $IsConsole = $true
-        $CCFile = "$Cbroot/sources/template/link.template.console.cc"
+        $CCFile = "$Root/sources/template/link.template.console.cc"
     }
     else {
         Write-Host -ForegroundColor Yellow "$Path subsystem not console."
@@ -34,7 +34,7 @@ Function MakeLauncher {
     # replace resources info
     try {
         $versioninfo = (Get-Item $SrcFile).VersionInfo
-        $rcontent = [System.IO.File]::ReadAllText("$Cbroot/sources/template/link.template.rc");
+        $rcontent = [System.IO.File]::ReadAllText("$Root/sources/template/link.template.rc");
         $rcontent = $rcontent.Replace("@CompanyName", $versioninfo.CompanyName)
         $rcontent = $rcontent.Replace("@FileDescription", $versioninfo.FileDescription)
         $rcontent = $rcontent.Replace("@FileVersion", $versioninfo.FileVersion)
@@ -77,7 +77,7 @@ Function MakeLauncher {
         else {
             link -nologo "-OPT:REF" "-OPT:ICF" -NODEFAULTLIB -SUBSYSTEM:WINDOWS -ENTRY:wWinMain "$Name.obj" "$Name.res" kernel32.lib user32.lib  "-OUT:$Name.exe" | Out-Host
         }
-        Move-Item "$Name.exe" -Force -Destination "$Cbroot/bin/pkgs/.linked/$Name.exe"
+        Move-Item "$Name.exe" -Force -Destination "$Root/bin/pkgs/.linked/$Name.exe"
     }
     catch {
         Write-Host -ForegroundColor Red "$_"

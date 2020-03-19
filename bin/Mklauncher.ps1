@@ -43,7 +43,7 @@ Function Mklauncher {
         foreach ($o in $launchers) {
             $srcfile = "$ClangbuilderRoot\bin\pkgs\$Name\$o"
             $basename = (Get-Item $srcfile).BaseName
-            if (!(MakeLauncher -Cbroot $ClangbuilderRoot -Name $basename -Path $srcfile)) {
+            if (!(MakeLauncher -Root $ClangbuilderRoot -Name $basename -Path $srcfile)) {
                 return $false
             }
             Write-Host -ForegroundColor Green "link $srcfile to $ClangbuilderRoot/bin/pkgs/.linked/$basename.exe"
