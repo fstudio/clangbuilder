@@ -234,9 +234,10 @@ int wmain(int argc, wchar_t **argv) {
       return 1;
     }
     for (auto e : pa.UnresolvedArgs()) {
-      std::wstring target;
-      if (bela::LookupRealPath(e, target)) {
-        bela::FPrintF(stdout, L"File: %s --> %s\n", e, target);
+      bela::error_code ec;
+      auto target = bela::RealPath(e, ec);
+      if (target) {
+        bela::FPrintF(stdout, L"File: %s --> %s\n", e, *target);
         continue;
       }
       bela::FPrintF(stderr, L"File: %s unable resolve target\n", e);
