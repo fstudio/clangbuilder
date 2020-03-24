@@ -11,7 +11,7 @@
         "https://npm.taobao.org/mirrors/git-for-windows/v2.26.0.windows.1/MinGit-2.26.0-busybox-64-bit.zip"
     ],
     "url64.hash": "24b18a2327cc27ad2e979a9543c41e6dd54cbca92ca6383d6cea6fd7d007cc7f",
-    "extension": "7z",
+    "extension": "zip",
     "links": [
         "cmd\\git.exe"
     ]
