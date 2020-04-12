@@ -19,6 +19,12 @@ Function InitializeWebProxy {
     $proxyobj = Get-ItemProperty -Path "Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings"
     if ($proxyobj.ProxyEnable -ne 0 -and ![System.String]::IsNullOrEmpty($proxyobj.ProxyServer)) {
         [environment]::SetEnvironmentVariable("HTTPS_PROXY", $proxyobj.ProxyServer)
+        [environment]::SetEnvironmentVariable("HTTP_PROXY", $proxyobj.ProxyServer)
+    }
+    elseif (![system.string]::IsNullOrEmpty($proxyobj.AutoConfigURL)) {
+        #$uri = [uri]$proxyobj.AutoConfigURL
+        [environment]::SetEnvironmentVariable("HTTPS_PROXY", $proxyobj.AutoConfigURL)
+        [environment]::SetEnvironmentVariable("HTTP_PROXY", $proxyobj.AutoConfigURL)
     }
 }
 
