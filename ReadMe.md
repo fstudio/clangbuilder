@@ -260,3 +260,7 @@ Function Parallel() {
 License: MIT  
 Author: Force.Charlie  
 Copyright © 2020 Force Charlie. All Rights Reserved.
+
+## Other
+
+<div>fstudio: Icons made by <a href="https://www.flaticon.com/<?=_('authors/')?>smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
