@@ -1,9 +1,9 @@
 {
     "description": "A cat(1) clone with syntax highlighting and Git integration.",
-    "version": "0.14.0",
+    "version": "v0.15.0",
     "url": null,
-    "url64": "https://github.com/sharkdp/bat/releases/download/v0.14.0/bat-v0.14.0-x86_64-pc-windows-msvc.zip",
-    "url64.hash": "SHA256:17cac14927a0f9bc2db4b7619e61172b6e3898fb875fcef72ae236c0be74488d",
+    "url64": "https://github.com/sharkdp/bat/releases/download/v0.15.0/bat-v0.15.0-x86_64-pc-windows-msvc.zip",
+    "url64.hash": "SHA256:2c1656259684c9f44ecff1f055cb421d6591345fb807e90629a9e8dabd672b29",
     "extension": "zip",
     "links": [
         "bat.exe"
