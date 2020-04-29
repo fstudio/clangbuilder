@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 99b9258..10075fa 100644
+index fc45f80..328c7b3 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -156,12 +156,11 @@ endforeach()
@@ -16,7 +16,7 @@ index 99b9258..10075fa 100644
  endforeach()
  
  target_link_libraries(brotlidec brotlicommon)
-@@ -189,27 +188,46 @@ target_link_libraries(brotli ${BROTLI_LIBRARIES_STATIC})
+@@ -189,27 +188,47 @@ target_link_libraries(brotli ${BROTLI_LIBRARIES_STATIC})
  if(NOT BROTLI_BUNDLED_MODE)
    install(
      TARGETS brotli
@@ -43,6 +43,7 @@ index 99b9258..10075fa 100644
      LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
      RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
    )
++  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 +  set(CompilerFlags
 +    CMAKE_CXX_FLAGS
 +    CMAKE_CXX_FLAGS_DEBUG

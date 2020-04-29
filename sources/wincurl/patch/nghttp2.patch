@@ -1,12 +1,13 @@
 diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
-index 2228a5d7..398a9a12 100644
+index 4e3f5da..d3c2b93 100644
 --- a/lib/CMakeLists.txt
 +++ b/lib/CMakeLists.txt
-@@ -69,6 +69,19 @@ if(HAVE_CUNIT OR ENABLE_STATIC_LIB)
+@@ -71,6 +71,20 @@ if(HAVE_CUNIT OR ENABLE_STATIC_LIB)
    endif()
  endif()
  
 +if(ENABLE_STATIC_LIB)
++  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 +  set(CompilerFlags
 +        CMAKE_CXX_FLAGS
 +        CMAKE_CXX_FLAGS_DEBUG

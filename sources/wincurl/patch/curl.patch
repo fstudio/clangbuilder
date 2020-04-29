@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 29cb5f5..406613a 100644
+index b8061d1..90f1ea2 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -316,7 +316,7 @@ if(CMAKE_USE_WINSSL)
+@@ -339,7 +339,7 @@ if(CMAKE_USE_WINSSL)
    set(SSL_ENABLED ON)
    set(USE_SCHANNEL ON) # Windows native SSL/TLS support
    set(USE_WINDOWS_SSPI ON) # CMAKE_USE_WINSSL implies CURL_WINDOWS_SSPI
@@ -11,7 +11,7 @@ index 29cb5f5..406613a 100644
  endif()
  if(CURL_WINDOWS_SSPI)
    set(USE_WINDOWS_SSPI ON)
-@@ -527,17 +527,25 @@ if(CURL_ZLIB)
+@@ -581,17 +581,25 @@ if(CURL_ZLIB)
    endif()
  endif()
  
@@ -48,11 +48,14 @@ index 29cb5f5..406613a 100644
  
  #libSSH2
  option(CMAKE_USE_LIBSSH2 "Use libSSH2" ON)
-@@ -1161,6 +1169,22 @@ if(USE_MANUAL)
+@@ -1221,6 +1229,25 @@ if(USE_MANUAL)
    add_subdirectory(docs)
  endif()
  
 +if(NOT BUILD_SHARED_LIBS)
++  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
++  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MT")
++  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /MTd")
 +  add_definitions(-DNGHTTP2_STATICLIB)
 +  set(CompilerFlags
 +    CMAKE_CXX_FLAGS
@@ -71,7 +74,7 @@ index 29cb5f5..406613a 100644
  add_subdirectory(lib)
  
  if(BUILD_CURL_EXE)
-@@ -1272,6 +1296,8 @@ else()
+@@ -1345,6 +1372,8 @@ else()
    set(ENABLE_SHARED         "no")
    set(ENABLE_STATIC         "yes")
  endif()
