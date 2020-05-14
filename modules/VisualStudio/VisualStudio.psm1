@@ -247,5 +247,15 @@ Function DefaultVisualStudio {
     if ($null -eq $vsinstalls -or $vsinstalls.Count -eq 0) {
         return 1
     }
-    return (InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $vsinstalls[0].instanceId)
+    $Pos = 0
+    $Preversion = 1602
+    for ($i = 0; $i -lt $vsinstalls.Count; $i++) {
+        $vv = $vsinstalls.installationVersion.Split(".")
+        $ver = [int]$vv[0]*100 + [int]$vv[1]
+        if ($ver -ge $Preversion) {
+            $Pos = $i
+            $Preversion = $ver
+        }
+    }
+    return (InitializeVisualStudio -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch -InstanceId $vsinstalls[$Pos].instanceId)
 }
