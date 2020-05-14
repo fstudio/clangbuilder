@@ -238,10 +238,6 @@ Function DefaultVisualStudio {
         if ($vsinstalls.Count -eq 0) {
             $vsinstalls = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json | ConvertFrom-Json
         }
-        if ($vsinstalls.Count -eq 0) {
-            ### use fallback fules
-            $vsinstalls = vswhere -products * -prerelease -legacy -format json | ConvertFrom-Json
-        }
     }
     catch {
         Write-Error "$_"

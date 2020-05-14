@@ -18,6 +18,26 @@ if ($ret -ne 0) {
     Write-Host -ForegroundColor Red "Not found valid installed visual studio."
     exit 1
 }
+
+try {
+    $clexe = (Get-Command -CommandType Application "cl.exe")[0].Source
+    if ($null -ne $clexe) {
+        $clexeitem = Get-Item -Path $clexe
+        $version = $clexeitem.VersionInfo.FileMajorPart*100 + $clexeitem.VersionInfo.FileMinorPart
+        Write-Host "cl version: $version"
+        if ($version -lt 1923) {
+            Write-Host -ForegroundColor Red "Please install Visual Studio 2019 16.3 or Later"
+            Read-Host -Prompt "Please entry key to continue"
+            exit 1
+        }
+    }
+}
+catch {
+    Write-Host -ForegroundColor Red "unable found cl.exe error: $_"
+    Read-Host -Prompt "Please entry key to continue"
+    exit 1
+}
+
 if (Test-Path "$ClangbuilderRoot/bin/pkgs/cmake/bin/cmake.exe") {
     $cmakeexe = "$ClangbuilderRoot/bin/pkgs/cmake/bin/cmake.exe"
 }
