@@ -1,5 +1,5 @@
 //// New blast
-#include <bela/stdwriter.hpp>
+#include <bela/terminal.hpp>
 #include <bela/repasepoint.hpp>
 #include <bela/path.hpp>
 #include <bela/parseargv.hpp>

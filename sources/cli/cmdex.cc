@@ -3,7 +3,7 @@
 #include <appfs.hpp>
 #include <systemtools.hpp>
 #include <bela/escapeargv.hpp>
-#include <bela/stdwriter.hpp>
+#include <bela/terminal.hpp>
 #include <bela/strip.hpp>
 #include <cstdio>
 
