@@ -1,8 +1,10 @@
 {
     "description": "A code-searching tool similar to ack, but faster.",
     "version": "2020-02-25/2.2.0-24-gb93c271",
-    "url": "https://github.com/k-takata/the_silver_searcher-win32/releases/download/2020-02-25%2F2.2.0-24-gb93c271/ag-2020-02-25_2.2.0-24-gb93c271-x86.zip",
-    "url64": "https://github.com/k-takata/the_silver_searcher-win32/releases/download/2020-02-25%2F2.2.0-24-gb93c271/ag-2020-02-25_2.2.0-24-gb93c271-x64.zip",
+    "url": "https://github.com/k-takata/the_silver_searcher-win32/releases/download/2020-02-25/2.2.0-24-gb93c271/ag-2020-02-25_2.2.0-24-gb93c271-x86.zip",
+    "url.hash": "SHA256:4726f598c497e23db4b80eb5d23f01cd1a2cc5533de6c04418c9ca187e2c74a2",
+    "url64": "https://github.com/k-takata/the_silver_searcher-win32/releases/download/2020-02-25/2.2.0-24-gb93c271/ag-2020-02-25_2.2.0-24-gb93c271-x64.zip",
+    "url64.hash": "SHA256:ed228e0f0901bbe427573d6bea8ca59319cfad84907c19522186fbd584979cea",
     "extension": "zip",
     "links": [
         "ag.exe"
