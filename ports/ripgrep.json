@@ -1,6 +1,6 @@
 {
     "description": "ripgrep recursively searches directories for a regex pattern.",
-    "version": "12.1.0",
+    "version": "12.1.1",
     "url": "https://github.com/BurntSushi/ripgrep/releases/download/12.1.1/ripgrep-12.1.1-i686-pc-windows-msvc.zip",
     "url.hash": "SHA256:0256451a21cf5cf88dcd1823ffd2acd5e89d6b5dc9c2c8ad1324fd0e1f9ff61e",
     "url64": "https://github.com/BurntSushi/ripgrep/releases/download/12.1.1/ripgrep-12.1.1-x86_64-pc-windows-msvc.zip",
