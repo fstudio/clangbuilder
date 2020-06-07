@@ -46,14 +46,12 @@ typedef struct WINDOWCOMPOSITIONATTRIBDATA {
 } WINDOWCOMPOSITIONATTRIBDATA;
 
 typedef enum _ACCENT_STATE {
-  ACCENT_DISABLED = 0,        // Black and solid background
-  ACCENT_ENABLE_GRADIENT = 1, // Custom-colored solid background
-  ACCENT_ENABLE_TRANSPARENTGRADIENT =
-      2, // Custom-colored transparent background
-  ACCENT_ENABLE_BLURBEHIND =
-      3,                    // Custom-colored and blurred transparent background
-  ACCENT_ENABLE_FLUENT = 4, // Custom-colored Fluent effect
-  ACCENT_INVALID_STATE = 5  // Completely transparent background
+  ACCENT_DISABLED = 0,                   // Black and solid background
+  ACCENT_ENABLE_GRADIENT = 1,            // Custom-colored solid background
+  ACCENT_ENABLE_TRANSPARENTGRADIENT = 2, // Custom-colored transparent background
+  ACCENT_ENABLE_BLURBEHIND = 3,          // Custom-colored and blurred transparent background
+  ACCENT_ENABLE_FLUENT = 4,              // Custom-colored Fluent effect
+  ACCENT_INVALID_STATE = 5               // Completely transparent background
 } ACCENT_STATE;
 
 typedef struct _ACCENT_POLICY {
@@ -64,14 +62,11 @@ typedef struct _ACCENT_POLICY {
 } ACCENT_POLICY;
 
 bool SetWindowCompositionAttributeImpl(HWND hWnd) {
-  typedef BOOL(WINAPI * pSetWindowCompositionAttribute)(
-      HWND, WINDOWCOMPOSITIONATTRIBDATA *);
+  typedef BOOL(WINAPI * pSetWindowCompositionAttribute)(HWND, WINDOWCOMPOSITIONATTRIBDATA *);
   bool result = false;
-  const HINSTANCE hModule =
-      LoadLibrary(TEXT("user32.dll")); // LoadLibrary need free
+  const HINSTANCE hModule = LoadLibrary(TEXT("user32.dll")); // LoadLibrary need free
   const pSetWindowCompositionAttribute SetWindowCompositionAttribute =
-      (pSetWindowCompositionAttribute)GetProcAddress(
-          hModule, "SetWindowCompositionAttribute");
+      (pSetWindowCompositionAttribute)GetProcAddress(hModule, "SetWindowCompositionAttribute");
 
   // Only works on Win10
   if (SetWindowCompositionAttribute) {
@@ -106,8 +101,7 @@ bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
     if (auto it = j.find("SetWindowCompositionAttribute"); it != j.end()) {
       SetWindowCompositionAttribute_ = it.value().get<bool>();
     }
-    if (auto it = j.find("UseWindowsTerminal");
-        it != j.end() && it.value().get<bool>()) {
+    if (auto it = j.find("UseWindowsTerminal"); it != j.end() && it.value().get<bool>()) {
       if (InitializeWindowsTerminal()) {
         return true;
       }

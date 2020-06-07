@@ -31,10 +31,8 @@ example:
 int dumpexejson(bela::pe::Attributes &pe) {
   try {
     nlohmann::json j;
-    j["Machine"] = bela::ToNarrow(
-        clangbuilder::Machine(static_cast<uint32_t>(pe.machine)));
-    j["Subsystem"] = bela::ToNarrow(
-        clangbuilder::Subsystem(static_cast<uint32_t>(pe.subsystem)));
+    j["Machine"] = bela::ToNarrow(clangbuilder::Machine(static_cast<uint32_t>(pe.machine)));
+    j["Subsystem"] = bela::ToNarrow(clangbuilder::Subsystem(static_cast<uint32_t>(pe.subsystem)));
     j["Depends"] = nlohmann::json::array();
     auto &depends = j["Depends"];
     for (const auto &d : pe.depends) {
@@ -114,8 +112,7 @@ bool analyzefile(std::wstring_view src, bool tojson) {
       bela::FPrintF(stdout, L"%s: %s\n", e.name, e.value);
       continue;
     }
-    bela::FPrintF(stdout, L"%s:%s%s\n", e.name,
-                  sv.substr(0, alignsize - e.name.size()), e.value);
+    bela::FPrintF(stdout, L"%s:%s%s\n", e.name, sv.substr(0, alignsize - e.name.size()), e.value);
   }
   return true;
 }
@@ -125,8 +122,7 @@ int createsymlink(std::wstring_view src, std::wstring_view dest, bool force) {
   auto psrc = std::filesystem::canonical(src, ec);
   if (ec) {
     auto sec = bela::make_system_error_code();
-    bela::FPrintF(stderr, L"unable convert %s to absolute path error: %s\n",
-                  src, sec.message);
+    bela::FPrintF(stderr, L"unable convert %s to absolute path error: %s\n", src, sec.message);
     return -1;
   }
   auto pdest = std::filesystem::absolute(dest, ec);
@@ -138,20 +134,18 @@ int createsymlink(std::wstring_view src, std::wstring_view dest, bool force) {
     std::filesystem::remove(dest, ec);
     if (ec) {
       auto sec = bela::make_system_error_code();
-      bela::FPrintF(stderr, L"unable remove %s to absolute path error: %s\n",
-                    dest, sec.message);
+      bela::FPrintF(stderr, L"unable remove %s to absolute path error: %s\n", dest, sec.message);
       return -1;
     }
   }
   std::filesystem::create_symlink(psrc, pdest, ec);
   if (ec) {
     auto sec = bela::make_system_error_code();
-    bela::FPrintF(stderr, L"create symlink: from %s to %s error: %s\n",
-                  psrc.c_str(), pdest.c_str(), sec.message);
+    bela::FPrintF(stderr, L"create symlink: from %s to %s error: %s\n", psrc.c_str(), pdest.c_str(),
+                  sec.message);
     return -1;
   }
-  bela::FPrintF(stdout, L"Link %s to %s success\n", psrc.c_str(),
-                pdest.c_str());
+  bela::FPrintF(stdout, L"Link %s to %s success\n", psrc.c_str(), pdest.c_str());
   return 0;
 }
 
@@ -222,8 +216,7 @@ int wmain(int argc, wchar_t **argv) {
   }
   if (md == SymlinkCreator) {
     if (pa.UnresolvedArgs().size() != 2) {
-      bela::FPrintF(stderr,
-                    L"blast --link parameters count must be equal to 2\n");
+      bela::FPrintF(stderr, L"blast --link parameters count must be equal to 2\n");
       return 1;
     }
     return createsymlink(pa.UnresolvedArgs()[0], pa.UnresolvedArgs()[1], force);

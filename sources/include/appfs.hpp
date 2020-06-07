@@ -30,17 +30,16 @@ public:
   FsRedirection() {
     auto hmod = GetModuleHandleW(L"kernal32.dll");
     auto pfnWow64DisableWow64FsRedirection =
-        (fntype_Wow64DisableWow64FsRedirection *)GetProcAddress(
-            hmod, "Wow64DisableWow64FsRedirection");
+        (fntype_Wow64DisableWow64FsRedirection *)GetProcAddress(hmod,
+                                                                "Wow64DisableWow64FsRedirection");
     if (pfnWow64DisableWow64FsRedirection) {
       pfnWow64DisableWow64FsRedirection(&OldValue);
     }
   }
   ~FsRedirection() {
     auto hmod = GetModuleHandleW(L"kernal32.dll");
-    auto pfnWow64RevertWow64FsRedirection =
-        (fntype_Wow64RevertWow64FsRedirection *)GetProcAddress(
-            hmod, "Wow64RevertWow64FsRedirection");
+    auto pfnWow64RevertWow64FsRedirection = (fntype_Wow64RevertWow64FsRedirection *)GetProcAddress(
+        hmod, "Wow64RevertWow64FsRedirection");
     if (pfnWow64RevertWow64FsRedirection) {
       pfnWow64RevertWow64FsRedirection(&OldValue);
     }
@@ -138,8 +137,7 @@ inline bool PathRemoveFileSpecU(wchar_t *lpszPath) {
   return bModified;
 }
 
-inline bool LookupClangbuilderTarget(std::wstring &root,
-                                     std::wstring &targetFile,
+inline bool LookupClangbuilderTarget(std::wstring &root, std::wstring &targetFile,
                                      bela::error_code &ec) {
 
   std::wstring engine_(pathcchmax, L'\0');

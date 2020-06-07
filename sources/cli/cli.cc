@@ -81,9 +81,8 @@ int wmain(int argc, wchar_t **argv) {
   //// Only x86,ARM on Windows 64
   clangbuilder::FsRedirection fsRedirection;
 #endif
-  if (CreateProcessW(nullptr, ea.data(), NULL, NULL, FALSE,
-                     CREATE_UNICODE_ENVIRONMENT, NULL, NULL, &si,
-                     &pi) != TRUE) {
+  if (CreateProcessW(nullptr, ea.data(), NULL, NULL, FALSE, CREATE_UNICODE_ENVIRONMENT, NULL, NULL,
+                     &si, &pi) != TRUE) {
     auto ec = bela::make_system_error_code();
     bela::FPrintF(stderr, L"CreateProcessW error: %s", ec.message);
     return 1;

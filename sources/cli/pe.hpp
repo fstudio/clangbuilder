@@ -18,7 +18,7 @@
 #endif
 
 #ifndef IMAGE_FILE_MACHINE_TARGET_HOST
-#define IMAGE_FILE_MACHINE_TARGET_HOST                                         \
+#define IMAGE_FILE_MACHINE_TARGET_HOST                                                             \
   0x0001 // Useful for indicating we want to interact with the host and not a
          // WoW guest.
 #endif
@@ -101,8 +101,7 @@ inline constexpr std::wstring_view Machine(uint32_t index) {
   return L"UNKNOWN";
 }
 // https://docs.microsoft.com/en-us/windows/desktop/api/winnt/ns-winnt-_image_file_header
-inline std::vector<std::wstring> Characteristics(uint32_t index,
-                                                 uint32_t dllindex = 0) {
+inline std::vector<std::wstring> Characteristics(uint32_t index, uint32_t dllindex = 0) {
   std::vector<std::wstring> csv;
   const key_value_t cs[] = {
       {IMAGE_FILE_RELOCS_STRIPPED, L"Relocation info stripped"},

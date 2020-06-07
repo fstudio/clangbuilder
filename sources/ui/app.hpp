@@ -9,11 +9,9 @@
 struct rgb {
   constexpr rgb() : r(0), g(0), b(0) {}
   constexpr rgb(uint8_t r_, uint8_t g_, uint8_t b_) : r(r_), g(g_), b(b_) {}
-  constexpr rgb(uint32_t hex)
-      : r((hex >> 16) & 0xFF), g((hex >> 8) & 0xFF), b(hex & 0xFF) {}
+  constexpr rgb(uint32_t hex) : r((hex >> 16) & 0xFF), g((hex >> 8) & 0xFF), b(hex & 0xFF) {}
   constexpr rgb(COLORREF hex)
-      : r((uint32_t(hex) >> 16) & 0xFF), g((uint32_t(hex) >> 8) & 0xFF),
-        b(uint32_t(hex) & 0xFF) {}
+      : r((uint32_t(hex) >> 16) & 0xFF), g((uint32_t(hex) >> 8) & 0xFF), b(uint32_t(hex) & 0xFF) {}
   uint8_t r;
   uint8_t g;
   uint8_t b;
@@ -75,9 +73,7 @@ public:
   Settings(const Settings &) = delete;
   Settings &operator=(const Settings &) = delete;
   bool Initialize(std::wstring_view root, const invoke_t &call);
-  bool SetWindowCompositionAttributeEnabled() const {
-    return SetWindowCompositionAttribute_;
-  }
+  bool SetWindowCompositionAttributeEnabled() const { return SetWindowCompositionAttribute_; }
   bool IsPwshCoreEnabled() const { return PwshCoreEnabled_; }
   bool UseWindowsTerminal() const { return UseWindowsTerminal_; }
   std::wstring PwshExePath();

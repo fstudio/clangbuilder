@@ -55,9 +55,7 @@ struct WidnowsFD {
     hFile = h;
     return *this;
   }
-  explicit operator bool() const noexcept {
-    return hFile != INVALID_HANDLE_VALUE;
-  }
+  explicit operator bool() const noexcept { return hFile != INVALID_HANDLE_VALUE; }
   operator HANDLE() const { return hFile; }
   HANDLE hFile{INVALID_HANDLE_VALUE};
 };
@@ -67,14 +65,12 @@ inline bool IsDir(std::wstring_view dir) {
     return false;
   }
   auto attr = GetFileAttributesW(dir.data());
-  return attr != INVALID_FILE_ATTRIBUTES &&
-         ((attr & FILE_ATTRIBUTE_DIRECTORY) != 0);
+  return attr != INVALID_FILE_ATTRIBUTES && ((attr & FILE_ATTRIBUTE_DIRECTORY) != 0);
 }
 
 inline bool LookupVersionFromFile(std::wstring_view file, std::wstring &ver) {
-  WidnowsFD fd =
-      CreateFileW(file.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
-                  nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+  WidnowsFD fd = CreateFileW(file.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+                             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
   if (!fd) {
     return false;
   }

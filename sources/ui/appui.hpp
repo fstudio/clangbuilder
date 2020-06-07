@@ -18,31 +18,29 @@
 #include "app.hpp"
 
 #ifndef SYSCOMMAND_ID_HANDLER
-#define SYSCOMMAND_ID_HANDLER(id, func)                                        \
-  if (uMsg == WM_SYSCOMMAND && id == LOWORD(wParam)) {                         \
-    bHandled = TRUE;                                                           \
-    lResult = func(HIWORD(wParam), LOWORD(wParam), (HWND)lParam, bHandled);    \
-    if (bHandled)                                                              \
-      return TRUE;                                                             \
+#define SYSCOMMAND_ID_HANDLER(id, func)                                                            \
+  if (uMsg == WM_SYSCOMMAND && id == LOWORD(wParam)) {                                             \
+    bHandled = TRUE;                                                                               \
+    lResult = func(HIWORD(wParam), LOWORD(wParam), (HWND)lParam, bHandled);                        \
+    if (bHandled)                                                                                  \
+      return TRUE;                                                                                 \
   }
 #endif
 
 constexpr const wchar_t *AppWindowName = L"Clangbuilder.Render.UI.Window";
 
-using WindowTraits =
-    CWinTraits<WS_OVERLAPPEDWINDOW, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE>;
+using WindowTraits = CWinTraits<WS_OVERLAPPEDWINDOW, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE>;
 
 struct Label {
-  Label(LONG left, LONG top, LONG right, LONG bottom, const wchar_t *text)
-      : text(text) {
+  Label(LONG left, LONG top, LONG right, LONG bottom, const wchar_t *text) : text(text) {
     layout.left = left;
     layout.top = top;
     layout.right = right;
     layout.bottom = bottom;
   }
   D2D1_RECT_F F() const {
-    return D2D1::RectF((float)layout.left, (float)layout.top,
-                       (float)layout.right, (float)layout.bottom);
+    return D2D1::RectF((float)layout.left, (float)layout.top, (float)layout.right,
+                       (float)layout.bottom);
   }
   const wchar_t *data() const { return text.data(); }
   UINT32 length() const { return static_cast<UINT32>(text.size()); }
@@ -72,9 +70,7 @@ struct ClangbuilderTable {
 struct Widget {
   HWND hWnd{nullptr};
   RECT layout;
-  bool Enable(bool enable) {
-    return ::EnableWindow(hWnd, enable ? TRUE : FALSE) == TRUE;
-  }
+  bool Enable(bool enable) { return ::EnableWindow(hWnd, enable ? TRUE : FALSE) == TRUE; }
 };
 
 class MainWindow : public CWindowImpl<MainWindow, CWindow, WindowTraits> {
@@ -102,15 +98,11 @@ public:
   LRESULT OnSize(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle);
   LRESULT OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle);
   LRESULT OnPaint(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle);
-  LRESULT OnCtlColorStatic(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                           BOOL &bHandle);
-  LRESULT OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
-                         BOOL &bHandled);
+  LRESULT OnCtlColorStatic(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle);
+  LRESULT OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &bHandled);
   LRESULT OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &bHandled);
-  LRESULT OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
-                       BOOL &bHandled);
-  LRESULT OnChangeEngine(WORD wNotifyCode, WORD wID, HWND hWndCtl,
-                         BOOL &bHandled);
+  LRESULT OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &bHandled);
+  LRESULT OnChangeEngine(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &bHandled);
   ////
 private:
   ID2D1Factory *m_pFactory{nullptr};
