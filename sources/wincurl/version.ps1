@@ -16,8 +16,8 @@ $NGHTTP2_VERSION = "1.41.0"
 $NGHTTP2_HASH = "3d53e8bd1513a271a45b6ecda2e22fa05e9eb90fa92f7c5daf57b08c6e40cc55"
 
 # We use tar.gz because Windows tar not support tar.xz
-$CURL_VERSION = "7.70.0"
-$CURL_HASH = "ca2feeb8ef13368ce5d5e5849a5fd5e2dd4755fecf7d8f0cc94000a4206fb8e7"
+$CURL_VERSION = "7.71.0"
+$CURL_HASH = "62b2b1acee40c4de5a4913e27a4b4194813cf2b7815b73febec7ae53054646ca"
 
 # Filename
 $ZLIB_FILENAME = "zlib-${ZLIB_VERSION}"
@@ -40,7 +40,7 @@ $CURL_URL = "https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz"
 $CURL_FILE = "curl-${CURL_VERSION}"
 
 #curl-ca-bundle
-$CA_BUNDLE_URL = "https://curl.haxx.se/ca/cacert-2020-01-01.pem"
+$CA_BUNDLE_URL = "https://curl.haxx.se/ca/cacert-2020-06-24.pem"
 
 Function DumpLocal {
     $dumptext = $ZLIB_VERSION + $ZLIB_HASH + $ZLIB_FILENAME + $ZLIB_URL 
