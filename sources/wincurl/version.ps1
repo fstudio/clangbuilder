@@ -16,8 +16,8 @@ $NGHTTP2_VERSION = "1.41.0"
 $NGHTTP2_HASH = "3d53e8bd1513a271a45b6ecda2e22fa05e9eb90fa92f7c5daf57b08c6e40cc55"
 
 # We use tar.gz because Windows tar not support tar.xz
-$CURL_VERSION = "7.71.0"
-$CURL_HASH = "62b2b1acee40c4de5a4913e27a4b4194813cf2b7815b73febec7ae53054646ca"
+$CURL_VERSION = "7.71.1"
+$CURL_HASH = "59ef1f73070de67b87032c72ee6037cedae71dcb1d7ef2d7f59487704aec069d"
 
 # Filename
 $ZLIB_FILENAME = "zlib-${ZLIB_VERSION}"
