@@ -1,6 +1,6 @@
 {
     "description": "PuTTY: a free SSH and Telnet client.",
-    "version": "0.73",
+    "version": "0.74",
     "url": "https://the.earth.li/~sgtatham/putty/latest/w32/putty.zip",
     "url64": "https://the.earth.li/~sgtatham/putty/latest/w64/putty.zip",
     "extension": "zip",
