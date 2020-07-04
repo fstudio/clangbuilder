@@ -4,23 +4,24 @@
 #include <bela/picker.hpp>
 #include <windowsx.h> // box help
 #include <vector>
+#include <filesystem>
 #include "appui.hpp"
 
-bool Execute(wchar_t *command) {
+bool Execute(wchar_t *command, const wchar_t *cwd) {
   PROCESS_INFORMATION pi;
   STARTUPINFOW si;
-  ZeroMemory(&si, sizeof(si));
-  ZeroMemory(&pi, sizeof(pi));
+  SecureZeroMemory(&si, sizeof(si));
+  SecureZeroMemory(&pi, sizeof(pi));
   si.cb = sizeof(si);
-  si.dwFlags = STARTF_USESHOWWINDOW;
-  si.wShowWindow = SW_SHOW;
 #if defined(_M_IX86) || defined(_M_ARM)
   //// Only x86,ARM on Windows 64/ARM64
   clangbuilder::FsRedirection fsRedirection;
 #endif
-  if (CreateProcessW(nullptr, command, NULL, NULL, FALSE,
-                     CREATE_NEW_CONSOLE | NORMAL_PRIORITY_CLASS, NULL, NULL,
-                     &si, &pi) != TRUE) {
+  if (CreateProcessW(nullptr, command, nullptr, nullptr, FALSE, CREATE_UNICODE_ENVIRONMENT, nullptr,
+                     cwd, &si, &pi) != TRUE) {
+    auto ec = bela::make_system_error_code();
+    bela::BelaMessageBox(nullptr, L"unable open Windows Terminal", ec.data(), nullptr,
+                         bela::mbs_t::FATAL);
     return false;
   }
   CloseHandle(pi.hThread);
@@ -31,8 +32,7 @@ bool Execute(wchar_t *command) {
 bool MainWindow::InitializeElemets() {
   // TODO initialize target
   tables.Targets = {L"x86", L"x64", L"ARM", L"ARM64"};
-  tables.Configurations = {L"Release", L"MinSizeRel", L"RelWithDebInfo",
-                           L"Debug"};
+  tables.Configurations = {L"Release", L"MinSizeRel", L"RelWithDebInfo", L"Debug"};
   tables.AddEngine(L"Ninja - MSVC", L"Ninja")
       .AddEngine(L"Ninja - Clang", L"NinjaIterate")
       .AddEngine(L"MSBuild - MSVC", L"MSBuild")
@@ -41,13 +41,12 @@ bool MainWindow::InitializeElemets() {
   return search.Execute(root, settings.EnterpriseWDK());
 }
 
-LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
-                               BOOL &bHandled) {
+LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &bHandled) {
   auto pwshexe = settings.PwshExePath();
   if (pwshexe.empty()) {
     bela::BelaMessageBox(m_hWnd, L"Unable to find installed powershell",
-                         L"Please check if powershell is installed correctly",
-                         nullptr, bela::mbs_t::FATAL);
+                         L"Please check if powershell is installed correctly", nullptr,
+                         bela::mbs_t::FATAL);
 
     return S_FALSE;
   }
@@ -75,10 +74,10 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   if (bs < 0 || tables.Branches.size() <= bs) {
     return S_FALSE;
   }
-
+  auto cwd = std::filesystem::path(targetFile).parent_path().wstring();
   bela::EscapeArgv ea;
-  if (!settings.Terminal().empty()) {
-    ea.Assign(settings.Terminal());
+  if (settings.UseWindowsTerminal()) {
+    ea.Assign(settings.Terminal()).Append(L"--startingDirectory").Append(cwd).Append(L"--");
   }
   ea.Append(pwshexe)
       .Append(L"-NoLogo")
@@ -117,22 +116,21 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   if (Button_GetCheck(hcleanenv.hWnd) == BST_CHECKED) {
     ea.Append(L"-ClearEnv");
   }
-  if (!Execute(ea.data())) {
+  if (!Execute(ea.data(), cwd.data())) {
     auto ec = bela::make_system_error_code();
-    bela::BelaMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(),
-                         nullptr, bela::mbs_t::FATAL);
+    bela::BelaMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(), nullptr,
+                         bela::mbs_t::FATAL);
   }
   return S_OK;
 }
 
-LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
-                                 BOOL &bHandled) {
+LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &bHandled) {
 
   auto pwshexe = settings.PwshExePath();
   if (pwshexe.empty()) {
     bela::BelaMessageBox(m_hWnd, L"Unable to find installed powershell",
-                         L"Please check if powershell is installed correctly",
-                         nullptr, bela::mbs_t::FATAL);
+                         L"Please check if powershell is installed correctly", nullptr,
+                         bela::mbs_t::FATAL);
     return S_FALSE;
   }
 
@@ -146,8 +144,9 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   }
 
   bela::EscapeArgv ea;
-  if (!settings.Terminal().empty()) {
-    ea.Assign(settings.Terminal());
+  auto cwd = std::filesystem::path(targetFile).parent_path().wstring();
+  if (settings.UseWindowsTerminal()) {
+    ea.Assign(settings.Terminal()).Append(L"--startingDirectory").Append(cwd).Append(L"--");
   }
   ea.Append(pwshexe)
       .Append(L"-NoLogo")
@@ -164,10 +163,10 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl,
   if (Button_GetCheck(hcleanenv.hWnd) == BST_CHECKED) {
     ea.Append(L"-ClearEnv");
   }
-  if (!Execute(ea.data())) {
+  if (!Execute(ea.data(), cwd.data())) {
     auto ec = bela::make_system_error_code();
-    bela::BelaMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(),
-                         nullptr, bela::mbs_t::FATAL);
+    bela::BelaMessageBox(m_hWnd, L"CreateProcess failed", ec.message.data(), nullptr,
+                         bela::mbs_t::FATAL);
   }
   return S_OK;
 }
