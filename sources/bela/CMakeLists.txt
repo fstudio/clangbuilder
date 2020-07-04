@@ -1,7 +1,7 @@
 # top cmake
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.15)
 
-project(bela CXX)
+project(bela CXX C ASM)
 
 if( CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR AND NOT MSVC_IDE )
     message(FATAL_ERROR "In-source builds are not allowed.
@@ -20,7 +20,7 @@ if(NOT (DEFINED CMAKE_CXX_STANDARD))
 endif()
 
 if(CMAKE_CXX_STANDARD LESS 17 OR CMAKE_CXX_STANDARD STREQUAL "98")
-    message(FATAL_ERROR "bela requires c++17")
+    message(FATAL_ERROR "Bela requires C++17 or later")
 endif()
 
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
@@ -29,6 +29,7 @@ if(MSVC)
     add_compile_options("-utf-8")
     add_compile_options("-permissive-")
     add_compile_options("-Zc:__cplusplus")
+    add_compile_options("-W3")
     add_compile_options("-DUNICODE=1")
     add_compile_options("-D_UNICODE=1")
 endif(MSVC)
@@ -42,6 +43,7 @@ include_directories(
 add_subdirectory(src/bela)
 add_subdirectory(src/belawin)
 add_subdirectory(src/belashl)
+add_subdirectory(src/belahash)
 if(ENABLE_TEST)
     add_subdirectory(test)
 endif()
