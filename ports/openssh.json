@@ -3,5 +3,17 @@
     "version": "v8.1.0.0p1-Beta",
     "url": "https://github.com/PowerShell/Win32-OpenSSH/releases/download/v8.1.0.0p1-Beta/OpenSSH-Win32.zip",
     "url64": "https://github.com/PowerShell/Win32-OpenSSH/releases/download/v8.1.0.0p1-Beta/OpenSSH-Win64.zip",
-    "extension": "zip"
+    "extension": "zip",
+    "launchers": [
+        "scp.exe",
+        "sftp-server.exe",
+        "sftp.exe",
+        "ssh-add.exe",
+        "ssh-agent.exe",
+        "ssh-keygen.exe",
+        "ssh-keyscan.exe",
+        "ssh-shellhost.exe",
+        "ssh.exe",
+        "sshd.exe"
+    ]
 }
