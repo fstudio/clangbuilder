@@ -19,7 +19,7 @@ bool IsPwshEnabled() {
     return false;
   }
   try {
-    auto j = nlohmann::json::parse(fd.P());
+    auto j = nlohmann::json::parse(fd.P(), nullptr, true, true);
     return j["PwshCoreEnabled"].get<bool>();
   } catch (const std::exception &) {
     // fprintf(stderr, "debug %s\n", e.what());

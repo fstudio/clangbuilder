@@ -89,7 +89,7 @@ bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
     return false;
   }
   try {
-    auto j = nlohmann::json::parse(fd.P());
+    auto j = nlohmann::json::parse(fd.P(), nullptr, true, true);
 
     if (auto it = j.find("PwshCoreEnabled"); it != j.end()) {
       PwshCoreEnabled_ = it.value().get<bool>();
