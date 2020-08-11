@@ -122,7 +122,7 @@ bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
 
 // %LOCALAPPDATA%/Microsoft/WindowsApps
 bool Settings::InitializeWindowsTerminal() {
-  auto wt = bela::ExpandEnv(L"%LOCALAPPDATA%\\Microsoft\\WindowsApps\\wt.exe");
+  auto wt = bela::WindowsExpandEnv(L"%LOCALAPPDATA%\\Microsoft\\WindowsApps\\wt.exe");
   if (!bela::PathExists(wt)) {
     return false;
   }

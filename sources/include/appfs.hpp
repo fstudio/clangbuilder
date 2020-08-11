@@ -161,9 +161,9 @@ inline bool LookupClangbuilderTarget(std::wstring &root, std::wstring &targetFil
 
 inline bool LookupPwshCore(std::wstring &ps) {
   bool success = false;
-  auto psdir = bela::ExpandEnv(L"%ProgramFiles%\\Powershell");
+  auto psdir = bela::WindowsExpandEnv(L"%ProgramFiles%\\Powershell");
   if (!PathExists(psdir)) {
-    psdir = bela::ExpandEnv(L"%ProgramW6432%\\Powershell");
+    psdir = bela::WindowsExpandEnv(L"%ProgramW6432%\\Powershell");
     if (!PathExists(psdir)) {
       return false;
     }
