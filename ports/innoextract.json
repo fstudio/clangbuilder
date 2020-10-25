@@ -1,7 +1,8 @@
 {
     "description": "A tool to unpack installers created by Inno Setup.",
-    "version": "1.8",
-    "url": "https://github.com/dscharrer/innoextract/releases/download/1.8/innoextract-1.8-windows.zip",
+    "version": "1.9",
+    "url": "https://constexpr.org/innoextract/files/innoextract-1.9/innoextract-1.9-windows.zip",
+    "url.hash": "SHA256:6989342c9b026a00a72a38f23b62a8e6a22cc5de69805cf47d68ac2fec993065",
     "extension": "zip",
     "links": [
         "innoextract.exe"

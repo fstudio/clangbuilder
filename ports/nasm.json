@@ -1,10 +1,10 @@
 {
     "description": "NASM - The Netwide Assembler",
-    "version": "2.15.02",
-    "url": "https://www.nasm.us/pub/nasm/releasebuilds/2.15.02/win32/nasm-2.15.02-win32.zip",
-    "url.hash": "SHA256:7572486535c6e3c2b8d555e30c5a1c735dda00d5b3df75416275ba7cb83b603a",
-    "url64": "https://www.nasm.us/pub/nasm/releasebuilds/2.15.02/win64/nasm-2.15.02-win64.zip",
-    "url64.hash": "SHA256:3b86d997c0b84655130a6c96dcb376b3e29c8106e413f55e9670e656db495a35",
+    "version": "2.15.05",
+    "url": "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win32/nasm-2.15.05-win32.zip",
+    "url.hash": "SHA256:258c7d1076e435511cf2fdf94e2281eadbdb9e3003fd57f356f446e2bce3119e",
+    "url64": "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip",
+    "url64.hash": "SHA256:f5c93c146f52b4f1664fa3ce6579f961a910e869ab0dae431bd871bdd2584ef2",
     "extension": "zip",
     "launchers": [
         "nasm.exe",
