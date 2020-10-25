@@ -1,5 +1,6 @@
 #include <bela/simulator.hpp>
 #include <bela/process.hpp>
+#include <bela/terminal.hpp>
 
 int LinkToApp(wchar_t *env) {
   STARTUPINFOW si;
@@ -8,8 +9,7 @@ int LinkToApp(wchar_t *env) {
   SecureZeroMemory(&pi, sizeof(pi));
   si.cb = sizeof(si);
   wchar_t cmd[256] = L"pwsh";
-  if (!CreateProcessW(nullptr, cmd, nullptr, nullptr, FALSE, CREATE_UNICODE_ENVIRONMENT, env,
-                      nullptr, &si, &pi)) {
+  if (!CreateProcessW(nullptr, cmd, nullptr, nullptr, FALSE, CREATE_UNICODE_ENVIRONMENT, env, nullptr, &si, &pi)) {
     return -1;
   }
   CloseHandle(pi.hThread);
@@ -39,6 +39,8 @@ int wmain() {
   simulator.SetEnv(L"GOPROXY", L"https://goproxy.io/");
   simulator.PathAppend(L"C:\\Go\\bin");
   simulator.PathAppend(L"C:\\Go\\bin");
+  auto p = simulator.PathExpand(L"~/.ssh/id_ed25519.pub");
+  bela::FPrintF(stderr, L"[%s] Find ssh key: \x1b[32m%s\x1b[0m\n", simulator.GetEnv(L"USERPROFILE"), p);
   GoVersion(&simulator);
   CMDSet(&simulator);
   simulator.PathOrganize();

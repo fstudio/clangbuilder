@@ -10,8 +10,7 @@ inline bool is_shell_specia_var(wchar_t ch) {
 }
 
 inline bool is_alphanum(wchar_t ch) {
-  return (ch == '_' || (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z') ||
-          (ch >= 'A' && ch <= 'Z'));
+  return (ch == '_' || (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'));
 }
 
 std::wstring_view resovle_shell_name(std::wstring_view s, size_t &off) {
@@ -46,8 +45,7 @@ std::wstring_view resovle_shell_name(std::wstring_view s, size_t &off) {
   return s.substr(0, i);
 }
 
-std::wstring ExpandEnv(std::wstring_view raw) {
-  std::wstring w;
+void ExpandEnvInternal(std::wstring_view raw, std::wstring &w) {
   std::wstring save;
   w.reserve(raw.size() * 2);
   size_t i = 0;
@@ -70,7 +68,31 @@ std::wstring ExpandEnv(std::wstring_view raw) {
     }
   }
   w.append(raw.substr(i));
+}
+
+std::wstring ExpandEnv(std::wstring_view raw) {
+  std::wstring w;
+  ExpandEnvInternal(raw, w);
   return w;
+}
+
+std::wstring PathExpand(std::wstring_view raw) {
+  if (raw == L"~") {
+    return GetEnv(L"USERPROFILE");
+  }
+  std::wstring s;
+  if (bela::StartsWith(raw, L"~\\") || bela::StartsWith(raw, L"~/")) {
+    raw.remove_prefix(2);
+    s.assign(GetEnv(L"USERPROFILE")).push_back(L'\\');
+  }
+  ExpandEnvInternal(raw, s);
+  // replace
+  for (auto &c : s) {
+    if (c == '/') {
+      c = '\\';
+    }
+  }
+  return s;
 }
 
 constexpr std::wstring_view env_wstrings[] = {
@@ -151,8 +173,7 @@ inline bool ExistsEnv(std::wstring_view k) {
 
 bool cleanupPathExt(std::wstring_view pathext, std::vector<std::wstring> &exts) {
   constexpr std::wstring_view defaultexts[] = {L".com", L".exe", L".bat", L".cmd"};
-  std::vector<std::wstring_view> exts_ =
-      bela::StrSplit(pathext, bela::ByChar(bela::Separator), bela::SkipEmpty()); //
+  std::vector<std::wstring_view> exts_ = bela::StrSplit(pathext, bela::ByChar(bela::Separator), bela::SkipEmpty()); //
   if (exts_.empty()) {
     exts.assign(std::begin(defaultexts), std::end(defaultexts));
     return true;
@@ -174,8 +195,7 @@ inline bool HasExt(std::wstring_view file) {
   return false;
 }
 
-bool FindExecutable(std::wstring_view file, const std::vector<std::wstring> &exts,
-                    std::wstring &p) {
+bool FindExecutable(std::wstring_view file, const std::vector<std::wstring> &exts, std::wstring &p) {
   if (HasExt(file) && PathFileIsExists(file)) {
     p = file;
     return true;
@@ -221,8 +241,7 @@ bool Simulator::InitializeEnv() {
     auto val = entry.substr(pos + 1);
     lastch += len;
     if (bela::EqualsIgnoreCase(key, L"Path")) {
-      std::vector<std::wstring_view> paths_ =
-          bela::StrSplit(val, bela::ByChar(bela::Separator), bela::SkipEmpty());
+      std::vector<std::wstring_view> paths_ = bela::StrSplit(val, bela::ByChar(bela::Separator), bela::SkipEmpty());
       for (const auto p : paths_) {
         paths.emplace_back(bela::PathCat(p));
       }
@@ -292,9 +311,7 @@ bool Simulator::LookupPath(std::wstring_view cmd, std::wstring &exe) const {
 
 void Simulator::PathOrganize() {
   cachedEnv.clear();
-  bela::flat_hash_set<std::wstring, bela::env::StringCaseInsensitiveHash,
-                      bela::env::StringCaseInsensitiveEq>
-      sets;
+  bela::flat_hash_set<std::wstring, bela::env::StringCaseInsensitiveHash, bela::env::StringCaseInsensitiveEq> sets;
   std::vector<std::wstring> newpaths;
   sets.reserve(paths.size());
   for (auto &p : paths) {
@@ -309,7 +326,7 @@ void Simulator::PathOrganize() {
 }
 
 bool Simulator::ExpandEnv(std::wstring_view raw, std::wstring &w) const {
-  w.reserve(raw.size() * 2);
+  w.reserve(w.size() + raw.size() * 2);
   size_t i = 0;
   for (size_t j = 0; j < raw.size(); j++) {
     if (raw[j] == '$' && j + 1 < raw.size()) {
@@ -333,8 +350,7 @@ bool Simulator::ExpandEnv(std::wstring_view raw, std::wstring &w) const {
   return true;
 }
 
-bool ExecutableExistsInPath(std::wstring_view cmd, std::wstring &exe,
-                            const std::vector<std::wstring> &paths) {
+bool ExecutableExistsInPath(std::wstring_view cmd, std::wstring &exe, const std::vector<std::wstring> &paths) {
   std::vector<std::wstring> exts;
   cleanupPathExt(bela::GetEnv(L"PATHEXT"), exts);
   if (cmd.find_first_of(L":\\/") != std::wstring_view::npos) {
@@ -366,8 +382,7 @@ bool ExecutableExistsInPath(std::wstring_view cmd, std::wstring &exe) {
     return true;
   }
   auto path = GetEnv<4096>(L"PATH"); // 4K suggest.
-  std::vector<std::wstring_view> pathv =
-      bela::StrSplit(path, bela::ByChar(L';'), bela::SkipEmpty());
+  std::vector<std::wstring_view> pathv = bela::StrSplit(path, bela::ByChar(L';'), bela::SkipEmpty());
   for (auto p : pathv) {
     auto exefile = bela::StringCat(p, L"\\", cmd);
     if (FindExecutable(exefile, exts, exe)) {

@@ -35,12 +35,14 @@ int main() {
 }
 ```
 
-If you save the example code above as `example.c`, and you're on x86\_64
-with a Unix-like OS, you can compile a working binary like this:
+The code above is included in this directory as `example.c`. If you're
+on x86\_64 with a Unix-like OS, you can compile a working binary like
+this:
 
 ```bash
 gcc -O3 -o example example.c blake3.c blake3_dispatch.c blake3_portable.c \
-    blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S blake3_avx512_x86-64_unix.S
+    blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
+    blake3_avx512_x86-64_unix.S
 ```
 
 # API
@@ -70,6 +72,8 @@ void blake3_hasher_init(
 
 Initialize a `blake3_hasher` in the default hashing mode.
 
+---
+
 ```c
 void blake3_hasher_update(
   blake3_hasher *self,
@@ -78,6 +82,8 @@ void blake3_hasher_update(
 ```
 
 Add input to the hasher. This can be called any number of times.
+
+---
 
 ```c
 void blake3_hasher_finalize(
@@ -102,20 +108,48 @@ void blake3_hasher_init_keyed(
 Initialize a `blake3_hasher` in the keyed hashing mode. The key must be
 exactly 32 bytes.
 
+---
+
 ```c
 void blake3_hasher_init_derive_key(
   blake3_hasher *self,
   const char *context);
 ```
 
-Initialize a `blake3_hasher` in the key derivation mode. Key material
-should be given as input after initialization, using
-`blake3_hasher_update`. `context` is a standard C string of any length,
-and the terminating null byte is not included. The context string should
-be hardcoded, globally unique, and application-specific. A good default
-format for the context string is `"[application] [commit timestamp]
-[purpose]"`, e.g., `"example.com 2019-12-25 16:18:03 session tokens
-v1"`.
+Initialize a `blake3_hasher` in the key derivation mode. The context
+string is given as an initialization parameter, and afterwards input key
+material should be given with `blake3_hasher_update`. The context string
+is a null-terminated C string which should be **hardcoded, globally
+unique, and application-specific**. The context string should not
+include any dynamic input like salts, nonces, or identifiers read from a
+database at runtime. A good default format for the context string is
+`"[application] [commit timestamp] [purpose]"`, e.g., `"example.com
+2019-12-25 16:18:03 session tokens v1"`.
+
+This function is intended for application code written in C. For
+language bindings, see `blake3_hasher_init_derive_key_raw` below.
+
+---
+
+```c
+void blake3_hasher_init_derive_key_raw(
+  blake3_hasher *self,
+  const void *context,
+  size_t context_len);
+```
+
+As `blake3_hasher_init_derive_key` above, except that the context string
+is given as a pointer to an array of arbitrary bytes with a provided
+length. This is intended for writing language bindings, where C string
+conversion would add unnecessary overhead and new error cases. Unicode
+strings should be encoded as UTF-8.
+
+Application code in C should prefer `blake3_hasher_init_derive_key`,
+which takes the context as a C string. If you need to use arbitrary
+bytes as a context string in application code, consider whether you're
+violating the requirement that context strings should be hardcoded.
+
+---
 
 ```c
 void blake3_hasher_finalize_seek(
@@ -144,23 +178,24 @@ by hand. Note that these steps may change in future versions.
 Dynamic dispatch is enabled by default on x86. The implementation will
 query the CPU at runtime to detect SIMD support, and it will use the
 widest instruction set available. By default, `blake3_dispatch.c`
-expects to be linked with code for four different instruction sets:
-portable C, SSE4.1, AVX2, and AVX-512.
+expects to be linked with code for five different instruction sets:
+portable C, SSE2, SSE4.1, AVX2, and AVX-512.
 
 For each of the x86 SIMD instruction sets, two versions are available,
-one in assembly (with three flavors: Unix, Windows MSVC, and Windows
-GNU) and one using C intrinsics. The assembly versions are generally
-preferred: they perform better, they perform more consistently across
-different compilers, and they build more quickly. On the other hand, the
-assembly versions are x86\_64-only, and you need to select the right
-flavor for your target platform.
+one in assembly (which is further divided into three flavors: Unix,
+Windows MSVC, and Windows GNU) and one using C intrinsics. The assembly
+versions are generally preferred: they perform better, they perform more
+consistently across different compilers, and they build more quickly. On
+the other hand, the assembly versions are x86\_64-only, and you need to
+select the right flavor for your target platform.
 
 Here's an example of building a shared library on x86\_64 Linux using
 the assembly implementations:
 
 ```bash
 gcc -shared -O3 -o libblake3.so blake3.c blake3_dispatch.c blake3_portable.c \
-    blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S blake3_avx512_x86-64_unix.S
+    blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
+    blake3_avx512_x86-64_unix.S
 ```
 
 When building the intrinsics-based implementations, you need to build
@@ -169,26 +204,27 @@ explicitly enabled in the compiler. Here's the same shared library using
 the intrinsics-based implementations:
 
 ```bash
+gcc -c -fPIC -O3 -msse2 blake3_sse2.c -o blake3_sse2.o
 gcc -c -fPIC -O3 -msse4.1 blake3_sse41.c -o blake3_sse41.o
 gcc -c -fPIC -O3 -mavx2 blake3_avx2.c -o blake3_avx2.o
 gcc -c -fPIC -O3 -mavx512f -mavx512vl blake3_avx512.c -o blake3_avx512.o
 gcc -shared -O3 -o libblake3.so blake3.c blake3_dispatch.c blake3_portable.c \
-    blake3_avx2.o blake3_avx512.o blake3_sse41.o
+    blake3_avx2.o blake3_avx512.o blake3_sse41.o blake3_sse2.o
 ```
 
 Note above that building `blake3_avx512.c` requires both `-mavx512f` and
-`-mavx512vl` under GCC and Clang, as shown above. Under MSVC, the single
-`/arch:AVX512` flag is sufficient. The MSVC equivalent of `-mavx2` is
-`/arch:AVX2`. MSVC enables SSE4.1 by defaut, and it doesn't have a
+`-mavx512vl` under GCC and Clang. Under MSVC, the single `/arch:AVX512`
+flag is sufficient. The MSVC equivalent of `-mavx2` is `/arch:AVX2`.
+MSVC enables SSE2 and SSE4.1 by defaut, and it doesn't have a
 corresponding flag.
 
-If you want to omit SIMD code on x86, you need to explicitly disable
+If you want to omit SIMD code entirely, you need to explicitly disable
 each instruction set. Here's an example of building a shared library on
 x86 with only portable code:
 
 ```bash
-gcc -shared -O3 -o libblake3.so -DBLAKE3_NO_SSE41 -DBLAKE3_NO_AVX2 -DBLAKE3_NO_AVX512 \
-    blake3.c blake3_dispatch.c blake3_portable.c
+gcc -shared -O3 -o libblake3.so -DBLAKE3_NO_SSE2 -DBLAKE3_NO_SSE41 -DBLAKE3_NO_AVX2 \
+    -DBLAKE3_NO_AVX512 blake3.c blake3_dispatch.c blake3_portable.c
 ```
 
 ## ARM NEON
@@ -230,5 +266,5 @@ and their performance is the same if you use the assembly
 implementations or if you compile the intrinsics-based implementations
 with Clang. (Both Clang and rustc are LLVM-based.)
 
-The C implementation doesn't currently support multi-threading. OpenMP
-support or similar might be added in the future.
+The C implementation doesn't currently include any multithreading
+optimizations. OpenMP support or similar might be added in the future.
