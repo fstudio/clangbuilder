@@ -34,6 +34,11 @@ struct error_code {
   explicit operator bool() const noexcept { return code != None; }
 };
 
+inline bela::error_code make_error_code(const AlphaNum &a) {
+  // error code ==1
+  return bela::error_code{std::wstring(a.Piece()), 1};
+}
+
 inline bela::error_code make_error_code(long code, const AlphaNum &a) {
   return bela::error_code{std::wstring(a.Piece()), code};
 }
@@ -64,7 +69,8 @@ bela::error_code make_error_code(long code, const AlphaNum &a, const AlphaNum &b
                                  AV... av) {
   bela::error_code ec;
   ec.code = code;
-  ec.message = strings_internal::CatPieces({a, b, c, d, av...});
+  ec.message = strings_internal::CatPieces(
+      {a.Piece(), b.Piece(), c.Piece(), d.Piece(), static_cast<const AlphaNum &>(av).Piece()...});
   return ec;
 }
 

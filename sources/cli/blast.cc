@@ -28,24 +28,25 @@ example:
   bela::FPrintF(stderr, L"%s\n", kusage);
 }
 
-int dumpexejson(bela::pe::Attributes &pe) {
+int dumpexejson(const bela::pe::File &pe, const bela::pe::FunctionTable &ft) {
   try {
     nlohmann::json j;
-    j["Machine"] = bela::ToNarrow(clangbuilder::Machine(static_cast<uint32_t>(pe.machine)));
-    j["Subsystem"] = bela::ToNarrow(clangbuilder::Subsystem(static_cast<uint32_t>(pe.subsystem)));
+    j["Machine"] = bela::ToNarrow(clangbuilder::Machine(static_cast<uint32_t>(pe.Machine())));
+    j["Subsystem"] = bela::ToNarrow(clangbuilder::Subsystem(static_cast<uint32_t>(pe.Subsystem())));
     j["Depends"] = nlohmann::json::array();
     auto &depends = j["Depends"];
-    for (const auto &d : pe.depends) {
-      // vscode-cpptools BUG !!!
-      depends.emplace_back(bela::ToNarrow(d));
+
+    for (const auto &d : ft.imports) {
+      depends.emplace_back(d.first);
     }
     j["Delay"] = nlohmann::json::array();
     auto &delays = j["Delay"];
-    for (const auto &d : pe.delays) {
-      delays.emplace_back(bela::ToNarrow(d));
+    for (const auto &d : ft.delayimprots) {
+      delays.emplace_back(d.first);
     }
-    j["DllCharacteristics"] = pe.dllcharacteristics;
-    j["Characteristics"] = pe.characteristics;
+    j["DllCharacteristics"] =
+        pe.Is64Bit() ? pe.Oh64()->DllCharacteristics : pe.Oh32()->DllCharacteristics;
+    j["Characteristics"] = pe.Fh().Characteristics;
     bela::FPrintF(stdout, L"%s\n", j.dump(4)); /// output
   } catch (const std::exception &e) {
     bela::FPrintF(stderr, L"unable parse exe: %s\n", e.what());
@@ -56,28 +57,43 @@ int dumpexejson(bela::pe::Attributes &pe) {
 
 int dumpexe(std::wstring_view exe, bool tojson) {
   bela::error_code ec;
-  auto pe = bela::pe::Expose(exe, ec);
+  auto pe = bela::pe::NewFile(exe, ec);
   if (!pe) {
     bela::FPrintF(stderr, L"unable parse exe: %s\n", ec.message);
     return -1;
   }
+  bela::pe::FunctionTable ft;
+  if (!pe->LookupFunctionTable(ft, ec)) {
+    bela::FPrintF(stderr, L"unable lookup function table: %s\n", ec.message);
+    return -1;
+  }
   if (tojson) {
-    return dumpexejson(*pe);
+    return dumpexejson(*pe, ft);
   }
   bela::FPrintF(stdout, L"Machine:    %s\n",
-                clangbuilder::Machine(static_cast<uint32_t>(pe->machine)));
+                clangbuilder::Machine(static_cast<uint32_t>(pe->Machine())));
   bela::FPrintF(stdout, L"Subsystem:  %s\n",
-                clangbuilder::Subsystem(static_cast<uint32_t>(pe->subsystem)));
-  if (!pe->depends.empty()) {
-    bela::FPrintF(stdout, L"Depends:    %s\n", pe->depends[0]);
-    for (size_t i = 1; i < pe->depends.size(); i++) {
-      bela::FPrintF(stdout, L"            %s\n", pe->depends[i]);
+                clangbuilder::Subsystem(static_cast<uint32_t>(pe->Subsystem())));
+  if (!ft.imports.empty()) {
+    int i = 0;
+    for (const auto &im : ft.imports) {
+      i++;
+      if (i == 1) {
+        bela::FPrintF(stdout, L"Depeneds:   %s\n", im.first);
+        continue;
+      }
+      bela::FPrintF(stdout, L"            %s\n", im.first);
     }
   }
-  if (!pe->delays.empty()) {
-    bela::FPrintF(stdout, L"Delays:     %s\n", pe->delays[0]);
-    for (size_t i = 1; i < pe->delays.size(); i++) {
-      bela::FPrintF(stdout, L"            %s\n", pe->delays[i]);
+  if (!ft.delayimprots.empty()) {
+    int i = 0;
+    for (const auto &im : ft.delayimprots) {
+      i++;
+      if (i == 1) {
+        bela::FPrintF(stdout, L"Delay:      %s\n", im.first);
+        continue;
+      }
+      bela::FPrintF(stdout, L"            %s\n", im.first);
     }
   }
   return 0;
