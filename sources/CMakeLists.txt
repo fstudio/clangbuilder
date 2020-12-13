@@ -34,7 +34,7 @@ set(CPACK_PACKAGE_CONTACT "Force Charlie")
 
 include(CPack)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 include(CheckIPOSupported)

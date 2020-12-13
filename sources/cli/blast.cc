@@ -4,6 +4,7 @@
 #include <bela/path.hpp>
 #include <bela/parseargv.hpp>
 #include <filesystem>
+#include <hazel/fs.hpp>
 #include <json.hpp>
 #include "pe.hpp"
 // version
@@ -57,23 +58,23 @@ int dumpexejson(const bela::pe::File &pe, const bela::pe::FunctionTable &ft) {
 
 int dumpexe(std::wstring_view exe, bool tojson) {
   bela::error_code ec;
-  auto pe = bela::pe::NewFile(exe, ec);
-  if (!pe) {
+  bela::pe::File file;
+  if (!file.NewFile(exe, ec)) {
     bela::FPrintF(stderr, L"unable parse exe: %s\n", ec.message);
     return -1;
   }
   bela::pe::FunctionTable ft;
-  if (!pe->LookupFunctionTable(ft, ec)) {
+  if (!file.LookupFunctionTable(ft, ec)) {
     bela::FPrintF(stderr, L"unable lookup function table: %s\n", ec.message);
     return -1;
   }
   if (tojson) {
-    return dumpexejson(*pe, ft);
+    return dumpexejson(file, ft);
   }
   bela::FPrintF(stdout, L"Machine:    %s\n",
-                clangbuilder::Machine(static_cast<uint32_t>(pe->Machine())));
+                clangbuilder::Machine(static_cast<uint32_t>(file.Machine())));
   bela::FPrintF(stdout, L"Subsystem:  %s\n",
-                clangbuilder::Subsystem(static_cast<uint32_t>(pe->Subsystem())));
+                clangbuilder::Subsystem(static_cast<uint32_t>(file.Subsystem())));
   if (!ft.imports.empty()) {
     int i = 0;
     for (const auto &im : ft.imports) {
@@ -100,17 +101,17 @@ int dumpexe(std::wstring_view exe, bool tojson) {
 }
 
 bool analyzefile(std::wstring_view src, bool tojson) {
-  bela::ReparsePoint rp;
+  hazel::fs::FileReparsePoint fp;
   bela::error_code ec;
-  if (!rp.Analyze(src, ec)) {
+  if (!hazel::fs::LookupReparsePoint(src, fp, ec)) {
     bela::FPrintF(stderr, L"unable resolve %s error: %s\n", src, ec.message);
     return false;
   }
   if (tojson) {
     try {
       nlohmann::json j;
-      for (const auto &e : rp.Attributes()) {
-        j[bela::ToNarrow(e.name)] = bela::ToNarrow(e.value);
+      for (const auto &[name, value] : fp.attributes) {
+        j[bela::ToNarrow(name)] = bela::ToNarrow(value);
       }
       bela::FPrintF(stdout, L"%s\n", j.dump(4)); /// output
     } catch (const std::exception &e) {
@@ -123,12 +124,12 @@ bool analyzefile(std::wstring_view src, bool tojson) {
   std::wstring s(alignsize, L' ');
   std::wstring_view sv = s;
   bela::FPrintF(stdout, L"%s:\n", src);
-  for (const auto &e : rp.Attributes()) {
-    if (e.name.size() >= alignsize) {
-      bela::FPrintF(stdout, L"%s: %s\n", e.name, e.value);
+  for (const auto &[name, value] : fp.attributes) {
+    if (name.size() >= alignsize) {
+      bela::FPrintF(stdout, L"%s: %s\n", name, value);
       continue;
     }
-    bela::FPrintF(stdout, L"%s:%s%s\n", e.name, sv.substr(0, alignsize - e.name.size()), e.value);
+    bela::FPrintF(stdout, L"%s:%s%s\n", name, sv.substr(0, alignsize - name.size()), value);
   }
   return true;
 }

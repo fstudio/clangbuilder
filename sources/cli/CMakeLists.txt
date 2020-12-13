@@ -45,6 +45,7 @@ if(lto_supported)
 endif()
 
 target_link_libraries(blast
+  hazel
   belawin
 )
 
