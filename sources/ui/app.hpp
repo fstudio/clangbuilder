@@ -19,7 +19,7 @@ struct rgb {
 
 // swap to LE
 inline COLORREF calcLuminance(UINT32 cr) {
-  cr = bela::swaple(cr);
+  cr = bela::fromle(cr);
   int r = (cr & 0xff0000) >> 16;
   int g = (cr & 0xff00) >> 8;
   int b = (cr & 0xff);
