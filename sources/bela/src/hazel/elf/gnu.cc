@@ -1,6 +1,5 @@
 ///
 #include <hazel/elf.hpp>
-#include "internal.hpp"
 
 namespace hazel::elf {
 bool File::gnuVersionInit(std::span<const uint8_t> str) {
@@ -8,9 +7,7 @@ bool File::gnuVersionInit(std::span<const uint8_t> str) {
     // Already initialized
     return true;
   }
-  std::string_view sv{reinterpret_cast<const char *>(str.data()), str.size()};
-  if (sv.size() > 100) {
-  }
+  bela::bytes_view bv(str);
   auto vn = SectionByType(SHT_GNU_verneed);
   if (vn == nullptr) {
     return false;
@@ -33,7 +30,7 @@ bool File::gnuVersionInit(std::span<const uint8_t> str) {
     auto fileoff = cast_from<uint32_t>(d.data() + i + 4);
     auto aux = cast_from<uint32_t>(d.data() + i + 8);
     auto next = cast_from<uint32_t>(d.data() + i + 12);
-    auto file = getString(str, static_cast<int>(fileoff));
+    auto file = bv.make_cstring_view(fileoff);
     auto j = i + static_cast<int>(aux);
     for (auto c = 0; c < cnt; c++) {
       if (j + 16 > sz) {
@@ -44,7 +41,7 @@ bool File::gnuVersionInit(std::span<const uint8_t> str) {
       auto ndx = static_cast<int>(cast_from<uint16_t>(d.data() + j + 6));
       auto nameoff = cast_from<uint32_t>(d.data() + j + 8);
       auto ndxNext = cast_from<uint32_t>(d.data() + j + 12);
-      auto name = getString(str, static_cast<int>(nameoff));
+      auto name = bv.make_cstring_view(nameoff);
       if (static_cast<size_t>(ndx) >= gnuNeed.size()) {
         gnuNeed.resize(2 * (ndx + 1));
       }
@@ -93,9 +90,10 @@ bool File::ImportedSymbols(std::vector<ImportedSymbol> &symbols, bela::error_cod
   for (int i = 0; i < static_cast<int>(syms.size()); i++) {
     const auto &s = syms[i];
     if (SymBind(s.Info) == STB_GLOBAL && s.SectionIndex == SHN_UNDEF) {
-      symbols.emplace_back(ImportedSymbol{s.Name});
-      auto &back = symbols.back();
-      gnuVersion(i, back.Library, back.Version);
+      ImportedSymbol is;
+      is.Name = s.Name;
+      gnuVersion(i, is.Library, is.Version);
+      symbols.emplace_back(std::move(is));
     }
   }
   return true;
