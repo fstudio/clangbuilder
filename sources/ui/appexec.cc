@@ -76,8 +76,14 @@ LRESULT MainWindow::OnBuildNow(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &b
   }
   auto cwd = std::filesystem::path(targetFile).parent_path().wstring();
   bela::EscapeArgv ea;
-  if (settings.UseWindowsTerminal()) {
-    ea.Assign(settings.Terminal()).Append(L"--startingDirectory").Append(cwd).Append(L"--");
+  auto term = settings.Terminal();
+  if (!term.empty()) {
+    ea.Assign(settings.Terminal())
+        .Append(L"--title")
+        .Append(L"Clangbuilder 💘 Terminal")
+        .Append(L"--startingDirectory")
+        .Append(cwd)
+        .Append(L"--");
   }
   ea.Append(pwshexe)
       .Append(L"-NoLogo")
@@ -145,8 +151,14 @@ LRESULT MainWindow::OnStartupEnv(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL 
 
   bela::EscapeArgv ea;
   auto cwd = std::filesystem::path(targetFile).parent_path().wstring();
-  if (settings.UseWindowsTerminal()) {
-    ea.Assign(settings.Terminal()).Append(L"--startingDirectory").Append(cwd).Append(L"--");
+  auto term = settings.Terminal();
+  if (!term.empty()) {
+    ea.Assign(settings.Terminal())
+        .Append(L"--title")
+        .Append(L"Clangbuilder 💘 Terminal")
+        .Append(L"--startingDirectory")
+        .Append(cwd)
+        .Append(L"--");
   }
   ea.Append(pwshexe)
       .Append(L"-NoLogo")

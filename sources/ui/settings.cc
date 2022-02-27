@@ -91,9 +91,6 @@ bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
   try {
     auto j = nlohmann::json::parse(fd.P(), nullptr, true, true);
 
-    if (auto it = j.find("PwshCoreEnabled"); it != j.end()) {
-      PwshCoreEnabled_ = it.value().get<bool>();
-    }
     if (auto it = j.find("EnterpriseWDK"); it != j.end()) {
       ewdkroot = bela::ToWide(it.value().get<std::string>());
     }
@@ -127,13 +124,12 @@ bool Settings::InitializeWindowsTerminal() {
     return false;
   }
   terminal.assign(std::move(wt));
-  UseWindowsTerminal_ = true;
   return true;
 }
 
 std::wstring Settings::PwshExePath() {
   std::wstring pwshexe;
-  if (PwshCoreEnabled_ && clangbuilder::LookupPwshCore(pwshexe)) {
+  if (clangbuilder::LookupPwshCore(pwshexe)) {
     return pwshexe;
   }
   if (clangbuilder::LookupPwshDesktop(pwshexe)) {

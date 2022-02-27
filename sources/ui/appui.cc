@@ -19,18 +19,16 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #define HINST_THISCOMPONENT ((HINSTANCE)&__ImageBase)
 #endif
 
-constexpr const auto noresizewnd = (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU |
-                                    WS_CLIPCHILDREN | WS_MINIMIZEBOX);
+constexpr const auto noresizewnd =
+    (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN | WS_MINIMIZEBOX);
 constexpr const auto wexstyle =
     WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR | WS_EX_NOPARENTNOTIFY;
 
-constexpr const auto cbstyle = WS_CHILDWINDOW | WS_CLIPSIBLINGS | WS_VISIBLE |
-                               WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS;
-constexpr const auto chboxstyle = BS_PUSHBUTTON | BS_TEXT | BS_DEFPUSHBUTTON |
-                                  BS_CHECKBOX | BS_AUTOCHECKBOX | WS_CHILD |
-                                  WS_OVERLAPPED | WS_VISIBLE;
-constexpr const auto pbstyle =
-    BS_PUSHBUTTON | BS_TEXT | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE;
+constexpr const auto cbstyle =
+    WS_CHILDWINDOW | WS_CLIPSIBLINGS | WS_VISIBLE | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS;
+constexpr const auto chboxstyle = BS_PUSHBUTTON | BS_TEXT | BS_DEFPUSHBUTTON | BS_CHECKBOX |
+                                  BS_AUTOCHECKBOX | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE;
+constexpr const auto pbstyle = BS_PUSHBUTTON | BS_TEXT | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE;
 
 // Resources Safe Release
 template <typename I> inline void Free(I **i) {
@@ -60,13 +58,13 @@ MainWindow::~MainWindow() {
 LRESULT MainWindow::InitializeWindow() {
   bela::error_code ec;
   if (!clangbuilder::LookupClangbuilderTarget(root, targetFile, ec)) {
-    bela::BelaMessageBox(nullptr, L"Clangbuilder Error", ec.message.data(),
-                         nullptr, bela::mbs_t::FATAL);
+    bela::BelaMessageBox(nullptr, L"Clangbuilder Error", ec.message.data(), nullptr,
+                         bela::mbs_t::FATAL);
     return S_FALSE;
   }
   settings.Initialize(root, [this](const std::wstring &message) {
-    bela::BelaMessageBox(nullptr, L"Unable parse settings.json", message.data(),
-                         nullptr, bela::mbs_t::FATAL);
+    bela::BelaMessageBox(nullptr, L"Unable parse settings.json", message.data(), nullptr,
+                         bela::mbs_t::FATAL);
   });
   if (CreateDeviceIndependentResources() != S_OK) {
     return S_FALSE;
@@ -90,10 +88,9 @@ HRESULT MainWindow::CreateDeviceIndependentResources() {
   if (FAILED(hr)) {
     return hr;
   }
-  hr = writeFactory->CreateTextFormat(
-      L"Segoe UI", NULL, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL,
-      DWRITE_FONT_STRETCH_NORMAL, 12.0f * 96.0f / 72.0f, L"zh-CN",
-      &writeTextFormat);
+  hr = writeFactory->CreateTextFormat(L"Segoe UI", NULL, DWRITE_FONT_WEIGHT_NORMAL,
+                                      DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+                                      12.0f * 96.0f / 72.0f, L"zh-CN", &writeTextFormat);
   return hr;
 }
 
@@ -105,22 +102,19 @@ HRESULT MainWindow::CreateDeviceResources() {
   RECT rc;
   ::GetClientRect(m_hWnd, &rc);
   D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top);
-  hr = m_pFactory->CreateHwndRenderTarget(
-      D2D1::RenderTargetProperties(),
-      D2D1::HwndRenderTargetProperties(m_hWnd, size), &renderTarget);
+  hr = m_pFactory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),
+                                          D2D1::HwndRenderTargetProperties(m_hWnd, size),
+                                          &renderTarget);
   renderTarget->SetDpi(static_cast<float>(dpiX), static_cast<float>(dpiX));
   if (SUCCEEDED(hr)) {
     if (settings.SetWindowCompositionAttributeEnabled()) {
-      hr = renderTarget->CreateSolidColorBrush(
-          D2D1::ColorF(D2D1::ColorF::DarkOrange), &textBrush);
+      hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkOrange), &textBrush);
     } else {
-      hr = renderTarget->CreateSolidColorBrush(
-          D2D1::ColorF(D2D1::ColorF::Black), &textBrush);
+      hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &textBrush);
     }
   }
   if (SUCCEEDED(hr)) {
-    hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(0xFFC300),
-                                             &borderBrush);
+    hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(0xFFC300), &borderBrush);
   }
   return hr;
 }
@@ -145,18 +139,17 @@ HRESULT MainWindow::OnRender() {
   } else {
     renderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
   }
-  renderTarget->DrawRectangle(
-      D2D1::RectF(20, 10, dsz.width - 20, dsz.height - 20), borderBrush, 1.0);
+  renderTarget->DrawRectangle(D2D1::RectF(20, 10, dsz.width - 20, dsz.height - 20), borderBrush,
+                              1.0);
 
-  renderTarget->DrawLine(D2D1::Point2F(20, 220),
-                         D2D1::Point2F(dsz.width - 20, 220), borderBrush, 1.0);
+  renderTarget->DrawLine(D2D1::Point2F(20, 220), D2D1::Point2F(dsz.width - 20, 220), borderBrush,
+                         1.0);
 
   for (const auto &label : labels) {
     if (label.empty()) {
       continue;
     }
-    renderTarget->DrawTextW(label.data(), label.length(), writeTextFormat,
-                            label.F(), textBrush,
+    renderTarget->DrawTextW(label.data(), label.length(), writeTextFormat, label.F(), textBrush,
                             D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT,
                             DWRITE_MEASURING_MODE_NATURAL);
   }
@@ -190,13 +183,11 @@ HRESULT MainWindow::InitializeControl() {
 
   if (!InitializeElemets()) {
     bela::BelaMessageBox(m_hWnd, L"Not Found any Visual Studio",
-                         L"Please check visual studio is installed", nullptr,
-                         bela::mbs_t::FATAL);
+                         L"Please check visual studio is installed", nullptr, bela::mbs_t::FATAL);
   }
 
   for (const auto &i : search.Instances()) {
-    ::SendMessage(hvsbox.hWnd, CB_ADDSTRING, 0,
-                  (LPARAM)(i.DisplayName.c_str()));
+    ::SendMessage(hvsbox.hWnd, CB_ADDSTRING, 0, (LPARAM)(i.DisplayName.c_str()));
   }
   auto index = search.Index();
   ::SendMessage(hvsbox.hWnd, CB_SETCURSEL, (WPARAM)(index), 0);
@@ -258,8 +249,7 @@ bool UpdateFontWithNewDPI(HFONT &hFont, int dpiY) {
 /*
  *  Message Action Function
  */
-LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                             BOOL &bHandle) {
+LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle) {
   // Adjust window initialize use real DPI
   dpiX = GetDpiForWindow(m_hWnd);
   dpiY = dpiX;
@@ -267,21 +257,19 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
   int cx = rect.right - rect.left;
   auto w = MulDiv(700, dpiX, 96);
-  ::SetWindowPos(m_hWnd, nullptr, (cx - w) / 2, MulDiv(100, dpiX, 96), w,
-                 MulDiv(540, dpiX, 96), SWP_NOZORDER | SWP_NOACTIVATE);
+  ::SetWindowPos(m_hWnd, nullptr, (cx - w) / 2, MulDiv(100, dpiX, 96), w, MulDiv(540, dpiX, 96),
+                 SWP_NOZORDER | SWP_NOACTIVATE);
   UpdateFontWithNewDPI(hFont, dpiY);
 
   // change UI style
   HICON hIcon = LoadIconW(hInst, MAKEINTRESOURCEW(IDI_CLANGBUILDERUI));
   SetIcon(hIcon, TRUE);
   //
-  auto MakeWindow = [&](LPCWSTR lpClassName, LPCWSTR lpWindowName,
-                        DWORD dwStyle, int X, int Y, int nWidth, int nHeight,
-                        HMENU hMenu, Widget &w) {
-    auto hw = CreateWindowExW(
-        wexstyle, lpClassName, lpWindowName, dwStyle, MulDiv(X, dpiX, 96),
-        MulDiv(Y, dpiY, 96), MulDiv(nWidth, dpiX, 96),
-        MulDiv(nHeight, dpiY, 96), m_hWnd, hMenu, hInst, nullptr);
+  auto MakeWindow = [&](LPCWSTR lpClassName, LPCWSTR lpWindowName, DWORD dwStyle, int X, int Y,
+                        int nWidth, int nHeight, HMENU hMenu, Widget &w) {
+    auto hw = CreateWindowExW(wexstyle, lpClassName, lpWindowName, dwStyle, MulDiv(X, dpiX, 96),
+                              MulDiv(Y, dpiY, 96), MulDiv(nWidth, dpiX, 96),
+                              MulDiv(nHeight, dpiY, 96), m_hWnd, hMenu, hInst, nullptr);
     if (hw == nullptr) {
       return false;
     }
@@ -297,32 +285,28 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   // combobox
   MakeWindow(WC_COMBOBOXW, L"", cbstyle, 200, 20, 400, 30, nullptr, hvsbox);
   MakeWindow(WC_COMBOBOXW, L"", cbstyle, 200, 60, 400, 30, nullptr, htargetbox);
-  MakeWindow(WC_COMBOBOXW, L"", cbstyle, 200, 100, 400, 30, nullptr,
-             hconfigbox);
-  MakeWindow(WC_COMBOBOXW, L"", chboxstyle, 200, 140, 400, 30, nullptr,
-             hbranchbox);
-  MakeWindow(WC_COMBOBOXW, L"", chboxstyle, 200, 180, 400, 30,
-             (HMENU)IDM_ENGINE_COMBOX, hbuildbox);
+  MakeWindow(WC_COMBOBOXW, L"", cbstyle, 200, 100, 400, 30, nullptr, hconfigbox);
+  MakeWindow(WC_COMBOBOXW, L"", chboxstyle, 200, 140, 400, 30, nullptr, hbranchbox);
+  MakeWindow(WC_COMBOBOXW, L"", chboxstyle, 200, 180, 400, 30, (HMENU)IDM_ENGINE_COMBOX, hbuildbox);
 
   // button
-  MakeWindow(WC_BUTTONW, L"Build Libcxx on Windows", chboxstyle, 200, 230, 360,
-             27, nullptr, hlibcxx);
+  MakeWindow(WC_BUTTONW, L"Build Libcxx on Windows", chboxstyle, 200, 230, 360, 27, nullptr,
+             hlibcxx);
   hlibcxx.Enable(false); // disable libcxx by default
-  MakeWindow(WC_BUTTONW, L"Clang/LLVM bootstrap with ThinLTO", chboxstyle, 200,
-             260, 360, 27, nullptr, hlto);
-  MakeWindow(WC_BUTTONW, L"Create Installation Package", chboxstyle, 200, 290,
-             360, 27, nullptr, hcpack);
-  MakeWindow(WC_BUTTONW, L"Use Clean Environment (Env)", chboxstyle, 200, 320,
-             360, 27, nullptr, hcleanenv);
-  MakeWindow(WC_BUTTONW, L"Build LLDB (Visual Studio 2017 or Later)",
-             chboxstyle, 200, 350, 360, 27, nullptr, hlldb);
+  MakeWindow(WC_BUTTONW, L"Clang/LLVM bootstrap with ThinLTO", chboxstyle, 200, 260, 360, 27,
+             nullptr, hlto);
+  MakeWindow(WC_BUTTONW, L"Create Installation Package", chboxstyle, 200, 290, 360, 27, nullptr,
+             hcpack);
+  MakeWindow(WC_BUTTONW, L"Use Clean Environment (Env)", chboxstyle, 200, 320, 360, 27, nullptr,
+             hcleanenv);
+  MakeWindow(WC_BUTTONW, L"Build LLDB (Visual Studio 2017 or Later)", chboxstyle, 200, 350, 360, 27,
+             nullptr, hlldb);
   // Button_SetElevationRequiredState
-  MakeWindow(WC_BUTTONW, L"Building", pbstyle, 200, 430, 195, 30,
-             (HMENU)IDC_BUTTON_STARTTASK, hbuildtask);
-  LPCWSTR terminal =
-      settings.UseWindowsTerminal() ? L"Windows Terminal" : L"Windows Console";
-  MakeWindow(WC_BUTTONW, terminal, pbstyle | BS_ICON, 405, 430, 195, 30,
-             (HMENU)IDC_BUTTON_STARTENV, hbuildenv);
+  MakeWindow(WC_BUTTONW, L"Building", pbstyle, 200, 430, 195, 30, (HMENU)IDC_BUTTON_STARTTASK,
+             hbuildtask);
+  LPCWSTR terminal = L"Windows Terminal";
+  MakeWindow(WC_BUTTONW, terminal, pbstyle | BS_ICON, 405, 430, 195, 30, (HMENU)IDC_BUTTON_STARTENV,
+             hbuildenv);
 
   HMENU hSystemMenu = ::GetSystemMenu(m_hWnd, FALSE);
   InsertMenuW(hSystemMenu, SC_CLOSE, MF_ENABLED, IDM_CLANGBUILDER_ABOUT,
@@ -357,43 +341,36 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam,
   return S_OK;
 }
 
-LRESULT MainWindow::OnDestroy(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                              BOOL &bHandle) {
+LRESULT MainWindow::OnDestroy(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle) {
   PostQuitMessage(0);
   return S_OK;
 }
 
-LRESULT MainWindow::OnClose(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                            BOOL &bHandle) {
+LRESULT MainWindow::OnClose(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle) {
   ::DestroyWindow(m_hWnd);
   return S_OK;
 }
 
-LRESULT MainWindow::OnSize(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                           BOOL &bHandle) {
+LRESULT MainWindow::OnSize(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle) {
   UINT width = LOWORD(lParam);
   UINT height = HIWORD(lParam);
   OnResize(width, height);
   return S_OK;
 }
-LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                                 BOOL &bHandle) {
+LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle) {
   dpiX = static_cast<UINT32>(LOWORD(wParam));
   dpiY = static_cast<UINT32>(HIWORD(wParam));
   auto prcNewWindow = reinterpret_cast<RECT *const>(lParam);
   // resize window with new DPI
   ::SetWindowPos(m_hWnd, nullptr, prcNewWindow->left, prcNewWindow->top,
-                 prcNewWindow->right - prcNewWindow->left,
-                 prcNewWindow->bottom - prcNewWindow->top,
+                 prcNewWindow->right - prcNewWindow->left, prcNewWindow->bottom - prcNewWindow->top,
                  SWP_NOZORDER | SWP_NOACTIVATE);
   UpdateFontWithNewDPI(hFont, dpiY);
   renderTarget->SetDpi(static_cast<float>(dpiX), static_cast<float>(dpiY));
   auto UpdateWindowPos = [&](const Widget &w) {
-    ::SetWindowPos(w.hWnd, NULL, MulDiv(w.layout.left, dpiX, 96),
-                   MulDiv(w.layout.top, dpiY, 96),
+    ::SetWindowPos(w.hWnd, NULL, MulDiv(w.layout.left, dpiX, 96), MulDiv(w.layout.top, dpiY, 96),
                    MulDiv(w.layout.right - w.layout.left, dpiX, 96),
-                   MulDiv(w.layout.bottom - w.layout.top, dpiY, 96),
-                   SWP_NOZORDER | SWP_NOACTIVATE);
+                   MulDiv(w.layout.bottom - w.layout.top, dpiY, 96), SWP_NOZORDER | SWP_NOACTIVATE);
     ::SendMessageW(w.hWnd, WM_SETFONT, (WPARAM)hFont, TRUE);
   };
   UpdateWindowPos(hvsbox);
@@ -411,8 +388,7 @@ LRESULT MainWindow::OnDpiChanged(UINT nMsg, WPARAM wParam, LPARAM lParam,
   return S_OK;
 }
 
-LRESULT MainWindow::OnPaint(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                            BOOL &bHandle) {
+LRESULT MainWindow::OnPaint(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle) {
   LRESULT hr = S_OK;
   PAINTSTRUCT ps;
   BeginPaint(&ps);
@@ -422,15 +398,13 @@ LRESULT MainWindow::OnPaint(UINT nMsg, WPARAM wParam, LPARAM lParam,
   return hr;
 }
 
-LRESULT MainWindow::OnCtlColorStatic(UINT nMsg, WPARAM wParam, LPARAM lParam,
-                                     BOOL &bHandle) {
+LRESULT MainWindow::OnCtlColorStatic(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandle) {
   return S_OK;
 }
 
-LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
-                                   BOOL &bHandled) {
-  bela::BelaMessageBox(m_hWnd, L"About Clangbuilder", CLANGBUILDER_APPVERSION,
-                       CLANGBUILDER_APPLINK, bela::mbs_t::ABOUT);
+LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &bHandled) {
+  bela::BelaMessageBox(m_hWnd, L"About Clangbuilder", CLANGBUILDER_APPVERSION, CLANGBUILDER_APPLINK,
+                       bela::mbs_t::ABOUT);
   return S_OK;
 }
 
@@ -438,8 +412,7 @@ LRESULT MainWindow::OnSysMemuAbout(WORD wNotifyCode, WORD wID, HWND hWndCtl,
  * ClangbuilderTarget.ps1
  */
 
-LRESULT MainWindow::OnChangeEngine(WORD wNotifyCode, WORD wID, HWND hWndCtl,
-                                   BOOL &bHandled) {
+LRESULT MainWindow::OnChangeEngine(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &bHandled) {
   if (wNotifyCode == CBN_SELCHANGE) {
     auto N = ComboBox_GetCurSel(hbuildbox.hWnd);
     hlibcxx.Enable(N == 1 || N == 3);

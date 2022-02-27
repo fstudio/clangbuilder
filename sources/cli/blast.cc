@@ -45,8 +45,8 @@ int dumpexejson(const bela::pe::File &pe, const bela::pe::FunctionTable &ft) {
     for (const auto &d : ft.delayimprots) {
       delays.emplace_back(d.first);
     }
-    j["DllCharacteristics"] =
-        pe.Is64Bit() ? pe.Oh64()->DllCharacteristics : pe.Oh32()->DllCharacteristics;
+    j["DllCharacteristics"] = pe.Header().DllCharacteristics;
+    // pe.Is64Bit() ? pe.Oh64()->DllCharacteristics : pe.Oh32()->DllCharacteristics;
     j["Characteristics"] = pe.Fh().Characteristics;
     bela::FPrintF(stdout, L"%s\n", j.dump(4)); /// output
   } catch (const std::exception &e) {

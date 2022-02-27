@@ -181,13 +181,18 @@ Function InitializeVisualStudio {
     if ($InstanceId -eq "VisualStudio.EWDK") {
         return (InitializeEnterpriseWDK -ClangbuilderRoot $ClangbuilderRoot -Arch $Arch)
     }
+    $vswhere = "vswhere"
+    $vswhereCommand = Get-Command -ErrorAction SilentlyContinue "vswhere"
+    if ($null -eq $vswhereCommand) {
+        $vswhere = Join-Path ${env:ProgramFiles(x86)} -ChildPath "Microsoft Visual Studio\Installer\vswhere.exe"
+    }
     $vsinstances = $null
     #Write-Host "$InstallationVersion"
     if ($InstanceId.StartsWith("VisualStudio.")) {
-        $vsinstances = vswhere -products * -prerelease -legacy -format json | ConvertFrom-Json
+        $vsinstances = &$vswhere -products * -prerelease -legacy -format json | ConvertFrom-Json
     }
     else {
-        $vsinstances = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64  -format json | ConvertFrom-Json
+        $vsinstances = &$vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64  -format json | ConvertFrom-Json
     }
     #Microsoft.VisualStudio.Component.VC.Tools.x86.x64
     if ($null -eq $vsinstances -or $vsinstances.Count -eq 0) {
@@ -231,12 +236,17 @@ Function DefaultVisualStudio {
             $Arch = "x86"
         }
     }
+    $vswhere = "vswhere"
+    $vswhereCommand = Get-Command -ErrorAction SilentlyContinue "vswhere"
+    if ($null -eq $vswhereCommand) {
+        $vswhere = Join-Path ${env:ProgramFiles(x86)} -ChildPath "Microsoft Visual Studio\Installer\vswhere.exe"
+    }
     $vsinstalls = $null
     try {
         # Found not preleased
-        $vsinstalls = vswhere -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json | ConvertFrom-Json
+        $vsinstalls = &$vswhere -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json | ConvertFrom-Json
         if ($vsinstalls.Count -eq 0) {
-            $vsinstalls = vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json | ConvertFrom-Json
+            $vsinstalls = &$vswhere -products * -prerelease -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json | ConvertFrom-Json
         }
     }
     catch {
@@ -251,7 +261,7 @@ Function DefaultVisualStudio {
     $Preversion = 1602
     for ($i = 0; $i -lt $vsinstalls.Count; $i++) {
         $vv = $vsinstalls.installationVersion.Split(".")
-        $ver = [int]$vv[0]*100 + [int]$vv[1]
+        $ver = [int]$vv[0] * 100 + [int]$vv[1]
         if ($ver -ge $Preversion) {
             $Pos = $i
             $Preversion = $ver
