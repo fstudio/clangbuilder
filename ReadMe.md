@@ -261,7 +261,7 @@ Function Parallel() {
 
 License: MIT  
 Author: Force.Charlie  
-Copyright © 2020 Force Charlie. All Rights Reserved.
+Copyright © 2022 Force Charlie. All Rights Reserved.
 
 ## Other
 
