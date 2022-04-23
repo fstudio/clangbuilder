@@ -37,11 +37,9 @@ public:
       return E_FAIL;
     }
   }
-  HRESULT CoCreateInstance(REFCLSID clsid, IUnknown *pUnknown,
-                           REFIID interfaceId,
+  HRESULT CoCreateInstance(REFCLSID clsid, IUnknown *pUnknown, REFIID interfaceId,
                            DWORD dwClsContext = CLSCTX_ALL) {
-    HRESULT hr = ::CoCreateInstance(clsid, pUnknown, dwClsContext, interfaceId,
-                                    (void **)&ptr);
+    HRESULT hr = ::CoCreateInstance(clsid, pUnknown, dwClsContext, interfaceId, (void **)&ptr);
     return hr;
   }
   ~comptr() {

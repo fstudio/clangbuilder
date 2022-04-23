@@ -101,13 +101,13 @@ inline bool LookupVersionFromFile(std::wstring_view file, std::wstring &ver) {
   if (buf[0] == 0xEF && buf[1] == 0xBB && buf[2] == 0xBF) {
     auto p = reinterpret_cast<char *>(buf + 3);
     std::string_view s(p, dwr - 3);
-    ver = bela::ToWide(s);
+    ver = bela::encode_into<char, wchar_t>(s);
     return true;
   }
   // UTF-8 (ASCII)
   auto p = reinterpret_cast<char *>(buf);
   std::string_view s(p, dwr);
-  ver = bela::ToWide(s);
+  ver = bela::encode_into<char, wchar_t>(s);
   return true;
 }
 

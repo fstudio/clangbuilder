@@ -32,8 +32,10 @@ example:
 int dumpexejson(const bela::pe::File &pe, const bela::pe::FunctionTable &ft) {
   try {
     nlohmann::json j;
-    j["Machine"] = bela::ToNarrow(clangbuilder::Machine(static_cast<uint32_t>(pe.Machine())));
-    j["Subsystem"] = bela::ToNarrow(clangbuilder::Subsystem(static_cast<uint32_t>(pe.Subsystem())));
+    j["Machine"] = bela::encode_into<wchar_t, char>(
+        clangbuilder::Machine(static_cast<uint32_t>(pe.Machine())));
+    j["Subsystem"] = bela::encode_into<wchar_t, char>(
+        clangbuilder::Subsystem(static_cast<uint32_t>(pe.Subsystem())));
     j["Depends"] = nlohmann::json::array();
     auto &depends = j["Depends"];
 
@@ -111,7 +113,7 @@ bool analyzefile(std::wstring_view src, bool tojson) {
     try {
       nlohmann::json j;
       for (const auto &[name, value] : fp.attributes) {
-        j[bela::ToNarrow(name)] = bela::ToNarrow(value);
+        j[bela::encode_into<wchar_t, char>(name)] = bela::encode_into<wchar_t, char>(value);
       }
       bela::FPrintF(stdout, L"%s\n", j.dump(4)); /// output
     } catch (const std::exception &e) {

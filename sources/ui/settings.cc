@@ -92,7 +92,7 @@ bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
     auto j = nlohmann::json::parse(fd.P(), nullptr, true, true);
 
     if (auto it = j.find("EnterpriseWDK"); it != j.end()) {
-      ewdkroot = bela::ToWide(it.value().get<std::string>());
+      ewdkroot = bela::encode_into<char, wchar_t>(it.value().get<std::string_view>());
     }
 
     if (auto it = j.find("SetWindowCompositionAttribute"); it != j.end()) {
@@ -104,14 +104,14 @@ bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
       }
     }
     if (auto it = j.find("Conhost"); it != j.end()) {
-      auto conhost = bela::ToWide(it.value().get<std::string>());
+      auto conhost = bela::encode_into<char, wchar_t>(it.value().get<std::string_view>());
       if (bela::PathExists(conhost)) {
         terminal.assign(std::move(conhost));
       }
     }
 
   } catch (const std::exception &e) {
-    call(bela::ToWide(e.what()));
+    call(bela::encode_into<char, wchar_t>(e.what()));
     return false;
   }
   return true;

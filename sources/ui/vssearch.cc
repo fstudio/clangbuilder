@@ -22,8 +22,7 @@ std::wstring FsVisualStudioVersion(std::wstring_view vsdir) {
 }
 
 inline bool DirSkipFaster(const wchar_t *dir) {
-  return (dir[0] == L'.' &&
-          (dir[1] == L'\0' || (dir[1] == L'.' && dir[2] == L'\0')));
+  return (dir[0] == L'.' && (dir[1] == L'\0' || (dir[1] == L'.' && dir[2] == L'\0')));
 }
 
 // Dirname like version
@@ -60,31 +59,26 @@ std::wstring FsUniqueSubdirName(std::wstring_view dir) {
   return name;
 }
 
-bool VisualStudioSeacher::EnterpriseWDK(std::wstring_view ewdkroot,
-                                        clangbuilder::VSInstance &vsi) {
+bool VisualStudioSeacher::EnterpriseWDK(std::wstring_view ewdkroot, clangbuilder::VSInstance &vsi) {
   if (ewdkroot.empty()) {
     return false;
   }
-  auto vsdir =
-      bela::StringCat(ewdkroot, L"\\Program Files\\Microsoft Visual Studio");
+  auto vsdir = bela::StringCat(ewdkroot, L"\\Program Files\\Microsoft Visual Studio");
   if (!clangbuilder::PathExists(vsdir)) {
     return false;
   }
   auto product = FsUniqueSubdirName(vsdir);
-  vsi.VSInstallLocation =
-      bela::StringCat(vsdir, L"\\", product, L"\\BuildTools");
+  vsi.VSInstallLocation = bela::StringCat(vsdir, L"\\", product, L"\\BuildTools");
   vsi.Version = FsVisualStudioVersion(vsi.VSInstallLocation);
-  auto incdir =
-      bela::StringCat(ewdkroot, L"\\Program Files\\Windows Kits\\10\\include");
+  auto incdir = bela::StringCat(ewdkroot, L"\\Program Files\\Windows Kits\\10\\include");
   auto sdkver = FsUniqueSubdirName(incdir);
-  vsi.DisplayName = bela::StringCat(L"Visual Studio BuildTools ", product,
-                                    L" (Enterprise WDK ", sdkver, L")");
+  vsi.DisplayName =
+      bela::StringCat(L"Visual Studio BuildTools ", product, L" (Enterprise WDK ", sdkver, L")");
   vsi.InstanceId.assign(L"VisualStudio.EWDK");
   return true;
 }
 
-bool VisualStudioSeacher::Execute(std::wstring_view root,
-                                  std::wstring_view ewdkroot) {
+bool VisualStudioSeacher::Execute(std::wstring_view root, std::wstring_view ewdkroot) {
   clangbuilder::VisualStudioNativeSearcher vns;
 
   if (!vns.GetVSInstanceAll(instances)) {
