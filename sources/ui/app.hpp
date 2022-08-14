@@ -73,7 +73,6 @@ public:
   Settings(const Settings &) = delete;
   Settings &operator=(const Settings &) = delete;
   bool Initialize(std::wstring_view root, const invoke_t &call);
-  bool SetWindowCompositionAttributeEnabled() const { return SetWindowCompositionAttribute_; }
   std::wstring PwshExePath();
   std::wstring_view EnterpriseWDK() const { return ewdkroot; }
   std::wstring_view Terminal() const { return terminal; }
@@ -82,8 +81,6 @@ private:
   bool InitializeWindowsTerminal();
   std::wstring ewdkroot;
   std::wstring terminal;
-  bool SetWindowCompositionAttribute_{false};
 };
-bool SetWindowCompositionAttributeImpl(HWND hWnd);
 
 #endif

@@ -61,27 +61,6 @@ typedef struct _ACCENT_POLICY {
   int32_t nAnimationId;      // Nobody knows how this value works
 } ACCENT_POLICY;
 
-bool SetWindowCompositionAttributeImpl(HWND hWnd) {
-  typedef BOOL(WINAPI * pSetWindowCompositionAttribute)(HWND, WINDOWCOMPOSITIONATTRIBDATA *);
-  bool result = false;
-  const HINSTANCE hModule = LoadLibrary(TEXT("user32.dll")); // LoadLibrary need free
-  const pSetWindowCompositionAttribute SetWindowCompositionAttribute =
-      (pSetWindowCompositionAttribute)GetProcAddress(hModule, "SetWindowCompositionAttribute");
-
-  // Only works on Win10
-  if (SetWindowCompositionAttribute) {
-    ACCENT_POLICY policy = {ACCENT_ENABLE_FLUENT, 2, 0, 0};
-    policy.nColor = (0x01 << 24) + (calcLuminance(0x808080) & 0x00FFFFFF);
-    WINDOWCOMPOSITIONATTRIBDATA data;
-    data.Attrib = WCA_ACCENT_POLICY;
-    data.pvData = &policy;
-    data.cbData = sizeof(policy);
-    result = SetWindowCompositionAttribute(hWnd, &data);
-  }
-  FreeLibrary(hModule);
-  return result;
-}
-
 bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
   auto file = bela::StringCat(root, L"\\config\\settings.json");
   clangbuilder::FD fd;
@@ -95,9 +74,6 @@ bool Settings::Initialize(std::wstring_view root, const invoke_t &call) {
       ewdkroot = bela::encode_into<char, wchar_t>(it.value().get<std::string_view>());
     }
 
-    if (auto it = j.find("SetWindowCompositionAttribute"); it != j.end()) {
-      SetWindowCompositionAttribute_ = it.value().get<bool>();
-    }
     if (auto it = j.find("UseWindowsTerminal"); it != j.end() && it.value().get<bool>()) {
       if (InitializeWindowsTerminal()) {
         return true;

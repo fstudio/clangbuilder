@@ -12,6 +12,7 @@
 #include <array>
 #include <appfs.hpp>
 #include <bela/picker.hpp>
+#include <graphics.hpp>
 #include "appui.hpp"
 
 #ifndef HINST_THISCOMPONENT
@@ -107,11 +108,7 @@ HRESULT MainWindow::CreateDeviceResources() {
                                           &renderTarget);
   renderTarget->SetDpi(static_cast<float>(dpiX), static_cast<float>(dpiX));
   if (SUCCEEDED(hr)) {
-    if (settings.SetWindowCompositionAttributeEnabled()) {
-      hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkOrange), &textBrush);
-    } else {
-      hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &textBrush);
-    }
+    hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &textBrush);
   }
   if (SUCCEEDED(hr)) {
     hr = renderTarget->CreateSolidColorBrush(D2D1::ColorF(0xFFC300), &borderBrush);
@@ -134,11 +131,7 @@ HRESULT MainWindow::OnRender() {
   auto dsz = renderTarget->GetSize();
   renderTarget->BeginDraw();
   renderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-  if (settings.SetWindowCompositionAttributeEnabled()) {
-    // renderTarget->Clear();
-  } else {
-    renderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
-  }
+  renderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White, 1.0f));
   renderTarget->DrawRectangle(D2D1::RectF(20, 10, dsz.width - 20, dsz.height - 20), borderBrush,
                               1.0);
 
@@ -318,26 +311,10 @@ LRESULT MainWindow::OnCreate(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL &bHan
   labels.emplace_back(30, 140, 190, 170, L"Branches\t\t\u26A1:");     //⚡
   labels.emplace_back(30, 180, 190, 210, L"Engine\t\t\U0001f6e0:");   //🛠
   labels.emplace_back(30, 230, 190, 270, L"Build Options\t\u2611:");  //☑
-  if (settings.SetWindowCompositionAttributeEnabled()) {
-    if (!SetWindowCompositionAttributeImpl(m_hWnd)) {
-      auto ec = bela::make_system_error_code();
-      ::MessageBoxW(m_hWnd, ec.data(), L"unable set composition", MB_OK);
-    }
-    SetWindowCompositionAttributeImpl(hvsbox.hWnd);
-    SetWindowCompositionAttributeImpl(htargetbox.hWnd);
-    SetWindowCompositionAttributeImpl(hconfigbox.hWnd);
-    SetWindowCompositionAttributeImpl(hbranchbox.hWnd);
-    SetWindowCompositionAttributeImpl(hbuildbox.hWnd);
-    SetWindowCompositionAttributeImpl(hlibcxx.hWnd);
-    SetWindowCompositionAttributeImpl(hlto.hWnd);
-    SetWindowCompositionAttributeImpl(hcpack.hWnd);
-    SetWindowCompositionAttributeImpl(hcleanenv.hWnd);
-    SetWindowCompositionAttributeImpl(hlldb.hWnd);
-    SetWindowCompositionAttributeImpl(hbuildtask.hWnd);
-    SetWindowCompositionAttributeImpl(hbuildenv.hWnd);
-  }
   if (FAILED(InitializeControl())) {
+    return S_FALSE;
   }
+  // baulk::windows::EnableMicaMaterials(m_hWnd);
   return S_OK;
 }
 

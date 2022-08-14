@@ -22,6 +22,7 @@ target_link_libraries(ClangbuilderUI
   Pathcch
   shcore
   Winmm
+  dwmapi
   comctl32
   ole32.lib
   comsupp.lib
